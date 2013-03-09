@@ -1003,6 +1003,7 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
+%config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) /usr/lib/sysctl.d/coredump.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
@@ -1045,10 +1046,13 @@ fi
 %{_bindir}/systemd-loginctl
 %{_bindir}/hostnamectl
 %{_bindir}/localectl
+%{_bindir}/kernel-install
+%{_bindir}/bootctl
 %{_bindir}/systemd-coredumpctl
 %{_bindir}/timedatectl
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-ac-power
+%{systemd_libdir}/systemd-activate
 %{systemd_libdir}/systemd-bootchart
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-c*
@@ -1100,6 +1104,7 @@ fi
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-*
+%{_mandir}/man8/kernel-install.*
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
@@ -1132,6 +1137,8 @@ fi
 %{uclibc_root}/sbin/systemd-machine-id-setup
 %{uclibc_root}%{_bindir}/hostnamectl
 %{uclibc_root}%{_bindir}/localectl
+%{uclibc_root}%{_bindir}/bootctl
+%{uclibc_root}%{_bindir}/kernel-install
 %{uclibc_root}%{_bindir}/systemd-coredumpctl
 %{uclibc_root}%{_bindir}/systemd-delta
 %{uclibc_root}%{_bindir}/systemd-detect-virt
@@ -1217,6 +1224,7 @@ fi
 %{_libdir}/libsystemd-daemon.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-daemon.so
+%{uclibc_root}%{_libdir}/libsystemd-daemon.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
 %{_datadir}/pkgconfig/systemd.pc
@@ -1237,6 +1245,7 @@ fi
 %{_libdir}/libsystemd-login.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-login.so
+%{uclibc_root}%{_libdir}/libsystemd-login.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-login.pc
 
@@ -1254,6 +1263,7 @@ fi
 %{_libdir}/libsystemd-journal.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-journal.so
+%{uclibc_root}%{_libdir}/libsystemd-journal.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-journal.pc
 
@@ -1271,6 +1281,7 @@ fi
 %{_libdir}/libsystemd-id128.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-id128.so
+%{uclibc_root}%{_libdir}/libsystemd-id128.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-id128.pc
 
