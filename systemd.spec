@@ -511,7 +511,7 @@ This package contains documentation of udev.
 %apply_patches
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
-autoreconf -fi -I m4
+./autogen.sh
 
 %build
 %serverbuild_hardened
