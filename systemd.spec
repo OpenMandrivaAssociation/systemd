@@ -651,10 +651,6 @@ popd
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 
-# use consistent naming and permissions for completion scriplets
-mv %{buildroot}%{_sysconfdir}/bash_completion.d/systemd-bash-completion.sh %{buildroot}%{_sysconfdir}/bash_completion.d/systemd
-chmod 644 %{buildroot}%{_sysconfdir}/bash_completion.d/systemd
-
 # (tpg) use systemd's own mounting capability
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/systemd/system.conf
 sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
@@ -1163,10 +1159,11 @@ fi
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
-%dir %{_sysconfdir}/bash_completion.d
+%dir %{_datadir}/bash-completion
+%dir %{_datadir}/bash-completion/completions
 
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
-%{_sysconfdir}/bash_completion.d/systemd
+%{_datadir}/bash-completion/completions/*
 
 /bin/systemctl
 %{_bindir}/systemctl
