@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	198
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -809,6 +809,9 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
+%_pre_groupadd systemd-journal %{_var}/run/%{name}-journal /bin/false
+%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
+%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 
 %post
