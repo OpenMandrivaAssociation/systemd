@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	198
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -156,10 +156,10 @@ Conflicts:	initscripts < 9.24
 Conflicts:	udev < 186-5
 %if %mdvver >= 201300
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
-Provides:	consolekit = 0.4.5-5
-Provides:	consolekit-x11 = 0.4.5-5
-Obsoletes:	consolekit <= 0.4.5-4
-Obsoletes:	consolekit-x11 <= 0.4.5-4
+Provides:	consolekit = 0.4.5-6
+Provides:	consolekit-x11 = 0.4.5-6
+Obsoletes:	consolekit <= 0.4.5-5
+Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
