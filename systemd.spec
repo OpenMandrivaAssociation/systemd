@@ -42,8 +42,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	197
-Release:	14
+Version:	198
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -83,10 +83,10 @@ Patch104:	systemd-186-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch105:	systemd-196-support-build-without-secure_getenv.patch
 Patch106:	systemd-191-uclibc-no-mkostemp.patch
-Patch107:	systemd-191-link-against-librt.patch
+#Patch107:	systemd-191-link-against-librt.patch
 # (tpg) https://bugs.freedesktop.org/show_bug.cgi?id=57887
 # reverts commit http://cgit.freedesktop.org/systemd/systemd/commit?id=978cf3c75fbd94fd0e046206ada6169b35edd919
-Patch108:	systemd-197-dont-loose-active-session-after-su.patch
+#Patch108:	systemd-197-dont-loose-active-session-after-su.patch
 
 #Fedora patchset
 # (tpg) disable for now
@@ -116,6 +116,7 @@ BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(gtk+-2.0)
+BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
 %endif
@@ -155,10 +156,10 @@ Conflicts:	initscripts < 9.24
 Conflicts:	udev < 186-5
 %if %mdvver >= 201300
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
-Provides:	consolekit = 0.4.5-5
-Provides:	consolekit-x11 = 0.4.5-5
-Obsoletes:	consolekit <= 0.4.5-4
-Obsoletes:	consolekit-x11 <= 0.4.5-4
+Provides:	consolekit = 0.4.5-6
+Provides:	consolekit-x11 = 0.4.5-6
+Obsoletes:	consolekit <= 0.4.5-5
+Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
@@ -510,7 +511,8 @@ This package contains documentation of udev.
 %apply_patches
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
-autoreconf -fi -I m4
+intltoolize --force --automake
+autoreconf --force --install --symlink
 
 %build
 %serverbuild_hardened
@@ -653,10 +655,6 @@ popd
 
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
-
-# use consistent naming and permissions for completion scriplets
-mv %{buildroot}%{_sysconfdir}/bash_completion.d/systemd-bash-completion.sh %{buildroot}%{_sysconfdir}/bash_completion.d/systemd
-chmod 644 %{buildroot}%{_sysconfdir}/bash_completion.d/systemd
 
 # (tpg) use systemd's own mounting capability
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/systemd/system.conf
@@ -815,6 +813,9 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
+%_pre_groupadd systemd-journal systemd-journal
+%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
+%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 
 %post
@@ -1009,6 +1010,7 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
+%config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) /usr/lib/sysctl.d/coredump.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
@@ -1051,10 +1053,13 @@ fi
 %{_bindir}/systemd-loginctl
 %{_bindir}/hostnamectl
 %{_bindir}/localectl
+%{_bindir}/kernel-install
+%{_bindir}/bootctl
 %{_bindir}/systemd-coredumpctl
 %{_bindir}/timedatectl
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-ac-power
+%{systemd_libdir}/systemd-activate
 %{systemd_libdir}/systemd-bootchart
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-c*
@@ -1106,6 +1111,7 @@ fi
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-*
+%{_mandir}/man8/kernel-install.*
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
@@ -1138,6 +1144,8 @@ fi
 %{uclibc_root}/sbin/systemd-machine-id-setup
 %{uclibc_root}%{_bindir}/hostnamectl
 %{uclibc_root}%{_bindir}/localectl
+%{uclibc_root}%{_bindir}/bootctl
+%{uclibc_root}%{_bindir}/kernel-install
 %{uclibc_root}%{_bindir}/systemd-coredumpctl
 %{uclibc_root}%{_bindir}/systemd-delta
 %{uclibc_root}%{_bindir}/systemd-detect-virt
@@ -1166,10 +1174,11 @@ fi
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
-%dir %{_sysconfdir}/bash_completion.d
+%dir %{_datadir}/bash-completion
+%dir %{_datadir}/bash-completion/completions
 
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
-%{_sysconfdir}/bash_completion.d/systemd
+%{_datadir}/bash-completion/completions/*
 
 /bin/systemctl
 %{_bindir}/systemctl
@@ -1222,6 +1231,7 @@ fi
 %{_libdir}/libsystemd-daemon.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-daemon.so
+%{uclibc_root}%{_libdir}/libsystemd-daemon.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
 %{_datadir}/pkgconfig/systemd.pc
@@ -1242,6 +1252,7 @@ fi
 %{_libdir}/libsystemd-login.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-login.so
+%{uclibc_root}%{_libdir}/libsystemd-login.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-login.pc
 
@@ -1259,6 +1270,7 @@ fi
 %{_libdir}/libsystemd-journal.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-journal.so
+%{uclibc_root}%{_libdir}/libsystemd-journal.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-journal.pc
 
@@ -1276,6 +1288,7 @@ fi
 %{_libdir}/libsystemd-id128.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd-id128.so
+%{uclibc_root}%{_libdir}/libsystemd-id128.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-id128.pc
 
