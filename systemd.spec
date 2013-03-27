@@ -65,8 +65,6 @@ Source12:	99-default.preset
 Source13:	systemd.rpmlintrc
 ### SYSTEMD ###
 
-# (bor) clean up directories on boot as done by rc.sysinit
-Patch0:		systemd-18-clean-dirs-on-boot.patch
 Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
 #Patch2:		systemd-33-rc-local.patch
 Patch3:		0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
