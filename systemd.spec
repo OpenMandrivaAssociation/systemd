@@ -505,6 +505,8 @@ Group:		Books/Computer books
 This package contains documentation of udev.
 
 %prep
+echo do not push yet before issues with is fixed...
+exit 1
 %setup -q
 %apply_patches
 find src/ -name "*.vala" -exec touch '{}' \;
