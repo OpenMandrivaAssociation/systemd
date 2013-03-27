@@ -42,8 +42,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	198
-Release:	4
+Version:	199
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -76,7 +76,7 @@ Patch3:		0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 ### UDEV ###
 # from Mandriva
 # disable coldplug for storage and device pci
-Patch100:	udev-182-coldplug.patch
+Patch100:	udev-199-coldplug.patch
 # (proyvind):	FIXME: setting udev_log to 'info' royally screws everything up
 #		for some reason, revert to 'err' for now..
 Patch104:	systemd-186-set-udev_log-to-err.patch
@@ -591,7 +591,7 @@ popd
 %makeinstall_std -C uclibc
 mv %{buildroot}/bin %{buildroot}%{uclibc_root}/bin
 mkdir -p %{buildroot}%{uclibc_root}/sbin
-mv %{buildroot}%{uclibc_root}%{_bindir}/udevadm %{buildroot}%{uclibc_root}/sbin
+mv %{buildroot}%{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
 rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
 rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
 %endif
@@ -753,7 +753,7 @@ install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
 
 # unless we make a decission to merge /*bin with /usr/*bin, we'll aim for FHS
 # compliance and make sure to keep thing in their traditional locations
-mv %{buildroot}%{_bindir}/udevadm %{buildroot}/sbin
+mv %{buildroot}/bin/udevadm %{buildroot}/sbin
 # probably not required, but let's just be on the safe side for now..
 ln -sf /sbin/udevadm %{buildroot}%{_bindir}/udevadm
 ln -sf /sbin/udevadm %{buildroot}%{_sbindir}/udevadm
@@ -1012,7 +1012,8 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
-%config(noreplace) /usr/lib/sysctl.d/coredump.conf
+%config(noreplace) /usr/lib/sysctl.d/50-coredump.conf
+%config(noreplace) /usr/lib/sysctl.d/50-default.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
