@@ -301,7 +301,7 @@ functionality of the GNU C Library (glibc) providing host name
 resolution for the locally configured system hostname as returned by
 gethostname(2).
 
-%if %{with_uclibc}
+%if %{with uclibc}
 %package -n uclibc-%{libnss_myhostname}
 Summary:	Library for local system host name resolution (uClibc linked)
 Group:		System/Libraries
