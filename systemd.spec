@@ -594,7 +594,7 @@ popd
 %makeinstall_std -C uclibc
 mv %{buildroot}/bin %{buildroot}%{uclibc_root}/bin
 mkdir -p %{buildroot}%{uclibc_root}/sbin
-mv %{buildroot}%{uclibc_root}%{_bindir}/udevadm %{buildroot}%{uclibc_root}/sbin
+mv %{buildroot}%{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
 rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
 rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
 %endif
@@ -754,16 +754,14 @@ install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
 install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
 
-# unless we make a decission to merge /*bin with /usr/*bin, we'll aim for FHS
-# compliance and make sure to keep thing in their traditional locations
-mv %{buildroot}%{_bindir}/udevadm %{buildroot}/sbin
 # probably not required, but let's just be on the safe side for now..
-ln -sf /sbin/udevadm %{buildroot}%{_bindir}/udevadm
-ln -sf /sbin/udevadm %{buildroot}%{_sbindir}/udevadm
+ln -sf /bin/udevadm %{buildroot}/sbin/udevadm
+ln -sf /bin/udevadm %{buildroot}%{_bindir}/udevadm
+ln -sf /bin/udevadm %{buildroot}%{_sbindir}/udevadm
 
 # (tpg) this is needed, because udevadm is in /sbin
 # altering the path allows to boot on before root pivot
-sed -i -e 's#/usr/bin/udevadm#/sbin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
+sed -i -e 's#/usr/bin/udevadm#/bin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
 
 mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
@@ -826,7 +824,7 @@ systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket sys
 /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/usr/bin/udevadm hwdb --update >/dev/null 2>&1 || :
+/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
 /usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) this is needed for rsyslog
@@ -1312,7 +1310,7 @@ fi
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 
 %{systemd_libdir}/systemd-udevd
-%{_bindir}/udevadm
+/bin/udevadm
 %attr(0755,root,root) /sbin/udevadm
 %attr(0755,root,root) %{_sbindir}/udevadm
 %attr(0755,root,root) /sbin/udevd
