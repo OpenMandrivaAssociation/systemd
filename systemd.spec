@@ -515,6 +515,9 @@ intltoolize --force --automake
 autoreconf --force --install --symlink
 
 %build
+%ifarch %arm
+export ac_cv_func_malloc_0_nonnull=yes
+%endif
 %serverbuild_hardened
 
 export CONFIGURE_TOP="$PWD"
