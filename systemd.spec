@@ -214,7 +214,6 @@ Summary:	Non essential systemd tools
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name} < 35-6
-Requires:	python-cairo
 
 %description tools
 Non essential systemd tools.
