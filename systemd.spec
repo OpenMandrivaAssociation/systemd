@@ -1013,6 +1013,8 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
+%config(noreplace) /usr/lib/sysctl.d/50-coredump.conf
+%config(noreplace) /usr/lib/sysctl.d/50-default.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1312,6 +1314,7 @@ fi
 /bin/udevadm
 %attr(0755,root,root) /sbin/udevadm
 %attr(0755,root,root) %{_sbindir}/udevadm
+%attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) /sbin/udevd
 %attr(0755,root,root) %{udev_libdir}/udevd
 %{udev_libdir}/keymaps/*
