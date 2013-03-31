@@ -42,7 +42,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	199
+Version:	200
 Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -212,7 +212,6 @@ Summary:	Non essential systemd tools
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{version}-%{release}
 Conflicts:	%{name} < 35-6
-Requires:	python-cairo
 
 %description tools
 Non essential systemd tools.
@@ -515,6 +514,9 @@ intltoolize --force --automake
 autoreconf --force --install --symlink
 
 %build
+%ifarch %arm
+export ac_cv_func_malloc_0_nonnull=yes
+%endif
 %serverbuild_hardened
 
 export CONFIGURE_TOP="$PWD"
@@ -760,7 +762,7 @@ ln -sf /sbin/udevadm %{buildroot}%{_sbindir}/udevadm
 
 # (tpg) this is needed, because udevadm is in /sbin
 # altering the path allows to boot on before root pivot
-sed -i -e 's#/usr/bin/udevadm#/sbin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
+sed -i -e 's#/usr/bin/udevadm#/bin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
 
 mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
@@ -823,7 +825,7 @@ systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket sys
 /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/usr/bin/udevadm hwdb --update >/dev/null 2>&1 || :
+/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
 /usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) this is needed for rsyslog
@@ -1310,9 +1312,10 @@ fi
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 
 %{systemd_libdir}/systemd-udevd
-%{_bindir}/udevadm
+/bin/udevadm
 %attr(0755,root,root) /sbin/udevadm
 %attr(0755,root,root) %{_sbindir}/udevadm
+%attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) /sbin/udevd
 %attr(0755,root,root) %{udev_libdir}/udevd
 %{udev_libdir}/keymaps/*
