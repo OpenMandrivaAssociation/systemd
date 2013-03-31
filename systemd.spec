@@ -756,9 +756,6 @@ install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
 # unless we make a decission to merge /*bin with /usr/*bin, we'll aim for FHS
 # compliance and make sure to keep thing in their traditional locations
 mv %{buildroot}/bin/udevadm %{buildroot}/sbin
-# probably not required, but let's just be on the safe side for now..
-ln -sf /sbin/udevadm %{buildroot}%{_bindir}/udevadm
-ln -sf /sbin/udevadm %{buildroot}%{_sbindir}/udevadm
 
 # (tpg) this is needed, because udevadm is in /sbin
 # altering the path allows to boot on before root pivot
