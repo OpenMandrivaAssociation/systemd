@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	200
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -749,6 +749,10 @@ install -m 0755 %{SOURCE7} %{buildroot}%{udev_libdir}/net_create_ifcfg
 install -m 0755 %{SOURCE8} %{buildroot}%{udev_libdir}/net_action
 install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
+# disable "predictable network interface names" for now..
+# ref: http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames
+ln -s /dev/null %{buildroot}%{udev_user_rules_dir}/80-net-name-slot.rules
+
 install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
 
 # probably not required, but let's just be on the safe side for now..
@@ -1305,6 +1309,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/udev/*.conf
+%{udev_user_rules_dir}/80-net-name-slot.rules
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 
 %{systemd_libdir}/systemd-udevd
