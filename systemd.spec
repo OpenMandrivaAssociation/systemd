@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	201
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -734,6 +734,9 @@ if /bin/mountpoint -q /sys/fs/cgroup/systemd; then
 fi
 EOF
 chmod 755 %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
+# (tpg) silent kernel messages
+# print only KERN_ERR and more serious alerts
+echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-coredump.conf
 
 #################
 #	UDEV	#
