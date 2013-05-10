@@ -42,7 +42,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	203
+Version:	204
 Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -80,7 +80,7 @@ Patch100:	udev-199-coldplug.patch
 Patch104:	systemd-186-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch105:	systemd-196-support-build-without-secure_getenv.patch
-Patch106:	systemd-191-uclibc-no-mkostemp.patch
+#Patch106:	systemd-191-uclibc-no-mkostemp.patch
 #Patch107:	systemd-191-link-against-librt.patch
 # (tpg) https://bugs.freedesktop.org/show_bug.cgi?id=57887
 # reverts commit http://cgit.freedesktop.org/systemd/systemd/commit?id=978cf3c75fbd94fd0e046206ada6169b35edd919
