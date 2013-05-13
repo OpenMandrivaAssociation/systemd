@@ -28,6 +28,7 @@ enable mandriva*.service
 
 # Enable NM by default
 enable NetworkManager.service
+enable NetworkManager-wait-online.service
 
 # Enable other system services
 enable sshd.service
