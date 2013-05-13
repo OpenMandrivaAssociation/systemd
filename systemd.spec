@@ -1063,6 +1063,7 @@ fi
 %{_bindir}/bootctl
 %{_bindir}/systemd-coredumpctl
 %{_bindir}/timedatectl
+%{_prefix}/lib/kernel/install.d/*.install
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-ac-power
 %{systemd_libdir}/systemd-activate
@@ -1305,6 +1306,7 @@ fi
 %dir %{udev_libdir}/hwdb.d
 %dir %{_sysconfdir}/udev
 %dir %{udev_rules_dir}
+%dir %{_sysconfig}/udev/rules.d
 
 %dir %attr(0644,root,root) %{udev_libdir}/keymaps
 %dir %{_sysconfdir}/udev/agents.d
