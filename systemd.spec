@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	204
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -512,10 +512,11 @@ intltoolize --force --automake
 autoreconf --force --install --symlink
 
 %build
+%serverbuild_hardened
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
 %endif
-%serverbuild_hardened
+
 
 export CONFIGURE_TOP="$PWD"
 
