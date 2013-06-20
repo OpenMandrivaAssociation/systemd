@@ -152,7 +152,7 @@ Requires(pre):	%{name}-units
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 186-5
-%if %mdvver >= 201300
+%if "%{distepoch}" >= "2013.0"
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
 Provides:	consolekit-x11 = 0.4.5-6
