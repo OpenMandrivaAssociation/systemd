@@ -531,10 +531,10 @@ pushd uclibc
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--enable-static \
 	--with-sysvinit-path=%{_initrddir} \
-%if "%{disthepoch}" < "2013.0"
+%if "%{distepoch}" < "2013.0"
 	--with-distro=mandriva \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 %endif
 	--disable-selinux \
 	--enable-split-usr \
@@ -571,7 +571,7 @@ pushd shared
 %if "%{distepoch}" < "2013.0"
 	--with-distro=mandriva \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 %endif
 	--disable-selinux \
 %if %{with bootstrap}
