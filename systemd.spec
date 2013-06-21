@@ -531,7 +531,7 @@ pushd uclibc
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--enable-static \
 	--with-sysvinit-path=%{_initrddir} \
-%if %mdvver < 201300
+%if "%{disthepoch}" < "2013.0"
 	--with-distro=mandriva \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local
@@ -568,7 +568,7 @@ pushd shared
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--disable-static \
 	--with-sysvinit-path=%{_initrddir} \
-%if %mdvver < 201300
+%if "%{distepoch}" < "2013.0"
 	--with-distro=mandriva \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local
