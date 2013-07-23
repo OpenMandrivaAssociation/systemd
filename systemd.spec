@@ -1113,6 +1113,7 @@ fi
 %{_mandir}/man1/journalctl.1*
 %{_mandir}/man1/localectl.*
 %{_mandir}/man1/loginctl.*
+%{_mandir}/man1/systemd-run.1.*
 %{_mandir}/man1/systemd-machine-id-setup.1*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-nspawn.*
@@ -1120,6 +1121,7 @@ fi
 %{_mandir}/man1/systemd-detect-virt.1.*
 %{_mandir}/man1/systemd-inhibit.1.*
 %{_mandir}/man1/timedatectl.*
+%{_mandir}/man1/machinectl.1.*
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
@@ -1318,8 +1320,6 @@ fi
 %dir %{_sysconfdir}/udev
 %dir %{udev_rules_dir}
 %dir %{_sysconfdir}/udev/rules.d
-
-%dir %attr(0644,root,root) %{udev_libdir}/keymaps
 %dir %{_sysconfdir}/udev/agents.d
 %dir %{_sysconfdir}/udev/agents.d/usb
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
@@ -1335,26 +1335,18 @@ fi
 %attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) /sbin/udevd
 %attr(0755,root,root) %{udev_libdir}/udevd
-%{udev_libdir}/keymaps/*
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 
-%attr(0755,root,root) %{udev_libdir}/keymap
 %attr(0755,root,root) %{udev_libdir}/accelerometer
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/cdrom_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %attr(0755,root,root) %{udev_libdir}/collect
-#%attr(0755,root,root) %{udev_libdir}/create_floppy_devices
-#%attr(0755,root,root) %{udev_libdir}/rule_generator.functions
-#%attr(0755,root,root) %{udev_libdir}/write_cd_rules
-#%attr(0755,root,root) %{udev_libdir}/write_net_rules
 %attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/net_action
 %attr(0755,root,root) %{udev_libdir}/v4l_id
 %attr(0755,root,root) %{udev_libdir}/mtd_probe
-%attr(0755,root,root) %{udev_libdir}/findkeyboards
-%attr(0755,root,root) %{udev_libdir}/keyboard-force-release.sh
 
 # From previous Mandriva /etc/udev/devices.d and patches
 %attr(0666,root,root) %dev(c,1,3) %{udev_libdir}/devices/null
@@ -1395,7 +1387,6 @@ fi
 %attr(640,root,disk) %dev(b,7,5) %{udev_libdir}/devices/loop5
 %attr(640,root,disk) %dev(b,7,6) %{udev_libdir}/devices/loop6
 %attr(640,root,disk) %dev(b,7,7) %{udev_libdir}/devices/loop7
-#%{_mandir}/man8/systemd-udevd.8.*
 %{_mandir}/man8/udevadm.8.*
 
 %if %{with uclibc}
@@ -1413,8 +1404,6 @@ fi
 %endif
 
 %files -n %{libudev_devel}
-#%doc COPYING README TODO ChangeLog NEWS src/keymap/README.keymap.txt
-#%doc %{_datadir}/gtk-doc/html/libudev
 %{_libdir}/libudev.so
 %if %{with uclibc}
 # do not remove static library, required by lvm2
@@ -1429,7 +1418,6 @@ fi
 /%{_lib}/libgudev-%{gudev_api}.so.%{gudev_major}*
 
 %files -n %{libgudev_devel}
-#%doc %{_datadir}/gtk-doc/html/gudev
 %{_libdir}/libgudev-%{gudev_api}.so
 %{_includedir}/gudev-%{gudev_api}
 %if !%{with bootstrap}
