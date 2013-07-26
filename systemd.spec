@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -698,6 +698,8 @@ touch %{buildroot}%{_sysconfdir}/machine-info
 touch %{buildroot}%{_sysconfdir}/timezone
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+mkdir -p %{buildroot}%{_sysconfdir}/udev
+touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 
 # (cg) Set up the pager to make it generally more useful
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
@@ -1032,7 +1034,7 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-#ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-system-setup-keyboard.conf
+%ghost %{_sysconfdir}/udev/hwdb.bin
 
 %dir /run
 %dir %{systemd_libdir}
