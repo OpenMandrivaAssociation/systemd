@@ -2,6 +2,12 @@
 # By default all services are enabled in their rpm packages
 # anyways just override it here
 
+# systemd stuff
+enable remote-fs.target
+enable getty@tty1.service
+enable systemd-readahead-replay.service
+enable systemd-readahead-collect.service
+
 # Enable ACPI daemon
 enable acpid.*
 
@@ -29,6 +35,7 @@ enable mandriva*.service
 # Enable NM by default
 enable NetworkManager.service
 enable NetworkManager-wait-online.service
+enable ModemManager.service
 
 # Enable other system services
 enable sshd.service
@@ -65,7 +72,6 @@ enable uuidd.service
 enable alsa*.service
 enable canberra*.service
 enable sound.service
-enable rtkit-daemon.service
 
 # By default disable services which are not in above list
 disable *
