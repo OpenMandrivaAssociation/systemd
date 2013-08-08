@@ -405,7 +405,12 @@ Requires(pre):	filesystem
 Requires(pre):	rpm-helper
 Requires(post,preun):	rpm-helper
 Provides:	should-restart = system
-Obsoletes:	hal <= 0.5.14-6
+Requires(post):	util-linux
+Obsoletes:	hal	<= 0.5.14-6
+# (tpg) moved form makedev package
+Provides:	dev
+Provides:	MAKEDEV
+Conflicts:	makedev < 4.4-17
 
 %description -n	udev
 A collection of tools and a daemon to manage events received
@@ -538,8 +543,8 @@ pushd uclibc
 	--with-distro=mandriva \
 %endif
 	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 	--enable-split-usr \
 	--enable-introspection=no \
@@ -575,8 +580,8 @@ pushd shared
 	--with-distro=mandriva \
 %endif
 	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 %if %{with bootstrap}
 	--enable-introspection=no \
