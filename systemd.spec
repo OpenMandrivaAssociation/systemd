@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -534,12 +534,12 @@ pushd uclibc
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--enable-static \
-	--with-sysvinit-path=%{_initrddir} \
 %if %mdvver < 201300
 	--with-distro=mandriva \
+%endif
+	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local
-%endif
 	--disable-selinux \
 	--enable-split-usr \
 	--enable-introspection=no \
@@ -571,12 +571,12 @@ pushd shared
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--disable-static \
-	--with-sysvinit-path=%{_initrddir} \
 %if %mdvver < 201300
 	--with-distro=mandriva \
+%endif
+	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local
-%endif
 	--disable-selinux \
 %if %{with bootstrap}
 	--enable-introspection=no \
@@ -924,7 +924,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-        getty@.service \
+    getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -955,7 +955,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet enable \
-                getty@.service \
+                getty@tty1.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
