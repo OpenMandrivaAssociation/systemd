@@ -543,7 +543,7 @@ pushd uclibc
 	--with-distro=mandriva \
 %endif
 	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local
 	--disable-selinux \
 	--enable-split-usr \
@@ -580,8 +580,8 @@ pushd shared
 	--with-distro=mandriva \
 %endif
 	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 %if %{with bootstrap}
 	--enable-introspection=no \
