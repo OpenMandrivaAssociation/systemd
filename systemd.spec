@@ -405,7 +405,12 @@ Requires(pre):	filesystem
 Requires(pre):	rpm-helper
 Requires(post,preun):	rpm-helper
 Provides:	should-restart = system
-Obsoletes:	hal <= 0.5.14-6
+Requires(post):	util-linux
+Obsoletes:	hal	<= 0.5.14-6
+# (tpg) moved form makedev package
+Provides:	dev
+Provides:	MAKEDEV
+Conflicts:	makedev < 4.4-17
 
 %description -n	udev
 A collection of tools and a daemon to manage events received
