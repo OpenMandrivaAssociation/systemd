@@ -44,6 +44,8 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	204
 Release:	4
+Version:	206
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -68,6 +70,10 @@ Source13:	systemd.rpmlintrc
 Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
 #Patch2:		systemd-33-rc-local.patch
 Patch3:		0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch5:		systemd-205-uclibc.patch
+# We need a static libudev.a for the uClibc build because lvm2 requires it.
+# Put back support for building it.
+Patch6:		systemd-205-static.patch
 
 # GIT
 
@@ -401,7 +407,12 @@ Requires(pre):	filesystem
 Requires(pre):	rpm-helper
 Requires(post,preun):	rpm-helper
 Provides:	should-restart = system
-Obsoletes:	hal <= 0.5.14-6
+Requires(post):	util-linux
+Obsoletes:	hal	<= 0.5.14-6
+# (tpg) moved form makedev package
+Provides:	dev
+Provides:	MAKEDEV
+Conflicts:	makedev < 4.4-17
 
 %description -n	udev
 A collection of tools and a daemon to manage events received
@@ -535,7 +546,12 @@ pushd uclibc
 	--with-distro=mandriva \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
+%if %mdvver < 201300
+	--with-distro=mandriva \
 %endif
+	--with-sysvinit-path=%{_initrddir} \
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 	--enable-split-usr \
 	--enable-introspection=no \
@@ -572,7 +588,12 @@ pushd shared
 	--with-distro=mandriva \
 	--with-sysvrcd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
+%if %mdvver < 201300
+	--with-distro=mandriva \
 %endif
+	--with-sysvinit-path=%{_initrddir} \
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 %if %{with bootstrap}
 	--enable-introspection=no \
@@ -694,6 +715,8 @@ touch %{buildroot}%{_sysconfdir}/machine-info
 touch %{buildroot}%{_sysconfdir}/timezone
 mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+mkdir -p %{buildroot}%{_sysconfdir}/udev
+touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 
 # (cg) Set up the pager to make it generally more useful
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
@@ -918,7 +941,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-        getty@.service \
+    getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -949,7 +972,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet enable \
-                getty@.service \
+                getty@tty1.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1011,6 +1034,7 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
@@ -1027,7 +1051,7 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/machine-info
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-#ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-system-setup-keyboard.conf
+%ghost %{_sysconfdir}/udev/hwdb.bin
 
 %dir /run
 %dir %{systemd_libdir}
@@ -1058,6 +1082,7 @@ fi
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-loginctl
+%{_bindir}/systemd-run
 %{_bindir}/hostnamectl
 %{_bindir}/localectl
 %{_bindir}/kernel-install
@@ -1107,6 +1132,7 @@ fi
 %{_mandir}/man1/journalctl.1*
 %{_mandir}/man1/localectl.*
 %{_mandir}/man1/loginctl.*
+%{_mandir}/man1/systemd-run.1.*
 %{_mandir}/man1/systemd-machine-id-setup.1*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-nspawn.*
@@ -1114,6 +1140,7 @@ fi
 %{_mandir}/man1/systemd-detect-virt.1.*
 %{_mandir}/man1/systemd-inhibit.1.*
 %{_mandir}/man1/timedatectl.*
+%{_mandir}/man1/machinectl.1.*
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
@@ -1125,6 +1152,7 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.*.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.hostname1*.xml
@@ -1141,6 +1169,7 @@ fi
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
+%{uclibc_root}/bin/machinectl
 %{uclibc_root}/bin/systemctl
 %{uclibc_root}/bin/systemd-ask-password
 %{uclibc_root}/bin/systemd-notify
@@ -1158,6 +1187,7 @@ fi
 %{uclibc_root}%{_bindir}/systemd-delta
 %{uclibc_root}%{_bindir}/systemd-detect-virt
 %{uclibc_root}%{_bindir}/systemd-loginctl
+%{uclibc_root}%{_bindir}/systemd-run
 %{uclibc_root}%{_bindir}/systemd-cgls
 %{uclibc_root}%{_bindir}/systemd-nspawn
 %{uclibc_root}%{_bindir}/systemd-stdio-bridge
@@ -1190,11 +1220,12 @@ fi
 
 /bin/systemctl
 %{_bindir}/systemctl
+/bin/machinectl
 %{systemd_libdir}/system
 /usr/lib/systemd/
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/%{name}.macros
-%{_sysconfdir}/rpm/macros.systemd
+%{_prefix}/lib/rpm/macros.d/macros.systemd
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
@@ -1308,8 +1339,6 @@ fi
 %dir %{_sysconfdir}/udev
 %dir %{udev_rules_dir}
 %dir %{_sysconfdir}/udev/rules.d
-
-%dir %attr(0644,root,root) %{udev_libdir}/keymaps
 %dir %{_sysconfdir}/udev/agents.d
 %dir %{_sysconfdir}/udev/agents.d/usb
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
@@ -1325,26 +1354,18 @@ fi
 %attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) /sbin/udevd
 %attr(0755,root,root) %{udev_libdir}/udevd
-%{udev_libdir}/keymaps/*
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 
-%attr(0755,root,root) %{udev_libdir}/keymap
 %attr(0755,root,root) %{udev_libdir}/accelerometer
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/cdrom_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %attr(0755,root,root) %{udev_libdir}/collect
-#%attr(0755,root,root) %{udev_libdir}/create_floppy_devices
-#%attr(0755,root,root) %{udev_libdir}/rule_generator.functions
-#%attr(0755,root,root) %{udev_libdir}/write_cd_rules
-#%attr(0755,root,root) %{udev_libdir}/write_net_rules
 %attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/net_action
 %attr(0755,root,root) %{udev_libdir}/v4l_id
 %attr(0755,root,root) %{udev_libdir}/mtd_probe
-%attr(0755,root,root) %{udev_libdir}/findkeyboards
-%attr(0755,root,root) %{udev_libdir}/keyboard-force-release.sh
 
 # From previous Mandriva /etc/udev/devices.d and patches
 %attr(0666,root,root) %dev(c,1,3) %{udev_libdir}/devices/null
@@ -1385,7 +1406,6 @@ fi
 %attr(640,root,disk) %dev(b,7,5) %{udev_libdir}/devices/loop5
 %attr(640,root,disk) %dev(b,7,6) %{udev_libdir}/devices/loop6
 %attr(640,root,disk) %dev(b,7,7) %{udev_libdir}/devices/loop7
-#%{_mandir}/man8/systemd-udevd.8.*
 %{_mandir}/man8/udevadm.8.*
 
 %if %{with uclibc}
@@ -1403,8 +1423,6 @@ fi
 %endif
 
 %files -n %{libudev_devel}
-#%doc COPYING README TODO ChangeLog NEWS src/keymap/README.keymap.txt
-#%doc %{_datadir}/gtk-doc/html/libudev
 %{_libdir}/libudev.so
 %if %{with uclibc}
 # do not remove static library, required by lvm2
@@ -1419,7 +1437,6 @@ fi
 /%{_lib}/libgudev-%{gudev_api}.so.%{gudev_major}*
 
 %files -n %{libgudev_devel}
-#%doc %{_datadir}/gtk-doc/html/gudev
 %{_libdir}/libgudev-%{gudev_api}.so
 %{_includedir}/gudev-%{gudev_api}
 %if !%{with bootstrap}
@@ -1431,611 +1448,3 @@ fi
 %files -n %{girgudev}
 %{_libdir}/girepository-1.0/GUdev-%{gudev_api}.typelib
 %endif
-
-%changelog
-* Tue Dec 13 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 196-2
-- reenable uClibc build (with libcryptsetup support disabled for bootstrapping)
-
-* Tue Dec 11 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 195-5
-- fixup merge with ROSA package and rebuild on ABF
-- leave uClibc build disabled for now untill uClibc toolchain is complete
-  again on ABF
-
-* Tue Oct 30 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 195-4
-+ Revision: 820698
-- reenable libcryptsetup support for uclibc build now that we've bootstrapped it
-
-* Tue Oct 30 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 195-3
-+ Revision: 820677
-- enable static build of libudev again, it's needed by lvm2
-
-* Tue Oct 30 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 195-2.1
-+ Revision: 820645
-- still issues with build making it for i586, trying again with exclusivearch..
-
-* Tue Oct 30 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 195-2
-+ Revision: 820641
-- disable cryptsetup for uclibc for now, as we need to bootstrap for udev which
-  cryptsetup again itself requires
-- fix permissions of directories distributed with upstream tarball
-- disable python for uclibc build
-- disable build of static libudev library
-- enable cryptsetup & gcrypt for uclibc build
-- we need latest cap-devel built against uClibc
-- push exclusively for i586 to get around bs bs
-
-* Sun Oct 28 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 195-1
-+ Revision: 820165
-- fix paths to uclibc linked versions of new binaries
-
-  + Tomasz Pawel Gajc <tpg@mandriva.org>
-    - update file list for uclibc
-    - use correct version for uClibc-devel
-    - update file list
-    - update to new version 195
-    - enable uclibc support
-
-* Tue Oct 16 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 194-1
-+ Revision: 818906
-- add python-devel to buildrequires
-- provide uclibc subpackages when it is enabled
-- correct uClibs packages
-- update to new version 194
-- update default preset
-
-  + Per Øyvind Karlsen <peroyvind@mandriva.org>
-    - package static uClibc build of liudev
-    - SILENCE: decrease release tag...
-    - add missing python files
-    - fix and enable uclibc build
-
-* Sat Sep 22 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 191-1
-+ Revision: 817339
-- update to new version 191
-
-  + Alexander Khrukin <akhrukin@mandriva.org>
-    - SysVinit < %%sysvinit_release-%%sysvinit_release It's provides something like SysVinit < 14-14  when it should be SysVinit 2.87-14 see comment
-    - SysVinit < %%sysvinit_release-%%sysvinit_release It's provides somethin...
-
-* Sun Sep 09 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 189-4
-+ Revision: 816682
-- Patch3: handle failsafe cmdline option (patch from Mageia)
-
-* Sun Sep 09 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 189-3
-+ Revision: 816598
-- force default Mandriva policy on services (based on Fedora)
-- add missing system-sleep directory
-
-* Sun Aug 26 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 189-2
-+ Revision: 815804
-- bump tag
-- update to new version 189
-- add listen.conf (listen on journald socket)
-
-* Fri Aug 17 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 188-2
-+ Revision: 815172
-- Patch105: switch-root: remount to MS_PRIVATE (from upstream git)
-
-* Tue Aug 14 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 188-1
-+ Revision: 814797
-- update to new version 188
-
-* Tue Aug 07 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 187-6
-+ Revision: 812244
-- obsolete hal and libhal packages
-
-* Tue Aug 07 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 187-5
-+ Revision: 812233
-- add hard requires on lib{daemon,login,journal,id128} just to be sure
-
-* Thu Aug 02 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 187-4
-+ Revision: 811557
-- revert triggerpostin for udev (this is done automagically)
-
-* Wed Aug 01 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 187-3
-+ Revision: 811536
-- fix symlink for /lib/udev/udevd
-- set udevadm path to /sbin for all services (when booting initrd a service systemd-udev-trigger.service fails because of not finding /usr/bin/udevadm)
-- convert udev db on triggerpostin for older releases (before merge)
-- try to restart systemd-udevd.service on udev post
-- enable systemd-udev-settle.service by default
-
-* Sat Jul 21 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 187-1
-+ Revision: 810548
-- do not requires equal version of mandriva-release-common
-- fix mashup of tabs and spaces
-- update to new version 187
-- require kmod
-- do not create symlinks to modprobe.conf and modules files, because it is already handled by kmod
-
-  + Per Øyvind Karlsen <peroyvind@mandriva.org>
-    - try preserve udev FHS compliance for now by moving 'udevadm' back to /sbin
-    --with-distro now works
-    - drop dead dietlibc build
-    - removal of libtool files are now handled by spec-helper
-    - fix spec layout after udev merge
-
-* Fri Jul 13 2012 Per Øyvind Karlsen <peroyvind@mandriva.org> 186-9
-+ Revision: 809105
-- pick up patch lost on older 'udev' package which sets udev_log to 'err' in
-  udev.conf, "fixing" tons of weird behaviour and system getting fubar (P104)
-
-* Wed Jul 11 2012 Bernhard Rosenkraenzer <bero@bero.eu> 186-8
-+ Revision: 808837
-- Fix udevd symlink
-
-* Sun Jul 08 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-7
-+ Revision: 808497
-- fix symlinks
-
-* Sun Jul 08 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-6
-+ Revision: 808474
-- fix symlink to systemd-loginctl
-- add symlint to systemclt in %%_bindir (dracut pivot services needs this)
-- provide compat symlinks to udev.service and udev-settle.service
-- restart systemd-udevd.service service on systemd installtion
-
-* Sat Jul 07 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-5
-+ Revision: 808432
-- add conflicts on udev package
-- fix remove of crypttab man
-
-* Sat Jul 07 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-4
-+ Revision: 808425
-- move systemd-udevd to udev subpackage, also provide compat symlinks
-- systemd should not pre require udev
-- adjust file list
-
-* Sat Jul 07 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-3
-+ Revision: 808419
-- delete man5/crypttab.5.xz (real fix is to update initscripts)
-
-* Fri Jul 06 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-2
-+ Revision: 808399
-- try to fix installation (dependancy hell :-)
-
-* Fri Jul 06 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 186-1
-+ Revision: 808391
-- drop sysv subpackage
-- fix rules installation
-- finish a full merge of udev package
-- add patches from Mageia
-- spec file clean
-
-* Tue Jun 05 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 185-1
-+ Revision: 802743
-- package new man files
-- update to new version 185
-
-* Mon May 28 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 183-1
-+ Revision: 801019
-- adjust paths for keymaps and rules
-- update buildrequires on libgee
-- patch 15 fixed by upstream
-- disable patches 19, 29 and 30
-- finish a first stage of udev migration
-  o use same packaging style as in udev.spec
-  o add missing buildrequires (libblkid-devel usbutils-devel pciutils-devel etc.)
-  o provide better desctiptions
-  o add pre and post scriplets which help to run new udev
-- fix file list for systemd and udev packages
-- update to new version 183 (a big merge of udev and systemd)
-
-* Sun Apr 08 2012 Bernhard Rosenkraenzer <bero@bero.eu> 44-5
-+ Revision: 789886
-- Fix shutdown/reboot from KDM (KDE Bug #293978)
-
-  + Per Øyvind Karlsen <peroyvind@mandriva.org>
-    - apply some cosmetics
-
-* Tue Mar 27 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 44-4
-+ Revision: 787765
-- use --enable-split-usr because /bin and /sbin are not symlinkt to /usr
-
-* Sat Mar 24 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 44-3
-+ Revision: 786608
-- somehow --with-distro doesn't work, hardcode /etc/mandriva-release everywhere
-- set up rsyslog to read from /proc/kmsg
-- add symlink to systemd in /bin
-- own missing %%{_libdir}/systemd/user/ directory
-- update systemd filetrigger from mageia
-
-* Sat Mar 24 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 44-2
-+ Revision: 786561
-- disable journal coredump
-- make use of SYSTEMD_PAGER (from Mageia)
-
-* Fri Mar 16 2012 Oden Eriksson <oeriksson@mandriva.com> 44-1
-+ Revision: 785356
-- 44
-- fix deps
-
-  + Bernhard Rosenkraenzer <bero@bero.eu>
-    - Update to 43
-
-* Sun Feb 05 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 39-2
-+ Revision: 771220
-- add listen.conf to rsyslog
-- Patch30: from mageia, add a work around for a syslog.socket deadlock on boot+shutdown
-- add requires on grep and awk
-- remove display-manager.service, use only prefdm.service
-- automatic systemd release on rpm installs/removals (from mageia)
-- ghost own a lot of config files
-
-* Thu Jan 26 2012 Antoine Ginies <aginies@mandriva.com> 39-1
-+ Revision: 769109
-- add missing new files
-- version 39
-
-* Sat Jan 14 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 38-2
-+ Revision: 760839
-- drop patch 30, this was really bad idea
-
-* Sat Jan 14 2012 Tomasz Pawel Gajc <tpg@mandriva.org> 38-1
-+ Revision: 760827
-- provides subpackages for libjournal and libid128
-- add buildrequires on pkgconfig(gee-1.0)
-- disable patches 26 and 28
-- Patch30: fix prefdm.service
-- set rootlibdir to /%%{_lib}
-- add requires on python-cairo and python-dbus on tools subpackage
-- create runlevel targets
-- own properly target.wants files
-- renable bash completion file
-- enable rsyslog.service and remote-fs.service on glibc update
-- make use of %%{_sysconfdir}/hostname
-- fix file list
-- update to new version 38
-
-* Sun Jan 08 2012 Matthew Dawkins <mattydaw@mandriva.org> 37-5
-+ Revision: 758669
-- converted BRs to pkgconfig provides
-- removed branded requires
-
-  + Tomasz Pawel Gajc <tpg@mandriva.org>
-    - Patch28: fix bash completion
-    - Patch29: do not unset locales in gettys
-
-* Thu Dec 01 2011 Matthew Dawkins <mattydaw@mandriva.org> 37-4
-+ Revision: 737117
-- rebuild
-- properly obsolete and provide readahead
-- removed mkrel, BuildRoot, clean section and defattr
-
-* Tue Nov 15 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 37-3
-+ Revision: 730759
-- add pre requires on basesystem-minimal >= 2011.0-2
-
-* Fri Nov 04 2011 Oden Eriksson <oeriksson@mandriva.com> 37-2
-+ Revision: 717560
-- added systemd-sysv-convert from fedora in the systemd-sysv sub package
-
-* Wed Oct 12 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 37-1
-+ Revision: 704438
-- update file list
-- fix mix of tabs and spaces in spec file
-- update to new version 37
-- add initial macro file for rpm macros
-  o new macro %%_unitdir points to /lib/systemd/system
-
-* Tue Oct 11 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 36-3
-+ Revision: 704403
-- enable systemd's own mounting capability
-
-* Fri Oct 07 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 36-2
-+ Revision: 703410
-- use %%serverbuild_hardened flags for mdv2012
-
-* Wed Oct 05 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 36-1
-+ Revision: 703006
-- update to new version 36
-- export %%serverbuild flags
-
-* Wed Sep 28 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 35-6
-+ Revision: 701814
-- finally move systemd-analyze to tool subpackage
-
-* Wed Sep 28 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 35-5
-+ Revision: 701793
-- move systemd-analyze to new tools subpackage to prevent of pulling in python as a dependancy
-- move systemd.pc to devel package
-
-* Fri Sep 23 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 35-4
-+ Revision: 701122
-- require nss-myhostname
-
-* Thu Sep 22 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 35-3
-+ Revision: 700952
-- disable SPEEDBOOT feature on systemd install or on update
-- silent the post scipts output
-- restart systemd daemon on post
-- pre require initscripts
-- conflict with readahead
-
-* Sat Sep 10 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 35-2
-+ Revision: 699188
-- add post requires on gawk and coreutils
-- require polkit
-- enable rsyslog on post install
-
-* Sun Sep 04 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 35-1
-+ Revision: 698252
-- update to new version 35
-- drop 3 patches from upstream git
-- create /etc/modules-load.d/modprobe-preload.conf as a symlink to /etc/modprobe.preload
-- fix file list
-
-* Fri Sep 02 2011 Александр Казанцев <kazancas@mandriva.org> 33-4
-+ Revision: 697838
-- add rc-local service start filed fix patch
-
-* Fri Sep 02 2011 Alexander Barakin <abarakin@mandriva.org> 33-3
-+ Revision: 697823
-- work with /sbin/halt.pre (see #63716)
-
-* Sat Aug 20 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 33-2
-+ Revision: 695878
-- rebuild for missing packages
-
-* Fri Aug 19 2011 Tomasz Pawel Gajc <tpg@mandriva.org> 33-1
-+ Revision: 695827
-- update to new version 33
-- add three patches from upstream
-- add gperf as a buildrequire
-- backport burmashev changes from 2011 (added /etc/hostnamed, created symlink for /etc/modules)
-
-* Thu Jul 28 2011 Eugeni Dodonov <eugeni@mandriva.com> 31-1
-+ Revision: 692133
-- Updated to systemd 31.
-  Provide libification for systemd-daemon and systemd-login.
-
-* Mon Jul 18 2011 Alex Burmashev <burmashev@mandriva.org> 29-4
-+ Revision: 690399
-- added tmpfilesd patch
-
-* Tue Jul 12 2011 Eugeni Dodonov <eugeni@mandriva.com> 29-3
-+ Revision: 689763
-- Rebuild for getting through the BS
-
-* Tue Jul 12 2011 Eugeni Dodonov <eugeni@mandriva.com> 29-2
-+ Revision: 689615
-- Bump release
-- Fix non-startable ttys (#63600)
-
-* Mon Jun 20 2011 Eugeni Dodonov <eugeni@mandriva.com> 29-1
-+ Revision: 686088
-- New version 29
-
-* Wed Jun 01 2011 Wiliam Alves de Souza <wiliam@mandriva.com> 28-1
-+ Revision: 682241
-- Update to 28.
-
-* Wed May 25 2011 Eugeni Dodonov <eugeni@mandriva.com> 27-1
-+ Revision: 679062
-- Update to 27.
-
-* Fri Apr 08 2011 Eugeni Dodonov <eugeni@mandriva.com> 24-2
-+ Revision: 651929
-- Provide /run/ directory.
-
-* Thu Apr 07 2011 Eugeni Dodonov <eugeni@mandriva.com> 24-1
-+ Revision: 651785
-- New version 24.
-
-* Thu Apr 07 2011 Funda Wang <fwang@mandriva.org> 20-3
-+ Revision: 651442
-- rebuild for new libnotify
-
-* Sun Mar 13 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 20-2
-+ Revision: 644344
-- drop Requires: systemd from systemd-units
-
-* Fri Mar 11 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 20-1
-+ Revision: 643763
-- new version
-- drop P5,6,7,13,15 - Mandriva support is upstream now
-- implicitly build for distro=mandriva now
-- drop P20 - upstream
-- P22: fix D-Bus assertion due to missing dbus_error_init (GIT)
-- run systemd-machine-id-setup on update
-  (cf. http://lists.freedesktop.org/archives/dbus/2011-March/014187.html)
-
-* Thu Mar 10 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 19-4
-+ Revision: 643254
-- P21: do not add dependency between quotacheck and network file system;
-  it creates a loop and systemd removes vital services to break it (mdv#62746)
-- P14: clarify unit description
-- P14: resurrect and actually enable hwclock-load.service;
-  it was skipped unintentionally
-- enable rpcbind.target by default
-
-* Thu Mar 03 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 19-3
-+ Revision: 641448
-- P20: replace with real fix from upstream (we skipped all files on
-  reiserfs because it returns DT_UNKNOWN for every file) (GIT)
-
-* Wed Mar 02 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 19-2
-+ Revision: 641235
-- P20: add unit to mark system boot in wtmp
-
-* Tue Mar 01 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 19-1
-+ Revision: 641120
-- new version
-- P18: allow explicit SysV scripts output configuration (not yet enabled)
-- P19: fix timeout never applied to oneshot services
-- enable native quota and readahead units
-
-* Sun Feb 27 2011 Funda Wang <fwang@mandriva.org> 18-5
-+ Revision: 640283
-- rebuild to obsolete old packages
-
-* Sat Feb 19 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 18-4
-+ Revision: 638708
-- make single.service alias for rescue.service to hide initscript version
-
-* Sat Feb 19 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 18-3
-+ Revision: 638684
-- enable most default units now when initscripts do not do it anymore
-- P15: prefdm service was dropped from upstream initscripts, do it here
-- P16: empty (not just create) X11 directories on boot as done by
-  rc.sysinit
-- P17: reset /etc/mtab after / is remounted. We really need to make it
-  symlink
-- own /lib/systemd/system-{generators,shutdown}/
-
-* Thu Feb 17 2011 Eugeni Dodonov <eugeni@mandriva.com> 18-1
-+ Revision: 638086
-- Update to v18.
-  Drop P15 (upstream)
-
-* Fri Feb 11 2011 Eugeni Dodonov <eugeni@mandriva.com> 17-5
-+ Revision: 637316
-- Drop P14, no longer needed.
-
-  + Andrey Borzenkov <arvidjaar@mandriva.org>
-    - drop P4 - we have real dbus unit now
-    - P15: allow user tasks to enter real time with RT cgroups (GIT)
-    - BR stuff to re-build man pages again for P15 ...
-
-  + Guillaume Rousse <guillomovitch@mandriva.org>
-    - use consistent naming and permissions for completion scriplets
-
-* Sun Jan 30 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 17-4
-+ Revision: 634092
-- own systemwide bluetooth.target.wants directory
-
-* Sun Jan 30 2011 Eugeni Dodonov <eugeni@mandriva.com> 17-3
-+ Revision: 634020
-- Patch14: do not mess with system time
-
-* Thu Jan 27 2011 Eugeni Dodonov <eugeni@mandriva.com> 17-2
-+ Revision: 633186
-- Rebuild to provide systemd-sysvinit matching sysvinit.
-
-* Sun Jan 23 2011 Andrey Borzenkov <arvidjaar@mandriva.org> 17-1
-+ Revision: 632439
-- new release
-- drop P12 - upstream. It was already disabled
-
-* Tue Jan 18 2011 Eugeni Dodonov <eugeni@mandriva.com> 16-2
-+ Revision: 631507
-- Rely on EVRD for version dependencies.
-
-* Mon Jan 17 2011 Wiliam Alves de Souza <wiliam@mandriva.com> 16-1
-+ Revision: 631315
-- updated tar.bz2 to version 16
-- updated to version 16
-
-* Tue Dec 28 2010 Eugeni Dodonov <eugeni@mandriva.com> 15-4mdv2011.0
-+ Revision: 625680
-- Allow systemd to be installed instead of sysvinit.
-
-* Fri Dec 03 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 15-3mdv2011.0
-+ Revision: 606522
-- use native shutdown services
-
-* Fri Dec 03 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 15-2mdv2011.0
-+ Revision: 605806
-- P13: use /etc/mandriva-release for welcome message
-- correctly disable systemd-random-seed-load.service for now
-- restore systemd-update-utmp-runlevel.service
-
-* Wed Dec 01 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 15-1mdv2011.0
-+ Revision: 604583
-- update to v15
-- drop P2, P8: units provided by initscripts now
-- rediff P4, P5
-- drop P9, P10, P11: upstream
-- P12: support build with libnotify < 0.7 (GIT); BR automake/autoconf
-- /etc/init.d/reboot provided by initscripts now
-- session* became user* now
-- systemd-ask-password-agent => systemd-gnome-ask-password-agent
-- for now remove most of native services from default activation
-- drop docbook/xslt BR
-- require recent enough initscripts
-
-* Tue Nov 30 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-7mdv2011.0
-+ Revision: 603786
-- for now remove services installed or provided by initscripts package
-
-* Sun Nov 28 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-6mdv2011.0
-+ Revision: 602332
-- require initscripts >= 9.21
-- drop P0, use /sys/fs/cgroup (needs kernel 2.6.36)
-- drop P3, S1; use /etc/init.d/halt from initscripts now
-- patch1: drop, not needed with new docbook-style-xsl
-
-* Sat Nov 06 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-5mdv2011.0
-+ Revision: 593996
-- patch6: do not disable reading of /etc/locale.conf
-
-* Tue Nov 02 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-4mdv2011.0
-+ Revision: 592331
-- patch11: fix device ACLs after systemd installation
-- patch10: fix startup with IPv6 disabled
-
-* Mon Oct 25 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-3mdv2011.0
-+ Revision: 589354
-- yet another attempt to get update scripts right
-- patch9: fix systemctl enable getty@.service (upstream)
-
-* Sat Oct 16 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-2mdv2011.0
-+ Revision: 586020
-- patch8: fix entering single user mode, revert to /bin/sh
-
-* Sat Oct 16 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 11-1mdv2011.0
-+ Revision: 585969
-- source1: remove some actions now performed by systemd units
-- disable MountAuto and SwapAuto (Fedora)
-- re-exec daemon on glibc and self update
-- disable more services from rc.sysinit
-- patch7: break loop between network.target and network-up.sevice
-- for now disable services performed by initscripts
-- getty.target is now enabled by default
-- patch6: Mandriva support in locale setup
-- patch5: Mandriva support in keyboard setup
-- move /etc/systemd/system.conf, /bin/systemctl in main package; they are
-  usable without units. Remove duplicated LICENSE inclusion.
-- new version
-
-* Sat Sep 18 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 10-7mdv2011.0
-+ Revision: 579679
-- patch4: use messagebus for special D-Bus service for now
-- source1, patch3: local version of halt script that does not unmount cgroup
-- do not enable prefdm.service, we start display manager in initscirpt
-- fix syslog-service
-- /etc/systemd and /lib/systemd should be owned by main package
-
-* Sat Sep 18 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 10-6mdv2011.0
-+ Revision: 579486
-- fix postinstallation script to create default links
-
-* Thu Sep 16 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 10-5mdv2011.0
-+ Revision: 579036
-- patch2: fix shutdown/reboot with legacy /sbin/halt
-
-* Wed Sep 15 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 10-4mdv2011.0
-+ Revision: 578750
-- do not delete *.wanted files; getty does not start without them
-- set distro to fedora for now; too much is missing with 'other'
-
-* Wed Sep 15 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 10-3mdv2011.0
-+ Revision: 578704
-- it's _initrddir, not _initdir
-
-* Wed Sep 15 2010 Andrey Borzenkov <arvidjaar@mandriva.org> 10-2mdv2011.0
-+ Revision: 578688
-- patch1: fix man pages rebuild after patch0
-- patch0: use /cgroup until /sys/fs/cgroup is supported by kernel
-- runlevelN.target are in /lib now
-- remove Requires: libudev, it is computed automatically
-
-* Wed Sep 15 2010 Tomasz Pawel Gajc <tpg@mandriva.org> 10-1mdv2011.0
-+ Revision: 578379
-- prepare to release as dbus was updated to 1.4.0 version
-- fix file list
-- import systemd
-
-  + Andrey Borzenkov <arvidjaar@mandriva.org>
-    - new version
-
