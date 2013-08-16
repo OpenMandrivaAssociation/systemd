@@ -42,8 +42,6 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	204
-Release:	4
 Version:	206
 Release:	3
 License:	GPLv2+
