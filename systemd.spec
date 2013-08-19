@@ -43,12 +43,11 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
-Source1:	%{name}.macros
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
@@ -713,8 +712,8 @@ export SYSTEMD_PAGER="/usr/bin/less -FR"
 EOF
 chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
-# (tpg) add rpm macros
-install -m 0644 -D %{SOURCE1} %{buildroot}%{_sysconfdir}/rpm/macros.d/%{name}.macros
+# (tpg) move to etc
+mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/macros.systemd
 
 # Make sure the NTP units dir exists
 mkdir -p %{buildroot}%{systemd_libdir}/ntp-units.d/
@@ -1213,7 +1212,6 @@ fi
 /usr/lib/systemd/
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/%{name}.macros
-%{_prefix}/lib/rpm/macros.d/macros.systemd
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
