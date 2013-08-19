@@ -1212,7 +1212,7 @@ fi
 %{systemd_libdir}/system
 /usr/lib/systemd/
 %{_sysconfdir}/profile.d/40systemd.sh
-%{_sysconfdir}/rpm/macros.d/macros.systemd
+%{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
