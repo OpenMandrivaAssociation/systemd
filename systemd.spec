@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -714,7 +714,7 @@ chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
 # (tpg) move to etc
 mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
-mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/macros.systemd
+mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/systemd.macros
 
 # Make sure the NTP units dir exists
 mkdir -p %{buildroot}%{systemd_libdir}/ntp-units.d/
@@ -1212,7 +1212,7 @@ fi
 %{systemd_libdir}/system
 /usr/lib/systemd/
 %{_sysconfdir}/profile.d/40systemd.sh
-%{_sysconfdir}/rpm/macros.d/macros.systemd
+%{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
