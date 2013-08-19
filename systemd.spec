@@ -713,7 +713,7 @@ EOF
 chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
 # (tpg) move to etc
-mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/macros.systemd
+mv -f %{buildroot}/%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/macros.systemd
 
 # Make sure the NTP units dir exists
 mkdir -p %{buildroot}%{systemd_libdir}/ntp-units.d/
