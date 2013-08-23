@@ -11,6 +11,9 @@ enable systemd-readahead-collect.service
 # Enable ACPI daemon
 enable acpid.*
 
+# Enable by default enable DM
+enable display-manager.service
+
 # Enable udev service
 enable systemd-udev*.service
 
