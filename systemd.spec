@@ -1015,7 +1015,7 @@ if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
 fi
 
 
-%pre journal-gateway
+%pre -n journal-gateway
 %_pre_groupadd systemd-journal systemd-journal-gateway
 %_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
 %_pre_groupadd systemd-journal-gateway systemd-journal-gateway
@@ -1089,8 +1089,7 @@ fi
 %{systemd_libdir}/systemd-fsck
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-initctl
-%{systemd_libdir}/systemd-journald.service
-%{systemd_libdir}/systemd-journal-flush.service
+%{systemd_libdir}/systemd-journald
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-quotacheck
@@ -1136,7 +1135,7 @@ fi
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
-%{_mandir}/man8/systemd-*
+#%{_mandir}/man8/systemd-*
 %{_mandir}/man8/kernel-install.*
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1202,19 +1201,48 @@ fi
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
+%dir %{systemd_libdir}/system
+%dir %{systemd_libdir}/system/basic.target.wants
+%dir %{systemd_libdir}/system/bluetooth.target.wants
+%dir %{systemd_libdir}/system/dbus.target.wants
+%dir %{systemd_libdir}/system/default.target.wants
+%dir %{systemd_libdir}/system/local-fs.target.wants
+%dir %{systemd_libdir}/system/multi-user.target.wants
+%dir %{systemd_libdir}/system/runlevel1.target.wants
+%dir %{systemd_libdir}/system/runlevel2.target.wants
+%dir %{systemd_libdir}/system/runlevel3.target.wants
+%dir %{systemd_libdir}/system/runlevel4.target.wants
+%dir %{systemd_libdir}/system/runlevel5.target.wants
+%dir %{systemd_libdir}/system/sockets.target.wants
+%dir %{systemd_libdir}/system/sysinit.target.wants
+%dir %{systemd_libdir}/system/syslog.target.wants
+%dir %{systemd_libdir}/system/timers.target.wants
+%dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/systemd/catalog
+%dir %{_prefix}/lib/systemd/ntp-units.d
+%dir %{_prefix}/lib/systemd/system-generators
+%dir %{_prefix}/lib/systemd/user
+%dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
-
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 %{_datadir}/bash-completion/completions/*
-
 /bin/systemctl
-%{_bindir}/systemctl
 /bin/machinectl
-%{systemd_libdir}/system
-/usr/lib/systemd/
+%{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
+#%{systemd_libdir}/system/*.service
+%{systemd_libdir}/system/*.slice
+#%{systemd_libdir}/system/*.socket
+%{systemd_libdir}/system/*.target
+
+%{_prefix}/lib/systemd/catalog/*.catalog
+%{_prefix}/lib/systemd/ntp-units.d/*
+%{_prefix}/lib/systemd/system-generators/*
+%{_prefix}/lib/systemd/user/*.service
+%{_prefix}/lib/systemd/user/*.target
+%{_prefix}/lib/systemd/user-generators/*
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
@@ -1238,7 +1266,9 @@ fi
 
 %files journal-gateway
 %dir %{_datadir}/systemd/gatewayd
-%{systemd_libdir}/systemd-journal-gatewayd.*
+%{systemd_libdir}/systemd-journal-gatewayd
+%{systemd_libdir}/system/systemd-journal-gatewayd.service
+%{systemd_libdir}/system/systemd-journal-gatewayd.socket
 %{_mandir}/man8/systemd-journal-gatewayd.*
 %{_datadir}/systemd/gatewayd/browse.html
 
