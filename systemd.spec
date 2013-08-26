@@ -830,9 +830,7 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
-%_pre_groupadd systemd-journal systemd-journal
-%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
-%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+%_pre_groupadd wheel systemd-journal
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 
 %post
@@ -1017,6 +1015,11 @@ if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
 fi
 
 
+%pre journal-gateway
+%_pre_groupadd systemd-journal systemd-journal-gateway
+%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
+%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+
 %files
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
@@ -1055,7 +1058,6 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
 %dir %{_logdir}/journal
-%dir %{_datadir}/systemd/gatewayd
 
 %{_sysconfdir}/xdg/systemd
 /bin/systemd-ask-password
@@ -1087,7 +1089,8 @@ fi
 %{systemd_libdir}/systemd-fsck
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-initctl
-%{systemd_libdir}/systemd-journal*
+%{systemd_libdir}/systemd-journald.service
+%{systemd_libdir}/systemd-journal-flush.service
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-quotacheck
@@ -1153,7 +1156,6 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/systemd/kbd-model-map
 %{_docdir}/systemd
-%{_datadir}/systemd/gatewayd/browse.html
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
@@ -1233,6 +1235,12 @@ fi
 %{_mandir}/man8/telinit.*
 %{_mandir}/man8/runlevel.*
 %dir /run
+
+%files journal-gateway
+%dir %{_datadir}/systemd/gatewayd
+%{systemd_libdir}/systemd-journal-gatewayd.*
+%{_mandir}/man8/systemd-journal-gatewayd.*
+%{_datadir}/systemd/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
 %{_libdir}/libnss_myhostname.so.%{libnss_myhostname_major}*
