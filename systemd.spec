@@ -249,6 +249,19 @@ Conflicts:	usermode-consoleonly < 1:1.110
 %description sysvinit
 Drop-in replacement for the System V init tools of systemd.
 
+
+%package journal-gateway
+Summary:		Gateway for serving journal events over the network using HTTP
+Requires:		%{name} = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(post):	systemd
+Requires(preun):	systemd
+Requires(postun):	systemd
+Obsoletes:		systemd < 206-7
+
+%description journal-gateway
+Offers journal events over the network using HTTP.
+
 %package -n %{libdaemon}
 Summary:	Systemd-daemon library package
 Group:		System/Libraries
@@ -1015,10 +1028,21 @@ if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
 fi
 
 
-%pre -n journal-gateway
+%pre journal-gateway
 %_pre_groupadd systemd-journal systemd-journal-gateway
 %_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
 %_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+
+%post journal-gateway
+%_post_service systemd-journal-gatewayd.socket
+%_post_service systemd-journal-gatewayd.service
+
+%preun journal-gateway
+%_preun_service systemd-journal-gatewayd.socket
+%_preun_service systemd-journal-gatewayd.service
+
+%postun journal-gateway
+%_postun_service systemd-journal-gatewayd.service
 
 %files
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
