@@ -1,0 +1,3 @@
+# (tpg)
+# By default disable services which are not in 90-default.preset
+disable *

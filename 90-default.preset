@@ -29,9 +29,6 @@ enable polkit.service
 # Enable Avahi by default
 enable avahi*.service
 
-# Enable dbus by default
-enable dbus.service
-
 # Enable mandriva services
 enable mandriva*.service
 
@@ -75,6 +72,3 @@ enable uuidd.service
 enable alsa*.service
 enable canberra*.service
 enable sound.service
-
-# By default disable services which are not in above list
-disable *

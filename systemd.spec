@@ -60,8 +60,11 @@ Source9:	udev_net.sysconfig
 Source10:	61-mobile-zte-drakx-net.rules
 Source11:	listen.conf
 # (tpg) default preset for services
-Source12:	99-default.preset
-Source13:	systemd.rpmlintrc
+Source12:	99-default-disable.preset
+Source13:	90-default.preset
+Source14:	85-display-manager-disable.preset
+
+Source15:	systemd.rpmlintrc
 ### SYSTEMD ###
 
 Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
@@ -736,7 +739,10 @@ install -m 0755 -d %{buildroot}%{_logdir}/journal
 # (tpg) Install default Mandriva preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
+# (tpg) install presets
 install -m 0644 %{SOURCE12} %{buildroot}%{systemd_libdir}/system-preset/
+install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
+install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
