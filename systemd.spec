@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	206
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -60,8 +60,11 @@ Source9:	udev_net.sysconfig
 Source10:	61-mobile-zte-drakx-net.rules
 Source11:	listen.conf
 # (tpg) default preset for services
-Source12:	99-default.preset
-Source13:	systemd.rpmlintrc
+Source12:	99-default-disable.preset
+Source13:	90-default.preset
+Source14:	85-display-manager.preset
+
+Source15:	systemd.rpmlintrc
 ### SYSTEMD ###
 
 Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
@@ -248,6 +251,19 @@ Conflicts:	usermode-consoleonly < 1:1.110
 
 %description sysvinit
 Drop-in replacement for the System V init tools of systemd.
+
+
+%package journal-gateway
+Summary:		Gateway for serving journal events over the network using HTTP
+Requires:		%{name} = %{version}-%{release}
+Requires(pre):	rpm-helper
+Requires(post):	rpm-helper
+Requires(preun):	rpm-helper
+Requires(postun):	rpm-helper
+Obsoletes:		systemd < 206-7
+
+%description journal-gateway
+Offers journal events over the network using HTTP.
 
 %package -n %{libdaemon}
 Summary:	Systemd-daemon library package
@@ -723,7 +739,10 @@ install -m 0755 -d %{buildroot}%{_logdir}/journal
 # (tpg) Install default Mandriva preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
+# (tpg) install presets
 install -m 0644 %{SOURCE12} %{buildroot}%{systemd_libdir}/system-preset/
+install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
+install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
@@ -830,9 +849,7 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
-%_pre_groupadd systemd-journal systemd-journal
-%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
-%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+%_pre_groupadd wheel systemd-journal
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 
 %post
@@ -1017,6 +1034,22 @@ if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
 fi
 
 
+%pre journal-gateway
+%_pre_groupadd systemd-journal systemd-journal-gateway
+%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
+%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+
+%post journal-gateway
+%_post_service systemd-journal-gatewayd.socket
+%_post_service systemd-journal-gatewayd.service
+
+%preun journal-gateway
+%_preun_service systemd-journal-gatewayd.socket
+%_preun_service systemd-journal-gatewayd.service
+
+%postun journal-gateway
+%_postun_service systemd-journal-gatewayd.service
+
 %files
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
@@ -1055,7 +1088,6 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
 %dir %{_logdir}/journal
-%dir %{_datadir}/systemd/gatewayd
 
 %{_sysconfdir}/xdg/systemd
 /bin/systemd-ask-password
@@ -1087,7 +1119,7 @@ fi
 %{systemd_libdir}/systemd-fsck
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-initctl
-%{systemd_libdir}/systemd-journal*
+%{systemd_libdir}/systemd-journald
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-quotacheck
@@ -1099,7 +1131,7 @@ fi
 %{systemd_libdir}/systemd-user-sessions
 %{systemd_libdir}/systemd-vconsole-setup
 %{systemd_libdir}/*-generators/*
-%{systemd_libdir}/system-preset/99-default.preset
+%{systemd_libdir}/system-preset/*.preset
 /usr/lib/tmpfiles.d/*.conf
 /%{_lib}/security/pam_systemd.so
 %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
@@ -1133,7 +1165,44 @@ fi
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
-%{_mandir}/man8/systemd-*
+%{_mandir}/man8/systemd-activate.8.*
+%{_mandir}/man8/systemd-ask-*.8.*
+%{_mandir}/man8/systemd-binfmt*.8.*
+%{_mandir}/man8/systemd-cryptsetup*.8.*
+%{_mandir}/man8/systemd-fsck*.8.*
+%{_mandir}/man8/systemd-fstab*.8.*
+%{_mandir}/man8/systemd-getty*.8.*
+%{_mandir}/man8/systemd-halt*.8.*
+%{_mandir}/man8/systemd-hibernate*.8.*
+%{_mandir}/man8/systemd-hostnamed*.8.*
+%{_mandir}/man8/systemd-hybrid*.8.*
+%{_mandir}/man8/systemd-initctl*.8.*
+%{_mandir}/man8/systemd-journald.8.*
+%{_mandir}/man8/systemd-journald.service.8.*
+%{_mandir}/man8/systemd-journald.socket.8.*
+%{_mandir}/man8/systemd-kexec*.8.*
+%{_mandir}/man8/systemd-localed*.8.*
+%{_mandir}/man8/systemd-logind*.8.*
+%{_mandir}/man8/systemd-machined*.8.*
+%{_mandir}/man8/systemd-modules*.8.*
+%{_mandir}/man8/systemd-poweroff*.8.*
+%{_mandir}/man8/systemd-quota*.8.*
+%{_mandir}/man8/systemd-random*.8.*
+%{_mandir}/man8/systemd-readahead*.8.*
+%{_mandir}/man8/systemd-reboot*.8.*
+%{_mandir}/man8/systemd-remount*.8.*
+%{_mandir}/man8/systemd-shutdown*.8.*
+%{_mandir}/man8/systemd-sleep*.8.*
+%{_mandir}/man8/systemd-suspend*.8.*
+%{_mandir}/man8/systemd-sysctl*.8.*
+%{_mandir}/man8/systemd-system*.8.*
+%{_mandir}/man8/systemd-timedated*.8.*
+%{_mandir}/man8/systemd-tmpfiles*.8.*
+%{_mandir}/man8/systemd-udev*.8.*
+%{_mandir}/man8/systemd-update*.8.*
+%{_mandir}/man8/systemd-user*.8.*
+%{_mandir}/man8/systemd-vconsole*.8.*
+
 %{_mandir}/man8/kernel-install.*
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1153,7 +1222,6 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/systemd/kbd-model-map
 %{_docdir}/systemd
-%{_datadir}/systemd/gatewayd/browse.html
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
@@ -1200,19 +1268,113 @@ fi
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/binfmt.d
+%dir %{systemd_libdir}/system
+%dir %{systemd_libdir}/system/basic.target.wants
+%dir %{systemd_libdir}/system/bluetooth.target.wants
+%dir %{systemd_libdir}/system/dbus.target.wants
+%dir %{systemd_libdir}/system/default.target.wants
+%dir %{systemd_libdir}/system/local-fs.target.wants
+%dir %{systemd_libdir}/system/multi-user.target.wants
+%dir %{systemd_libdir}/system/runlevel1.target.wants
+%dir %{systemd_libdir}/system/runlevel2.target.wants
+%dir %{systemd_libdir}/system/runlevel3.target.wants
+%dir %{systemd_libdir}/system/runlevel4.target.wants
+%dir %{systemd_libdir}/system/runlevel5.target.wants
+%dir %{systemd_libdir}/system/sockets.target.wants
+%dir %{systemd_libdir}/system/sysinit.target.wants
+%dir %{systemd_libdir}/system/syslog.target.wants
+%dir %{systemd_libdir}/system/timers.target.wants
+%dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/systemd/catalog
+%dir %{_prefix}/lib/systemd/ntp-units.d
+%dir %{_prefix}/lib/systemd/system-generators
+%dir %{_prefix}/lib/systemd/user
+%dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
-
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 %{_datadir}/bash-completion/completions/*
-
 /bin/systemctl
-%{_bindir}/systemctl
 /bin/machinectl
-%{systemd_libdir}/system
-/usr/lib/systemd/
+%{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
+%{systemd_libdir}/system/local-fs.target.wants/*.service
+%{systemd_libdir}/system/local-fs.target.wants/*.mount
+%{systemd_libdir}/system/multi-user.target.wants/*.target
+%{systemd_libdir}/system/multi-user.target.wants/*.path
+%{systemd_libdir}/system/multi-user.target.wants/*.service
+%{systemd_libdir}/system/runlevel*.target.wants/*.service
+%{systemd_libdir}/system/sockets.target.wants/*.socket
+%{systemd_libdir}/system/sysinit.target.wants/*.target
+%{systemd_libdir}/system/sysinit.target.wants/*.*mount
+%{systemd_libdir}/system/sysinit.target.wants/*.service
+%{systemd_libdir}/system/sysinit.target.wants/*.path
+%{systemd_libdir}/system/timers.target.wants/*.timer
+%{systemd_libdir}/system/*.automount
+%{systemd_libdir}/system/*.mount
+%{systemd_libdir}/system/*.path
+%{systemd_libdir}/system/auto*.service
+%{systemd_libdir}/system/console*.service
+%{systemd_libdir}/system/dbus-org*.service
+%{systemd_libdir}/system/de*.service
+%{systemd_libdir}/system/emergency*.service
+%{systemd_libdir}/system/getty*.service
+%{systemd_libdir}/system/halt-*.service
+%{systemd_libdir}/system/initrd-*.service
+%{systemd_libdir}/system/kmod-*.service
+%{systemd_libdir}/system/quota*.service
+%{systemd_libdir}/system/rc-*.service
+%{systemd_libdir}/system/rescue*.service
+%{systemd_libdir}/system/serial-*.service
+%{systemd_libdir}/system/systemd-ask-password*.service
+%{systemd_libdir}/system/systemd-binfmt*.service
+%{systemd_libdir}/system/systemd-fsck*.service
+%{systemd_libdir}/system/systemd-halt*.service
+%{systemd_libdir}/system/systemd-hibernate*.service
+%{systemd_libdir}/system/systemd-hostnamed*.service
+%{systemd_libdir}/system/systemd-hybrid*.service
+%{systemd_libdir}/system/systemd-initctl*.service
+%{systemd_libdir}/system/systemd-journal-flush.service
+%{systemd_libdir}/system/systemd-journald.service
+%{systemd_libdir}/system/systemd-kexec*.service
+%{systemd_libdir}/system/systemd-localed*.service
+%{systemd_libdir}/system/systemd-logind*.service
+%{systemd_libdir}/system/systemd-machined.service
+%{systemd_libdir}/system/systemd-modules-load.service
+%{systemd_libdir}/system/systemd-nspawn*.service
+%{systemd_libdir}/system/systemd-poweroff.service
+%{systemd_libdir}/system/systemd-quotacheck.service
+%{systemd_libdir}/system/systemd-random*service
+%{systemd_libdir}/system/systemd-readahead*.service
+%{systemd_libdir}/system/systemd-readahead*.timer
+%{systemd_libdir}/system/systemd-reboot.service
+%{systemd_libdir}/system/systemd-remount*.service
+%{systemd_libdir}/system/systemd-shutdownd.service
+%{systemd_libdir}/system/systemd-suspend.service
+%{systemd_libdir}/system/systemd-sysctl.service
+%{systemd_libdir}/system/systemd-timedated.service
+%{systemd_libdir}/system/systemd-tmpfiles-*.service
+%{systemd_libdir}/system/systemd-tmpfiles-*.timer
+%{systemd_libdir}/system/systemd-udev*.service
+%{systemd_libdir}/system/systemd-update-*.service
+%{systemd_libdir}/system/systemd-user-*.service
+%{systemd_libdir}/system/systemd-vconsole-*.service
+%{systemd_libdir}/system/udev*.service
+%{systemd_libdir}/system/user*.service
+
+%{systemd_libdir}/system/*.slice
+
+%{systemd_libdir}/system/syslog.socket
+%{systemd_libdir}/system/systemd-initctl.socket
+%{systemd_libdir}/system/systemd-journald.socket
+%{systemd_libdir}/system/systemd-shutdownd.socket
+%{systemd_libdir}/system/systemd-udev*.socket
+%{systemd_libdir}/system/*.target
+
+%{_prefix}/lib/systemd/catalog/*.catalog
+%{_prefix}/lib/systemd/user/*.service
+%{_prefix}/lib/systemd/user/*.target
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
@@ -1233,6 +1395,14 @@ fi
 %{_mandir}/man8/telinit.*
 %{_mandir}/man8/runlevel.*
 %dir /run
+
+%files journal-gateway
+%dir %{_datadir}/systemd/gatewayd
+%{systemd_libdir}/systemd-journal-gatewayd
+%{systemd_libdir}/system/systemd-journal-gatewayd.service
+%{systemd_libdir}/system/systemd-journal-gatewayd.socket
+%{_mandir}/man8/systemd-journal-gatewayd.*
+%{_datadir}/systemd/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
 %{_libdir}/libnss_myhostname.so.%{libnss_myhostname_major}*
