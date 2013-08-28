@@ -62,7 +62,7 @@ Source11:	listen.conf
 # (tpg) default preset for services
 Source12:	99-default-disable.preset
 Source13:	90-default.preset
-Source14:	85-display-manager-disable.preset
+Source14:	85-display-manager.preset
 
 Source15:	systemd.rpmlintrc
 ### SYSTEMD ###
