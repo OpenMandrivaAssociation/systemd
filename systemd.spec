@@ -854,7 +854,7 @@ systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket sys
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /bin/udevadm hwdb --update >/dev/null 2>&1 || :
-/usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
+/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) this is needed for rsyslog
 /bin/ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
