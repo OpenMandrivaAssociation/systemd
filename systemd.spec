@@ -257,9 +257,9 @@ Drop-in replacement for the System V init tools of systemd.
 Summary:		Gateway for serving journal events over the network using HTTP
 Requires:		%{name} = %{version}-%{release}
 Requires(pre):	rpm-helper
-Requires(post):	systemd
-Requires(preun):	systemd
-Requires(postun):	systemd
+Requires(post):	rpm-helper
+Requires(preun):	rpm-helper
+Requires(postun):	rpm-helper
 Obsoletes:		systemd < 206-7
 
 %description journal-gateway
