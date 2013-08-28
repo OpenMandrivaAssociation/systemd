@@ -1159,7 +1159,44 @@ fi
 %{_mandir}/man5/*
 %{_mandir}/man7/*
 %{_mandir}/man8/pam_systemd.*
-#%{_mandir}/man8/systemd-*
+%{_mandir}/man8/systemd-activate.8.*
+%{_mandir}/man8/systemd-ask-*.8.*
+%{_mandir}/man8/systemd-binfmt*.8.*
+%{_mandir}/man8/systemd-cryptsetup*.8.*
+%{_mandir}/man8/systemd-fsck*.8.*
+%{_mandir}/man8/systemd-fstab*.8.*
+%{_mandir}/man8/systemd-getty*.8.*
+%{_mandir}/man8/systemd-halt*.8.*
+%{_mandir}/man8/systemd-hibernate*.8.*
+%{_mandir}/man8/systemd-hostnamed*.8.*
+%{_mandir}/man8/systemd-hybrid*.8.*
+%{_mandir}/man8/systemd-initctl*.8.*
+%{_mandir}/man8/systemd-journald.8.*
+%{_mandir}/man8/systemd-journald.service.8.*
+%{_mandir}/man8/systemd-journald.socket.8.*
+%{_mandir}/man8/systemd-kexec*.8.*
+%{_mandir}/man8/systemd-localed*.8.*
+%{_mandir}/man8/systemd-logind*.8.*
+%{_mandir}/man8/systemd-machined*.8.*
+%{_mandir}/man8/systemd-modules*.8.*
+%{_mandir}/man8/systemd-poweroff*.8.*
+%{_mandir}/man8/systemd-quota*.8.*
+%{_mandir}/man8/systemd-random*.8.*
+%{_mandir}/man8/systemd-readahead*.8.*
+%{_mandir}/man8/systemd-reboot*.8.*
+%{_mandir}/man8/systemd-remount*.8.*
+%{_mandir}/man8/systemd-shutdown*.8.*
+%{_mandir}/man8/systemd-sleep*.8.*
+%{_mandir}/man8/systemd-suspend*.8.*
+%{_mandir}/man8/systemd-sysctl*.8.*
+%{_mandir}/man8/systemd-system*.8.*
+%{_mandir}/man8/systemd-timedated*.8.*
+%{_mandir}/man8/systemd-tmpfiles*.8.*
+%{_mandir}/man8/systemd-udev*.8.*
+%{_mandir}/man8/systemd-update*.8.*
+%{_mandir}/man8/systemd-user*.8.*
+%{_mandir}/man8/systemd-vconsole*.8.*
+
 %{_mandir}/man8/kernel-install.*
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1243,10 +1280,10 @@ fi
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
-%dir %{_prefix}/lib/systemd/ntp-units.d
-%dir %{_prefix}/lib/systemd/system-generators
+%#dir %{_prefix}/lib/systemd/ntp-units.d
+#%dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
-%dir %{_prefix}/lib/systemd/user-generators
+#%dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
@@ -1256,6 +1293,18 @@ fi
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
+%{systemd_libdir}/system/local-fs.target.wants/*.service
+%{systemd_libdir}/system/local-fs.target.wants/.mount
+%{systemd_libdir}/system/multi-user.target.wants/*.target
+%{systemd_libdir}/system/multi-user.target.wants/*.path
+%{systemd_libdir}/system/multi-user.target.wants/*.service
+%{systemd_libdir}/system/runlevel*.target.wants/*.service
+%{systemd_libdir}/system/sockets.target.wants/*.socket
+%{systemd_libdir}/system/sysinit.target.wants/*.target
+%{systemd_libdir}/system/sysinit.target.wants/*.*mount
+%{systemd_libdir}/system/sysinit.target.wants/*.service
+%{systemd_libdir}/system/sysinit.target.wants/*.path
+%{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/system/*.automount
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
@@ -1296,9 +1345,23 @@ fi
 %{systemd_libdir}/system/systemd-remount*.service
 %{systemd_libdir}/system/systemd-shutdownd.service
 %{systemd_libdir}/system/systemd-suspend.service
+%{systemd_libdir}/system/systemd-sysctl.service
+%{systemd_libdir}/system/systemd-timedated.service
+%{systemd_libdir}/system/systemd-tmpfiles-*.service
+%{systemd_libdir}/system/systemd-udev*.service
+%{systemd_libdir}/system/systemd-update-*.service
+%{systemd_libdir}/system/systemd-user-*.service
+%{systemd_libdir}/system/systemd-vconsole-*.service
+%{systemd_libdir}/system/udev*.service
+%{systemd_libdir}/system/user*.service
 
 %{systemd_libdir}/system/*.slice
-#%{systemd_libdir}/system/*.socket
+
+%{systemd_libdir}/system/syslog.socket
+%{systemd_libdir}/system/systemd-initctl.socket
+%{systemd_libdir}/system/systemd-journald.socket
+%{systemd_libdir}/system/systemd-shutdownd.socket
+%{systemd_libdir}/system/systemd-udev*.socket
 %{systemd_libdir}/system/*.target
 
 %{_prefix}/lib/systemd/catalog/*.catalog
