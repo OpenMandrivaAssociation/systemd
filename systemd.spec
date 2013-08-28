@@ -1286,7 +1286,7 @@ fi
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
-%#dir %{_prefix}/lib/systemd/ntp-units.d
+#%dir %{_prefix}/lib/systemd/ntp-units.d
 #%dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
 #%dir %{_prefix}/lib/systemd/user-generators
