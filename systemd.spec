@@ -1286,10 +1286,10 @@ fi
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
-#%dir %{_prefix}/lib/systemd/ntp-units.d
-#%dir %{_prefix}/lib/systemd/system-generators
+%dir %{_prefix}/lib/systemd/ntp-units.d
+%dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
-#%dir %{_prefix}/lib/systemd/user-generators
+%dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
@@ -1300,7 +1300,7 @@ fi
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{systemd_libdir}/system/local-fs.target.wants/*.service
-%{systemd_libdir}/system/local-fs.target.wants/.mount
+%{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/multi-user.target.wants/*.target
 %{systemd_libdir}/system/multi-user.target.wants/*.path
 %{systemd_libdir}/system/multi-user.target.wants/*.service
@@ -1347,6 +1347,7 @@ fi
 %{systemd_libdir}/system/systemd-quotacheck.service
 %{systemd_libdir}/system/systemd-random*service
 %{systemd_libdir}/system/systemd-readahead*.service
+%{systemd_libdir}/system/systemd-readahead*.timer
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount*.service
 %{systemd_libdir}/system/systemd-shutdownd.service
@@ -1354,6 +1355,7 @@ fi
 %{systemd_libdir}/system/systemd-sysctl.service
 %{systemd_libdir}/system/systemd-timedated.service
 %{systemd_libdir}/system/systemd-tmpfiles-*.service
+%{systemd_libdir}/system/systemd-tmpfiles-*.timer
 %{systemd_libdir}/system/systemd-udev*.service
 %{systemd_libdir}/system/systemd-update-*.service
 %{systemd_libdir}/system/systemd-user-*.service
@@ -1371,11 +1373,8 @@ fi
 %{systemd_libdir}/system/*.target
 
 %{_prefix}/lib/systemd/catalog/*.catalog
-%{_prefix}/lib/systemd/ntp-units.d/*
-%{_prefix}/lib/systemd/system-generators/*
 %{_prefix}/lib/systemd/user/*.service
 %{_prefix}/lib/systemd/user/*.target
-%{_prefix}/lib/systemd/user-generators/*
 %{_mandir}/man1/systemctl.*
 
 %files sysvinit
