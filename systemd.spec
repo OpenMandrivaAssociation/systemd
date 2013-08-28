@@ -1131,7 +1131,7 @@ fi
 %{systemd_libdir}/systemd-user-sessions
 %{systemd_libdir}/systemd-vconsole-setup
 %{systemd_libdir}/*-generators/*
-%{systemd_libdir}/system-preset/99-default.preset
+%{systemd_libdir}/system-preset/*.preset
 /usr/lib/tmpfiles.d/*.conf
 /%{_lib}/security/pam_systemd.so
 %{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
