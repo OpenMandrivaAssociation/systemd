@@ -101,6 +101,7 @@ Patch506: 0506-Allow-booting-from-live-cd-in-virtualbox.patch
 #Patch507: 0507-reinstate-TIMEOUT-handling.patch
 Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch509:	systemd-python-fix-initialization-of-_Reader-objects.patch
+Patch510:	systemd-python-check-for-oom-give-nicer-error-messag.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
