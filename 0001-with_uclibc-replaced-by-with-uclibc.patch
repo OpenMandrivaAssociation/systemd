@@ -1,0 +1,25 @@
+From 7b9ec0f81d1eb1fdb03ba77191de17169084a8aa Mon Sep 17 00:00:00 2001
+From: Alexander Khryukin <alexander@mezon.ru>
+Date: Wed, 27 Mar 2013 12:26:44 +0000
+Subject: [PATCH] with_uclibc replaced by with uclibc
+
+---
+ systemd.spec | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/systemd.spec b/systemd.spec
+index 1e01e38..1ecbd25 100644
+--- a/systemd.spec
++++ b/systemd.spec
+@@ -299,7 +299,7 @@ functionality of the GNU C Library (glibc) providing host name
+ resolution for the locally configured system hostname as returned by
+ gethostname(2).
+ 
+-%if %{with_uclibc}
++%if %{with uclibc}
+ %package -n uclibc-%{libnss_myhostname}
+ Summary:	Library for local system host name resolution (uClibc linked)
+ Group:		System/Libraries
+-- 
+1.8.2
+
