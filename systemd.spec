@@ -572,6 +572,8 @@ pushd uclibc
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--enable-static \
+	--with-distro=mandriva \
+	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
@@ -607,6 +609,7 @@ pushd shared
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--disable-static \
 	--with-distro=mandriva \
+	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
