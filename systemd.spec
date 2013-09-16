@@ -1065,6 +1065,7 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
+%config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) /usr/lib/sysctl.d/50-coredump.conf
 %config(noreplace) /usr/lib/sysctl.d/50-default.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
