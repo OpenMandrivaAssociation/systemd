@@ -579,6 +579,8 @@ pushd uclibc
 	--without-python \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
+    
+sed -i -e 's#rpath  src#rpath  %{uclibc_root}%{_libdir} src#g' Makefile*
 
 %make
 popd
