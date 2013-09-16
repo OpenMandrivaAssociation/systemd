@@ -532,15 +532,14 @@ This package contains documentation of udev.
 %apply_patches
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
-intltoolize --force --automake
-autoreconf --force --install --symlink
+#intltoolize --force --automake
+autoreconf -fiv
 
 %build
 %serverbuild_hardened
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
 %endif
-
 
 export CONFIGURE_TOP="$PWD"
 
@@ -579,10 +578,10 @@ pushd uclibc
 	--without-python \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
-    
-export pkgpyexecdir="%{uclibc_root}%{_libdir}"
 
 %make
+
+cat Makefile
 popd
 %endif
 
