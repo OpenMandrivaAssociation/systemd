@@ -579,9 +579,10 @@ pushd uclibc
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
+sed -i -e 's/-rpath//g' Makefile*
+
 %make
 
-cat Makefile
 popd
 %endif
 
