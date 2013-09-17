@@ -617,6 +617,7 @@ popd
 
 %install
 %if %{with uclibc}
+cd uclibc
 cat Makefile
 exit 1
 %makeinstall_std -C uclibc
