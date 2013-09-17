@@ -617,9 +617,7 @@ popd
 
 %install
 %if %{with uclibc}
-cd uclibc
-cat Makefile
-exit 1
+sed -i -e 's/libsystemd-daemon.lai/libsystemd-daemon.la/g' uclibc/Makefile
 %makeinstall_std -C uclibc
 mv %{buildroot}/bin %{buildroot}%{uclibc_root}/bin
 mkdir -p %{buildroot}%{uclibc_root}/sbin
