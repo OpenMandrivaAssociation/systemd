@@ -181,6 +181,18 @@ Requires:	nss_myhostname = %{version}-%{release}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
 
+# (tpg) conflict with old sysvinit subpackage
+%rename		systemd-sysvinit
+Conflicts:	systemd-sysvinit < 207-1
+# (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
+#SysVinit < %sysvinit_release-%sysvinit_release It's provides something
+#like that SysVinit < 14-14 when it should be SysVinit 2.87-14
+Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
+# (tpg) time to die
+Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
+# Due to halt/poweroff etc. in _bindir
+Conflicts:	usermode-consoleonly < 1:1.110
+
 %description
 systemd is a system and session manager for Linux, compatible with
 SysV and LSB init scripts. systemd provides aggressive parallelization
@@ -222,6 +234,17 @@ Conflicts:	%{name} < 35-6
 %description tools
 Non essential systemd tools.
 
+%if %{with uclibc}
+%package -n uclibc-tools
+Summary:	Non essential systemd tools
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 35-6
+
+%description tools
+Non essential uclibc systemd tools.
+%endif
+
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
@@ -235,23 +258,6 @@ Requires(pre):	rpm-helper
 %description units
 Basic configuration files, directories and installation tool for the systemd
 system and session manager.
-
-%package sysvinit
-Summary:	System V init tools
-Group:		System/Configuration/Boot and Init
-Requires:	%{name} = %{version}-%{release}
-# (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
-#SysVinit < %sysvinit_release-%sysvinit_release It's provides something
-#like that SysVinit < 14-14 when it should be SysVinit 2.87-14
-Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
-# (tpg) time to die
-Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
-# Due to halt/poweroff etc. in _bindir
-Conflicts:	usermode-consoleonly < 1:1.110
-
-%description sysvinit
-Drop-in replacement for the System V init tools of systemd.
-
 
 %package journal-gateway
 Summary:		Gateway for serving journal events over the network using HTTP
@@ -1078,7 +1084,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 %ghost %{_sysconfdir}/udev/hwdb.bin
-
 %dir /run
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/*-generators
@@ -1093,8 +1098,19 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
 %dir %{_logdir}/journal
-
 %{_sysconfdir}/xdg/systemd
+%{_initrddir}/README
+%{_logdir}/README
+
+# (tpg) from sysvinit subpackage
+/sbin/init
+/bin/reboot
+/bin/halt
+/bin/poweroff
+/sbin/shutdown
+/sbin/telinit
+/sbin/runlevel
+#
 /bin/systemd-ask-password
 /bin/systemd-notify
 /bin/systemd-tmpfiles
@@ -1119,6 +1135,7 @@ fi
 %{systemd_libdir}/systemd-ac-power
 %{systemd_libdir}/systemd-activate
 %{systemd_libdir}/systemd-bootchart
+%{systemd_libdir}/systemd-backlight
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-c*
 %{systemd_libdir}/systemd-fsck
@@ -1145,6 +1162,7 @@ fi
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgtop
+%{_mandir}/man1/init.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-ask-password.*
 %{_mandir}/man1/systemd-bootchart.1.*
@@ -1169,11 +1187,20 @@ fi
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
+%{_mandir}/man8/halt.*
+%{_mandir}/man8/reboot.*
+%{_mandir}/man8/shutdown.*
+%{_mandir}/man8/poweroff.*
+%{_mandir}/man8/telinit.*
+%{_mandir}/man8/runlevel.*
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-activate.8.*
 %{_mandir}/man8/systemd-ask-*.8.*
+%{_mandir}/man8/systemd-backlight*.8.*
 %{_mandir}/man8/systemd-binfmt*.8.*
 %{_mandir}/man8/systemd-cryptsetup*.8.*
+%{_mandir}/man8/systemd-efi-boot-generator*.8.*
+%{_mandir}/man8/systemd-gpt-auto-generator*.8.*
 %{_mandir}/man8/systemd-fsck*.8.*
 %{_mandir}/man8/systemd-fstab*.8.*
 %{_mandir}/man8/systemd-getty*.8.*
@@ -1264,6 +1291,13 @@ fi
 %{python_sitearch}/%{name}/*.py*
 %{python_sitearch}/%{name}/*.so
 
+%if %{with uclibc}
+%files -n uclibc-tools
+%dir %{uclibc_root}%{python_sitearch}/%{name}
+%{uclibc_root}%{python_sitearch}/%{name}/*.py*
+%{uclibc_root}%{python_sitearch}/%{name}/*.so
+%endif
+
 %files units
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
@@ -1299,6 +1333,7 @@ fi
 %dir %{_datadir}/bash-completion/completions
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 %{_datadir}/bash-completion/completions/*
+%{_datadir}/zsh/site-functions/*
 /bin/systemctl
 /bin/machinectl
 %{_bindir}/systemctl
@@ -1333,6 +1368,7 @@ fi
 %{systemd_libdir}/system/rescue*.service
 %{systemd_libdir}/system/serial-*.service
 %{systemd_libdir}/system/systemd-ask-password*.service
+%{systemd_libdir}/system/systemd-backlight*.service
 %{systemd_libdir}/system/systemd-binfmt*.service
 %{systemd_libdir}/system/systemd-fsck*.service
 %{systemd_libdir}/system/systemd-halt*.service
@@ -1381,25 +1417,6 @@ fi
 %{_prefix}/lib/systemd/user/*.service
 %{_prefix}/lib/systemd/user/*.target
 %{_mandir}/man1/systemctl.*
-
-%files sysvinit
-/sbin/init
-/bin/reboot
-/bin/halt
-/bin/poweroff
-/sbin/shutdown
-/sbin/telinit
-/sbin/runlevel
-%{_initrddir}/README
-%{_logdir}/README
-%{_mandir}/man1/init.*
-%{_mandir}/man8/halt.*
-%{_mandir}/man8/reboot.*
-%{_mandir}/man8/shutdown.*
-%{_mandir}/man8/poweroff.*
-%{_mandir}/man8/telinit.*
-%{_mandir}/man8/runlevel.*
-%dir /run
 
 %files journal-gateway
 %dir %{_datadir}/systemd/gatewayd
