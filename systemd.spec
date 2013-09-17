@@ -575,11 +575,9 @@ pushd uclibc
 	--enable-gcrypt \
 	--disable-audit \
 	--disable-manpages \
-	--without-python \
+	--with-python \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
-
-sed -i -e 's/-rpath/ /g' Makefile*
 
 %make
 
@@ -617,7 +615,6 @@ popd
 
 %install
 %if %{with uclibc}
-sed -i -e 's/libsystemd-daemon.lai/libsystemd-daemon.la/g' uclibc/Makefile
 %makeinstall_std -C uclibc
 mv %{buildroot}/bin %{buildroot}%{uclibc_root}/bin
 mkdir -p %{buildroot}%{uclibc_root}/sbin
@@ -880,6 +877,7 @@ fi
 
 # Migrate /etc/sysconfig/i18n
 if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
+		unset LANGUAGE
         unset LANG
         unset LC_CTYPE
         unset LC_NUMERIC
@@ -894,7 +892,8 @@ if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
         unset LC_MEASUREMENT
         unset LC_IDENTIFICATION
         . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-        [ -n "$LANG" ] && echo LANG=$LANG > /etc/locale.conf 2>&1 || :
+        [ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
+        [ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
         [ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
         [ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
         [ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
