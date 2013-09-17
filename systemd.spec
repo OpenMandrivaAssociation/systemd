@@ -1293,9 +1293,9 @@ fi
 
 %if %{with uclibc}
 %files -n uclibc-tools
-%dir %{uclibc_root}%{python_sitearch}/%{name}
-%{uclibc_root}%{python_sitearch}/%{name}/*.py*
-%{uclibc_root}%{python_sitearch}/%{name}/*.so
+%dir %{uclibc_root}%{python_sitelib}/%{name}
+%{uclibc_root}%{python_sitelib}/%{name}/*.py*
+%{uclibc_root}%{python_sitelib}/%{name}/*.so
 %endif
 
 %files units
