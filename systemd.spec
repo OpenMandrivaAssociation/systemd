@@ -617,6 +617,8 @@ popd
 
 %install
 %if %{with uclibc}
+cat Makefile
+exit 1
 %makeinstall_std -C uclibc
 mv %{buildroot}/bin %{buildroot}%{uclibc_root}/bin
 mkdir -p %{buildroot}%{uclibc_root}/sbin
