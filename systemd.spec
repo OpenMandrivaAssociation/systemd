@@ -1307,6 +1307,7 @@ fi
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/systemd/system/getty.target.wants
+%dif %{_sysconfdir}/systemd/system/getty@.service.d
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
@@ -1336,6 +1337,7 @@ fi
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
+%{_sysconfdir}/systemd/system/getty@.service.d/*.conf
 %{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/*
 /bin/systemctl
