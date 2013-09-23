@@ -1,4 +1,4 @@
-%bcond_with bootstrap
+%bcond_without bootstrap
 %bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
@@ -13,16 +13,16 @@
 %define libnss_myhostname_major 2
 
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
-%define libdaemon_devel %mklibname -d systemd-daemon %{libdaemon_major}
+%define libdaemon_devel %mklibname systemd-daemon -d
 
 %define liblogin %mklibname systemd-login %{liblogin_major}
-%define liblogin_devel %mklibname -d systemd-login %{liblogin_major}
+%define liblogin_devel %mklibname systemd-login -d
 
 %define libjournal %mklibname systemd-journal %{libjournal_major}
-%define libjournal_devel %mklibname -d systemd-journal %{libjournal_major}
+%define libjournal_devel %mklibname systemd-journal -d
 
 %define libid128 %mklibname systemd-id128 %{libid128_major}
-%define libid128_devel %mklibname -d systemd-id128 %{libid128_major}
+%define libid128_devel %mklibname systemd-id128 -d
 
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_myhostname_major}
 
@@ -300,6 +300,7 @@ Requires:	%{libdaemon} = %{version}-%{release}
 Requires:	uclibc-%{libdaemon} = %{version}-%{release}
 %endif
 Provides:	libsystemd-daemon-devel = %{version}-%{release}
+%rename		%{mklibname systemd-daemon -d 0}
 
 %description -n	%{libdaemon_devel}
 Development files for the systemd-daemon shared library.
@@ -311,30 +312,6 @@ Provides:	libsystemd-login = %{version}-%{release}
 
 %description -n	%{liblogin}
 This package provides the systemd-login shared library.
-
-%package -n %{libnss_myhostname}
-Summary:	Library for local system host name resolution
-Group:		System/Libraries
-Provides:	libnss_myhostname = %{version}-%{release}
-Provides:	nss_myhostname = %{version}-%{release}
-Obsoletes:	nss_myhostname <= 0.3-1
-Requires(post,preun):	rpm-helper
-Requires(post,preun):	sed
-
-%description -n %{libnss_myhostname}
-nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
-functionality of the GNU C Library (glibc) providing host name
-resolution for the locally configured system hostname as returned by
-gethostname(2).
-
-%if %{with uclibc}
-%package -n uclibc-%{libnss_myhostname}
-Summary:	Library for local system host name resolution (uClibc linked)
-Group:		System/Libraries
-
-%description -n uclibc-%{libnss_myhostname}
-uClibc version of nss-myhostname.
-%endif
 
 %if %{with uclibc}
 %package -n uclibc-%{liblogin}
@@ -353,6 +330,7 @@ Requires:	%{liblogin} = %{version}-%{release}
 Requires:	uclibc-%{liblogin} = %{version}-%{release}
 %endif
 Provides:	libsystemd-login-devel = %{version}-%{release}
+%rename		%{mklibname systemd-login -d 0}
 
 %description -n	%{liblogin_devel}
 Development files for the systemd-login shared library.
@@ -382,6 +360,7 @@ Requires:	%{libjournal} = %{version}-%{release}
 Requires:	uclibc-%{libjournal} = %{version}-%{release}
 %endif
 Provides:	libsystemd-journal-devel = %{version}-%{release}
+%rename		%{mklibname systemd-journal -d 0}
 
 %description -n	%{libjournal_devel}
 Development files for the systemd-journal shared library.
@@ -411,9 +390,34 @@ Requires:	%{libid128} = %{version}-%{release}
 Requires:	uclibc-%{libid128} = %{version}-%{release}
 %endif
 Provides:	libsystemd-id128-devel = %{version}-%{release}
+%rename		%{mklibname systemd-id128 -d 0}
 
 %description -n %{libid128_devel}
 Development files for the systemd-id128 shared library.
+
+%package -n %{libnss_myhostname}
+Summary:	Library for local system host name resolution
+Group:		System/Libraries
+Provides:	libnss_myhostname = %{version}-%{release}
+Provides:	nss_myhostname = %{version}-%{release}
+Obsoletes:	nss_myhostname <= 0.3-1
+Requires(post,preun):	rpm-helper
+Requires(post,preun):	sed
+
+%description -n %{libnss_myhostname}
+nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
+functionality of the GNU C Library (glibc) providing host name
+resolution for the locally configured system hostname as returned by
+gethostname(2).
+
+%if %{with uclibc}
+%package -n uclibc-%{libnss_myhostname}
+Summary:	Library for local system host name resolution (uClibc linked)
+Group:		System/Libraries
+
+%description -n uclibc-%{libnss_myhostname}
+uClibc version of nss-myhostname.
+%endif
 
 %package -n udev
 Summary:	Device manager for the Linux kernel
