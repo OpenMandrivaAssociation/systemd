@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	207
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -861,6 +861,8 @@ fi
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 
 %post
+# (tpg) create group before tmpfiles
+%_pre_groupadd %{name}-journal
 /usr/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
 /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
