@@ -77,6 +77,8 @@ Patch5:		systemd-205-uclibc.patch
 Patch6:		systemd-205-static.patch
 
 # GIT
+Patch0110:		0110-swap-fix-reverse-dependencies.patch
+Patch0116:		0116-swap-create-.wants-symlink-to-auto-swap-devices.patch
 
 ### UDEV ###
 # from Mandriva
