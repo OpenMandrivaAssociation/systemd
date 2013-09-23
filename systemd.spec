@@ -300,7 +300,7 @@ Requires:	%{libdaemon} = %{version}-%{release}
 Requires:	uclibc-%{libdaemon} = %{version}-%{release}
 %endif
 Provides:	libsystemd-daemon-devel = %{version}-%{release}
-%rename		%{mklibname systemd-daemon -d 0}
+%rename		%{_lib}systemd-daemon0-devel
 
 %description -n	%{libdaemon_devel}
 Development files for the systemd-daemon shared library.
@@ -330,7 +330,7 @@ Requires:	%{liblogin} = %{version}-%{release}
 Requires:	uclibc-%{liblogin} = %{version}-%{release}
 %endif
 Provides:	libsystemd-login-devel = %{version}-%{release}
-%rename		%{mklibname systemd-login -d 0}
+%rename		%{_lib}systemd-login0-devel
 
 %description -n	%{liblogin_devel}
 Development files for the systemd-login shared library.
@@ -360,7 +360,7 @@ Requires:	%{libjournal} = %{version}-%{release}
 Requires:	uclibc-%{libjournal} = %{version}-%{release}
 %endif
 Provides:	libsystemd-journal-devel = %{version}-%{release}
-%rename		%{mklibname systemd-journal -d 0}
+%rename		%{_lib}systemd-journal0-devel
 
 %description -n	%{libjournal_devel}
 Development files for the systemd-journal shared library.
@@ -390,7 +390,7 @@ Requires:	%{libid128} = %{version}-%{release}
 Requires:	uclibc-%{libid128} = %{version}-%{release}
 %endif
 Provides:	libsystemd-id128-devel = %{version}-%{release}
-%rename		%{mklibname systemd-id128 -d 0}
+%rename		%{_lib}systemd-id1280-devel
 
 %description -n %{libid128_devel}
 Development files for the systemd-id128 shared library.
