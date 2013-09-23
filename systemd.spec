@@ -717,7 +717,7 @@ pushd %{buildroot}/etc/systemd/system/getty.target.wants
 	done
 popd
 
-install -m 0644 -D %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
+install -m 0644 %{SOURCE15} -D %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
