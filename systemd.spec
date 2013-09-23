@@ -717,7 +717,8 @@ pushd %{buildroot}/etc/systemd/system/getty.target.wants
 	done
 popd
 
-install -m 0644 %{SOURCE15} -D %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
+install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -786,7 +787,9 @@ echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
 
 install -m 644 %{SOURCE2} %{buildroot}%{udev_rules_dir}/
 install -m 644 %{SOURCE3} %{buildroot}%{udev_rules_dir}/
-install -m 0644 %{SOURCE5} -D %{buildroot}%{_sysconfdir}/sysconfig/udev
+mkdir -p  %{buildroot}%{_sysconfdir}/sysconfig/udev
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/udev/
+
 # net rules
 install -m 0644 %{SOURCE6} %{buildroot}%{udev_rules_dir}/
 install -m 0755 %{SOURCE7} %{buildroot}%{udev_libdir}/net_create_ifcfg
