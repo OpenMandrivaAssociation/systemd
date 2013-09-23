@@ -79,6 +79,7 @@ Patch6:		systemd-205-static.patch
 # GIT
 Patch0110:		0110-swap-fix-reverse-dependencies.patch
 Patch0116:		0116-swap-create-.wants-symlink-to-auto-swap-devices.patch
+Patch0167:		0167-polkit-Avoid-race-condition-in-scraping-proc.patch
 
 ### UDEV ###
 # from Mandriva
