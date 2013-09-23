@@ -65,7 +65,7 @@ Source13:	90-default.preset
 Source14:	85-display-manager.preset
 Source15:	enable-numlock.conf
 
-Source15:	systemd.rpmlintrc
+Source16:	systemd.rpmlintrc
 ### SYSTEMD ###
 
 Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
