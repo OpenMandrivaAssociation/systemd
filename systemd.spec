@@ -1310,7 +1310,7 @@ fi
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/systemd/system/getty.target.wants
-%dif %{_sysconfdir}/systemd/system/getty@.service.d
+%dir %{_sysconfdir}/systemd/system/getty@.service.d
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
