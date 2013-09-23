@@ -63,6 +63,7 @@ Source11:	listen.conf
 Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
+Source15:	enable-numlock.conf
 
 Source15:	systemd.rpmlintrc
 ### SYSTEMD ###
@@ -702,7 +703,6 @@ install -d %{buildroot}/sbin && mv %{buildroot}/bin/systemd-machine-id-setup %{b
 install -d %{buildroot}%{uclibc_root}/sbin && mv %{buildroot}%{uclibc_root}/bin/systemd-machine-id-setup %{buildroot}%{uclibc_root}/sbin
 %endif
 
-
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -710,12 +710,14 @@ mkdir %{buildroot}/run
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
 # add missing ttys (mdv #63600)
-mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 pushd %{buildroot}/etc/systemd/system/getty.target.wants
 	for _term in 1 2 3 4 5 6 ; do
 	ln -s %{systemd_libdir}/system/getty@.service getty@tty$_term.service
 	done
 popd
+
+install -m 0644 -D %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
