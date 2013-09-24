@@ -238,17 +238,6 @@ Conflicts:	%{name} < 35-6
 %description tools
 Non essential systemd tools.
 
-%if %{with uclibc}
-%package -n uclibc-tools
-Summary:	Non essential systemd tools
-Group:		System/Configuration/Boot and Init
-Requires:	%{name} = %{EVRD}
-Conflicts:	%{name} < 35-6
-
-%description tools
-Non essential uclibc systemd tools.
-%endif
-
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
@@ -635,6 +624,7 @@ mkdir -p %{buildroot}%{uclibc_root}/sbin
 ln -sf %{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
 rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
 rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
+rm -rf %{uclibc_root}%{python_sitelib}/%{name}
 %endif
 
 %makeinstall_std -C shared
@@ -1304,13 +1294,6 @@ fi
 %dir %{python_sitearch}/%{name}
 %{python_sitearch}/%{name}/*.py*
 %{python_sitearch}/%{name}/*.so
-
-%if %{with uclibc}
-%files -n uclibc-tools
-%dir %{uclibc_root}%{python_sitelib}/%{name}
-%{uclibc_root}%{python_sitelib}/%{name}/*.py*
-%{uclibc_root}%{python_sitelib}/%{name}/*.so
-%endif
 
 %files units
 %dir %{_sysconfdir}/systemd
