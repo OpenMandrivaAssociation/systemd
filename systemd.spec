@@ -1,4 +1,4 @@
-%bcond_without bootstrap
+%bcond_with bootstrap
 %bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
