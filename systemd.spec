@@ -624,7 +624,7 @@ mkdir -p %{buildroot}%{uclibc_root}/sbin
 ln -sf %{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
 rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
 rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
-rm -rf %{uclibc_root}%{python_sitelib}/%{name}
+rm -rf %{buildroot}%{uclibc_root}%{python_sitelib}/%{name}
 %endif
 
 %makeinstall_std -C shared
