@@ -51,6 +51,7 @@ enable rtkit-daemon.service
 # Network services
 enable iptables.service
 enable xinetd.service
+enable nmb.service
 
 # Storage services
 enable multipathd.service
