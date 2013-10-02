@@ -42,8 +42,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	207
-Release:	2
+Version:	208
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -77,9 +77,6 @@ Patch5:		systemd-205-uclibc.patch
 Patch6:		systemd-205-static.patch
 
 # GIT
-Patch0110:		0110-swap-fix-reverse-dependencies.patch
-Patch0116:		0116-swap-create-.wants-symlink-to-auto-swap-devices.patch
-Patch0167:		0167-polkit-Avoid-race-condition-in-scraping-proc.patch
 
 ### UDEV ###
 # from Mandriva
