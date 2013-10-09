@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -154,7 +154,7 @@ Requires:	dbus >= 1.3.2
 Requires(pre):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.18-2
-Requires(pre):	rpm-helper
+Requires(pre):	shadow-utils
 Requires(pre):	%{name}-units
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
@@ -172,7 +172,7 @@ Requires:	kmod
 %rename		readahead
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	mandriva-release-common >= 1:2012.0-0.4
+BuildRequires:	distro-release-common >= 1:2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd-daemon = %{version}-%{release}
 Requires:	libsystemd-login = %{version}-%{release}
@@ -741,7 +741,7 @@ mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysc
 mkdir -p %{buildroot}%{systemd_libdir}/ntp-units.d/
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
-# (tpg) Install default Mandriva preset policy for services
+# (tpg) Install default distribution preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
 # (tpg) install presets
@@ -856,12 +856,17 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
-%_pre_groupadd wheel systemd-journal
+# (cg) Cannot use rpm-helper scripts as it results in a cyclical dep as
+# rpm-helper requires systemd-units which in turn requires systemd...
+if ! getent group %{name}-journal >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-journal >/dev/null || :
+fi
+
+if [ $1 -ge 2 ]; then
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+fi
 
 %post
-# (tpg) create group before tmpfiles
-%_pre_groupadd %{name}-journal
 /usr/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
 /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
@@ -972,6 +977,13 @@ rm -f /etc/systemd/system/multi-user.target.wants/rc-local.service || :
 # and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
 %triggerun -- %{name} < 196
 %{_bindir}/systemctl restart systemd-logind.service
+
+%triggerun -- %{name} < 208-2
+chgrp -R systemd-journal /var/log/journal || :
+chmod 02755 /var/log/journal || :
+if [ -f /etc/machine-id ]; then
+	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
+fi
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1098,7 +1110,7 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
-%dir %{_logdir}/journal
+%attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
 %{_initrddir}/README
 %{_logdir}/README
