@@ -637,12 +637,12 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 mkdir -p %{buildroot}/sbin
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
-ln -s ../bin/systemctl %{buildroot}/bin/reboot
-ln -s ../bin/systemctl %{buildroot}/bin/halt
-ln -s ../bin/systemctl %{buildroot}/bin/poweroff
-ln -s ../bin/systemctl %{buildroot}/sbin/shutdown
-ln -s ../bin/systemctl %{buildroot}/sbin/telinit
-ln -s ../bin/systemctl %{buildroot}/sbin/runlevel
+
+# (tpg) install compat symlinks
+for i in halt poweroff reboot runlevel shutdown telinit; do
+	ln -s ../bin/systemctl %{buildroot}/bin/$i
+done
+
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
 %if %{with uclibc}
 ln -srf %{buildroot}%{uclibc_root}/bin/loginctl %{buildroot}%{uclibc_root}%{_bindir}/systemd-loginctl
