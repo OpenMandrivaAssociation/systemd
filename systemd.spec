@@ -13,16 +13,16 @@
 %define libnss_myhostname_major 2
 
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
-%define libdaemon_devel %mklibname -d systemd-daemon %{libdaemon_major}
+%define libdaemon_devel %mklibname systemd-daemon -d
 
 %define liblogin %mklibname systemd-login %{liblogin_major}
-%define liblogin_devel %mklibname -d systemd-login %{liblogin_major}
+%define liblogin_devel %mklibname systemd-login -d
 
 %define libjournal %mklibname systemd-journal %{libjournal_major}
-%define libjournal_devel %mklibname -d systemd-journal %{libjournal_major}
+%define libjournal_devel %mklibname systemd-journal -d
 
 %define libid128 %mklibname systemd-id128 %{libid128_major}
-%define libid128_devel %mklibname -d systemd-id128 %{libid128_major}
+%define libid128_devel %mklibname systemd-id128 -d
 
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_myhostname_major}
 
@@ -42,8 +42,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	206
-Release:	8.1
+Version:	208
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -63,8 +63,9 @@ Source11:	listen.conf
 Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
+Source15:	enable-numlock.conf
 
-Source15:	systemd.rpmlintrc
+Source16:	systemd.rpmlintrc
 ### SYSTEMD ###
 
 #Patch2:		systemd-33-rc-local.patch
@@ -171,7 +172,7 @@ Requires:	dbus >= 1.3.2
 Requires(pre):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.18-2
-Requires(pre):	rpm-helper
+Requires(pre):	shadow-utils
 Requires(pre):	%{name}-units
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
@@ -189,7 +190,7 @@ Requires:	kmod
 %rename		readahead
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	mandriva-release-common >= 1:2012.0-0.4
+BuildRequires:	distro-release-common >= 1:2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd-daemon = %{version}-%{release}
 Requires:	libsystemd-login = %{version}-%{release}
@@ -198,6 +199,18 @@ Requires:	libsystemd-id128 = %{version}-%{release}
 Requires:	nss_myhostname = %{version}-%{release}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
+
+# (tpg) conflict with old sysvinit subpackage
+%rename		systemd-sysvinit
+Conflicts:	systemd-sysvinit < 207-1
+# (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
+#SysVinit < %sysvinit_release-%sysvinit_release It's provides something
+#like that SysVinit < 14-14 when it should be SysVinit 2.87-14
+Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
+# (tpg) time to die
+Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
+# Due to halt/poweroff etc. in _bindir
+Conflicts:	usermode-consoleonly < 1:1.110
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -254,23 +267,6 @@ Requires(pre):	rpm-helper
 Basic configuration files, directories and installation tool for the systemd
 system and session manager.
 
-%package sysvinit
-Summary:	System V init tools
-Group:		System/Configuration/Boot and Init
-Requires:	%{name} = %{version}-%{release}
-# (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
-#SysVinit < %sysvinit_release-%sysvinit_release It's provides something
-#like that SysVinit < 14-14 when it should be SysVinit 2.87-14
-Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
-# (tpg) time to die
-Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
-# Due to halt/poweroff etc. in _bindir
-Conflicts:	usermode-consoleonly < 1:1.110
-
-%description sysvinit
-Drop-in replacement for the System V init tools of systemd.
-
-
 %package journal-gateway
 Summary:		Gateway for serving journal events over the network using HTTP
 Requires:		%{name} = %{version}-%{release}
@@ -308,6 +304,7 @@ Requires:	%{libdaemon} = %{version}-%{release}
 Requires:	uclibc-%{libdaemon} = %{version}-%{release}
 %endif
 Provides:	libsystemd-daemon-devel = %{version}-%{release}
+%rename		%{_lib}systemd-daemon0-devel
 
 %description -n	%{libdaemon_devel}
 Development files for the systemd-daemon shared library.
@@ -319,30 +316,6 @@ Provides:	libsystemd-login = %{version}-%{release}
 
 %description -n	%{liblogin}
 This package provides the systemd-login shared library.
-
-%package -n %{libnss_myhostname}
-Summary:	Library for local system host name resolution
-Group:		System/Libraries
-Provides:	libnss_myhostname = %{version}-%{release}
-Provides:	nss_myhostname = %{version}-%{release}
-Obsoletes:	nss_myhostname <= 0.3-1
-Requires(post,preun):	rpm-helper
-Requires(post,preun):	sed
-
-%description -n %{libnss_myhostname}
-nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
-functionality of the GNU C Library (glibc) providing host name
-resolution for the locally configured system hostname as returned by
-gethostname(2).
-
-%if %{with uclibc}
-%package -n uclibc-%{libnss_myhostname}
-Summary:	Library for local system host name resolution (uClibc linked)
-Group:		System/Libraries
-
-%description -n uclibc-%{libnss_myhostname}
-uClibc version of nss-myhostname.
-%endif
 
 %if %{with uclibc}
 %package -n uclibc-%{liblogin}
@@ -361,6 +334,7 @@ Requires:	%{liblogin} = %{version}-%{release}
 Requires:	uclibc-%{liblogin} = %{version}-%{release}
 %endif
 Provides:	libsystemd-login-devel = %{version}-%{release}
+%rename		%{_lib}systemd-login0-devel
 
 %description -n	%{liblogin_devel}
 Development files for the systemd-login shared library.
@@ -390,6 +364,7 @@ Requires:	%{libjournal} = %{version}-%{release}
 Requires:	uclibc-%{libjournal} = %{version}-%{release}
 %endif
 Provides:	libsystemd-journal-devel = %{version}-%{release}
+%rename		%{_lib}systemd-journal0-devel
 
 %description -n	%{libjournal_devel}
 Development files for the systemd-journal shared library.
@@ -419,9 +394,34 @@ Requires:	%{libid128} = %{version}-%{release}
 Requires:	uclibc-%{libid128} = %{version}-%{release}
 %endif
 Provides:	libsystemd-id128-devel = %{version}-%{release}
+%rename		%{_lib}systemd-id1280-devel
 
 %description -n %{libid128_devel}
 Development files for the systemd-id128 shared library.
+
+%package -n %{libnss_myhostname}
+Summary:	Library for local system host name resolution
+Group:		System/Libraries
+Provides:	libnss_myhostname = %{version}-%{release}
+Provides:	nss_myhostname = %{version}-%{release}
+Obsoletes:	nss_myhostname <= 0.3-1
+Requires(post,preun):	rpm-helper
+Requires(post,preun):	sed
+
+%description -n %{libnss_myhostname}
+nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
+functionality of the GNU C Library (glibc) providing host name
+resolution for the locally configured system hostname as returned by
+gethostname(2).
+
+%if %{with uclibc}
+%package -n uclibc-%{libnss_myhostname}
+Summary:	Library for local system host name resolution (uClibc linked)
+Group:		System/Libraries
+
+%description -n uclibc-%{libnss_myhostname}
+uClibc version of nss-myhostname.
+%endif
 
 %package -n udev
 Summary:	Device manager for the Linux kernel
@@ -550,15 +550,14 @@ This package contains documentation of udev.
 %apply_patches
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
-intltoolize --force --automake
-autoreconf --force --install --symlink
+#intltoolize --force --automake
+autoreconf -fiv
 
 %build
 %serverbuild_hardened
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
 %endif
-
 
 export CONFIGURE_TOP="$PWD"
 
@@ -592,11 +591,12 @@ pushd uclibc
 	--enable-gcrypt \
 	--disable-audit \
 	--disable-manpages \
-	--without-python \
+	--with-python \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
 %make
+
 popd
 %endif
 
@@ -635,6 +635,7 @@ mkdir -p %{buildroot}%{uclibc_root}/sbin
 ln -sf %{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
 rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
 rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
+rm -rf %{buildroot}%{uclibc_root}%{python_sitelib}/%{name}
 %endif
 
 %makeinstall_std -C shared
@@ -650,12 +651,12 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 mkdir -p %{buildroot}/sbin
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
-ln -s ../bin/systemctl %{buildroot}/bin/reboot
-ln -s ../bin/systemctl %{buildroot}/bin/halt
-ln -s ../bin/systemctl %{buildroot}/bin/poweroff
-ln -s ../bin/systemctl %{buildroot}/sbin/shutdown
-ln -s ../bin/systemctl %{buildroot}/sbin/telinit
-ln -s ../bin/systemctl %{buildroot}/sbin/runlevel
+
+# (tpg) install compat symlinks
+for i in halt poweroff reboot runlevel shutdown telinit; do
+	ln -s ../bin/systemctl %{buildroot}/bin/$i
+done
+
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
 %if %{with uclibc}
 ln -srf %{buildroot}%{uclibc_root}/bin/loginctl %{buildroot}%{uclibc_root}%{_bindir}/systemd-loginctl
@@ -710,7 +711,6 @@ install -d %{buildroot}/sbin && mv %{buildroot}/bin/systemd-machine-id-setup %{b
 install -d %{buildroot}%{uclibc_root}/sbin && mv %{buildroot}%{uclibc_root}/bin/systemd-machine-id-setup %{buildroot}%{uclibc_root}/sbin
 %endif
 
-
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -718,12 +718,15 @@ mkdir %{buildroot}/run
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
 # add missing ttys (mdv #63600)
-mkdir -p %{buildroot}/etc/systemd/system/getty.target.wants
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 pushd %{buildroot}/etc/systemd/system/getty.target.wants
 	for _term in 1 2 3 4 5 6 ; do
 	ln -s %{systemd_libdir}/system/getty@.service getty@tty$_term.service
 	done
 popd
+
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
+install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -752,7 +755,7 @@ mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysc
 mkdir -p %{buildroot}%{systemd_libdir}/ntp-units.d/
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
-# (tpg) Install default Mandriva preset policy for services
+# (tpg) Install default distribution preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
 # (tpg) install presets
@@ -792,7 +795,9 @@ echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
 
 install -m 644 %{SOURCE2} %{buildroot}%{udev_rules_dir}/
 install -m 644 %{SOURCE3} %{buildroot}%{udev_rules_dir}/
-install -m 0644 %{SOURCE5} -D %{buildroot}%{_sysconfdir}/sysconfig/udev
+mkdir -p  %{buildroot}%{_sysconfdir}/sysconfig/udev
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/udev/
+
 # net rules
 install -m 0644 %{SOURCE6} %{buildroot}%{udev_rules_dir}/
 install -m 0755 %{SOURCE7} %{buildroot}%{udev_libdir}/net_create_ifcfg
@@ -865,8 +870,15 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
-%_pre_groupadd wheel systemd-journal
+# (cg) Cannot use rpm-helper scripts as it results in a cyclical dep as
+# rpm-helper requires systemd-units which in turn requires systemd...
+if ! getent group %{name}-journal >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-journal >/dev/null || :
+fi
+
+if [ $1 -ge 2 ]; then
 systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+fi
 
 %post
 /usr/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
@@ -891,6 +903,7 @@ fi
 
 # Migrate /etc/sysconfig/i18n
 if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
+		unset LANGUAGE
         unset LANG
         unset LC_CTYPE
         unset LC_NUMERIC
@@ -905,7 +918,8 @@ if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
         unset LC_MEASUREMENT
         unset LC_IDENTIFICATION
         . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-        [ -n "$LANG" ] && echo LANG=$LANG > /etc/locale.conf 2>&1 || :
+        [ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
+        [ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
         [ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
         [ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
         [ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
@@ -977,6 +991,13 @@ rm -f /etc/systemd/system/multi-user.target.wants/rc-local.service || :
 # and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
 %triggerun -- %{name} < 196
 %{_bindir}/systemctl restart systemd-logind.service
+
+%triggerun -- %{name} < 208-2
+chgrp -R systemd-journal /var/log/journal || :
+chmod 02755 /var/log/journal || :
+if [ -f /etc/machine-id ]; then
+	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
+fi
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1079,6 +1100,7 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
+%config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) /usr/lib/sysctl.d/50-coredump.conf
 %config(noreplace) /usr/lib/sysctl.d/50-default.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
@@ -1089,7 +1111,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 %ghost %{_sysconfdir}/udev/hwdb.bin
-
 %dir /run
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/*-generators
@@ -1103,9 +1124,20 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
-%dir %{_logdir}/journal
-
+%attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
+%{_initrddir}/README
+%{_logdir}/README
+
+# (tpg) from sysvinit subpackage
+/sbin/init
+/bin/reboot
+/bin/halt
+/bin/poweroff
+/sbin/shutdown
+/sbin/telinit
+/sbin/runlevel
+#
 /bin/systemd-ask-password
 /bin/systemd-notify
 /bin/systemd-tmpfiles
@@ -1130,6 +1162,7 @@ fi
 %{systemd_libdir}/systemd-ac-power
 %{systemd_libdir}/systemd-activate
 %{systemd_libdir}/systemd-bootchart
+%{systemd_libdir}/systemd-backlight
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-c*
 %{systemd_libdir}/systemd-fsck
@@ -1156,6 +1189,7 @@ fi
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgtop
+%{_mandir}/man1/init.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-ask-password.*
 %{_mandir}/man1/systemd-bootchart.1.*
@@ -1180,11 +1214,20 @@ fi
 %{_mandir}/man3/*
 %{_mandir}/man5/*
 %{_mandir}/man7/*
+%{_mandir}/man8/halt.*
+%{_mandir}/man8/reboot.*
+%{_mandir}/man8/shutdown.*
+%{_mandir}/man8/poweroff.*
+%{_mandir}/man8/telinit.*
+%{_mandir}/man8/runlevel.*
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-activate.8.*
 %{_mandir}/man8/systemd-ask-*.8.*
+%{_mandir}/man8/systemd-backlight*.8.*
 %{_mandir}/man8/systemd-binfmt*.8.*
 %{_mandir}/man8/systemd-cryptsetup*.8.*
+%{_mandir}/man8/systemd-efi-boot-generator*.8.*
+%{_mandir}/man8/systemd-gpt-auto-generator*.8.*
 %{_mandir}/man8/systemd-fsck*.8.*
 %{_mandir}/man8/systemd-fstab*.8.*
 %{_mandir}/man8/systemd-getty*.8.*
@@ -1280,6 +1323,7 @@ fi
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/systemd/system/getty.target.wants
+%dir %{_sysconfdir}/systemd/system/getty@.service.d
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
@@ -1309,7 +1353,9 @@ fi
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
 %{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
+%{_sysconfdir}/systemd/system/getty@.service.d/*.conf
 %{_datadir}/bash-completion/completions/*
+%{_datadir}/zsh/site-functions/*
 /bin/systemctl
 /bin/machinectl
 %{_bindir}/systemctl
@@ -1346,6 +1392,7 @@ fi
 %{systemd_libdir}/system/rescue*.service
 %{systemd_libdir}/system/serial-*.service
 %{systemd_libdir}/system/systemd-ask-password*.service
+%{systemd_libdir}/system/systemd-backlight*.service
 %{systemd_libdir}/system/systemd-binfmt*.service
 %{systemd_libdir}/system/systemd-fsck*.service
 %{systemd_libdir}/system/systemd-halt*.service
@@ -1394,25 +1441,6 @@ fi
 %{_prefix}/lib/systemd/user/*.service
 %{_prefix}/lib/systemd/user/*.target
 %{_mandir}/man1/systemctl.*
-
-%files sysvinit
-/sbin/init
-/bin/reboot
-/bin/halt
-/bin/poweroff
-/sbin/shutdown
-/sbin/telinit
-/sbin/runlevel
-%{_initrddir}/README
-%{_logdir}/README
-%{_mandir}/man1/init.*
-%{_mandir}/man8/halt.*
-%{_mandir}/man8/reboot.*
-%{_mandir}/man8/shutdown.*
-%{_mandir}/man8/poweroff.*
-%{_mandir}/man8/telinit.*
-%{_mandir}/man8/runlevel.*
-%dir /run
 
 %files journal-gateway
 %dir %{_datadir}/systemd/gatewayd
