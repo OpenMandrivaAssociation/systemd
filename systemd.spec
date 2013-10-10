@@ -90,19 +90,6 @@ Patch106:	systemd-191-uclibc-no-mkostemp.patch
 #Patch108:	systemd-197-dont-loose-active-session-after-su.patch
 Patch109:	systemd-206-set-max-journal-size-to-1000M.patch
 
-# Mageia patches
-Patch200:	0100-core-synchronously-block-when-logging.patch
-Patch201:	0101-journal-immediately-sync-to-disk-as-soon-as-we-recei.patch
-Patch202:	0102-initctl-use-irreversible-jobs-when-switching-runleve.patch
-Patch203:	0103-udev-log-error-if-chmod-chown-of-static-dev-nodes-fa.patch
-Patch204:	0104-udev-static_node-don-t-touch-permissions-uneccessari.patch
-Patch205:	0105-tmpfiles-support-passing-prefix-multiple-times.patch
-Patch206:	0106-tmpfiles-introduce-exclude-prefix.patch
-Patch207:	0107-tmpfiles-setup-exclude-dev-prefixes-files.patch
-Patch208:	0108-shell-completion-add-kernel-install.patch
-Patch209:	0109-logind-update-state-file-after-generating-the-sessio.patch
-Patch210:	0110-logind-update-the-session-state-file-before-we-send-.patch
-
 # (cg/bor) clean up directories on boot as done by rc.sysinit
 # - Lennart should be poked about this (he couldn't think why he hadn't done it already)
 Patch500:	0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
@@ -115,10 +102,6 @@ Patch506:	0506-reinstate-TIMEOUT-handling.patch
 Patch507:	0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
 Patch508:	0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
 Patch509:	0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
-
-# Fedora patches
-Patch1001:	systemd-python-fix-initialization-of-_Reader-objects.patch
-Patch1002:	systemd-python-check-for-oom-give-nicer-error-messag.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
