@@ -637,8 +637,12 @@ ln -s ..%{systemd_libdir}/systemd %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
 
 # (tpg) install compat symlinks
-for i in halt poweroff reboot runlevel shutdown telinit; do
-	ln -s ../bin/systemctl %{buildroot}/bin/$i
+for i in halt poweroff reboot; do
+	ln -s /bin/systemctl %{buildroot}/bin/$i
+done
+
+for i in runlevel shutdown telinit; do
+	ln -s /bin/systemctl %{buildroot}/sbin/$i
 done
 
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
