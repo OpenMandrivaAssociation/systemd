@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -637,12 +637,12 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 mkdir -p %{buildroot}/sbin
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
-ln -s ../bin/systemctl %{buildroot}/bin/reboot
-ln -s ../bin/systemctl %{buildroot}/bin/halt
-ln -s ../bin/systemctl %{buildroot}/bin/poweroff
-ln -s ../bin/systemctl %{buildroot}/sbin/shutdown
-ln -s ../bin/systemctl %{buildroot}/sbin/telinit
-ln -s ../bin/systemctl %{buildroot}/sbin/runlevel
+
+# (tpg) install compat symlinks
+for i in halt poweroff reboot runlevel shutdown telinit; do
+	ln -s ../bin/systemctl %{buildroot}/bin/$i
+done
+
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
 %if %{with uclibc}
 ln -srf %{buildroot}%{uclibc_root}/bin/loginctl %{buildroot}%{uclibc_root}%{_bindir}/systemd-loginctl
@@ -874,9 +874,6 @@ fi
 /bin/udevadm hwdb --update >/dev/null 2>&1 || :
 /usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
-# (tpg) this is needed for rsyslog
-/bin/ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
-
 #(tpg) BIG migration
 
 # Migrate /etc/sysconfig/clock
@@ -956,6 +953,14 @@ if [ -f /etc/nsswitch.conf ] ; then
                 /\<myhostname\>/ b
                 s/[[:blank:]]*$/ myhostname/
                 ' /etc/nsswitch.conf
+fi
+
+# (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
+if [ $1 -ge 2 ]; then
+    if [ -e %{_sysconfdir}/sysctl.conf && ! -L %{_sysconfdir}/sysctl.conf ]; then
+	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/90-compat.conf
+	ln -s %{_sysconfdir}/sysctl.d/90-compat.conf %{_sysconfdir}/sysctl.conf
+    fi
 fi
 
 %triggerin units -- %{name}-units < 35-1
