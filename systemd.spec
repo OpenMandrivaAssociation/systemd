@@ -958,8 +958,8 @@ fi
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
 if [ $1 -ge 2 ]; then
     if [ -e %{_sysconfdir}/sysctl.conf && ! -L %{_sysconfdir}/sysctl.conf ]; then
-	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/90-compat.conf
-	ln -s %{_sysconfdir}/sysctl.d/90-compat.conf %{_sysconfdir}/sysctl.conf
+	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
+	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
     fi
 fi
 
