@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -77,6 +77,7 @@ Patch5:		systemd-205-uclibc.patch
 Patch6:		systemd-205-static.patch
 
 # GIT
+Patch1000:	0001-gpt-auto-generator-exit-immediately-if-in-container.patch
 
 ### UDEV ###
 # from Mandriva
