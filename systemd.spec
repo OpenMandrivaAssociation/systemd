@@ -667,6 +667,7 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
 ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
