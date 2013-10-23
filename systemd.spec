@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -708,14 +708,6 @@ mkdir %{buildroot}/run
 # (tpg) create missing dir
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
-# add missing ttys (mdv #63600)
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
-pushd %{buildroot}/etc/systemd/system/getty.target.wants
-	for _term in 1 2 3 4 5 6 ; do
-	ln -s %{systemd_libdir}/system/getty@.service getty@tty$_term.service
-	done
-popd
-
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
 install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
@@ -1352,7 +1344,6 @@ fi
 %dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
-%{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
 %{_sysconfdir}/systemd/system/getty@.service.d/*.conf
 %{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/*
