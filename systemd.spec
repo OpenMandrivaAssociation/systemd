@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -710,7 +710,7 @@ mkdir %{buildroot}/run
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
-install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
+#install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -1345,7 +1345,6 @@ fi
 %dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
-%{_sysconfdir}/systemd/system/getty@.service.d/*.conf
 %{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/*
 /bin/systemctl
