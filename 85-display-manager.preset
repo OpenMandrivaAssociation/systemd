@@ -2,9 +2,9 @@
 # Enable all display managers by default.
 # In most cases only one is installed.
 
+enable kdm.service
 enable gdm.service
 enable lightdm.service
 enable slim.service
 enable lxdm.service
-enable kdm.service
 enable xdm.service
