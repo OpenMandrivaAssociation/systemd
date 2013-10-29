@@ -68,5 +68,4 @@ enable uuidd.service
 
 # Sound services
 enable alsa*.service
-enable canberra*.service
 enable sound.service

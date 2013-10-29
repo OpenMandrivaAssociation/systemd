@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	4
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -75,6 +75,7 @@ Patch5:		systemd-205-uclibc.patch
 Patch6:		systemd-205-static.patch
 
 # GIT
+Patch1000:	0001-gpt-auto-generator-exit-immediately-if-in-container.patch
 
 ### UDEV ###
 # from Mandriva
@@ -637,12 +638,13 @@ ln -s ..%{systemd_libdir}/systemd %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
 
 # (tpg) install compat symlinks
-for i in halt poweroff reboot; do
-	ln -s /bin/systemctl %{buildroot}/bin/$i
+for i in runlevel shutdown telinit; do
+	ln -s /bin/systemctl %{buildroot}/sbin/$i
+	ln -s ../bin/systemctl %{buildroot}/bin/$i
 done
 
 for i in runlevel shutdown telinit; do
-	ln -s /bin/systemctl %{buildroot}/sbin/$i
+	ln -s ../bin/systemctl %{buildroot}/sbin/$i
 done
 
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
@@ -664,6 +666,7 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
 ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
@@ -705,16 +708,8 @@ mkdir %{buildroot}/run
 # (tpg) create missing dir
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
-# add missing ttys (mdv #63600)
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
-pushd %{buildroot}/etc/systemd/system/getty.target.wants
-	for _term in 1 2 3 4 5 6 ; do
-	ln -s %{systemd_libdir}/system/getty@.service getty@tty$_term.service
-	done
-popd
-
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
-install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
+#install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -772,9 +767,13 @@ if /bin/mountpoint -q /sys/fs/cgroup/systemd; then
 fi
 EOF
 chmod 755 %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
+
 # (tpg) silent kernel messages
 # print only KERN_ERR and more serious alerts
 echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
+
+# (tpg) by default enable SysRq
+sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d/50-default.conf
 
 #################
 #	UDEV	#
@@ -876,9 +875,6 @@ fi
 /bin/udevadm hwdb --update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
-# (tpg) this is needed for rsyslog
-/bin/ln -s /usr/lib/systemd/system/rsyslog.service /etc/systemd/system/syslog.service >/dev/null 2>&1 || :
-
 #(tpg) BIG migration
 
 # Migrate /etc/sysconfig/clock
@@ -958,6 +954,14 @@ if [ -f /etc/nsswitch.conf ] ; then
                 /\<myhostname\>/ b
                 s/[[:blank:]]*$/ myhostname/
                 ' /etc/nsswitch.conf
+fi
+
+# (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
+if [ $1 -ge 2 ]; then
+    if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
+	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
+	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
+    fi
 fi
 
 %triggerin units -- %{name}-units < 35-1
@@ -1340,8 +1344,6 @@ fi
 %dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
-%{_sysconfdir}/systemd/system/getty.target.wants/getty@*.service
-%{_sysconfdir}/systemd/system/getty@.service.d/*.conf
 %{_datadir}/bash-completion/completions/*
 %{_datadir}/zsh/site-functions/*
 /bin/systemctl
