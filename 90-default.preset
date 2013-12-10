@@ -47,6 +47,7 @@ enable syslog-ng.*
 enable sysklogd.*
 enable accounts-daemon.service
 enable rtkit-daemon.service
+enable usbmuxd.service
 
 # Network services
 enable iptables.service
