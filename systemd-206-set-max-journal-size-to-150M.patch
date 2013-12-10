@@ -5,11 +5,11 @@
  #RateLimitInterval=30s
  #RateLimitBurst=1000
 -#SystemMaxUse=
-+SystemMaxUse=1000M
++SystemMaxUse=150M
  #SystemKeepFree=
  #SystemMaxFileSize=
 -#RuntimeMaxUse=
-+RuntimeMaxUse=1000M
++RuntimeMaxUse=150M
  #RuntimeKeepFree=
  #RuntimeMaxFileSize=
  #MaxRetentionSec=

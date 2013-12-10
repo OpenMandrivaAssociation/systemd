@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	11.1
+Release:	12
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -89,7 +89,7 @@ Patch106:	systemd-191-uclibc-no-mkostemp.patch
 # (tpg) https://bugs.freedesktop.org/show_bug.cgi?id=57887
 # reverts commit http://cgit.freedesktop.org/systemd/systemd/commit?id=978cf3c75fbd94fd0e046206ada6169b35edd919
 #Patch108:	systemd-197-dont-loose-active-session-after-su.patch
-Patch109:	systemd-206-set-max-journal-size-to-1000M.patch
+Patch109:	systemd-206-set-max-journal-size-to-150M.patch
 Patch110:	systemd-208-support-etc-os-release-as-symlink.patch
 
 # (cg/bor) clean up directories on boot as done by rc.sysinit
