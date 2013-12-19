@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	11
+Release:	12
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -982,6 +982,26 @@ chgrp -R systemd-journal /var/log/journal || :
 chmod 02755 /var/log/journal || :
 if [ -f /etc/machine-id ]; then
 	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
+fi
+
+%triggerposttransin -- %{_tmpfilesdir}/*.conf
+if [ $1 -eq 1 -o $2 -eq 1 ]; then
+    while [ -n "$3" ]; do
+        if [ -f "$3" ]; then
+            /bin/systemd-tmpfiles --create "$3"
+        fi
+        shift
+    done
+fi
+
+%triggerposttransun -- %{_tmpfilesdir}/*.conf
+if [ $2 -eq 0 ]; then
+    while [ -n "$3" ]; do
+        if [ -f "$3" ]; then
+            /bin/systemd-tmpfiles --remove "$3"
+        fi
+        shift
+    done
 fi
 
 %post units
