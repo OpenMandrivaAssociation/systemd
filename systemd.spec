@@ -68,9 +68,7 @@ Source15:	enable-numlock.conf
 Source16:	systemd.rpmlintrc
 ### SYSTEMD ###
 
-Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
 #Patch2:		systemd-33-rc-local.patch
-Patch3:		0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
 Patch5:		systemd-205-uclibc.patch
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
@@ -81,8 +79,6 @@ Patch1000:	0001-gpt-auto-generator-exit-immediately-if-in-container.patch
 
 ### UDEV ###
 # from Mandriva
-# disable coldplug for storage and device pci
-Patch100:	udev-199-coldplug.patch
 # (proyvind):	FIXME: setting udev_log to 'info' royally screws everything up
 #		for some reason, revert to 'err' for now..
 Patch104:	systemd-186-set-udev_log-to-err.patch
@@ -93,15 +89,21 @@ Patch106:	systemd-191-uclibc-no-mkostemp.patch
 # (tpg) https://bugs.freedesktop.org/show_bug.cgi?id=57887
 # reverts commit http://cgit.freedesktop.org/systemd/systemd/commit?id=978cf3c75fbd94fd0e046206ada6169b35edd919
 #Patch108:	systemd-197-dont-loose-active-session-after-su.patch
+Patch109:	systemd-206-set-max-journal-size-to-150M.patch
+Patch110:	systemd-208-support-etc-os-release-as-symlink.patch
 
-#Fedora patchset
-# (tpg) disable for now
-#Patch503: 0503-mandriva-Fallback-message-when-display-manager-fails.patch
-#Patch504: 0504-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch506: 0506-Allow-booting-from-live-cd-in-virtualbox.patch
-#Patch507: 0507-reinstate-TIMEOUT-handling.patch
-Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
-
+# (cg/bor) clean up directories on boot as done by rc.sysinit
+# - Lennart should be poked about this (he couldn't think why he hadn't done it already)
+Patch500:	0500-Clean-directories-that-were-cleaned-up-by-rc.sysinit.patch
+Patch501:	0501-Some-more-tmpfiles-fixes.patch
+Patch502:	0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch503:	0503-mageia-Fallback-message-when-display-manager-fails.patch
+Patch504:	0504-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch505:	0505-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch506:	0506-reinstate-TIMEOUT-handling.patch
+Patch507:	0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+Patch508:	0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
+Patch509:	0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -160,7 +162,7 @@ Requires(pre):	%{name}-units
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 186-5
-%if %mdvver >= 201300
+%if "%{distepoch}" >= "2013.0"
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
 Provides:	consolekit-x11 = 0.4.5-6
@@ -546,9 +548,7 @@ pushd uclibc
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--enable-static \
-%if %mdvver < 201300
 	--with-distro=mandriva \
-%endif
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
@@ -585,9 +585,7 @@ pushd shared
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--disable-static \
-%if %mdvver < 201300
 	--with-distro=mandriva \
-%endif
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
@@ -633,7 +631,7 @@ ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
 
 # (tpg) install compat symlinks
 for i in halt poweroff reboot; do
-	ln -s ../bin/systemctl %{buildroot}/bin/$i
+       ln -s /bin/systemctl %{buildroot}/bin/$i
 done
 
 for i in runlevel shutdown telinit; do
@@ -866,7 +864,7 @@ fi
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /bin/udevadm hwdb --update >/dev/null 2>&1 || :
-/usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
+/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 #(tpg) BIG migration
 
@@ -1382,6 +1380,7 @@ fi
 %{systemd_libdir}/system/auto*.service
 %{systemd_libdir}/system/console*.service
 %{systemd_libdir}/system/dbus-org*.service
+%{systemd_libdir}/system/display-manager-failure.service
 %{systemd_libdir}/system/de*.service
 %{systemd_libdir}/system/emergency*.service
 %{systemd_libdir}/system/getty*.service
@@ -1389,6 +1388,7 @@ fi
 %{systemd_libdir}/system/initrd-*.service
 %{systemd_libdir}/system/kmod-*.service
 %{systemd_libdir}/system/quota*.service
+%{systemd_libdir}/system/prefdm.service
 %{systemd_libdir}/system/rc-*.service
 %{systemd_libdir}/system/rescue*.service
 %{systemd_libdir}/system/serial-*.service

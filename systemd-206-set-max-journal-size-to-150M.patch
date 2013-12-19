@@ -1,0 +1,15 @@
+--- systemd-206/src/journal/journald.conf~	2013-08-16 08:42:25.042323969 +0200
++++ systemd-206/src/journal/journald.conf	2013-08-16 08:42:26.411343412 +0200
+@@ -15,10 +15,10 @@
+ #SyncIntervalSec=5m
+ #RateLimitInterval=30s
+ #RateLimitBurst=1000
+-#SystemMaxUse=
++SystemMaxUse=150M
+ #SystemKeepFree=
+ #SystemMaxFileSize=
+-#RuntimeMaxUse=
++RuntimeMaxUse=150M
+ #RuntimeKeepFree=
+ #RuntimeMaxFileSize=
+ #MaxRetentionSec=
