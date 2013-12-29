@@ -50,9 +50,11 @@ enable rtkit-daemon.service
 enable usbmuxd.service
 
 # Network services
+enable firewalld.service
 enable iptables.service
-enable xinetd.service
 enable nmb.service
+enable realmd.service
+enable xinetd.service
 
 # Storage services
 enable multipathd.service
