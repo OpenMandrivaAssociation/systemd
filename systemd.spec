@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	7
+Release:	11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -194,6 +194,7 @@ Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_v
 Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
+%rename		systemd-tools
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -226,15 +227,6 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 %endif
-
-%package tools
-Summary:	Non essential systemd tools
-Group:		System/Configuration/Boot and Init
-Requires:	%{name} = %{version}-%{release}
-Conflicts:	%{name} < 35-6
-
-%description tools
-Non essential systemd tools.
 
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
@@ -1117,6 +1109,7 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
+%dir %{python_sitearch}/%{name}
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
 %{_initrddir}/README
@@ -1140,6 +1133,7 @@ fi
 /bin/loginctl
 /bin/systemd-inhibit
 /sbin/systemd-machine-id-setup
+%{_bindir}/systemd-analyze
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-loginctl
@@ -1216,6 +1210,7 @@ fi
 %{_mandir}/man8/pam_systemd.*
 %{_mandir}/man8/systemd-activate.8.*
 %{_mandir}/man8/systemd-ask-*.8.*
+%{_mandir}/man1/systemd-analyze.1*
 %{_mandir}/man8/systemd-backlight*.8.*
 %{_mandir}/man8/systemd-binfmt*.8.*
 %{_mandir}/man8/systemd-cryptsetup*.8.*
@@ -1254,8 +1249,12 @@ fi
 %{_mandir}/man8/systemd-update*.8.*
 %{_mandir}/man8/systemd-user*.8.*
 %{_mandir}/man8/systemd-vconsole*.8.*
-
 %{_mandir}/man8/kernel-install.*
+
+# tools
+%{python_sitearch}/%{name}/*.py*
+%{python_sitearch}/%{name}/*.so
+
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
@@ -1303,13 +1302,6 @@ fi
 %{uclibc_root}%{_bindir}/systemd-cgtop
 %{uclibc_root}%{_bindir}/timedatectl
 %endif
-
-%files tools
-%{_bindir}/systemd-analyze
-%{_mandir}/man1/systemd-analyze.1*
-%dir %{python_sitearch}/%{name}
-%{python_sitearch}/%{name}/*.py*
-%{python_sitearch}/%{name}/*.so
 
 %files units
 %dir %{_sysconfdir}/systemd

@@ -4,6 +4,8 @@
 
 # systemd stuff
 enable remote-fs.target
+enable kmsconvt@.service
+enable kmsconvt@tty1.service
 enable getty@tty1.service
 enable systemd-readahead-replay.service
 enable systemd-readahead-collect.service
@@ -47,11 +49,14 @@ enable syslog-ng.*
 enable sysklogd.*
 enable accounts-daemon.service
 enable rtkit-daemon.service
+enable usbmuxd.service
 
 # Network services
+enable firewalld.service
 enable iptables.service
-enable xinetd.service
 enable nmb.service
+enable realmd.service
+enable xinetd.service
 
 # Storage services
 enable multipathd.service
