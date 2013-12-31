@@ -4,6 +4,8 @@
 
 # systemd stuff
 enable remote-fs.target
+enable kmsconvt@.service
+enable kmsconvt@tty1.service
 enable getty@tty1.service
 enable systemd-readahead-replay.service
 enable systemd-readahead-collect.service
