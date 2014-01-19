@@ -33,7 +33,7 @@ enable mandriva*.service
 
 # Enable NM by default
 enable NetworkManager.service
-enable NetworkManager-wait-online.service
+enable NetworkManager-dispatcher.service
 enable ModemManager.service
 
 # Enable other system services
@@ -70,6 +70,7 @@ enable mdmonitor-takeover.service
 enable irqbalance.service
 enable lm_sensors.service
 enable uuidd.service
+enable gpm.*
 
 # Sound services
 enable alsa*.service
