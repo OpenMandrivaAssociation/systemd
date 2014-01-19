@@ -845,6 +845,7 @@ fi
 
 %post -n udev
 /bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
+/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
 
 #%post -n uclibc-udev
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
@@ -865,7 +866,6 @@ fi
 /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/bin/udevadm hwdb --update >/dev/null 2>&1 || :
 /usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 #(tpg) BIG migration
