@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	11
+Release:	12
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -66,41 +66,175 @@ Source14:	85-display-manager.preset
 Source15:	enable-numlock.conf
 
 Source16:	systemd.rpmlintrc
-### SYSTEMD ###
 
+### OMV patches###
 Patch1:		systemd-tmpfilesd-utmp-temp-patch.patch
-#Patch2:		systemd-33-rc-local.patch
-Patch3:		0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
-Patch5:		systemd-205-uclibc.patch
-# We need a static libudev.a for the uClibc build because lvm2 requires it.
-# Put back support for building it.
-Patch6:		systemd-205-static.patch
-
-# GIT
-Patch1000:	0001-gpt-auto-generator-exit-immediately-if-in-container.patch
-
-### UDEV ###
 # from Mandriva
 # disable coldplug for storage and device pci
-Patch100:	udev-199-coldplug.patch
-# (proyvind):	FIXME: setting udev_log to 'info' royally screws everything up
-#		for some reason, revert to 'err' for now..
-Patch104:	systemd-186-set-udev_log-to-err.patch
+Patch2:		udev-199-coldplug.patch
+Patch3:		systemd-205-uclibc.patch
+# We need a static libudev.a for the uClibc build because lvm2 requires it.
+# Put back support for building it.
+Patch4:		systemd-205-static.patch
+Patch5:		systemd-186-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
-Patch105:	systemd-196-support-build-without-secure_getenv.patch
-Patch106:	systemd-191-uclibc-no-mkostemp.patch
-#Patch107:	systemd-191-link-against-librt.patch
-# (tpg) https://bugs.freedesktop.org/show_bug.cgi?id=57887
-# reverts commit http://cgit.freedesktop.org/systemd/systemd/commit?id=978cf3c75fbd94fd0e046206ada6169b35edd919
-#Patch108:	systemd-197-dont-loose-active-session-after-su.patch
+Patch6:		systemd-196-support-build-without-secure_getenv.patch
+Patch7:		systemd-191-uclibc-no-mkostemp.patch
 
-#Fedora patchset
-# (tpg) disable for now
-#Patch503: 0503-mandriva-Fallback-message-when-display-manager-fails.patch
-#Patch504: 0504-mount-Add-a-new-remote-fs-target-to-specifically-del.patch
-Patch506: 0506-Allow-booting-from-live-cd-in-virtualbox.patch
-#Patch507: 0507-reinstate-TIMEOUT-handling.patch
-Patch508: 0508-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+#Upstream patchset
+Patch100:	0100-acpi-fptd-fix-memory-leak-in-acpi_get_boot_usec.patch
+Patch101:	0101-fix-lingering-references-to-var-lib-backlight-random.patch
+Patch102:	0102-acpi-make-sure-we-never-free-an-uninitialized-pointe.patch
+Patch103:	0103-systemctl-fix-name-mangling-for-sysv-units.patch
+Patch104:	0104-cryptsetup-fix-OOM-handling-when-parsing-mount-optio.patch
+Patch105:	0105-journald-add-missing-error-check.patch
+Patch106:	0106-bus-fix-potentially-uninitialized-memory-access.patch
+Patch107:	0107-dbus-fix-return-value-of-dispatch_rqueue.patch
+Patch108:	0108-modules-load-fix-error-handling.patch
+Patch109:	0109-efi-never-call-qsort-on-potentially-NULL-arrays.patch
+Patch110:	0110-strv-don-t-access-potentially-NULL-string-arrays.patch
+Patch111:	0111-mkdir-pass-a-proper-function-pointer-to-mkdir_safe_i.patch
+Patch112:	0112-tmpfiles.d-include-setgid-perms-for-run-log-journal.patch
+Patch113:	0113-execute.c-always-set-SHELL.patch
+Patch114:	0114-man-Improve-the-description-of-parameter-X-in-tmpfil.patch
+Patch115:	0115-execute-more-debugging-messages.patch
+Patch116:	0116-gpt-auto-generator-exit-immediately-if-in-container.patch
+Patch117:	0117-systemd-order-remote-mounts-from-mountinfo-before-re.patch
+Patch118:	0118-manager-when-verifying-whether-clients-may-change-en.patch
+Patch119:	0119-logind-fix-bus-introspection-data-for-TakeControl.patch
+Patch120:	0120-mount-check-for-NULL-before-reading-pm-what.patch
+Patch121:	0121-core-do-not-add-what-to-RequiresMountsFor-for-networ.patch
+Patch122:	0122-utf8-fix-utf8_is_printable.patch
+Patch123:	0123-shared-util-fix-off-by-one-error-in-tag_to_udev_node.patch
+Patch124:	0124-systemd-serialize-deserialize-forbid_restart-value.patch
+Patch125:	0125-core-unify-the-way-we-denote-serialization-attribute.patch
+Patch126:	0126-journald-fix-minor-memory-leak.patch
+Patch127:	0127-keymap-Fix-Samsung-900X-34-C.patch
+Patch128:	0128-do-not-accept-garbage-from-acpi-firmware-performance.patch
+Patch129:	0129-journald-remove-rotated-file-from-hashmap-when-rotat.patch
+Patch130:	0130-login-fix-invalid-free-in-sd_session_get_vt.patch
+Patch131:	0131-login-make-sd_session_get_vt-actually-work.patch
+Patch132:	0132-udevadm.xml-document-resolve-names-option-for-test.patch
+Patch133:	0133-Never-call-qsort-on-potentially-NULL-arrays.patch
+Patch134:	0134-dbus-common-avoid-leak-in-error-path.patch
+Patch135:	0135-drop-ins-check-return-value.patch
+Patch136:	0136-Make-sure-that-we-don-t-dereference-NULL.patch
+#Patch137:	0137-gitignore-ignore-clang-analyze-output.patch
+Patch138:	0138-man-add-more-markup-to-udevadm-8.patch
+Patch139:	0139-shared-util-Fix-glob_extend-argument.patch
+Patch140:	0140-Fix-bad-assert-in-show_pid_array.patch
+Patch141:	0141-Fix-for-SIGSEGV-in-systemd-bootchart-on-short-living.patch
+Patch142:	0142-man-document-the-b-special-boot-option.patch
+Patch143:	0143-logind-allow-unprivileged-session-device-access.patch
+Patch144:	0144-rules-expose-loop-block-devices-to-systemd.patch
+Patch145:	0145-rules-don-t-limit-some-of-the-rules-to-the-add-actio.patch
+Patch146:	0146-tmpfiles-log-unaccessible-FUSE-mount-points-only-as-.patch
+Patch147:	0147-hwdb-update.patch
+Patch148:	0148-rules-remove-pointless-MODE-settings.patch
+Patch149:	0149-analyze-set-white-backgound.patch
+Patch150:	0150-shell-completion-dump-has-moved-to-systemd-analyze.patch
+Patch151:	0151-systemd-use-unit-name-in-PrivateTmp-directories.patch
+Patch152:	0152-catalog-remove-links-to-non-existent-wiki-pages.patch
+Patch153:	0153-journalctl-add-list-boots-to-show-boot-IDs-and-times.patch
+Patch154:	0154-udev-builtin-path_id-add-support-for-bcma-bus.patch
+Patch155:	0155-udev-ata_id-log-faling-ioctls-as-debug.patch
+Patch156:	0156-libudev-default-log_priority-to-INFO.patch
+Patch157:	0157-nspawn-only-pass-in-slice-setting-if-it-is-set.patch
+Patch158:	0158-zsh-completion-add-systemd-run.patch
+Patch159:	0159-man-explain-NAME-in-systemctl-man-page.patch
+Patch160:	0160-virt-move-caching-of-virtualization-check-results-in.patch
+Patch161:	0161-systemctl-fix-typo-in-help-text.patch
+Patch162:	0162-analyze-plot-place-the-text-on-the-side-with-most-sp.patch
+Patch163:	0163-detect_virtualization-returns-NULL-pass-empty-string.patch
+Patch164:	0164-rules-load-path_id-on-DRM-devices.patch
+Patch165:	0165-rules-simply-60-drm.rules.patch
+Patch166:	0166-udev-builtin-keyboard-Fix-large-scan-codes-on-32-bit.patch
+Patch167:	0167-nspawn-log-out-of-memory-errors.patch
+Patch168:	0168-Configurable-Timeouts-Restarts-default-values.patch
+Patch169:	0169-man-fix-typo.patch
+Patch170:	0170-man-do-not-use-term-in-para.patch
+Patch171:	0171-cgroup-run-PID-1-in-the-root-cgroup.patch
+Patch172:	0172-shutdown-trim-the-cgroup-tree-on-loop-iteration.patch
+Patch173:	0173-nspawn-split-out-pty-forwaring-logic-into-ptyfwd.c.patch
+Patch174:	0174-nspawn-explicitly-terminate-machines-when-we-exit-ns.patch
+Patch175:	0175-run-support-system-to-match-other-commands-even-if-r.patch
+Patch176:	0176-acpi-fpdt-break-on-zero-or-negative-length-read.patch
+Patch177:	0177-man-add-rationale-into-systemd-halt-8.patch
+Patch178:	0178-systemd-python-convert-keyword-value-to-string.patch
+Patch179:	0179-systemctl-make-LOAD-column-width-dynamic.patch
+Patch180:	0180-Make-hibernation-test-work-for-swap-files.patch
+Patch181:	0181-man-add-docs-for-sd_is_special-and-some-man-page-sym.patch
+Patch182:	0182-systemctl-return-r-instead-of-always-returning-0.patch
+Patch183:	0183-journal-fix-minor-memory-leak.patch
+Patch184:	0184-manager-configurable-StartLimit-default-values.patch
+Patch185:	0185-man-units-fix-installation-of-systemd-nspawn-.servic.patch
+Patch186:	0186-systemd-fix-memory-leak-in-cgroup-code.patch
+Patch187:	0187-button-don-t-exit-if-we-cannot-handle-a-button-press.patch
+Patch188:	0188-timer-properly-format-relative-timestamps-in-the-fut.patch
+Patch189:	0189-timer-consider-usec_t-1-an-invalid-timestamp.patch
+Patch190:	0190-udev-usb_id-remove-obsoleted-bInterfaceSubClass-5-ma.patch
+Patch191:	0191-Add-support-for-saving-restoring-keyboard-backlights.patch
+Patch192:	0192-static-nodes-don-t-call-mkdir.patch
+Patch193:	0193-Fix-kmod-error-message-to-have-correct-version-requi.patch
+Patch194:	0194-systemd-python-fix-booted-and-add-two-functions-to-d.patch
+Patch195:	0195-activate-mention-E-in-the-help-text.patch
+Patch196:	0196-activate-fix-crash-when-s-is-passed.patch
+Patch197:	0197-journal-timestamp-support-on-console-messages.patch
+Patch198:	0198-man-add-bootctl-8.patch
+Patch199:	0199-zsh-completion-add-bootctl.patch
+Patch200:	0200-Resolve-dev-console-to-the-active-tty-instead-of-jus.patch
+Patch201:	0201-Only-disable-output-on-console-during-boot-if-needed.patch
+Patch202:	0202-Fix-possible-lack-of-status-messages-on-shutdown-reb.patch
+Patch203:	0203-fsck-modernization.patch
+Patch204:	0204-Introduce-udev-object-cleanup-functions.patch
+Patch205:	0205-util-allow-trailing-semicolons-on-define_trivial_cle.patch
+Patch206:	0206-fsck-fstab-generator-be-lenient-about-missing-fsck.-.patch
+Patch207:	0207-fstab-generator-use-RequiresOverridable-for-fsck-uni.patch
+Patch208:	0208-bash-completion-journalctl-file.patch
+Patch209:	0209-random-seed-improve-debugging-messages-a-bit.patch
+Patch210:	0210-Fix-RemainAfterExit-services-keeping-a-hold-on-conso.patch
+Patch211:	0211-tmpfiles-adjust-excludes-for-the-new-per-service-pri.patch
+Patch212:	0212-core-socket-fix-SO_REUSEPORT.patch
+Patch213:	0213-localed-match-converted-keymaps-before-legacy.patch
+Patch214:	0214-keymap-Add-Toshiba-Satellite-U940.patch
+Patch215:	0215-calendar-support-yearly-and-annually-names-the-same-.patch
+Patch216:	0216-hashmap-be-a-bit-more-conservative-with-pre-allocati.patch
+Patch217:	0217-manager-don-t-do-plymouth-in-a-container.patch
+Patch218:	0218-nspawn-add-new-drop-capability-switch.patch
+Patch219:	0219-valgrind-make-running-PID-1-in-valgrind-useful.patch
+Patch220:	0220-efi-boot-generator-don-t-mount-boot-eagerly.patch
+Patch221:	0221-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch222:	0222-journal-when-appending-to-journal-file-allocate-larg.patch
+Patch223:	0223-journal-make-table-const.patch
+Patch224:	0224-journald-keep-statistics-on-how-of-we-hit-miss-the-m.patch
+Patch225:	0225-journal-optimize-bisection-logic-a-bit-by-caching-th.patch
+Patch226:	0226-journal-fix-iteration-when-we-go-backwards-from-the-.patch
+Patch227:	0227-journal-allow-journal_file_copy_entry-to-work-on-non.patch
+Patch228:	0228-journal-simplify-pre-allocation-logic.patch
+Patch229:	0229-journald-mention-how-long-we-needed-to-flush-to-var-.patch
+Patch230:	0230-automount-log-info-about-triggering-process.patch
+Patch231:	0231-virt-split-detect_vm-into-separate-functions.patch
+Patch232:	0232-hwdb-Update-database-of-Bluetooth-company-identifier.patch
+Patch233:	0233-sysfs-show.c-return-negative-error.patch
+Patch234:	0234-util.c-check-if-return-value-from-ttyname_r-is-0-ins.patch
+Patch235:	0235-docs-remove-unneeded-the-s-in-gudev-docs.patch
+Patch236:	0236-man-explicitly-say-when-multiple-units-can-be-specif.patch
+Patch237:	0237-systemd-treat-reload-failure-as-failure.patch
+Patch238:	0238-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
+Patch239:	0239-systemd-add-a-start-job-for-all-units-specified-with.patch
+Patch240:	0240-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
+Patch241:	0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
+
+#Mageia patchset
+Patch500:	0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
+Patch501:	0505-Allow-booting-from-live-cd-in-virtualbox.patch
+Patch502:	0506-reinstate-TIMEOUT-handling.patch
+Patch503:	0507-udev-Allow-the-udevadm-settle-timeout-to-be-set-via-.patch
+Patch504:	0508-Mageia-Relax-perms-on-sys-kernel-debug-for-lspcidrak.patch
+Patch505:	0509-udev-rules-Apply-SuSE-patch-to-restore-cdrom-cdrw-dv.patch
+Patch506:	0510-udev-store-hwbase-in-udev-dir.patch
+Patch507:	0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
+
 
 
 BuildRequires:	autoconf
@@ -767,6 +901,9 @@ echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
 
 # (tpg) by default enable SysRq
 sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d/50-default.conf
+
+# (tpg) use 100M as a default maximum value for journal logs
+sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/systemd/journald.conf
 
 #################
 #	UDEV	#
