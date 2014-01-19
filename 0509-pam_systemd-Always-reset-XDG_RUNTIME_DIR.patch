@@ -1,0 +1,20 @@
+diff -Nur systemd-208.old/src/login/pam-module.c systemd-208/src/login/pam-module.c
+--- systemd-208.old/src/login/pam-module.c	2014-01-14 15:52:53.000000000 +0400
++++ systemd-208/src/login/pam-module.c	2014-01-14 16:00:08.153575054 +0400
+@@ -418,6 +418,16 @@
+                          pam_syslog(handle, LOG_ERR, "Failed to set runtime dir.");
+                          goto finish;
+                 }
++        } else {
++                if(getenv("XDG_RUNTIME_DIR") != NULL) {
++                    (void) unsetenv("XDG_RUNTIME_DIR");
++                }
++                if(getenv("XDG_RUNTIME_DIR") != NULL) {
++                    r = pam_putenv(handle, "XDG_RUNTIME_DIR");                    
++                }
++                if (r != PAM_SUCCESS && r != PAM_BAD_ITEM) {
++                         pam_syslog(handle, LOG_ERR, "Failed to unset runtime dir.");
++                }
+         }
+ 
+         if (!isempty(seat)) {

@@ -1,0 +1,25 @@
+From ee3d25dc418159e819f33f0c0348d8d36e934e3e Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Wed, 9 Oct 2013 04:03:45 +0200
+Subject: [PATCH 126/240] journald: fix minor memory leak
+
+---
+ src/journal/journal-vacuum.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/journal/journal-vacuum.c b/src/journal/journal-vacuum.c
+index c73ad8f..8d5effb 100644
+--- a/src/journal/journal-vacuum.c
++++ b/src/journal/journal-vacuum.c
+@@ -278,6 +278,8 @@ int journal_directory_vacuum(
+                         } else if (errno != ENOENT)
+                                 log_warning("Failed to delete %s/%s: %m", directory, p);
+ 
++                        free(p);
++
+                         continue;
+                 }
+ 
+-- 
+1.8.4.5
+
