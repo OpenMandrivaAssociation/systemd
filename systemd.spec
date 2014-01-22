@@ -224,6 +224,7 @@ Patch238:	0238-journal-fail-silently-in-sd_j_sendv-if-journal-is-un.patch
 Patch239:	0239-systemd-add-a-start-job-for-all-units-specified-with.patch
 Patch240:	0240-core-device-ignore-SYSTEMD_WANTS-in-user-mode.patch
 Patch241:	0241-pam_systemd-do-not-set-XDG_RUNTIME_DIR-if-the-sessio.patch
+Patch242:	1011-check-4-valid-kmsg-device.patch
 
 #Mageia patchset
 Patch500:	0502-main-Add-failsafe-to-the-sysvinit-compat-cmdline-key.patch
