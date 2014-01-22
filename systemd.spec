@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -580,6 +580,10 @@ pushd uclibc
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
+# FIXME workaround for uclibc-gcc finding glibc headers if uclibc doesn't
+# have an equivalent header. This should be removed once uclibc-gcc does
+# the right thing.
+sed -i -e 's,#define HAVE_SYS_AUXV_H 1,#undef HAVE_SYS_AUXV_H,g' config.h
 %make
 
 popd
