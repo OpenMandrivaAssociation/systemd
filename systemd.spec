@@ -128,7 +128,7 @@ Patch139:	0139-shared-util-Fix-glob_extend-argument.patch
 Patch140:	0140-Fix-bad-assert-in-show_pid_array.patch
 Patch141:	0141-Fix-for-SIGSEGV-in-systemd-bootchart-on-short-living.patch
 Patch142:	0142-man-document-the-b-special-boot-option.patch
-Patch143:	0143-logind-allow-unprivileglinux-3.8.13-nrjQL-laptop-1omv/ed-session-device-access.patch
+Patch143:	0143-logind-allow-unprivileged-session-device-access.patch
 Patch144:	0144-rules-expose-loop-block-devices-to-systemd.patch
 Patch145:	0145-rules-don-t-limit-some-of-the-rules-to-the-add-actio.patch
 Patch146:	0146-tmpfiles-log-unaccessible-FUSE-mount-points-only-as-.patch
