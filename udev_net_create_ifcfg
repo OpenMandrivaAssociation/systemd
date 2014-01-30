@@ -12,10 +12,9 @@ CFG=/etc/sysconfig/network-scripts/ifcfg-$INTERFACE
 # eagle-usb/firewire create a fake ethX interface
 [ "$PHYSDEVDRIVER" = "ne2k-pci" ] || /usr/sbin/ethtool $INTERFACE &>/dev/null || exit 0
 
-# conform to network service (AUTOMATIC_IFCFG)
-[ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
+# conform to network service (USE NM ONLY)
+if ! [[ `/usr/bin/systemctl is-enabled NetworkManager` = "enabled" ]]; then
 
-if [ "$AUTOMATIC_IFCFG" != no ]; then
 	debug_mesg creating config file for $INTERFACE
 	cat > $CFG <<EOF
 DEVICE=$INTERFACE
