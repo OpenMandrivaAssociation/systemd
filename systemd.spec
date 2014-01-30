@@ -788,7 +788,7 @@ ln -s /bin/systemctl %{buildroot}%{_bindir}/systemctl
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
 rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
-rm -f %{buildroot}%{_sysconfdir}/systemd/system/display-manager.service
+rm %{buildroot}%{_sysconfdir}/systemd/system/display-manager.service
 
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
@@ -1523,7 +1523,6 @@ fi
 %{systemd_libdir}/system/auto*.service
 %{systemd_libdir}/system/console*.service
 %{systemd_libdir}/system/dbus-org*.service
-%{systemd_libdir}/system/display-manager-failure.service
 %{systemd_libdir}/system/de*.service
 %{systemd_libdir}/system/emergency*.service
 %{systemd_libdir}/system/getty*.service
@@ -1531,7 +1530,6 @@ fi
 %{systemd_libdir}/system/initrd-*.service
 %{systemd_libdir}/system/kmod-*.service
 %{systemd_libdir}/system/quota*.service
-%{systemd_libdir}/system/prefdm.service
 %{systemd_libdir}/system/rc-*.service
 %{systemd_libdir}/system/rescue*.service
 %{systemd_libdir}/system/serial-*.service
