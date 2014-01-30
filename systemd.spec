@@ -1125,6 +1125,26 @@ if [ -f /etc/machine-id ]; then
 	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
 fi
 
+%triggerposttransin -- %{_tmpfilesdir}/*.conf
+if [ $1 -eq 1 -o $2 -eq 1 ]; then
+    while [ -n "$3" ]; do
+        if [ -f "$3" ]; then
+            /bin/systemd-tmpfiles --create "$3"
+        fi
+        shift
+    done
+fi
+
+%triggerposttransun -- %{_tmpfilesdir}/*.conf
+if [ $2 -eq 0 ]; then
+    while [ -n "$3" ]; do
+        if [ -f "$3" ]; then
+            /bin/systemd-tmpfiles --remove "$3"
+        fi
+        shift
+    done
+fi
+
 %post units
 if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
