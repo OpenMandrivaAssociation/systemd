@@ -788,7 +788,6 @@ ln -s /bin/systemctl %{buildroot}%{_bindir}/systemctl
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
 rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
-rm %{buildroot}%{_sysconfdir}/systemd/system/display-manager.service
 
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
