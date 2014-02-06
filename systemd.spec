@@ -80,6 +80,7 @@ Patch5:		systemd-186-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch6:		systemd-196-support-build-without-secure_getenv.patch
 Patch7:		systemd-191-uclibc-no-mkostemp.patch
+Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 
 #Upstream patchset
 Patch100:	0100-acpi-fptd-fix-memory-leak-in-acpi_get_boot_usec.patch
@@ -295,7 +296,7 @@ Requires(pre):	%{name}-units
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 186-5
-%if %mdvver >= 201300
+%if "%{distepoch}" >= "2013.0"
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
 Provides:	consolekit-x11 = 0.4.5-6
@@ -772,7 +773,7 @@ ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
 
 # (tpg) install compat symlinks
 for i in halt poweroff reboot; do
-	ln -s ../bin/systemctl %{buildroot}/bin/$i
+	ln -s /bin/systemctl %{buildroot}/bin/$i
 done
 
 for i in runlevel shutdown telinit; do
@@ -1125,6 +1126,26 @@ chgrp -R systemd-journal /var/log/journal || :
 chmod 02755 /var/log/journal || :
 if [ -f /etc/machine-id ]; then
 	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
+fi
+
+%triggerposttransin -- %{_tmpfilesdir}/*.conf
+if [ $1 -eq 1 -o $2 -eq 1 ]; then
+    while [ -n "$3" ]; do
+        if [ -f "$3" ]; then
+            /bin/systemd-tmpfiles --create "$3"
+        fi
+        shift
+    done
+fi
+
+%triggerposttransun -- %{_tmpfilesdir}/*.conf
+if [ $2 -eq 0 ]; then
+    while [ -n "$3" ]; do
+        if [ -f "$3" ]; then
+            /bin/systemd-tmpfiles --remove "$3"
+        fi
+        shift
+    done
 fi
 
 %post units
