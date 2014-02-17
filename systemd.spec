@@ -888,9 +888,6 @@ pushd uclibc
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--enable-static \
-%if %mdvver < 201300
-	--with-distro=mandriva \
-%endif
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
@@ -931,9 +928,6 @@ pushd shared
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
 	--disable-static \
-%if %mdvver < 201300
-	--with-distro=mandriva \
-%endif
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
