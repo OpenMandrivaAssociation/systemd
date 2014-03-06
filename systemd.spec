@@ -1064,7 +1064,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/systemd.macros
 
 # Make sure the NTP units dir exists
-mkdir -p %{buildroot}%{systemd_libdir}/ntp-units.d/
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
 # (tpg) Install default distribution preset policy for services
@@ -1461,7 +1460,6 @@ fi
 %dir %{systemd_libdir}/*-generators
 %dir %{systemd_libdir}/system-shutdown
 %dir %{systemd_libdir}/system-sleep
-%dir %{systemd_libdir}/ntp-units.d
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/user-preset
 %dir %{_datadir}/systemd
