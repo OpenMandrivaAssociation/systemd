@@ -1388,11 +1388,37 @@ if [ $1 -eq 0 ] ; then
         /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
 
-%postun units
-if [ $1 -ge 1 ] ; then
-        /bin/systemctl daemon-reload 2>&1 || :
+%triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
+# don't run trigger for units shipped with this package
+echo $*| grep -q %{_unitdir}/getty@.service && exit 0
+ARG1=$1
+ARG2=$2
+shift
+shift
+
+units=${*#%_unitdir/}
+if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
+    /bin/systemctl preset ${unit} >/dev/null 2>&1 || :
+elif [ $ARG2 -gt 1 ]; then
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /bin/systemctl try-restart ${unit} >/dev/null 2>&1 || :
 fi
 
+%triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
+echo $*| grep -q %{_unitdir}/getty@.service && exit 0
+ARG1=$1
+ARG2=$2
+shift
+shift
+
+units=${*#%_unitdir/}
+if [ $ARG2 -eq 0 ]; then
+	/bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
+	/bin/systemctl stop ${units} >/dev/null 2>&1 || :
+fi
+
+%triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %post -n %{libnss_myhostname}
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
