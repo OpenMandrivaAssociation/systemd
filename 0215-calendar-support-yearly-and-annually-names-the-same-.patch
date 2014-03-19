@@ -1,7 +1,7 @@
-From a6b8c7f9218f89a46549527f3146092ea314519d Mon Sep 17 00:00:00 2001
+From 2e4d2f542ccf95bec04d8144ef348257474586dc Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 19 Nov 2013 01:13:42 +0100
-Subject: [PATCH 215/240] calendar: support 'yearly' and 'annually' names the
+Subject: [PATCH 215/443] calendar: support 'yearly' and 'annually' names the
  same way as cron
 
 ---
@@ -37,5 +37,5 @@ index 7979e23..7075159 100644
  
                  c->weekdays_bits = 1;
 -- 
-1.8.4.5
+1.8.3.2
 

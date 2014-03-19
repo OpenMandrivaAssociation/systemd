@@ -1,7 +1,7 @@
-From 62b320506f67dcc0c3bcd63f9b182c94280930c9 Mon Sep 17 00:00:00 2001
+From 6f1c85d5ce89fdee924a45ec31cc9510f61b18c0 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 26 Nov 2013 18:58:44 +0100
-Subject: [PATCH 224/240] journald: keep statistics on how of we hit/miss the
+Subject: [PATCH 224/443] journald: keep statistics on how of we hit/miss the
  mmap cache
 
 (cherry picked from commit bf807d4dbf27c783db8dfd7f4eca321ae4be5b00)
@@ -91,5 +91,5 @@ index 9676f0f..52abbe9 100644
          free(j->path);
          free(j->unique_field);
 -- 
-1.8.4.5
+1.8.3.2
 

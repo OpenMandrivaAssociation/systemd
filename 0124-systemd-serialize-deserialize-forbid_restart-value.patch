@@ -1,7 +1,7 @@
-From 1a5c194f49dbd3a6568e5d1600289ac2c896c8d0 Mon Sep 17 00:00:00 2001
+From 36d752d26f949a001b56f9ed26d48f5391a86dd2 Mon Sep 17 00:00:00 2001
 From: Sylvia Else <sylviabz1@cryogenic.net>
 Date: Sun, 6 Oct 2013 23:06:35 -0400
-Subject: [PATCH 124/240] systemd: serialize/deserialize forbid_restart value
+Subject: [PATCH 124/443] systemd: serialize/deserialize forbid_restart value
 
 The Service type's forbid_restart field was not preserved by
 serialization/deserialization, so the fact that the service should not
@@ -47,5 +47,5 @@ index 6792024..98b1599 100644
                  log_debug_unit(u->id, "Unknown serialization key '%s'", key);
  
 -- 
-1.8.4.5
+1.8.3.2
 

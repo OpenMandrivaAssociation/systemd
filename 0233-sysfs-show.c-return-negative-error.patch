@@ -1,7 +1,7 @@
-From e4a7ae97a7f369c2879ea670b4cffac5bdad4c9f Mon Sep 17 00:00:00 2001
+From 5805da2b4fd807e566d2c7a743a2da3e43ddabf6 Mon Sep 17 00:00:00 2001
 From: Thomas Hindoe Paaboel Andersen <phomes@gmail.com>
 Date: Sat, 30 Nov 2013 21:59:40 +0100
-Subject: [PATCH 233/240] sysfs-show.c: return negative error
+Subject: [PATCH 233/443] sysfs-show.c: return negative error
 
 introduced in 1ca208fb4f93e5869704af1812cbff7130a2fc03
 ---
@@ -22,5 +22,5 @@ index 7c1adfa..f7d11dd 100644
          if (!streq(seat, "seat0"))
                  r = udev_enumerate_add_match_tag(e, seat);
 -- 
-1.8.4.5
+1.8.3.2
 

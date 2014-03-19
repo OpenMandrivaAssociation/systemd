@@ -1,7 +1,7 @@
-From 7794e4b911494add7d0048bb719f8bbfc8a2a574 Mon Sep 17 00:00:00 2001
+From 5da5aaac9f474db371e1f0121fbbbc36fbd9bc83 Mon Sep 17 00:00:00 2001
 From: Thomas Hindoe Paaboel Andersen <phomes@gmail.com>
 Date: Sat, 30 Nov 2013 23:45:31 +0100
-Subject: [PATCH 234/240] util.c: check if return value from ttyname_r is > 0
+Subject: [PATCH 234/443] util.c: check if return value from ttyname_r is > 0
  instead of != 0
 
 We must return a negative error code from getttyname_malloc but
@@ -27,5 +27,5 @@ index 3fc080a..1510c5e 100644
  
          char_array_0(path);
 -- 
-1.8.4.5
+1.8.3.2
 

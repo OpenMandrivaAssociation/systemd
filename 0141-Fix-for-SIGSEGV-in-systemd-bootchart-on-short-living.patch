@@ -1,7 +1,7 @@
-From a9dc5ac453a08fca64efb53afde7e521693d8534 Mon Sep 17 00:00:00 2001
+From 6a5ca4af4911b8dee459ab409e73929ab57f6c82 Mon Sep 17 00:00:00 2001
 From: Igor Zhbanov <i.zhbanov@samsung.com>
 Date: Tue, 15 Oct 2013 14:35:13 +0400
-Subject: [PATCH 141/240] Fix for SIGSEGV in systemd-bootchart on short-living
+Subject: [PATCH 141/443] Fix for SIGSEGV in systemd-bootchart on short-living
  processes
 
 The function svg_ps_bars() dereferencess NULL pointer in the line
@@ -30,5 +30,5 @@ index f8c97c2..7f86cfe 100644
                          ps->sample->waittime = atoll(wt);
  
 -- 
-1.8.4.5
+1.8.3.2
 

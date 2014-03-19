@@ -1,7 +1,7 @@
-From e64c5a3cd03a191477f938d12e166ac7b09da88c Mon Sep 17 00:00:00 2001
+From bc979de36a9523ffe907e610f28719d44c364f49 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 5 Dec 2013 16:06:04 -0500
-Subject: [PATCH 240/240] core/device: ignore SYSTEMD_WANTS= in user mode
+Subject: [PATCH 240/443] core/device: ignore SYSTEMD_WANTS= in user mode
 
 ---
  src/core/device.c | 5 +++--
@@ -24,5 +24,5 @@ index 610fe88..e02c207 100644
                          size_t l;
  
 -- 
-1.8.4.5
+1.8.3.2
 

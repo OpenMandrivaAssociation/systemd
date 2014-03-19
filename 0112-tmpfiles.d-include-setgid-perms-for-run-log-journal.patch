@@ -1,7 +1,7 @@
-From 1d6d529c684272b3100100aa51d6d517c81433e8 Mon Sep 17 00:00:00 2001
+From a038f23862a327fb52a93f3d41287b83a67ae527 Mon Sep 17 00:00:00 2001
 From: Dave Reisner <dreisner@archlinux.org>
 Date: Wed, 2 Oct 2013 15:35:16 -0400
-Subject: [PATCH 112/240] tmpfiles.d: include setgid perms for /run/log/journal
+Subject: [PATCH 112/443] tmpfiles.d: include setgid perms for /run/log/journal
 
 4608af4333d0f7f5 set permissions for journal storage on persistent disk
 but not the volatile storage.
@@ -22,5 +22,5 @@ index b630440..a05c657 100644
 +m /run/log/journal 2755 root systemd-journal - -
 +m /run/log/journal/%m 2755 root systemd-journal - -
 -- 
-1.8.4.5
+1.8.3.2
 

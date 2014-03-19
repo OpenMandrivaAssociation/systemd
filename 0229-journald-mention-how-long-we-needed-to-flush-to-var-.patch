@@ -1,7 +1,7 @@
-From 370ea90fbce25fccfb66eb824f482b34ee5d233c Mon Sep 17 00:00:00 2001
+From 7d64f9468da3cb18390e971e685efba9fa225cf7 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 27 Nov 2013 01:54:25 +0100
-Subject: [PATCH 229/240] journald: mention how long we needed to flush to /var
+Subject: [PATCH 229/443] journald: mention how long we needed to flush to /var
  in the logs
 
 (cherry picked from commit fbb634117d0b0ebd5b105e65b141e75ae9af7f8f)
@@ -55,5 +55,5 @@ index e03e413..a0a8e9c 100644
  }
  
 -- 
-1.8.4.5
+1.8.3.2
 

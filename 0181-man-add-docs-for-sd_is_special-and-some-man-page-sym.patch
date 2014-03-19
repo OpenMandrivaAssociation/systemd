@@ -1,7 +1,7 @@
-From 7582069a6990a4849589b0558016ac7a479fc221 Mon Sep 17 00:00:00 2001
+From fbefdc24d1f9a4cecb85fbd42c3f027941a1c9fe Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 7 Nov 2013 17:51:09 +0100
-Subject: [PATCH 181/240] man: add docs for sd_is_special() and some man page
+Subject: [PATCH 181/443] man: add docs for sd_is_special() and some man page
  symlinks
 
 Conflicts:
@@ -134,5 +134,5 @@ index 1610d3e..cd87696 100644
          </refnamediv>
  
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From e1c43c3adcbf4dce21bf116af7434ecf4bb7ffa1 Mon Sep 17 00:00:00 2001
+From 87aaa9cab7b5f50e8f780cff35af2c3b09065427 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 14 Oct 2013 08:15:51 +0200
-Subject: [PATCH 139/240] shared/util: Fix glob_extend() argument
+Subject: [PATCH 139/443] shared/util: Fix glob_extend() argument
 
 glob_extend() would completely fail to work, or return incorrect
 data if it wasn't being passed the current getopt "optarg" variable
@@ -24,5 +24,5 @@ index 748f1bb..6c88040 100644
          if (k == GLOB_NOMATCH)
                  return -ENOENT;
 -- 
-1.8.4.5
+1.8.3.2
 

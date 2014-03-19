@@ -1,7 +1,7 @@
-From a2e2631b57570d94f6a1101109e4d2a03e59a97b Mon Sep 17 00:00:00 2001
+From d5a8cc7503ed9d54ed6b7e76e211deaa1b701125 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 11 Nov 2013 03:03:17 +0100
-Subject: [PATCH 189/240] timer: consider (usec_t) -1 an invalid timestamp
+Subject: [PATCH 189/443] timer: consider (usec_t) -1 an invalid timestamp
 
 ---
  src/shared/time-util.c | 4 ++--
@@ -47,5 +47,5 @@ index 7660fe1..bc10d22 100644
  usec_t timespec_load(const struct timespec *ts) _pure_;
  struct timespec *timespec_store(struct timespec *ts, usec_t u);
 -- 
-1.8.4.5
+1.8.3.2
 

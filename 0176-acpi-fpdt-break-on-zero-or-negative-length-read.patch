@@ -1,7 +1,7 @@
-From ac4b1f747e4045e0208c8cc363cff88e7f4fd357 Mon Sep 17 00:00:00 2001
+From e3af95f3c8bf6f7e52cc848d7330d5d00deec35b Mon Sep 17 00:00:00 2001
 From: Pavel Holica <conscript89@gmail.com>
 Date: Wed, 6 Nov 2013 23:24:16 +0100
-Subject: [PATCH 176/240] acpi-fpdt: break on zero or negative length read
+Subject: [PATCH 176/443] acpi-fpdt: break on zero or negative length read
 
 https://bugzilla.redhat.com/show_bug.cgi?id=1027478
 ---
@@ -22,5 +22,5 @@ index 75648b4..7bae47f 100644
                          continue;
                  if (rec->length != sizeof(struct acpi_fpdt_header))
 -- 
-1.8.4.5
+1.8.3.2
 

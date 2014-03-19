@@ -1,7 +1,7 @@
-From 9db5f46b952188c1c9b0457a29a130e7bd9b1bc9 Mon Sep 17 00:00:00 2001
+From c45acb6e734f183d16af7f80cb62c1e26d679c52 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 20 Nov 2013 22:11:10 +0100
-Subject: [PATCH 219/240] valgrind: make running PID 1 in valgrind useful
+Subject: [PATCH 219/443] valgrind: make running PID 1 in valgrind useful
 
 Since valgrind only generates useful output on exit() (rather than
 exec()) we need to explicitly exit when valgrind is detected.
@@ -58,5 +58,5 @@ index 00fd394..58c3a9e 100644
                  const char * command_line[] = {
                          SYSTEMD_SHUTDOWN_BINARY_PATH,
 -- 
-1.8.4.5
+1.8.3.2
 

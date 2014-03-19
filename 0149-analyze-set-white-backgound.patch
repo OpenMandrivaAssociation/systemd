@@ -1,7 +1,7 @@
-From b3f2efa7ee9d64c82ee59bdb358705c469c647a1 Mon Sep 17 00:00:00 2001
+From a2ea772c697c8e3abb34e37216205c8d8f7659a2 Mon Sep 17 00:00:00 2001
 From: Thomas Hindoe Paaboel Andersen <phomes@gmail.com>
 Date: Mon, 21 Oct 2013 21:29:23 +0200
-Subject: [PATCH 149/240] analyze: set white backgound
+Subject: [PATCH 149/443] analyze: set white backgound
 
 In programs like eog and gimp the transparant background did not
 look very good.
@@ -32,5 +32,5 @@ index a4f15eb..9a69795 100644
          svg("<text x=\"20\" y=\"30\">%s %s (%s %s) %s</text>",
              isempty(osname) ? "Linux" : osname,
 -- 
-1.8.4.5
+1.8.3.2
 

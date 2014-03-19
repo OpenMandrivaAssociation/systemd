@@ -1,7 +1,7 @@
-From 9fcac6b27ffc77d13352a42ce3065e6debce844c Mon Sep 17 00:00:00 2001
+From 248c3f3b5c2d1f0cc68eed831bc28b2369856544 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 2 Oct 2013 14:03:56 +0200
-Subject: [PATCH 102/240] acpi: make sure we never free an uninitialized
+Subject: [PATCH 102/443] acpi: make sure we never free an uninitialized
  pointer
 
 ---
@@ -22,5 +22,5 @@ index a7c83ed..af58c7c 100644
          size_t l;
          struct acpi_fpdt_header *rec;
 -- 
-1.8.4.5
+1.8.3.2
 

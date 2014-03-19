@@ -1,7 +1,7 @@
-From 46236180b38bb9892e721bb3058bdc1dc23d0e14 Mon Sep 17 00:00:00 2001
+From 7fc6e478fe20b0f6e16cd6be6d707068fab7334b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 12 Oct 2013 20:28:21 -0400
-Subject: [PATCH 204/240] Introduce udev object cleanup functions
+Subject: [PATCH 204/443] Introduce udev object cleanup functions
 
 Conflicts:
 	src/gpt-auto-generator/gpt-auto-generator.c <-- skipped
@@ -1039,5 +1039,5 @@ index 239e56b..7e873af 100644
  
  static bool item_equal(Item *a, Item *b) {
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From 60104ca32d500e84c3f4496ed85ed6dfabbc750a Mon Sep 17 00:00:00 2001
+From cd8596ed35691c0fff2f527ca963c5e9de0ea4dc Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 21 Oct 2013 18:53:57 -0400
-Subject: [PATCH 150/240] shell-completion: dump has moved to systemd-analyze
+Subject: [PATCH 150/443] shell-completion: dump has moved to systemd-analyze
 
 Rename NO_OPTION to STANDALONE for consistency with other files.
 ---
@@ -80,5 +80,5 @@ index 37c60f5..2eda5fe 100644
      )
  
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From 357af4ddc2fa00ca11bef15a33a85b97d027b60e Mon Sep 17 00:00:00 2001
+From c914a2beb806b5a004935dfd3725f5d0fe87fe77 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 11 Nov 2013 19:53:59 -0500
-Subject: [PATCH 194/240] systemd-python: fix booted() and add two functions to
+Subject: [PATCH 194/443] systemd-python: fix booted() and add two functions to
  docs
 
 For some reason sphinx doesn't want to show inherited C functions.
@@ -23,5 +23,5 @@ index 6b84fb8..f0ab16f 100644
  
          return PyBool_FromLong(r);
 -- 
-1.8.4.5
+1.8.3.2
 

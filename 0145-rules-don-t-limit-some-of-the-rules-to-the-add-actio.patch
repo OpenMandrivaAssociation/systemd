@@ -1,7 +1,7 @@
-From 0afb3822b1bd949266c10841ffe6ce5fda31bb51 Mon Sep 17 00:00:00 2001
+From 7c6ed28afab4cf2a7ab0fbdf7cd8f95fd99a5529 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 16 Oct 2013 02:51:24 +0200
-Subject: [PATCH 145/240] rules: don't limit some of the rules to the "add"
+Subject: [PATCH 145/443] rules: don't limit some of the rules to the "add"
  action
 
 Devices should show up in systemd regardless whether the user invoked
@@ -35,5 +35,5 @@ index 3c99475..307f18f 100644
  
  LABEL="systemd_end"
 -- 
-1.8.4.5
+1.8.3.2
 

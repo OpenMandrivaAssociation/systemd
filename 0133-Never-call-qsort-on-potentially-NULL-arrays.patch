@@ -1,7 +1,7 @@
-From c363472c1a43fadcc7ef3667cc86f9919b73ae7e Mon Sep 17 00:00:00 2001
+From 640e6b9ae24e6e8137f99687df66507b4130d5c8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 11 Oct 2013 19:33:13 -0400
-Subject: [PATCH 133/240] Never call qsort on potentially NULL arrays
+Subject: [PATCH 133/443] Never call qsort on potentially NULL arrays
 
 This extends 62678ded 'efi: never call qsort on potentially
 NULL arrays' to all other places where qsort is used and it
@@ -381,5 +381,5 @@ index d75281f..036828b 100644
          for (u = unit_infos; u < unit_infos + c; u++) {
                  _cleanup_free_ char *p = NULL;
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From 91657aa54f6918f9c0d3d924eb7603f650be7b89 Mon Sep 17 00:00:00 2001
+From 1bd1c389f923d324e7e37076d4b7747d215c8796 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 18 Nov 2013 13:42:57 -0500
-Subject: [PATCH 213/240] localed: match converted keymaps before legacy
+Subject: [PATCH 213/443] localed: match converted keymaps before legacy
 
 Before, X11 keymap fr-pc105-oss would be converted to fr,
 even though fr-oss exists. Now, if
@@ -323,5 +323,5 @@ index e4ef735..58c834c 100644
 +        "/usr/lib/kbd/keymaps/\0"
 +#endif
 -- 
-1.8.4.5
+1.8.3.2
 

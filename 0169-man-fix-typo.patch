@@ -1,7 +1,7 @@
-From 79a34aab6408d05013170c2aeacede8693c012ba Mon Sep 17 00:00:00 2001
+From 2fb9ec2d99e654fa4bc71f9c90a7fdee7a7eaa17 Mon Sep 17 00:00:00 2001
 From: Ronny Chevalier <chevalier.ronny@gmail.com>
 Date: Sun, 3 Nov 2013 15:07:31 +0100
-Subject: [PATCH 169/240] man: fix typo
+Subject: [PATCH 169/443] man: fix typo
 
 ---
  man/systemd-run.xml | 2 +-
@@ -21,5 +21,5 @@ index e76a402..252335b 100644
      <filename>.scope</filename> unit and run the specified
      <replaceable>COMMAND</replaceable> in it.</para>
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From 62aab12abafcd690e87938586abc3d9b494a6abc Mon Sep 17 00:00:00 2001
+From ea46660942050162d9fcf8ec9582272d5fa68203 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 30 Oct 2013 18:58:59 +0100
-Subject: [PATCH 173/240] nspawn: split out pty forwaring logic into ptyfwd.c
+Subject: [PATCH 173/443] nspawn: split out pty forwaring logic into ptyfwd.c
 
 Conflicts:
 	Makefile.am
@@ -592,5 +592,5 @@ index 0000000..8b65702
 +
 +int process_pty(int master, sigset_t *mask, pid_t kill_pid, int signo);
 -- 
-1.8.4.5
+1.8.3.2
 

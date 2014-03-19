@@ -1,7 +1,7 @@
-From 07ac14d200ac00b1bda7c70c3badca434ad66163 Mon Sep 17 00:00:00 2001
+From e639baf54ba664aee4c679d24a8337c90da37713 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 2 Oct 2013 19:36:43 +0200
-Subject: [PATCH 105/240] journald: add missing error check
+Subject: [PATCH 105/443] journald: add missing error check
 
 ---
  src/journal/journal-file.c | 2 ++
@@ -21,5 +21,5 @@ index 1236403..81c344f 100644
          o->field.hash = htole64(hash);
          memcpy(o->field.payload, field, size);
 -- 
-1.8.4.5
+1.8.3.2
 

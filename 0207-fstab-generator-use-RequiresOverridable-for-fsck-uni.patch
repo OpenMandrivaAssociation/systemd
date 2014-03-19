@@ -1,7 +1,7 @@
-From 2130ed6b4fdb7a80b617bea2ded19a85c6930422 Mon Sep 17 00:00:00 2001
+From 09325ab3bb438caae9aca719ee329023a7ff4d82 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 12 Nov 2013 22:01:10 -0500
-Subject: [PATCH 207/240] fstab-generator: use RequiresOverridable for fsck
+Subject: [PATCH 207/443] fstab-generator: use RequiresOverridable for fsck
  units
 
 This allows the user to disable fsck's by masking.
@@ -37,5 +37,5 @@ index 795a24c..4137796 100644
                          fsck,
                          fsck);
 -- 
-1.8.4.5
+1.8.3.2
 

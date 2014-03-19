@@ -1,7 +1,7 @@
-From f4a6e6c3082edea70ad77d4414cc830d346bfce1 Mon Sep 17 00:00:00 2001
+From 0843dfcfcdf541d02387bc466c957ca84ad2a746 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 2 Oct 2013 19:36:28 +0200
-Subject: [PATCH 104/240] cryptsetup: fix OOM handling when parsing mount
+Subject: [PATCH 104/443] cryptsetup: fix OOM handling when parsing mount
  options
 
 ---
@@ -45,5 +45,5 @@ index 22b5eea..769c3e4 100644
                  free(opt_hash);
                  opt_hash = t;
 -- 
-1.8.4.5
+1.8.3.2
 

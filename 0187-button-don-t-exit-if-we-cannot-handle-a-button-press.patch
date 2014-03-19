@@ -1,7 +1,7 @@
-From ca4508d6562a08b413415f6d658d8c74131e1057 Mon Sep 17 00:00:00 2001
+From 4a0c09ccb4ba02fca9730c8e7cb68e41deb181ca Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Sun, 10 Nov 2013 23:05:08 +0100
-Subject: [PATCH 187/240] button: don't exit if we cannot handle a button press
+Subject: [PATCH 187/443] button: don't exit if we cannot handle a button press
 
 ---
  src/login/logind-button.c | 2 +-
@@ -21,5 +21,5 @@ index ea45c28..4f456d2 100644
  
  int button_process(Button *b) {
 -- 
-1.8.4.5
+1.8.3.2
 

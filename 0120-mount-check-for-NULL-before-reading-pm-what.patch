@@ -1,7 +1,7 @@
-From 43e125a7a8a89c151e54f1e7827470d053745550 Mon Sep 17 00:00:00 2001
+From 67e09a256f3cd235a22b71569711bc4f85f5e827 Mon Sep 17 00:00:00 2001
 From: Dave Reisner <dreisner@archlinux.org>
 Date: Fri, 4 Oct 2013 18:22:40 -0400
-Subject: [PATCH 120/240] mount: check for NULL before reading pm->what
+Subject: [PATCH 120/443] mount: check for NULL before reading pm->what
 
 Since a57f7e2c828b85, a mount unit with garbage in it would cause
 systemd to crash on loading it.
@@ -25,5 +25,5 @@ index 93bfa99..db055f0 100644
                  if (r < 0)
                          return r;
 -- 
-1.8.4.5
+1.8.3.2
 

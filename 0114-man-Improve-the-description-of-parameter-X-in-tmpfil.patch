@@ -1,7 +1,7 @@
-From 1fb0ba64194ab2ae69010ba67aa7ae506cf3c2ea Mon Sep 17 00:00:00 2001
+From 5b248f13e4f453ed5a44602a9a0c8e029044499c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?V=C3=A1clav=20Pavl=C3=ADn?= <vpavlin@redhat.com>
 Date: Thu, 3 Oct 2013 15:47:26 +0200
-Subject: [PATCH 114/240] man: Improve the description of parameter X in
+Subject: [PATCH 114/443] man: Improve the description of parameter X in
  tmpfiles.d page
 
 ---
@@ -41,5 +41,5 @@ index 9fc4b7c..e8b630d 100644
                                  </varlistentry>
  
 -- 
-1.8.4.5
+1.8.3.2
 

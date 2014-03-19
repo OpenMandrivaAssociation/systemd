@@ -1,7 +1,7 @@
-From 6304e691825b6afae7d34740d528af28cbf73a61 Mon Sep 17 00:00:00 2001
+From c8a4465338cec4a8ff005e824611df30cb2e31cd Mon Sep 17 00:00:00 2001
 From: Marcel Holtmann <marcel@holtmann.org>
 Date: Fri, 29 Nov 2013 07:26:47 -0800
-Subject: [PATCH 232/240] hwdb: Update database of Bluetooth company
+Subject: [PATCH 232/443] hwdb: Update database of Bluetooth company
  identifiers
 
 ---
@@ -147,5 +147,5 @@ index faecf42..dcc25bb 100644
 +bluetooth:v0110*
 + ID_VENDOR_FROM_DATABASE=Nippon Seiki Co., Ltd.
 -- 
-1.8.4.5
+1.8.3.2
 

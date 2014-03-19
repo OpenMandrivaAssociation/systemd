@@ -1,7 +1,7 @@
-From 239dc3051032a58c327c36cba7f746572958c338 Mon Sep 17 00:00:00 2001
+From f4390a76a800e95b2923bcc88c3691a4435447c7 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>
 Date: Wed, 13 Nov 2013 13:36:17 +0200
-Subject: [PATCH 195/240] activate: mention -E in the help text
+Subject: [PATCH 195/443] activate: mention -E in the help text
 
 ---
  src/activate/activate.c | 2 ++
@@ -21,5 +21,5 @@ index 83d25b1..fc581b9 100644
                 "\n"
                 "Note: file descriptors from sd_listen_fds() will be passed through.\n"
 -- 
-1.8.4.5
+1.8.3.2
 

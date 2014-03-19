@@ -1,7 +1,7 @@
-From 54725b66cfac147e863c1243d4bbe23d3bd76a5d Mon Sep 17 00:00:00 2001
+From 9b27d8b71d422b454cd98f206d1a998ccfe612aa Mon Sep 17 00:00:00 2001
 From: Shawn Landden <shawn@churchofgit.com>
 Date: Sat, 16 Nov 2013 13:18:13 -0800
-Subject: [PATCH 212/240] core/socket: fix SO_REUSEPORT
+Subject: [PATCH 212/443] core/socket: fix SO_REUSEPORT
 
 ---
  src/core/load-fragment-gperf.gperf.m4 | 1 +
@@ -34,5 +34,5 @@ index d368f7e..e673f38 100644
          }
  
 -- 
-1.8.4.5
+1.8.3.2
 

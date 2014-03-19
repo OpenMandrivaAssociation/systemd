@@ -1,7 +1,7 @@
-From ee3d25dc418159e819f33f0c0348d8d36e934e3e Mon Sep 17 00:00:00 2001
+From 74002ad108e92b482448ec2f8075d68f7d17c789 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 9 Oct 2013 04:03:45 +0200
-Subject: [PATCH 126/240] journald: fix minor memory leak
+Subject: [PATCH 126/443] journald: fix minor memory leak
 
 ---
  src/journal/journal-vacuum.c | 2 ++
@@ -21,5 +21,5 @@ index c73ad8f..8d5effb 100644
                  }
  
 -- 
-1.8.4.5
+1.8.3.2
 

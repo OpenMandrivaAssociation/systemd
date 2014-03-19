@@ -1,7 +1,7 @@
-From a0b4783a5597fe57f9f56916221ca562d58a991b Mon Sep 17 00:00:00 2001
+From 57ef8dcd5d572fcdb7a347b8979002a065984121 Mon Sep 17 00:00:00 2001
 From: Olivier Brunel <jjk@jjacky.com>
 Date: Fri, 20 Sep 2013 22:18:30 +0200
-Subject: [PATCH 202/240] Fix possible lack of status messages on
+Subject: [PATCH 202/443] Fix possible lack of status messages on
  shutdown/reboot
 
 Since 31a7eb86 the output on console can be disabled to avoid colliding with
@@ -26,5 +26,5 @@ index bf1d956..dc3bc12 100644
                  return;
  
 -- 
-1.8.4.5
+1.8.3.2
 

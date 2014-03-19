@@ -1,7 +1,7 @@
-From 81d98304f7a21c1c0f68cbf16689397f2c0e0d36 Mon Sep 17 00:00:00 2001
+From d229aed1cb6af297523724ee77e95844b0665830 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 12 Nov 2013 00:53:59 -0500
-Subject: [PATCH 206/240] fsck,fstab-generator: be lenient about missing
+Subject: [PATCH 206/443] fsck,fstab-generator: be lenient about missing
  fsck.<type>
 
 If fstab contains 1 for passno, treat this as an error, but only warn
@@ -178,5 +178,5 @@ index 9efccb9..795a24c 100644
                  "\n"
                  "[Mount]\n"
 -- 
-1.8.4.5
+1.8.3.2
 

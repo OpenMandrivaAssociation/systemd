@@ -1,7 +1,7 @@
-From e976a08d714fb0c3a68a9ef9c9b544468472902e Mon Sep 17 00:00:00 2001
+From e464afe5229d177fa19f5ed91312e4a62515e7a2 Mon Sep 17 00:00:00 2001
 From: Dave Reisner <dreisner@archlinux.org>
 Date: Sun, 13 Oct 2013 17:42:51 -0400
-Subject: [PATCH 132/240] udevadm.xml: document --resolve-names option for test
+Subject: [PATCH 132/443] udevadm.xml: document --resolve-names option for test
 
 And remove documentation of the --subsystem flag which doesn't actually
 exist.
@@ -30,5 +30,5 @@ index d0b257d..b959216 100644
          </varlistentry>
          <varlistentry>
 -- 
-1.8.4.5
+1.8.3.2
 
