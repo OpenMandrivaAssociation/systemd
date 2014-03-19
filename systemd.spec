@@ -1546,6 +1546,7 @@ fi
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgtop
 %{_mandir}/man1/bootctl.1.*
+%{_mandir}/man1/busctl.1.*
 %{_mandir}/man1/init.*
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-ask-password.*
