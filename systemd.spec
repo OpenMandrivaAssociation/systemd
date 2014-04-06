@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	18
+Release:	19
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -81,6 +81,7 @@ Patch5:		systemd-186-set-udev_log-to-err.patch
 Patch6:		systemd-196-support-build-without-secure_getenv.patch
 Patch7:		systemd-191-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
+Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 
 #Upstream patchset
 Patch100:	0100-acpi-fptd-fix-memory-leak-in-acpi_get_boot_usec.patch
