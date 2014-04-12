@@ -515,7 +515,7 @@ Requires:	kmod
 %rename		readahead
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common >= 1:2012.0-0.4
+BuildRequires:	distro-release-common >= 2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd-daemon = %{version}-%{release}
 Requires:	libsystemd-login = %{version}-%{release}
