@@ -1,7 +1,7 @@
-From 5f2ab4a49d6e74f44a15147482bffb849cb629f2 Mon Sep 17 00:00:00 2001
+From d79f41c58f17c12c21512fb59ad415c10877cc09 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 2 Oct 2013 19:38:28 +0200
-Subject: [PATCH 110/240] strv: don't access potentially NULL string arrays
+Subject: [PATCH 110/443] strv: don't access potentially NULL string arrays
 
 ---
  src/shared/env-util.c | 4 +++-
@@ -23,5 +23,5 @@ index 5e29629..7976881 100644
  }
  
 -- 
-1.8.4.5
+1.8.3.2
 

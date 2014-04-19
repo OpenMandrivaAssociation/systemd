@@ -1,7 +1,7 @@
-From 1ed4cf6588c4892ead54f6bb04b8cc674ef49fd1 Mon Sep 17 00:00:00 2001
+From 4c7c750f00de1f8649f8397c0579e47868d380f2 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Fri, 11 Oct 2013 09:45:32 +0200
-Subject: [PATCH 191/240] Add support for saving/restoring keyboard backlights
+Subject: [PATCH 191/443] Add support for saving/restoring keyboard backlights
 
 Piggy-backing on the display backlight code, this saves and restores
 keyboard backlights on supported devices.
@@ -65,5 +65,5 @@ index 9b2eada..f22deed 100644
                  r = -ENODEV;
                  goto finish;
 -- 
-1.8.4.5
+1.8.3.2
 

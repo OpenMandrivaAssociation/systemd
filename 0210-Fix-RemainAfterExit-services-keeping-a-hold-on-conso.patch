@@ -1,7 +1,7 @@
-From c17642527c1f188dd189c2c39ca51743b7cd0ab2 Mon Sep 17 00:00:00 2001
+From 6a60d6b627d8bc8602b46c29bb89ddcb92f08efd Mon Sep 17 00:00:00 2001
 From: Olivier Brunel <jjk@jjacky.com>
 Date: Thu, 14 Nov 2013 15:52:54 +0100
-Subject: [PATCH 210/240] Fix RemainAfterExit services keeping a hold on
+Subject: [PATCH 210/443] Fix RemainAfterExit services keeping a hold on
  console
 
 When a service exits succesfully and has RemainAfterExit set, its hold
@@ -54,5 +54,5 @@ index 717ce84..b65e798 100644
                  ExecContext *ec = unit_get_exec_context(u);
                  if (ec && exec_context_may_touch_console(ec)) {
 -- 
-1.8.4.5
+1.8.3.2
 

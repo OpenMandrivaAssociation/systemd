@@ -1,7 +1,7 @@
-From 116e538578d2094a56cb8f1018ad072f907febd6 Mon Sep 17 00:00:00 2001
+From f65a1b58e8f88b00cff82fe609ca83f55b166518 Mon Sep 17 00:00:00 2001
 From: Umut Tezduyar Lindskog <umut.tezduyar@axis.com>
 Date: Wed, 13 Nov 2013 15:27:19 +0100
-Subject: [PATCH 197/240] journal: timestamp support on console messages
+Subject: [PATCH 197/443] journal: timestamp support on console messages
 
 journald mimics the kernel here: timestamps will be printed if
 /sys/module/printk/parameters/time contains "Y".
@@ -84,5 +84,5 @@ index be55f94..1ee3afe 100644
          IOVEC_SET_STRING(iovec[n++], "\n");
  
 -- 
-1.8.4.5
+1.8.3.2
 

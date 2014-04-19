@@ -1,7 +1,7 @@
-From a3ea7f8684fd5cfd4765df7a526292e82024ba98 Mon Sep 17 00:00:00 2001
+From 203562872b07690556d196ef8980c3af41f1d21c Mon Sep 17 00:00:00 2001
 From: Olivier Brunel <jjk@jjacky.com>
 Date: Fri, 20 Sep 2013 22:18:28 +0200
-Subject: [PATCH 200/240] Resolve /dev/console to the active tty instead of
+Subject: [PATCH 200/443] Resolve /dev/console to the active tty instead of
  just "tty0"
 
 When resolving /dev/console one would often get "tty0" meaning the active VT.
@@ -33,5 +33,5 @@ index 6c88040..3fc080a 100644
  }
  
 -- 
-1.8.4.5
+1.8.3.2
 

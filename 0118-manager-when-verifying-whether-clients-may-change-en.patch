@@ -1,7 +1,7 @@
-From 00a38f4a422cd474b1e22aea92dfb53e31cfd938 Mon Sep 17 00:00:00 2001
+From 8c19b420bba6a9aeb120b85c986798762065bb33 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 4 Oct 2013 17:01:37 +0200
-Subject: [PATCH 118/240] manager: when verifying whether clients may change
+Subject: [PATCH 118/443] manager: when verifying whether clients may change
  environment using selinux check for "reload" rather "reboot"
 
 This appears to be a copy/paste error.
@@ -41,5 +41,5 @@ index 676a07f..8f4d017 100644
                  if (!dbus_message_iter_init(message, &iter))
                          goto oom;
 -- 
-1.8.4.5
+1.8.3.2
 

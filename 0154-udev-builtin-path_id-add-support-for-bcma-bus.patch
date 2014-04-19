@@ -1,7 +1,7 @@
-From 6f5e8ef10341eb469f0c9f49a14b8462817d8e56 Mon Sep 17 00:00:00 2001
+From 4253b511b986b2e37735a79885effd871b9a07f3 Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Sat, 26 Oct 2013 12:22:04 +0200
-Subject: [PATCH 154/240] udev-builtin: path_id - add support for bcma bus
+Subject: [PATCH 154/443] udev-builtin: path_id - add support for bcma bus
 
 This matches the bcma support in the network device naming.
 
@@ -46,5 +46,5 @@ index 0659967..763f3c3 100644
                          path_prepend(&path, "serio-%s", udev_device_get_sysnum(parent));
                          parent = skip_subsystem(parent, "serio");
 -- 
-1.8.4.5
+1.8.3.2
 

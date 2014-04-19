@@ -1,7 +1,7 @@
-From eb04357694b1fc7304b8655d5b2c6d6781c113ae Mon Sep 17 00:00:00 2001
+From a439fc06fa3eba74f09efbb538287b20cd0ce84e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 28 Aug 2013 08:01:30 -0400
-Subject: [PATCH 115/240] execute: more debugging messages
+Subject: [PATCH 115/443] execute: more debugging messages
 
 ---
  src/core/execute.c     | 35 +++++++++++++++++++++--------------
@@ -120,5 +120,5 @@ index 49296b5..973daf7 100644
          /* Make this a NOP on non-logind systems */
          if (!logind_running())
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From 87044ca02f1c06abf4322a9f60bf6c7fc7bad4a6 Mon Sep 17 00:00:00 2001
+From 9ddf775ac3cc784af3439b212616aaac5a088cc0 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 20 Nov 2013 03:44:11 +0100
-Subject: [PATCH 217/240] manager: don't do plymouth in a container
+Subject: [PATCH 217/443] manager: don't do plymouth in a container
 
 Given that plymouth listens on an abstract namespace socket and if
 CLONE_NEWNET is not used the abstract namespace is shared with the host
@@ -25,5 +25,5 @@ index ce32baf..944c196 100644
              u->type != UNIT_MOUNT &&
              u->type != UNIT_SWAP)
 -- 
-1.8.4.5
+1.8.3.2
 

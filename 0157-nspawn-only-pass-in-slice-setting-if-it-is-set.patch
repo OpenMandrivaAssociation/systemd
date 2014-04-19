@@ -1,7 +1,7 @@
-From 6f9fb3507876bb07faf7f218592d379c34467aae Mon Sep 17 00:00:00 2001
+From 8574653382521a2100b0ef22ed3b3cdd341a6425 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 30 Oct 2013 18:40:21 +0100
-Subject: [PATCH 157/240] nspawn: only pass in slice setting if it is set
+Subject: [PATCH 157/443] nspawn: only pass in slice setting if it is set
 
 ---
  src/nspawn/nspawn.c | 2 +-
@@ -21,5 +21,5 @@ index eb9605c..9616dbf 100644
                  log_error("Failed to register machine: %s", error.message ? error.message : strerror(-r));
                  return r;
 -- 
-1.8.4.5
+1.8.3.2
 

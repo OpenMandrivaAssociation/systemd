@@ -1,7 +1,7 @@
-From d33d16a924ac9a3fb40d22b624bc6f2b21d63399 Mon Sep 17 00:00:00 2001
+From e45377cca2eeeef018cfe457e29becc77bf80eb8 Mon Sep 17 00:00:00 2001
 From: David Herrmann <dh.herrmann@gmail.com>
 Date: Thu, 10 Oct 2013 13:09:37 +0200
-Subject: [PATCH 130/240] login: fix invalid free() in sd_session_get_vt()
+Subject: [PATCH 130/443] login: fix invalid free() in sd_session_get_vt()
 
 We need to clear variables markes as _cleanup_free_. Otherwise, our
 error-paths might corrupt random memory.
@@ -23,5 +23,5 @@ index 71d8c29..6c27dfe 100644
          int r;
  
 -- 
-1.8.4.5
+1.8.3.2
 

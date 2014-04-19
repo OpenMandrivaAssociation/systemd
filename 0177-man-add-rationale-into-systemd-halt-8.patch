@@ -1,7 +1,7 @@
-From acc9d3063235ac52fa2c7793b898d70836f8b14a Mon Sep 17 00:00:00 2001
+From a3db436909aadc7f77911285e6cd667c47045a67 Mon Sep 17 00:00:00 2001
 From: Jan Engelhardt <jengelh@inai.de>
 Date: Thu, 7 Nov 2013 01:17:49 +0100
-Subject: [PATCH 177/240] man: add rationale into systemd-halt(8)
+Subject: [PATCH 177/443] man: add rationale into systemd-halt(8)
 
 The explanation is from
 http://people.debian.org/~stapelberg/docs/systemd-dependencies.html
@@ -27,5 +27,5 @@ index 812281e..90b443f 100644
                  halt/poweroff/reboot/kexec
                  <filename>systemd-shutdown</filename> will run all
 -- 
-1.8.4.5
+1.8.3.2
 

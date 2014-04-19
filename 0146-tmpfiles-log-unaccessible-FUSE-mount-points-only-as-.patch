@@ -1,7 +1,7 @@
-From 1c91ab96b69fc1220f935ccd716f6d0997a0a4e8 Mon Sep 17 00:00:00 2001
+From fa5ad41f9931b378c7b6c95df433f39c9b9b36f4 Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Thu, 17 Oct 2013 03:20:46 +0200
-Subject: [PATCH 146/240] tmpfiles: log unaccessible FUSE mount points only as
+Subject: [PATCH 146/443] tmpfiles: log unaccessible FUSE mount points only as
  debug message
 
 ---
@@ -33,5 +33,5 @@ index 8122d6a..239e56b 100644
                  }
  
 -- 
-1.8.4.5
+1.8.3.2
 

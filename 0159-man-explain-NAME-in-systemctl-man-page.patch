@@ -1,7 +1,7 @@
-From 851672e1cfce0851a26be9a0af0c4d3572b835b7 Mon Sep 17 00:00:00 2001
+From 457490196dbf2ad0cd1a31cfd63b8eb9606e9981 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?V=C3=A1clav=20Pavl=C3=ADn?= <vpavlin@redhat.com>
 Date: Thu, 31 Oct 2013 14:36:41 +0100
-Subject: [PATCH 159/240] man: explain NAME in systemctl man page
+Subject: [PATCH 159/443] man: explain NAME in systemctl man page
 
 ---
  man/systemctl.xml | 13 +++++++++++++
@@ -32,5 +32,5 @@ index e789d4b..166282c 100644
  
    <refsect1>
 -- 
-1.8.4.5
+1.8.3.2
 

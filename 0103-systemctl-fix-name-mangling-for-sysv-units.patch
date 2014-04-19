@@ -1,7 +1,7 @@
-From 96e91e90d17808e57d096cf20001366708be9c56 Mon Sep 17 00:00:00 2001
+From f9bd829cb9858015ad7c4c09ad5fa6584362e884 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?V=C3=A1clav=20Pavl=C3=ADn?= <vpavlin@redhat.com>
 Date: Wed, 2 Oct 2013 16:42:42 +0200
-Subject: [PATCH 103/240] systemctl: fix name mangling for sysv units
+Subject: [PATCH 103/443] systemctl: fix name mangling for sysv units
 
 ---
  src/systemctl/systemctl.c | 45 ++++++++++++++++++---------------------------
@@ -130,5 +130,5 @@ index bb7ada9..d75281f 100644
                                  return r;
  
 -- 
-1.8.4.5
+1.8.3.2
 

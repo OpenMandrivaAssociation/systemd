@@ -1,7 +1,7 @@
-From 3ae2eeb755e686cc9517aef14039331568391df9 Mon Sep 17 00:00:00 2001
+From 8a6e544444b3e78c2139952de46dcde45c2afeae Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Thu, 10 Oct 2013 01:38:11 +0200
-Subject: [PATCH 128/240] do not accept "garbage" from acpi firmware
+Subject: [PATCH 128/443] do not accept "garbage" from acpi firmware
  performance data (FPDT)
 
 00000000  46 42 50 54 38 00 00 00  02 00 30 02 00 00 00 00  |FBPT8.....0.....|
@@ -29,5 +29,5 @@ index af58c7c..75648b4 100644
                  *loader_start = brec.startup_start / 1000;
          if (loader_exit)
 -- 
-1.8.4.5
+1.8.3.2
 

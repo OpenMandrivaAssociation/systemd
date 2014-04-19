@@ -1,7 +1,7 @@
-From 129a3686e931fb2009e335d2842a0e9e2b308847 Mon Sep 17 00:00:00 2001
+From 6b867443d99feefaa911ac55e9a6b16ed7c1b811 Mon Sep 17 00:00:00 2001
 From: Michal Sekletar <msekleta@redhat.com>
 Date: Wed, 6 Nov 2013 11:18:02 +0100
-Subject: [PATCH 182/240] systemctl: return r instead of always returning 0
+Subject: [PATCH 182/443] systemctl: return r instead of always returning 0
 
 ---
  src/systemctl/systemctl.c | 2 +-
@@ -21,5 +21,5 @@ index 906982a..db584b2 100644
  
  static int cancel_job(DBusConnection *bus, char **args) {
 -- 
-1.8.4.5
+1.8.3.2
 

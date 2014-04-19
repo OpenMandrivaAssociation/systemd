@@ -1,7 +1,7 @@
-From 3cd4c3b9efa70e1042d1accdf7754cfbf2c13925 Mon Sep 17 00:00:00 2001
+From f7feb791d476d2248c3f8df089092996262e9a23 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 5 Nov 2013 22:17:03 +0100
-Subject: [PATCH 172/240] shutdown: trim the cgroup tree on loop iteration
+Subject: [PATCH 172/443] shutdown: trim the cgroup tree on loop iteration
 
 This way we leave the cgroup empty before exiting in a container which
 makes sure the container manager will get cgroup notification event
@@ -64,5 +64,5 @@ index 4709746..ea02b60 100644
                          log_info("Unmounting file systems.");
                          r = umount_all(&changed);
 -- 
-1.8.4.5
+1.8.3.2
 

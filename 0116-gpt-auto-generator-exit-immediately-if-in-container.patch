@@ -1,7 +1,7 @@
-From e0f1b94c4278dfaf4b3445f219fbb2e1e4bcfdd8 Mon Sep 17 00:00:00 2001
+From f4e59a032bb2e77f8b0f21015ce67e2d2abb739e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 3 Oct 2013 22:13:01 -0400
-Subject: [PATCH 116/240] gpt-auto-generator: exit immediately if in container
+Subject: [PATCH 116/443] gpt-auto-generator: exit immediately if in container
 
 Otherwise we get an ugly warning when running systemd in
 a container.
@@ -36,5 +36,5 @@ index ca54925..d2b4213 100644
                  goto finish;
          }
 -- 
-1.8.4.5
+1.8.3.2
 

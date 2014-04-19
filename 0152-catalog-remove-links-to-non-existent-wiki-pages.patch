@@ -1,7 +1,7 @@
-From ddf8b9b5141891ffc4c6dd4f3f2437f7a9e8ff82 Mon Sep 17 00:00:00 2001
+From ee48fe63b1dac38cbc80a733b1ef8bcc53d8b1fd Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 24 Oct 2013 00:45:10 -0400
-Subject: [PATCH 152/240] catalog: remove links to non-existent wiki pages
+Subject: [PATCH 152/443] catalog: remove links to non-existent wiki pages
 
 AFAIK, we don't have even one page with message explanations.
 If/when we add them, we can add links.
@@ -88,5 +88,5 @@ index 892b2ad..3c2fe64 100644
  The virtual machine @NAME@ with its leader PID @LEADER@ has been
  shut down.
 -- 
-1.8.4.5
+1.8.3.2
 

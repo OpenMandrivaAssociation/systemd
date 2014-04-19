@@ -1,7 +1,7 @@
-From 9b01d3612d8466ab1d84e67cf572eb997ec90aa3 Mon Sep 17 00:00:00 2001
+From 50bc3a5d68b5595c4fecaab06dfd7842fb168a0b Mon Sep 17 00:00:00 2001
 From: Dave Reisner <dreisner@archlinux.org>
 Date: Wed, 2 Oct 2013 07:46:24 -0400
-Subject: [PATCH 101/240] fix lingering references to
+Subject: [PATCH 101/443] fix lingering references to
  /var/lib/{backlight,random-seed}
 
 This should have been part of ef5bfcf668e6029faa78534dfe.
@@ -51,5 +51,5 @@ index b0e75db..5caa5d5 100644
  After=systemd-readahead-collect.service systemd-readahead-replay.service systemd-remount-fs.service
  Before=sysinit.target shutdown.target
 -- 
-1.8.4.5
+1.8.3.2
 
