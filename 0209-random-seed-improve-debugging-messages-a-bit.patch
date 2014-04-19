@@ -1,7 +1,7 @@
-From 4439bcb38422998aa1c43d75b8f27258d7536828 Mon Sep 17 00:00:00 2001
+From f84f575e8b7e1477fee0ed771ff50725f944f4ca Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Tue, 12 Nov 2013 22:05:16 -0500
-Subject: [PATCH 209/240] random-seed: improve debugging messages a bit
+Subject: [PATCH 209/443] random-seed: improve debugging messages a bit
 
 ---
  Makefile.am                   | 2 ++
@@ -69,5 +69,5 @@ index afbd500..af79ecf 100644
                          goto finish;
                  }
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From c436b844c49bb23ccb2d0b60c473990b80c6c3a6 Mon Sep 17 00:00:00 2001
+From fdf7d22045e74adbe0e3ad0a5df4607d31c158d2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 12 Oct 2013 13:43:07 -0400
-Subject: [PATCH 136/240] Make sure that we don't dereference NULL
+Subject: [PATCH 136/443] Make sure that we don't dereference NULL
 
 The code was actually safe, because b should
 never be null, because if rvalue is empty, a different
@@ -26,5 +26,5 @@ index 44920d6..f01843d 100644
          return r;
  }
 -- 
-1.8.4.5
+1.8.3.2
 

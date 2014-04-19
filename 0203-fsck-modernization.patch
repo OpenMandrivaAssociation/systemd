@@ -1,7 +1,7 @@
-From 028f9f6d4d39d2fff6b817cffcbe076b488a05d9 Mon Sep 17 00:00:00 2001
+From 4fa456e244ebb30c6fb1792c811b87822d2c5264 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 11 Nov 2013 23:32:31 -0500
-Subject: [PATCH 203/240] fsck: modernization
+Subject: [PATCH 203/443] fsck: modernization
 
 ---
  src/fsck/fsck.c | 43 ++++++++++++++++++-------------------------
@@ -136,5 +136,5 @@ index f298cf7..e23ddc5 100644
  
          cmdline[i++] = "/sbin/fsck";
 -- 
-1.8.4.5
+1.8.3.2
 

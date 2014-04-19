@@ -1,7 +1,7 @@
-From d3c6376d26bebb98bc250ba5be1fbdfc1b06b07b Mon Sep 17 00:00:00 2001
+From e421712a2283e22ae4bfbdf7085194dcf223b614 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 20 Nov 2013 22:10:42 +0100
-Subject: [PATCH 218/240] nspawn: add new --drop-capability= switch
+Subject: [PATCH 218/443] nspawn: add new --drop-capability= switch
 
 ---
  man/systemd-nspawn.xml | 10 ++++++++++
@@ -81,5 +81,5 @@ index 85bbadf..7346253 100644
  
                          break;
 -- 
-1.8.4.5
+1.8.3.2
 

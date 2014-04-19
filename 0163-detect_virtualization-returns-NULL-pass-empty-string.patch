@@ -1,7 +1,7 @@
-From 5e00d78727bb4fdd55cd3b4fed82c38539c2b103 Mon Sep 17 00:00:00 2001
+From ea98de45c8ba12898b83ae53907082b8a225cfc6 Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Sat, 2 Nov 2013 00:01:32 +0100
-Subject: [PATCH 163/240] detect_virtualization() returns NULL; pass empty
+Subject: [PATCH 163/443] detect_virtualization() returns NULL; pass empty
  string to dbus
 
 ---
@@ -31,5 +31,5 @@ index 8f4d017..536f2ea 100644
                  return -ENOMEM;
  
 -- 
-1.8.4.5
+1.8.3.2
 

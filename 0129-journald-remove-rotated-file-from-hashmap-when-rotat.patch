@@ -1,7 +1,7 @@
-From f4115c1e0c0c8de4601a6ef4d2c483427f07dd4b Mon Sep 17 00:00:00 2001
+From a032e5652ae1dbf86ca668924a1a4e7ef4f94df4 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 9 Oct 2013 22:13:13 -0400
-Subject: [PATCH 129/240] journald: remove rotated file from hashmap when
+Subject: [PATCH 129/443] journald: remove rotated file from hashmap when
  rotation fails
 
 Before, when the user journal file was rotated, journal_file_rotate
@@ -35,5 +35,5 @@ index 4f47eb1..e03e413 100644
                          hashmap_replace(s->user_journals, k, f);
                          server_fix_perms(s, f, PTR_TO_UINT32(k));
 -- 
-1.8.4.5
+1.8.3.2
 

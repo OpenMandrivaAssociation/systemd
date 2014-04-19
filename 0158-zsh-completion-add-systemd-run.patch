@@ -1,7 +1,7 @@
-From a65d3963d24f8feddf78deb63f72b3772cfd5cce Mon Sep 17 00:00:00 2001
+From 72a0befe3e1f4462afde44c1d4818241b58c8bc9 Mon Sep 17 00:00:00 2001
 From: Ronny Chevalier <chevalier.ronny@gmail.com>
 Date: Wed, 30 Oct 2013 21:57:44 +0100
-Subject: [PATCH 158/240] zsh-completion: add systemd-run
+Subject: [PATCH 158/443] zsh-completion: add systemd-run
 
 ---
  Makefile.am                       |  1 +
@@ -59,5 +59,5 @@ index 0000000..0c81c54
 +        '--send-sighup[Send SIGHUP when terminating]' \
 +        '*::command:_command'
 -- 
-1.8.4.5
+1.8.3.2
 

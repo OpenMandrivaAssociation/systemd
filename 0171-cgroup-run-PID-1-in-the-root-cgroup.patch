@@ -1,7 +1,7 @@
-From 31eb8eff25a883acb071691c104be5fe8b2fa6c3 Mon Sep 17 00:00:00 2001
+From f9de310f2d0e4394c2cb084f95dfa64a5f58b9a0 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 5 Nov 2013 22:14:52 +0100
-Subject: [PATCH 171/240] cgroup: run PID 1 in the root cgroup
+Subject: [PATCH 171/443] cgroup: run PID 1 in the root cgroup
 
 This way cleaning up the cgroup tree on shutdown is a lot easier since
 we are in the root dir. Also PID 1 was previously artificially placed in
@@ -60,5 +60,5 @@ index 8bf4d89..42c0b3f 100644
                  log_error("Failed to create root cgroup hierarchy: %s", strerror(-r));
                  return r;
 -- 
-1.8.4.5
+1.8.3.2
 

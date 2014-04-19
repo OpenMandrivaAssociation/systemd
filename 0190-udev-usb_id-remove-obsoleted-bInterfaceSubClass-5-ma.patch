@@ -1,7 +1,7 @@
-From ac2fcb1402c8024f060f6ba09cab90ef3d9c8947 Mon Sep 17 00:00:00 2001
+From 148eee542c3274fdcb9b3233f00532ea17d34e42 Mon Sep 17 00:00:00 2001
 From: Kay Sievers <kay@vrfy.org>
 Date: Fri, 11 Oct 2013 11:23:34 +0200
-Subject: [PATCH 190/240] udev: usb_id - remove obsoleted bInterfaceSubClass ==
+Subject: [PATCH 190/443] udev: usb_id - remove obsoleted bInterfaceSubClass ==
  5 match
 
 bInterfaceSubClass == 5 is not a "floppy"; just identify the obsolete
@@ -38,5 +38,5 @@ index e3bbd05..3e2f43e 100644
                          type = "scsi";
                          break;
 -- 
-1.8.4.5
+1.8.3.2
 

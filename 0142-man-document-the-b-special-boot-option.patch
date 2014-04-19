@@ -1,7 +1,7 @@
-From d389a1d64a765e6d0d98d6ea78824498377c6a2a Mon Sep 17 00:00:00 2001
+From 48a7472dbd791622bd97d7e211207e014c526705 Mon Sep 17 00:00:00 2001
 From: Jan Engelhardt <jengelh@inai.de>
 Date: Tue, 15 Oct 2013 08:58:50 +0200
-Subject: [PATCH 142/240] man: document the -b special boot option
+Subject: [PATCH 142/443] man: document the -b special boot option
 
 ---
  man/kernel-command-line.xml | 1 +
@@ -33,5 +33,5 @@ index fe6e331..85c06d3 100644
  
                                  <listitem><para>Boot into emergency
 -- 
-1.8.4.5
+1.8.3.2
 

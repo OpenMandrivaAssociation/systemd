@@ -1,7 +1,7 @@
-From 87c32332e7b71d19f5f43c566c57d6897c187ad8 Mon Sep 17 00:00:00 2001
+From f923c3e18a33ff11a0a7a8cc60abcd13c3c75a5e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 2 Dec 2013 21:52:51 -0500
-Subject: [PATCH 237/240] systemd: treat reload failure as failure
+Subject: [PATCH 237/443] systemd: treat reload failure as failure
 
 systemctl reload "suceeded" on stopped units, but it is documented
 to fail in this case.
@@ -89,5 +89,5 @@ index b65e798..6c2c4a0 100644
          if ((following = unit_following(u))) {
                  log_debug_unit(u->id, "Redirecting reload request from %s to %s.",
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From d8effb7493b2f57fd61327ecfd2eadffd435a52f Mon Sep 17 00:00:00 2001
+From 4dfb6b49da44fb646c83939b73713a453bf09133 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 26 Nov 2013 20:37:53 +0100
-Subject: [PATCH 225/240] journal: optimize bisection logic a bit by caching
+Subject: [PATCH 225/443] journal: optimize bisection logic a bit by caching
  the last position
 
 This way we can do a quick restart limiting a bit how wildly we need to
@@ -245,5 +245,5 @@ index d3bdaea..02f7554 100644
          int r;
          bool step_back = false;
 -- 
-1.8.4.5
+1.8.3.2
 

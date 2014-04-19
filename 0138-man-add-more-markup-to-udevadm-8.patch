@@ -1,7 +1,7 @@
-From 1cc7578fa9292ad50cb071f8e13e834dc10cf389 Mon Sep 17 00:00:00 2001
+From 2fefc1a2891620d57aff93ac5c9f486b441ffbbe Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sun, 13 Oct 2013 19:43:19 -0400
-Subject: [PATCH 138/240] man: add more markup to udevadm(8)
+Subject: [PATCH 138/443] man: add more markup to udevadm(8)
 
 ---
  man/udevadm.xml | 49 +++++++++++++++++++++++++++++++++----------------
@@ -93,5 +93,5 @@ index b959216..a1ffe42 100644
          </varlistentry>
          <varlistentry>
 -- 
-1.8.4.5
+1.8.3.2
 

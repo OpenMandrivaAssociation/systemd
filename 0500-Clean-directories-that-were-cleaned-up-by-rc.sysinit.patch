@@ -1,4 +1,4 @@
-From 36049539b2112c8f4090bccc9bd0434e6b4c2c81 Mon Sep 17 00:00:00 2001
+From 02eca5457449603e9f9c6b64477b67f3d8a2b37d Mon Sep 17 00:00:00 2001
 From: Andrey Borzenkov <arvidjaar@gmail.com>
 Date: Sat, 22 Oct 2011 16:56:08 +0100
 Subject: [PATCH 500/509] Clean directories that were cleaned up by rc.sysinit
@@ -28,5 +28,5 @@ index ece6a5c..c942692 100644
  
  # Unlink the X11 lock files
 -- 
-1.7.11
+1.8.4.5
 

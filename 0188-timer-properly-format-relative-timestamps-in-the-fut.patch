@@ -1,7 +1,7 @@
-From ad8f8256f3939b751f318ca4bed0e87ade1eba4c Mon Sep 17 00:00:00 2001
+From 8883cb66c96692625916d4350b93c557d3b86b88 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 11 Nov 2013 03:02:52 +0100
-Subject: [PATCH 188/240] timer: properly format relative timestamps in the
+Subject: [PATCH 188/443] timer: properly format relative timestamps in the
  future
 
 ---
@@ -120,5 +120,5 @@ index 860be61..b8a6bd7 100644
  
          for (i = 0; i < ELEMENTSOF(day_nr); i++) {
 -- 
-1.8.4.5
+1.8.3.2
 

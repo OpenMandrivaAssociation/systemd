@@ -1,7 +1,7 @@
-From 15449d0e1a20c65529064b0954ab738b555870ef Mon Sep 17 00:00:00 2001
+From 574bcb12b19559d75e0ddde83bc0d07fcb407d87 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 30 Nov 2013 20:27:54 -0500
-Subject: [PATCH 235/240] docs: remove unneeded the's in gudev docs
+Subject: [PATCH 235/443] docs: remove unneeded the's in gudev docs
 
 https://bugs.freedesktop.org/show_bug.cgi?id=72164
 ---
@@ -37,5 +37,5 @@ index a644904..161181a 100644
   * It can be called as many times as needed, without caring about
   * references.
 -- 
-1.8.4.5
+1.8.3.2
 

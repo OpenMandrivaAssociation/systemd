@@ -1,7 +1,7 @@
-From 64a2b9f016c8f25d28f114ec78fa961e87a5455b Mon Sep 17 00:00:00 2001
+From 980ef7590058af1171c4d8093e0a8434fd287ccf Mon Sep 17 00:00:00 2001
 From: Jose Ignacio Naranjo <joseignacio.naranjo@gmail.com>
 Date: Sun, 17 Nov 2013 21:11:34 +0100
-Subject: [PATCH 214/240] keymap: Add Toshiba Satellite U940
+Subject: [PATCH 214/443] keymap: Add Toshiba Satellite U940
 
 Signed-off-by: Martin Pitt <martinpitt@gnome.org>
 ---
@@ -27,5 +27,5 @@ index b497f92..d4d948d 100644
  # VIA
  ###########################################################
 -- 
-1.8.4.5
+1.8.3.2
 

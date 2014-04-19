@@ -1,0 +1,103 @@
+From 32a85fe24d2bda865c1837e5f7f212af56d1f929 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Wed, 18 Dec 2013 14:35:35 +0000
+Subject: [PATCH 511/512] logind: Partial backport of cc377381
+
+This backports the part that ensures the slice and service jobs are active
+before doing gc. This should allow gc to run more often
+---
+ src/login/logind-dbus.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/login/logind-user.c |  5 ++++-
+ src/login/logind.h      |  1 +
+ 3 files changed, 56 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/logind-dbus.c b/src/login/logind-dbus.c
+index 6f3e442..d9c42cd 100644
+--- a/src/login/logind-dbus.c
++++ b/src/login/logind-dbus.c
+@@ -2895,3 +2895,54 @@ int manager_unit_is_active(Manager *manager, const char *unit) {
+ 
+         return !streq(state, "inactive") && !streq(state, "failed");
+ }
++
++int manager_job_is_active(Manager *manager, const char *path) {
++
++        const char *interface = "org.freedesktop.systemd1.Job";
++        const char *property = "State";
++        _cleanup_dbus_message_unref_ DBusMessage *reply = NULL;
++        DBusError error;
++        int r;
++
++        assert(manager);
++        assert(path);
++
++        dbus_error_init(&error);
++
++        r = bus_method_call_with_reply(
++                        manager->bus,
++                        "org.freedesktop.systemd1",
++                        path,
++                        "org.freedesktop.DBus.Properties",
++                        "Get",
++                        &reply,
++                        &error,
++                        DBUS_TYPE_STRING, &interface,
++                        DBUS_TYPE_STRING, &property,
++                        DBUS_TYPE_INVALID);
++        if (r < 0) {
++                if (dbus_error_has_name(&error, DBUS_ERROR_NO_REPLY) ||
++                    dbus_error_has_name(&error, DBUS_ERROR_DISCONNECTED)) {
++                        /* systemd might have droppped off
++                         * momentarily, let's not make this an
++                         * error */
++
++                        dbus_error_free(&error);
++                        return true;
++                }
++
++                if (dbus_error_has_name(&error, DBUS_ERROR_UNKNOWN_OBJECT)) {
++                        dbus_error_free(&error);
++                        return false;
++                }
++
++                log_error("Failed to query State: %s", bus_error(&error, r));
++                dbus_error_free(&error);
++                return r;
++        }
++
++        /* We don't actually care about the state really. The fact
++         * that we could read the job state is enough for us */
++
++        return true;
++}
+diff --git a/src/login/logind-user.c b/src/login/logind-user.c
+index e2fce5c..318235e 100644
+--- a/src/login/logind-user.c
++++ b/src/login/logind-user.c
+@@ -626,7 +626,10 @@ int user_check_gc(User *u, bool drop_not_started) {
+         if (user_check_linger_file(u) > 0)
+                 return 1;
+ 
+-        if (u->slice_job || u->service_job)
++        if (u->slice_job && manager_job_is_active(u->manager, u->slice_job))
++                return 1;
++
++        if (u->service_job && manager_job_is_active(u->manager, u->service_job))
+                 return 1;
+ 
+         if (u->slice && manager_unit_is_active(u->manager, u->slice) != 0)
+diff --git a/src/login/logind.h b/src/login/logind.h
+index 9e6296c..057cfac 100644
+--- a/src/login/logind.h
++++ b/src/login/logind.h
+@@ -188,6 +188,7 @@ int manager_start_unit(Manager *manager, const char *unit, DBusError *error, cha
+ int manager_stop_unit(Manager *manager, const char *unit, DBusError *error, char **job);
+ int manager_kill_unit(Manager *manager, const char *unit, KillWho who, int signo, DBusError *error);
+ int manager_unit_is_active(Manager *manager, const char *unit);
++int manager_job_is_active(Manager *manager, const char *path);
+ 
+ /* gperf lookup function */
+ const struct ConfigPerfItem* logind_gperf_lookup(const char *key, unsigned length);
+-- 
+1.8.4.5
+

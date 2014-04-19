@@ -1,7 +1,7 @@
-From fa58353c14376af96974a94d61fbc64c66caf347 Mon Sep 17 00:00:00 2001
+From b3a5ca3c5b12569743c8fc9326c73b17b95752a3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Sat, 5 Oct 2013 22:47:52 -0400
-Subject: [PATCH 122/240] utf8: fix utf8_is_printable
+Subject: [PATCH 122/443] utf8: fix utf8_is_printable
 
 ---
  src/shared/utf8.c    | 5 +++--
@@ -43,5 +43,5 @@ index 7bd0db1..f0182ee 100644
  
  static void test_utf8_is_valid(void) {
 -- 
-1.8.4.5
+1.8.3.2
 

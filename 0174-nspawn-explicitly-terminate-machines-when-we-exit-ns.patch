@@ -1,7 +1,7 @@
-From 9c524d3d79b124f07fa3645f44fce4200560eae3 Mon Sep 17 00:00:00 2001
+From 34b8fd165b187dd271d92b6ecaef89b056b4f742 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 6 Nov 2013 02:05:06 +0100
-Subject: [PATCH 174/240] nspawn: explicitly terminate machines when we exit
+Subject: [PATCH 174/443] nspawn: explicitly terminate machines when we exit
  nspawn
 
 https://bugs.freedesktop.org/show_bug.cgi?id=68370
@@ -125,5 +125,5 @@ index cda6c82..85bbadf 100644
                  if (k < 0) {
                          r = EXIT_FAILURE;
 -- 
-1.8.4.5
+1.8.3.2
 

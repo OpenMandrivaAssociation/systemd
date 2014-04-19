@@ -1,7 +1,7 @@
-From a194a0f00a83127c125d4c4db86b851118a92c1e Mon Sep 17 00:00:00 2001
+From 5746ed2343512d5b94c9ce19b74972f835d5e2ed Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 11 Oct 2013 19:33:20 -0400
-Subject: [PATCH 134/240] dbus-common: avoid leak in error path
+Subject: [PATCH 134/443] dbus-common: avoid leak in error path
 
 src/shared/dbus-common.c:968:33: warning: Potential leak of memory pointed to by 'l'
                         return -EINVAL;
@@ -67,5 +67,5 @@ index c727cae..3ba2d87 100644
          return 0;
  }
 -- 
-1.8.4.5
+1.8.3.2
 

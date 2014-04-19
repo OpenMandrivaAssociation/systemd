@@ -1,7 +1,7 @@
-From 477d03710e45191c195f626bd27a9ad3578ecd78 Mon Sep 17 00:00:00 2001
+From 99af0b814cc849298a7acf9236bfa9847a38685d Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 31 Oct 2013 16:23:06 +0100
-Subject: [PATCH 160/240] virt: move caching of virtualization check results
+Subject: [PATCH 160/443] virt: move caching of virtualization check results
  into detect_vm() and detect_container()
 
 After all, we ended up calling detect_container() more often than
@@ -297,5 +297,5 @@ index 4f8134a..537ccda 100644
 +        return VIRTUALIZATION_NONE;
  }
 -- 
-1.8.4.5
+1.8.3.2
 

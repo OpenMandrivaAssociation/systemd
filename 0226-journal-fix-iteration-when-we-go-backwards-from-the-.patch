@@ -1,7 +1,7 @@
-From 9ed62cc0ff90ba0abd2697c2d801795a708b3f85 Mon Sep 17 00:00:00 2001
+From dafc0cfabbbe6f53e41f48c7a867db5dd0c16d6b Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 27 Nov 2013 00:58:39 +0100
-Subject: [PATCH 226/240] journal: fix iteration when we go backwards from the
+Subject: [PATCH 226/443] journal: fix iteration when we go backwards from the
  beginning of an array chain element
 
 (cherry picked from commit e5462cd80e5328a769137c261c93931ea0c27bab)
@@ -23,5 +23,5 @@ index 02f7554..4e22e08 100644
          if (subtract_one && i == 0)
                  p = last_p;
 -- 
-1.8.4.5
+1.8.3.2
 

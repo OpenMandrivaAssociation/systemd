@@ -1,7 +1,7 @@
-From d65d1d387e85f66973f920369f74535b8ec2d343 Mon Sep 17 00:00:00 2001
+From ce33b14b1dcf1837618aa42bddf46994eb6b1af1 Mon Sep 17 00:00:00 2001
 From: Thomas Hindoe Paaboel Andersen <phomes@gmail.com>
 Date: Fri, 1 Nov 2013 20:46:49 +0100
-Subject: [PATCH 161/240] systemctl: fix typo in help text
+Subject: [PATCH 161/443] systemctl: fix typo in help text
 
 ---
  src/systemctl/systemctl.c | 2 +-
@@ -21,5 +21,5 @@ index 036828b..36040db 100644
                 "                      verbose, export, json, json-pretty, json-sse, cat)\n\n"
                 "Unit Commands:\n"
 -- 
-1.8.4.5
+1.8.3.2
 

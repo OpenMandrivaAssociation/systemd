@@ -1,7 +1,7 @@
-From e6567b0fe239b28be29f026708b1f61ab2df33a4 Mon Sep 17 00:00:00 2001
+From 7c185c94af054145b3621e11ad4c3359931ca8fa Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Mon, 28 Oct 2013 23:43:57 -0400
-Subject: [PATCH 153/240] journalctl: add --list-boots to show boot IDs and
+Subject: [PATCH 153/443] journalctl: add --list-boots to show boot IDs and
  times
 
 Suggested by David Wilkins <dwilkins@maths.tcd.ie> in
@@ -239,5 +239,5 @@ index 0876ee6..a5c4779 100644
           * It may need to seek the journal to find parent boot IDs. */
          r = add_boot(j);
 -- 
-1.8.4.5
+1.8.3.2
 

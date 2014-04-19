@@ -1,7 +1,7 @@
-From 641282dd5d63f48eacb94518d0022fe7dc5cb92e Mon Sep 17 00:00:00 2001
+From f262a262c871e0bd35f41339464337820320a7c9 Mon Sep 17 00:00:00 2001
 From: Marko Myllynen <myllynen@redhat.com>
 Date: Wed, 13 Nov 2013 23:02:23 -0500
-Subject: [PATCH 199/240] zsh-completion: add bootctl
+Subject: [PATCH 199/443] zsh-completion: add bootctl
 
 ---
  Makefile.am                   |  4 ++++
@@ -56,5 +56,5 @@ index 0000000..7d2453c
 +    '--version[Prints a short version string and exits.]' \
 +    '*::bootctl command:_bootctl_command'
 -- 
-1.8.4.5
+1.8.3.2
 

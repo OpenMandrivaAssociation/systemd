@@ -1,7 +1,7 @@
-From 7389489f6b4e4477cb0e4baf9baa3fa5ceabb4e9 Mon Sep 17 00:00:00 2001
+From aadac335f8f9ab693fb671f2ad9490ceb33c820a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 5 Dec 2013 00:41:12 -0500
-Subject: [PATCH 239/240] systemd: add a start job for all units specified with
+Subject: [PATCH 239/443] systemd: add a start job for all units specified with
  SYSTEMD_WANTS=
 
 ---
@@ -45,5 +45,5 @@ index 5397bd6..610fe88 100644
                  }
          }
 -- 
-1.8.4.5
+1.8.3.2
 

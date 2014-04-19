@@ -1,7 +1,7 @@
-From d44b12a059b602120b93883f391ecfc30602d568 Mon Sep 17 00:00:00 2001
+From e17033cf6004d701a7da9e97d62fdb7a9a16e0a4 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 19 Nov 2013 21:02:59 +0100
-Subject: [PATCH 216/240] hashmap: be a bit more conservative with
+Subject: [PATCH 216/443] hashmap: be a bit more conservative with
  pre-allocating hash tables and items
 
 ---
@@ -56,5 +56,5 @@ index f06fce6..8f5957b 100644
                  e = new(struct hashmap_entry, 1);
  
 -- 
-1.8.4.5
+1.8.3.2
 

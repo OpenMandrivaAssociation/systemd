@@ -1,7 +1,7 @@
-From 8e6e5102d8e8a5eba0761ab39fb7f730bce2611f Mon Sep 17 00:00:00 2001
+From 7a06ad3ac70904983ef1f2add835dab74124bf6c Mon Sep 17 00:00:00 2001
 From: David Strauss <david@davidstrauss.net>
 Date: Thu, 17 Oct 2013 13:19:29 -0700
-Subject: [PATCH 193/240] Fix kmod error message to have correct version
+Subject: [PATCH 193/443] Fix kmod error message to have correct version
  requirement
 
 ---
@@ -22,5 +22,5 @@ index 5bc31c5..9904e25 100644
          if test "x$have_kmod" = xno -a "x$enable_kmod" = xyes; then
                  AC_MSG_ERROR([*** kmod support requested, but libraries not found])
 -- 
-1.8.4.5
+1.8.3.2
 

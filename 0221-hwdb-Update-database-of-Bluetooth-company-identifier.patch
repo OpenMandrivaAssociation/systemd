@@ -1,7 +1,7 @@
-From 6beffadd1667f8509d0d5e0a41d78f8b95a04eae Mon Sep 17 00:00:00 2001
+From 68965f7853403ebe1033bf46e16565df0107e61a Mon Sep 17 00:00:00 2001
 From: Marcel Holtmann <marcel@holtmann.org>
 Date: Sat, 21 Sep 2013 11:45:05 -0700
-Subject: [PATCH 221/240] hwdb: Update database of Bluetooth company
+Subject: [PATCH 221/443] hwdb: Update database of Bluetooth company
  identifiers
 
 ---
@@ -327,5 +327,5 @@ index c8cb322..faecf42 100644
 +bluetooth:v00EE*
 + ID_VENDOR_FROM_DATABASE=Above Average Outcomes, Inc.
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From b08348199f744fb51cf6f88819a6b9a5cfb193bc Mon Sep 17 00:00:00 2001
+From 0e3ff7da8e53b30ae0a5534beceee46adc14b3ef Mon Sep 17 00:00:00 2001
 From: Tom Gundersen <teg@jklm.no>
 Date: Thu, 17 Oct 2013 19:49:19 +0200
-Subject: [PATCH 192/240] static-nodes: don't call mkdir
+Subject: [PATCH 192/443] static-nodes: don't call mkdir
 
 This is no longer necessary with kmod-15. Bump the requirement.
 ---
@@ -47,5 +47,5 @@ index ff4017b..368f980 100644
 -ExecStartPre=@MKDIR_P@ /run/tmpfiles.d
  ExecStart=@KMOD@ static-nodes --format=tmpfiles --output=/run/tmpfiles.d/kmod.conf
 -- 
-1.8.4.5
+1.8.3.2
 

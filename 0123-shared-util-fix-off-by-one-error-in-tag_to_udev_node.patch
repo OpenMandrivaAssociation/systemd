@@ -1,7 +1,7 @@
-From b390749b219556def89913e81b1c4976486f00c5 Mon Sep 17 00:00:00 2001
+From f9389c058f7b52b33a4281b2d7653819486b7569 Mon Sep 17 00:00:00 2001
 From: Dave Reisner <dreisner@archlinux.org>
 Date: Sun, 6 Oct 2013 18:26:23 -0400
-Subject: [PATCH 123/240] shared/util: fix off-by-one error in tag_to_udev_node
+Subject: [PATCH 123/443] shared/util: fix off-by-one error in tag_to_udev_node
 
 Triggered false negatives when encoding a string which needed every
 character to be escaped, e.g. "LABEL=/".
@@ -46,5 +46,5 @@ index 2f3dedb..59ba4be 100644
  
  int main(int argc, char *argv[]) {
 -- 
-1.8.4.5
+1.8.3.2
 

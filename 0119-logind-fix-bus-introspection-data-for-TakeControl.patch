@@ -1,7 +1,7 @@
-From d5c49a224449ed88c4600808f72cf38646bc2020 Mon Sep 17 00:00:00 2001
+From 10ec3c93c8e17f317339ca453986767c2f2bdb30 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 4 Oct 2013 21:16:40 +0200
-Subject: [PATCH 119/240] logind: fix bus introspection data for TakeControl()
+Subject: [PATCH 119/443] logind: fix bus introspection data for TakeControl()
 
 ---
  src/login/logind-session-dbus.c | 2 +-
@@ -21,5 +21,5 @@ index 5f6bafb..be4e01c 100644
          "  </method>\n"                                                 \
          "  <method name=\"ReleaseControl\"/>\n"                         \
 -- 
-1.8.4.5
+1.8.3.2
 

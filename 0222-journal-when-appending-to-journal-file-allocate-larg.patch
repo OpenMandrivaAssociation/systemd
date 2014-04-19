@@ -1,7 +1,7 @@
-From efd50e504ae4106057ad9e1eff5e70c86100c3ad Mon Sep 17 00:00:00 2001
+From bf3a7f42544b8ca31062f032f067294d41897613 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 26 Nov 2013 18:39:42 +0100
-Subject: [PATCH 222/240] journal: when appending to journal file, allocate
+Subject: [PATCH 222/443] journal: when appending to journal file, allocate
  larger blocks at once
 
 (cherry picked from commit a676e66535e12458ea6d366a653f8dd60f982504)
@@ -80,5 +80,5 @@ index 425e38a..d1b8433 100644
          f->header->arena_size = htole64(new_size - le64toh(f->header->header_size));
  
 -- 
-1.8.4.5
+1.8.3.2
 

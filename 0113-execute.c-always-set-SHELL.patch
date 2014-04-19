@@ -1,7 +1,7 @@
-From 9a13fd4d34a9e3452c205fa4da108ae7af3dc21a Mon Sep 17 00:00:00 2001
+From ead2d686d9c9145fef59ce737e91515d9b42f845 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Wed, 2 Oct 2013 13:23:10 +0200
-Subject: [PATCH 113/240] execute.c: always set $SHELL
+Subject: [PATCH 113/443] execute.c: always set $SHELL
 
 In e6dca81 $SHELL was added to user@.service. Let's
 instead provide it to all units which have a user.
@@ -165,5 +165,5 @@ index 3718a57..3f8b59d 100644
  Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%I/dbus/user_bus_socket
  Slice=user-%i.slice
 -- 
-1.8.4.5
+1.8.3.2
 

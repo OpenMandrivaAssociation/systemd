@@ -1,7 +1,7 @@
-From 032db5ebf23dd15cd680a8bfeb4782a284f3fdd8 Mon Sep 17 00:00:00 2001
+From 56fd14a7e3671e1d9163fffd378a1985d42b1b4d Mon Sep 17 00:00:00 2001
 From: David Herrmann <dh.herrmann@gmail.com>
 Date: Sun, 3 Nov 2013 16:17:14 +0100
-Subject: [PATCH 165/240] rules: simply 60-drm.rules
+Subject: [PATCH 165/443] rules: simply 60-drm.rules
 
 We don't need any GOTO, if we merge all matches into a single line.
 ---
@@ -23,5 +23,5 @@ index de038c1..1ed3e44 100644
 -LABEL="drm_end"
 +ACTION!="remove", SUBSYSTEM=="drm", SUBSYSTEMS=="pci|usb|platform", IMPORT{builtin}="path_id"
 -- 
-1.8.4.5
+1.8.3.2
 

@@ -1,7 +1,7 @@
-From 08f2e81665722513baf00fb42beb8e5ce728fdb9 Mon Sep 17 00:00:00 2001
+From a33c431f6792e66efc0e1df082cbbb684d83b4df Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 14 Oct 2013 04:59:26 +0200
-Subject: [PATCH 205/240] util: allow trailing semicolons on
+Subject: [PATCH 205/443] util: allow trailing semicolons on
  define_trivial_cleanup_func lines
 
 Emacs C indenting really gets confused by these lines if they carry no
@@ -492,5 +492,5 @@ index 7e873af..e23847b 100644
  
  static bool item_equal(Item *a, Item *b) {
 -- 
-1.8.4.5
+1.8.3.2
 

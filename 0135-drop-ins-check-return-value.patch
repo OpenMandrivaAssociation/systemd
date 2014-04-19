@@ -1,7 +1,7 @@
-From 885c6aa6d6b0fea8794dd73481b47403e6f8aa8a Mon Sep 17 00:00:00 2001
+From 1eb11fe0ff64239cea4fec250a9ca484867d81b1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Fri, 11 Oct 2013 19:33:36 -0400
-Subject: [PATCH 135/240] drop-ins: check return value
+Subject: [PATCH 135/443] drop-ins: check return value
 
 If the function failed, nothing serious would happen
 because unlink would probably return EFAULT, but this
@@ -25,5 +25,5 @@ index 4b97710..1db7d06 100644
                  r = errno == ENOENT ? 0 : -errno;
          else
 -- 
-1.8.4.5
+1.8.3.2
 

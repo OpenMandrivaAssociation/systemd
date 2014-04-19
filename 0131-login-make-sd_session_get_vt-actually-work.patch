@@ -1,7 +1,7 @@
-From dcb000a863422ed435aea316ca97dcf06d80c2b5 Mon Sep 17 00:00:00 2001
+From 680b2b091623ed5b3dd616e98669afff97e22025 Mon Sep 17 00:00:00 2001
 From: David Herrmann <dh.herrmann@gmail.com>
 Date: Thu, 10 Oct 2013 13:11:27 +0200
-Subject: [PATCH 131/240] login: make sd_session_get_vt() actually work
+Subject: [PATCH 131/443] login: make sd_session_get_vt() actually work
 
 We use VTNR, not VTNr as key. Until now sd_session_get_vt() just returns
 an error.
@@ -23,5 +23,5 @@ index 6c27dfe..7e25041 100644
                  return r;
  
 -- 
-1.8.4.5
+1.8.3.2
 

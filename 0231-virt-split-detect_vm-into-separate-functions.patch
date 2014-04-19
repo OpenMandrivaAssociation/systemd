@@ -1,7 +1,7 @@
-From 2af4e5b3830437162ad3ee0c48907e6ef903385f Mon Sep 17 00:00:00 2001
+From d3a841560dfacf7b87980257bb6dd8b3fd3fbcdf Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
 Date: Thu, 28 Nov 2013 13:34:08 -0500
-Subject: [PATCH 231/240] virt: split detect_vm into separate functions
+Subject: [PATCH 231/443] virt: split detect_vm into separate functions
 
 It didn't build on arm. Let's simplify it a bit by
 splitting x86 specific parts out, which should also make
@@ -204,5 +204,5 @@ index 537ccda..4e18638 100644
          r = read_full_file("/proc/cpuinfo", &cpuinfo_contents, NULL);
          if (r < 0)
 -- 
-1.8.4.5
+1.8.3.2
 
