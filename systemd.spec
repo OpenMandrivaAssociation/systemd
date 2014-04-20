@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19
+Release:	20
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1398,10 +1398,10 @@ shift
 
 units=${*#%_unitdir/}
 if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
-    /bin/systemctl preset ${unit} >/dev/null 2>&1 || :
+    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 elif [ $ARG2 -gt 1 ]; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ${unit} >/dev/null 2>&1 || :
+    /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
 fi
 
 %triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
