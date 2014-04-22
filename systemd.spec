@@ -1078,24 +1078,6 @@ install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
 install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/rsyslog.d/
 
-# (tpg) from mageia
-# automatic systemd release on rpm installs/removals
-# (see http://wiki.mandriva.com/en/Rpm_filetriggers)
-install -d %{buildroot}%{_var}/lib/rpm/filetriggers
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.filter << EOF
-^./lib/systemd/system/
-^./etc/systemd/system/
-EOF
-cat > %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script << EOF
-#!/bin/sh
-if /bin/mountpoint -q /sys/fs/cgroup/systemd; then
-    if [ -x /bin/systemctl ]; then
-	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    fi
-fi
-EOF
-chmod 755 %{buildroot}%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.script
-
 # (tpg) silent kernel messages
 # print only KERN_ERR and more serious alerts
 echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
@@ -1554,7 +1536,6 @@ fi
 %{systemd_libdir}/system-preset/*.preset
 /usr/lib/tmpfiles.d/*.conf
 /%{_lib}/security/pam_systemd.so
-%{_var}/lib/rpm/filetriggers/systemd-daemon-reload.*
 %{_bindir}/systemd-cgls
 %{_bindir}/systemd-nspawn
 %{_bindir}/systemd-stdio-bridge
