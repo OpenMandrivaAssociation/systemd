@@ -42,8 +42,11 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	208
-Release:	20
+# (tpg) ladies and gentelman
+# i'm working on 212 version so please do not update it so freely, just ask first me :)
+# currently updating to 210
+Version:	210
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
