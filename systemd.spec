@@ -585,7 +585,7 @@ pushd shared
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
-%make
+%make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
 popd
 
 %install
