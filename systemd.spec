@@ -76,14 +76,14 @@ Source16:	systemd.rpmlintrc
 # disable coldplug for storage and device pci
 #po 315
 #Patch2:		udev-199-coldplug.patch
-Patch3:		systemd-205-uclibc.patch
+##Patch3:		systemd-205-uclibc.patch fix?
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
 Patch4:		systemd-205-static.patch
 Patch5:		systemd-186-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
-Patch6:		systemd-196-support-build-without-secure_getenv.patch
-Patch7:		systemd-191-uclibc-no-mkostemp.patch
+Patch6:		systemd-210-support-build-without-secure_getenv.patch
+Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 
