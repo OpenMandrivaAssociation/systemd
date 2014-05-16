@@ -1,5 +1,5 @@
 %bcond_with bootstrap
-%bcond_with uclibc
+%bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -557,7 +557,8 @@ pushd uclibc
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
-%make
+# (tpg) add -fno-lto for gcc-4.9 problems
+%make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
 
 popd
 %endif
@@ -585,6 +586,7 @@ pushd shared
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
+# (tpg) add -fno-lto for gcc-4.9 problems
 %make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
 popd
 
