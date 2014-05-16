@@ -125,6 +125,7 @@ BuildRequires:	pciutils-devel
 BuildRequires:	ldetect-lst
 BuildRequires:	python-devel
 BuildRequires:	chkconfig
+BuildRequires:	pkgconfig(libseccomp)
 
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
@@ -537,6 +538,7 @@ pushd uclibc
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
+	--disable-seccomp \
 	--enable-split-usr \
 	--enable-introspection=no \
 	--disable-gudev \
