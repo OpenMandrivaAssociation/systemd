@@ -27,7 +27,7 @@ enable polkit.service
 enable avahi*.service
 
 # Enable mandriva services
-enable mandriva*.service
+enable mandriva-everytime.service
 
 # Enable NM by default
 enable NetworkManager.service
