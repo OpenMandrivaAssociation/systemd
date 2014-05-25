@@ -6,11 +6,15 @@
 %define sysvinit_version 2.87
 %define sysvinit_release %mkrel 18
 
+%define systemd_major 0
 %define libdaemon_major 0
 %define liblogin_major 0
 %define libjournal_major 0
 %define libid128_major 0
 %define libnss_myhostname_major 2
+
+%define libsystemd %mklibname %{name} %{systemd_major}
+%define libsystemd_devel %mklibname %{name} -d
 
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
 %define libdaemon_devel %mklibname systemd-daemon -d
@@ -67,9 +71,7 @@ Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
 Source15:	enable-numlock.conf
-
 Source16:	systemd.rpmlintrc
-
 
 ### OMV patches###
 # from Mandriva
@@ -86,8 +88,6 @@ Patch6:		systemd-210-support-build-without-secure_getenv.patch
 Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
-
-
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -134,7 +134,7 @@ BuildRequires:	pkgconfig(gobject-introspection-1.0)
 BuildRequires:	uClibc-devel >= 0.9.33.2-15
 %endif
 Requires(pre,post):	coreutils
-Requires:	udev = %{version}-%{release}
+Requires:	udev = %{EVRD}
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
@@ -162,11 +162,12 @@ Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
 BuildRequires:	distro-release-common >= 2012.0-0.4
 # (tpg) just to be sure we install this libraries
-Requires:	libsystemd-daemon = %{version}-%{release}
-Requires:	libsystemd-login = %{version}-%{release}
-Requires:	libsystemd-journal = %{version}-%{release}
-Requires:	libsystemd-id128 = %{version}-%{release}
-Requires:	nss_myhostname = %{version}-%{release}
+Requires:	libsystemd = %{EVRD}
+Requires:	libsystemd-daemon = %{EVRD}
+Requires:	libsystemd-login = %{EVRD}
+Requires:	libsystemd-journal = %{EVRD}
+Requires:	libsystemd-id128 = %{EVRD}
+Requires:	nss_myhostname = %{EVRD}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
 
@@ -230,8 +231,8 @@ Basic configuration files, directories and installation tool for the systemd
 system and session manager.
 
 %package journal-gateway
-Summary:		Gateway for serving journal events over the network using HTTP
-Requires:		%{name} = %{version}-%{release}
+Summary:	Gateway for serving journal events over the network using HTTP
+Requires:	%{name} = %{EVRD}
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
@@ -241,10 +242,27 @@ Obsoletes:		systemd < 206-7
 %description journal-gateway
 Offers journal events over the network using HTTP.
 
+%package -n %{libsystemd}
+Summary:	Systemdlibrary package
+Group:		System/Libraries
+Provides:	libsystemd = %{EVRD}
+
+%description -n	%{libsystemd}
+This package provides the systemd shared library.
+
+%package -n %{libsystemd_devel}
+Summary:	Systemd library development files
+Group:		Development/C
+Requires:	%{libsystemd} = %{EVRD}
+Provides:	libsystemd-devel = %{EVRD}
+
+%description -n	%{libsystemd_devel}
+Development files for the systemd shared library.
+
 %package -n %{libdaemon}
 Summary:	Systemd-daemon library package
 Group:		System/Libraries
-Provides:	libsystemd-daemon = %{version}-%{release}
+Provides:	libsystemd-daemon = %{EVRD}
 
 %description -n	%{libdaemon}
 This package provides the systemd-daemon shared library.
@@ -261,11 +279,11 @@ This package provides the systemd-daemon shared library.
 %package -n %{libdaemon_devel}
 Summary:	Systemd-daemon library development files
 Group:		Development/C
-Requires:	%{libdaemon} = %{version}-%{release}
+Requires:	%{libdaemon} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libdaemon} = %{version}-%{release}
+Requires:	uclibc-%{libdaemon} = %{EVRD}
 %endif
-Provides:	libsystemd-daemon-devel = %{version}-%{release}
+Provides:	libsystemd-daemon-devel = %{EVRD}
 %rename		%{_lib}systemd-daemon0-devel
 
 %description -n	%{libdaemon_devel}
@@ -274,7 +292,7 @@ Development files for the systemd-daemon shared library.
 %package -n %{liblogin}
 Summary:	Systemd-login library package
 Group:		System/Libraries
-Provides:	libsystemd-login = %{version}-%{release}
+Provides:	libsystemd-login = %{EVRD}
 
 %description -n	%{liblogin}
 This package provides the systemd-login shared library.
@@ -291,11 +309,11 @@ This package provides the systemd-login shared library.
 %package -n %{liblogin_devel}
 Summary:	Systemd-login library development files
 Group:		Development/C
-Requires:	%{liblogin} = %{version}-%{release}
+Requires:	%{liblogin} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{liblogin} = %{version}-%{release}
+Requires:	uclibc-%{liblogin} = %{EVRD}
 %endif
-Provides:	libsystemd-login-devel = %{version}-%{release}
+Provides:	libsystemd-login-devel = %{EVRD}
 %rename		%{_lib}systemd-login0-devel
 
 %description -n	%{liblogin_devel}
@@ -304,7 +322,7 @@ Development files for the systemd-login shared library.
 %package -n %{libjournal}
 Summary:	Systemd-journal library package
 Group:		System/Libraries
-Provides:	libsystemd-journal = %{version}-%{release}
+Provides:	libsystemd-journal = %{EVRD}
 
 %description -n	%{libjournal}
 This package provides the systemd-journal shared library.
@@ -321,11 +339,11 @@ This package provides the systemd-journal shared library.
 %package -n %{libjournal_devel}
 Summary:	Systemd-journal library development files
 Group:		Development/C
-Requires:	%{libjournal} = %{version}-%{release}
+Requires:	%{libjournal} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libjournal} = %{version}-%{release}
+Requires:	uclibc-%{libjournal} = %{EVRD}
 %endif
-Provides:	libsystemd-journal-devel = %{version}-%{release}
+Provides:	libsystemd-journal-devel = %{EVRD}
 %rename		%{_lib}systemd-journal0-devel
 
 %description -n	%{libjournal_devel}
@@ -334,7 +352,7 @@ Development files for the systemd-journal shared library.
 %package -n %{libid128}
 Summary:	Systemd-id128 library package
 Group:		System/Libraries
-Provides:	libsystemd-id128 = %{version}-%{release}
+Provides:	libsystemd-id128 = %{EVRD}
 
 %description -n	%{libid128}
 This package provides the systemd-id128 shared library.
@@ -351,11 +369,11 @@ This package provides the systemd-id128 shared library.
 %package -n %{libid128_devel}
 Summary:	Systemd-id128 library development files
 Group:		Development/C
-Requires:	%{libid128} = %{version}-%{release}
+Requires:	%{libid128} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libid128} = %{version}-%{release}
+Requires:	uclibc-%{libid128} = %{EVRD}
 %endif
-Provides:	libsystemd-id128-devel = %{version}-%{release}
+Provides:	libsystemd-id128-devel = %{EVRD}
 %rename		%{_lib}systemd-id1280-devel
 
 %description -n %{libid128_devel}
@@ -364,8 +382,8 @@ Development files for the systemd-id128 shared library.
 %package -n %{libnss_myhostname}
 Summary:	Library for local system host name resolution
 Group:		System/Libraries
-Provides:	libnss_myhostname = %{version}-%{release}
-Provides:	nss_myhostname = %{version}-%{release}
+Provides:	libnss_myhostname = %{EVRD}
+Provides:	nss_myhostname = %{EVRD}
 Obsoletes:	nss_myhostname <= 0.3-1
 Requires(post,preun):	rpm-helper
 Requires(post,preun):	sed
@@ -388,7 +406,7 @@ uClibc version of nss-myhostname.
 %package -n udev
 Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name} = %{EVRD}
 Requires:	ldetect-lst
 Requires:	setup >= 2.7.16
 Requires:	util-linux-ng >= 2.15
@@ -930,7 +948,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-    getty@tty1.service \
+	getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -1147,6 +1165,7 @@ fi
 /bin/loginctl
 /bin/systemd-inhibit
 /sbin/systemd-machine-id-setup
+%{_bindir}/busctl
 %{_bindir}/systemd-analyze
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
@@ -1164,6 +1183,7 @@ fi
 %{systemd_libdir}/systemd-activate
 %{systemd_libdir}/systemd-bootchart
 %{systemd_libdir}/systemd-backlight
+%{systemd_libdir}/systemd-bus-proxyd
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-c*
 %{systemd_libdir}/systemd-fsck
@@ -1172,9 +1192,11 @@ fi
 %{systemd_libdir}/systemd-journald
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
+%{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
 %{systemd_libdir}/systemd-re*
+%{systemd_libdir}/systemd-rfkill
 %{systemd_libdir}/systemd-s*
 %{systemd_libdir}/systemd-time*
 %{systemd_libdir}/systemd-update-utmp
@@ -1247,14 +1269,17 @@ fi
 %{_mandir}/man8/systemd-logind*.8.*
 %{_mandir}/man8/systemd-machined*.8.*
 %{_mandir}/man8/systemd-modules*.8.*
+%{_mandir}/man8/systemd-networkd*.8.*
 %{_mandir}/man8/systemd-poweroff*.8.*
 %{_mandir}/man8/systemd-quota*.8.*
 %{_mandir}/man8/systemd-random*.8.*
 %{_mandir}/man8/systemd-readahead*.8.*
 %{_mandir}/man8/systemd-reboot*.8.*
 %{_mandir}/man8/systemd-remount*.8.*
+%{_mandir}/man8/systemd-rfkill*.8.*
 %{_mandir}/man8/systemd-shutdown*.8.*
 %{_mandir}/man8/systemd-sleep*.8.*
+%{_mandir}/man8/systemd-socket-proxyd.8.*
 %{_mandir}/man8/systemd-suspend*.8.*
 %{_mandir}/man8/systemd-sysctl*.8.*
 %{_mandir}/man8/systemd-system*.8.*
@@ -1331,6 +1356,7 @@ fi
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/system/basic.target.wants
 %dir %{systemd_libdir}/system/bluetooth.target.wants
+%dir %{systemd_libdir}/system/busnames.target.wants
 %dir %{systemd_libdir}/system/dbus.target.wants
 %dir %{systemd_libdir}/system/default.target.wants
 %dir %{systemd_libdir}/system/local-fs.target.wants
@@ -1346,6 +1372,7 @@ fi
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
+%dir %{_prefix}/systemd/network
 %dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
@@ -1359,6 +1386,7 @@ fi
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
+%{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/local-fs.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/multi-user.target.wants/*.target
@@ -1372,10 +1400,12 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.path
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/system/*.automount
+%{systemd_libdir}/system/*.busname
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/auto*.service
 %{systemd_libdir}/system/console*.service
+%{systemd_libdir}/system/container-getty@.service
 %{systemd_libdir}/system/dbus-org*.service
 %{systemd_libdir}/system/de*.service
 %{systemd_libdir}/system/emergency*.service
@@ -1403,6 +1433,7 @@ fi
 %{systemd_libdir}/system/systemd-logind*.service
 %{systemd_libdir}/system/systemd-machined.service
 %{systemd_libdir}/system/systemd-modules-load.service
+%{systemd_libdir}/system/systemd-networkd.service
 %{systemd_libdir}/system/systemd-nspawn*.service
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-quotacheck.service
@@ -1411,6 +1442,7 @@ fi
 %{systemd_libdir}/system/systemd-readahead*.timer
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount*.service
+%{systemd_libdir}/system/systemd-rfkill@.service
 %{systemd_libdir}/system/systemd-shutdownd.service
 %{systemd_libdir}/system/systemd-suspend.service
 %{systemd_libdir}/system/systemd-sysctl.service
@@ -1434,6 +1466,8 @@ fi
 %{systemd_libdir}/system/*.target
 
 %{_prefix}/lib/systemd/catalog/*.catalog
+%{_prefix}/systemd/network/80-container-host0.network
+%{_prefix}/systemd/network/99-default.link
 %{_prefix}/lib/systemd/user/*.service
 %{_prefix}/lib/systemd/user/*.target
 %{_mandir}/man1/systemctl.*
@@ -1455,8 +1489,17 @@ fi
 %{uclibc_root}%{_libdir}/libnss_myhostname.so.%{libnss_myhostname_major}*
 %endif
 
+%files -n %{libsystemd}
+/%{_lib}/libsystemd.so.%{libsystemd_major}*
+
 %files -n %{libdaemon}
 /%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
+
+%files -n %{libsystemd_devel}
+%dir %{_includedir}/systemd
+%{_includedir}/systemd/_sd-common.h
+%{_libdir}/libsystemd.so
+%{_libdir}/pkgconfig/libsystemd.pc
 
 %if %{with uclibc}
 %files -n uclibc-%{libdaemon}
@@ -1464,7 +1507,6 @@ fi
 %endif
 
 %files -n %{libdaemon_devel}
-%dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-daemon.h
 %{_libdir}/libsystemd-daemon.so
 %if %{with uclibc}

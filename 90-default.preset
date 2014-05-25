@@ -69,7 +69,7 @@ enable mdmonitor-takeover.service
 # Hardware services
 enable irqbalance.service
 enable lm_sensors.service
-enable uuidd.service
+enable uuidd.*
 enable gpm.*
 enable dkms.service
 
