@@ -265,7 +265,7 @@ Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{libsystemd} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libdsystemd} = %{EVRD}
+Requires:	uclibc-%{libsystemd} = %{EVRD}
 %endif
 Provides:	libsystemd-devel = %{EVRD}
 
