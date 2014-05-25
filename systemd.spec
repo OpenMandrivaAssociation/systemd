@@ -1160,7 +1160,6 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
-%dir %{python_sitearch}/%{name}
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
 %{_initrddir}/README
@@ -1383,7 +1382,7 @@ fi
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
-%dir %{systemd_libdir}/systemd/network
+%dir %{systemd_libdir}/system/network
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
 %dir %{_prefix}/lib/systemd/ntp-units.d
@@ -1509,7 +1508,7 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libsystemd}
 %{uclibc_root}/%{_lib}/libsystemd.so.%{libsystemd_major}*
-%{uclibc_root}/%{_libdir}/libsystemd.so.%{libsystemd_major}*
+#%{uclibc_root}/%{_libdir}/libsystemd.so.%{libsystemd_major}*
 %endif
 
 %files -n %{libsystemd_devel}
