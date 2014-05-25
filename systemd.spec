@@ -1382,7 +1382,7 @@ fi
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
-%dir %{systemd_libdir}/system/network
+%dir %{systemd_libdir}/network
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
 %dir %{_prefix}/lib/systemd/ntp-units.d
