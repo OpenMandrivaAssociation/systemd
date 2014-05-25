@@ -256,7 +256,7 @@ This package provides the systemd shared library.
 Summary:	Systemd library package (uClibc linked)
 Group:		System/Libraries
 
-%description -n	uclibc-%{libdaemon}
+%description -n	uclibc-%{libsystemd}
 This package provides the systemd shared library.
 %endif
 
