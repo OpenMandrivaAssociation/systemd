@@ -1479,7 +1479,7 @@ fi
 %{systemd_libdir}/system/*.target
 
 %{systemd_libdir}/network/80-container-host0.network
-%{systemd_libdir}/network/network/99-default.link
+%{systemd_libdir}/network/99-default.link
 
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user/*.service
