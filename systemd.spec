@@ -812,6 +812,8 @@ mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 # conflicts with file from package initscripts-9.25-10.x86_64
 rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 
+%find_lang %{name}
+
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
 # trigger is executed on both self and target install so no need to have
@@ -867,7 +869,7 @@ fi
 
 # Migrate /etc/sysconfig/i18n
 if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
-		unset LANGUAGE
+	unset LANGUAGE
         unset LANG
         unset LC_CTYPE
         unset LC_NUMERIC
@@ -1105,7 +1107,7 @@ fi
 %postun journal-gateway
 %_postun_service systemd-journal-gatewayd.service
 
-%files
+%files -f %{name}.lang
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
