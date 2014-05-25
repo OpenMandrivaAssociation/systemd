@@ -6,14 +6,14 @@
 %define sysvinit_version 2.87
 %define sysvinit_release %mkrel 18
 
-%define systemd_major 0
+%define libsystemd_major 0
 %define libdaemon_major 0
 %define liblogin_major 0
 %define libjournal_major 0
 %define libid128_major 0
 %define libnss_myhostname_major 2
 
-%define libsystemd %mklibname %{name} %{systemd_major}
+%define libsystemd %mklibname %{name} %{libsystemd_major}
 %define libsystemd_devel %mklibname %{name} -d
 
 %define libdaemon %mklibname systemd-daemon %{libdaemon_major}
@@ -251,10 +251,22 @@ Provides:	libsystemd = %{EVRD}
 %description -n	%{libsystemd}
 This package provides the systemd shared library.
 
+%if %{with uclibc}
+%package -n	uclibc-%{libsystemd}
+Summary:	Systemd library package (uClibc linked)
+Group:		System/Libraries
+
+%description -n	uclibc-%{libdaemon}
+This package provides the systemd shared library.
+%endif
+
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{libsystemd} = %{EVRD}
+%if %{with uclibc}
+Requires:	uclibc-%{libdsystemd} = %{EVRD}
+%endif
 Provides:	libsystemd-devel = %{EVRD}
 
 %description -n	%{libsystemd_devel}
@@ -1298,9 +1310,6 @@ fi
 %{_mandir}/man8/systemd-vconsole*.8.*
 %{_mandir}/man8/kernel-install.*
 
-# tools
-%{python_sitearch}/%{name}/*.py*
-%{python_sitearch}/%{name}/*.so
 
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1309,10 +1318,6 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
-%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.*.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.hostname1*.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.locale1*.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1*.xml
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
@@ -1333,6 +1338,7 @@ fi
 %{uclibc_root}/bin/loginctl
 %{uclibc_root}/bin/systemd-inhibit
 %{uclibc_root}/sbin/systemd-machine-id-setup
+%{uclibc_root}%{_bindir}/busctl
 %{uclibc_root}%{_bindir}/hostnamectl
 %{uclibc_root}%{_bindir}/localectl
 %{uclibc_root}%{_bindir}/bootctl
@@ -1377,9 +1383,9 @@ fi
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
+%dir %{systemd_libdir}/systemd/network
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
-%dir %{_prefix}/systemd/network
 %dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
@@ -1472,9 +1478,10 @@ fi
 %{systemd_libdir}/system/systemd-udev*.socket
 %{systemd_libdir}/system/*.target
 
+%{systemd_libdir}/network/80-container-host0.network
+%{systemd_libdir}/network/network/99-default.link
+
 %{_prefix}/lib/systemd/catalog/*.catalog
-%{_prefix}/systemd/network/80-container-host0.network
-%{_prefix}/systemd/network/99-default.link
 %{_prefix}/lib/systemd/user/*.service
 %{_prefix}/lib/systemd/user/*.target
 %{_mandir}/man1/systemctl.*
@@ -1499,14 +1506,24 @@ fi
 %files -n %{libsystemd}
 /%{_lib}/libsystemd.so.%{libsystemd_major}*
 
-%files -n %{libdaemon}
-/%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
+%if %{with uclibc}
+%files -n uclibc-%{libsystemd}
+%{uclibc_root}/%{_lib}/libsystemd.so.%{libsystemd_major}*
+%{uclibc_root}/%{_libdir}/libsystemd.so.%{libsystemd_major}*
+%endif
 
 %files -n %{libsystemd_devel}
 %dir %{_includedir}/systemd
 %{_includedir}/systemd/_sd-common.h
 %{_libdir}/libsystemd.so
+%if %{with uclibc}
+%{uclibc_root}%{_libdir}/libsystemd.so
+%{uclibc_root}%{_libdir}/libsystemd.a
+%endif
 %{_libdir}/pkgconfig/libsystemd.pc
+
+%files -n %{libdaemon}
+/%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
 
 %if %{with uclibc}
 %files -n uclibc-%{libdaemon}
@@ -1523,7 +1540,6 @@ fi
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
 %{_datadir}/pkgconfig/systemd.pc
 %{_includedir}/systemd/sd-messages.h
-%{_includedir}/systemd/sd-shutdown.h
 
 %files -n %{liblogin}
 /%{_lib}/libsystemd-login.so.%{liblogin_major}*
