@@ -1,1 +1,4 @@
 addFilter("E: hardcoded-library-path")
+addFilter("E: init-script-non-executable")
+addFilter("E: no-chkconfig-line")
+addFilter("E: init-script-without-chkconfig-preun")
