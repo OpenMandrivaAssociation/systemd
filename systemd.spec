@@ -88,6 +88,7 @@ Patch6:		systemd-210-support-build-without-secure_getenv.patch
 Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
+Patch10:	systemd-210-uclibc.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -535,7 +536,6 @@ autoreconf -fiv
 
 %build
 #global optflags %{optflags} -Os
-%serverbuild_hardened
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
 %endif
@@ -577,11 +577,14 @@ pushd uclibc
 	--with-kbd-setfont=/bin/setfont
 
 # (tpg) add -fno-lto for gcc-4.9 problems
-%make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
+%make CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
 
 popd
 %endif
 
+# This has to go after the uClibc build -- uClibc doesn't have
+# functions needed for SSP
+%serverbuild_hardened
 mkdir -p shared
 pushd shared
 %configure2_5x \
