@@ -547,7 +547,7 @@ find -type d |xargs chmod 755
 autoreconf -fiv
 
 %build
-#global optflags %{optflags} -Os
+%global optflags %{optflags} -Os
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
 %endif
@@ -559,11 +559,11 @@ mkdir -p uclibc
 pushd uclibc
 %uclibc_configure \
 	--prefix=%{_prefix} \
-	--with-rootprefix= \
+	--with-rootprefix="/" \
 	--with-rootlibdir=%{uclibc_root}/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
-    --enable-compat-libs \
+	--enable-compat-libs \
 	--enable-static \
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
@@ -601,11 +601,11 @@ popd
 mkdir -p shared
 pushd shared
 %configure2_5x \
-	--with-rootprefix= \
+	--with-rootprefix="/" \
 	--with-rootlibdir=/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
-    --enable-compat-libs \
+	--enable-compat-libs \
 	--disable-static \
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
