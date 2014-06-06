@@ -490,48 +490,48 @@ Patch511:	0511-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 Patch512:	0512-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch513:	0513-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 
-BuildRequires:	autoconf
-BuildRequires:	automake
-BuildRequires:	m4
-BuildRequires:	libtool
-BuildRequires:	acl-devel
-BuildRequires:	audit-devel
-BuildRequires:	docbook-style-xsl
-BuildRequires:	gperf
-BuildRequires:	intltool
-BuildRequires:	cap-devel
-BuildRequires:	pam-devel
-BuildRequires:	perl(XML::Parser)
-BuildRequires:	tcp_wrappers-devel
-BuildRequires:	vala >= 0.9
-BuildRequires:	pkgconfig(dbus-1) >= 1.4.0
-BuildRequires:	pkgconfig(dbus-glib-1)
-BuildRequires:	pkgconfig(gee-0.8)
-BuildRequires:	pkgconfig(glib-2.0)
-BuildRequires:	pkgconfig(gtk+-2.0)
-BuildRequires:	gtk-doc
+#BuildRequires:	autoconf
+#BuildRequires:	automake
+#BuildRequires:	m4
+#BuildRequires:	libtool
+#BuildRequires:	acl-devel
+#BuildRequires:	audit-devel
+#BuildRequires:	docbook-style-xsl
+#BuildRequires:	gperf
+#BuildRequires:	intltool
+#BuildRequires:	cap-devel
+#BuildRequires:	pam-devel
+#BuildRequires:	perl(XML::Parser)
+#BuildRequires:	tcp_wrappers-devel
+#BuildRequires:	vala >= 0.9
+#BuildRequires:	pkgconfig(dbus-1) >= 1.4.0
+#BuildRequires:	pkgconfig(dbus-glib-1)
+#BuildRequires:	pkgconfig(gee-0.8)
+#BuildRequires:	pkgconfig(glib-2.0)
+#BuildRequires:	pkgconfig(gtk+-2.0)
+#BuildRequires:	gtk-doc
 %if !%{with bootstrap}
-BuildRequires:	pkgconfig(libcryptsetup)
+#BuildRequires:	pkgconfig(libcryptsetup)
 %endif
-BuildRequires:	pkgconfig(libkmod) >= 5
-BuildRequires:	pkgconfig(liblzma)
-BuildRequires:	pkgconfig(libnotify)
-BuildRequires:	pkgconfig(libxslt)
-BuildRequires:	pkgconfig(libmicrohttpd)
-BuildRequires:	pkgconfig(libqrencode)
-BuildRequires:	xsltproc
-BuildRequires:	pkgconfig(blkid)
-BuildRequires:	usbutils >= 005-3
-BuildRequires:	pciutils-devel
-BuildRequires:	ldetect-lst
-BuildRequires:	python-devel
-BuildRequires:	chkconfig
+#BuildRequires:	pkgconfig(libkmod) >= 5
+#BuildRequires:	pkgconfig(liblzma)
+#BuildRequires:	pkgconfig(libnotify)
+#BuildRequires:	pkgconfig(libxslt)
+#BuildRequires:	pkgconfig(libmicrohttpd)
+#BuildRequires:	pkgconfig(libqrencode)
+#BuildRequires:	xsltproc
+#BuildRequires:	pkgconfig(blkid)
+#BuildRequires:	usbutils >= 005-3
+#BuildRequires:	pciutils-devel
+#BuildRequires:	ldetect-lst
+#BuildRequires:	python-devel
+#BuildRequires:	chkconfig
 
 %if !%{with bootstrap}
-BuildRequires:	pkgconfig(gobject-introspection-1.0)
+#BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 %if %{with uclibc}
-BuildRequires:	uClibc-devel >= 0.9.33.2-15
+#BuildRequires:	uClibc-devel >= 0.9.33.2-15
 %endif
 Requires(pre,post):	coreutils
 Requires:	udev = %{version}-%{release}
@@ -560,7 +560,7 @@ Requires:	kmod
 %rename		readahead
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common >= 1:2012.0-0.4
+#BuildRequires:	distro-release-common >= 1:2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd-daemon = %{version}-%{release}
 Requires:	libsystemd-login = %{version}-%{release}
