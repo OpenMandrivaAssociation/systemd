@@ -916,6 +916,7 @@ find -type d |xargs chmod 755
 autoreconf -fiv
 
 %build
+%global optflags %{optflags} -Os
 %serverbuild_hardened
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
