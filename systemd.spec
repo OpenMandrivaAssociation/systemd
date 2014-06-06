@@ -120,7 +120,7 @@ Patch132:	0132-Never-call-qsort-on-potentially-NULL-arrays.patch
 Patch133:	0133-dbus-common-avoid-leak-in-error-path.patch
 Patch134:	0134-drop-ins-check-return-value.patch
 Patch135:	0135-Make-sure-that-we-don-t-dereference-NULL.patch
-Patch136:	0136-gitignore-ignore-clang-analyze-output.patch
+#Patch136:	0136-gitignore-ignore-clang-analyze-output.patch
 Patch137:	0137-man-add-more-markup-to-udevadm-8.patch
 Patch138:	0138-shared-util-Fix-glob_extend-argument.patch
 Patch139:	0139-Fix-bad-assert-in-show_pid_array.patch
