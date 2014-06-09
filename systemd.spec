@@ -444,7 +444,7 @@ Patch456:	0456-udev-properly-detect-reference-to-unexisting-part-of.patch
 Patch457:	0457-hwdb-Update-database-of-Bluetooth-company-identifier.patch
 Patch458:	0458-gpt-auto-generator-don-t-return-OOM-on-parentless-de.patch
 Patch459:	0459-man-improve-wording-of-systemctl-s-after-before.patch
-Patch460:	0460-cgroup-it-s-not-OK-to-invoke-alloca-in-loops.patch
+#Patch460:	0460-cgroup-it-s-not-OK-to-invoke-alloca-in-loops.patch
 Patch461:	0461-hwdb-update.patch
 Patch462:	0462-core-don-t-try-to-relabel-mounts-before-we-loaded-th.patch
 Patch463:	0463-man-explain-that-the-journal-field-SYSLOG_IDENTIFIER.patch
