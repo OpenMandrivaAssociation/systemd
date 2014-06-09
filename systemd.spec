@@ -424,7 +424,7 @@ Patch436:	0436-core-allow-PIDs-to-be-watched-by-two-units-at-the-sa.patch
 Patch437:	0437-core-correctly-unregister-PIDs-from-PID-hashtables.patch
 Patch438:	0438-logind-uninitialized-timer_fd-is-set-to-1.patch
 Patch439:	0439-logind-add-forgotten-return-statement.patch
-Patch440:	0440-core-fix-detection-of-dead-processes.patch
+#Patch440:	0440-core-fix-detection-of-dead-processes.patch
 #Patch441:	0441-Fix-prototype-of-get_process_state.patch
 #Patch442:	0442-core-check-for-return-value-from-get_process_state.patch
 #Patch443:	0443-man-update-link-to-LSB.patch
