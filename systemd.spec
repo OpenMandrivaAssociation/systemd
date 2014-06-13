@@ -50,7 +50,7 @@ Name:		systemd
 # i'm working on 212 version so please do not update it so freely, just ask first me :)
 # currently updating to 210
 Version:	210
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
