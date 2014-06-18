@@ -49,8 +49,8 @@ Name:		systemd
 # (tpg) ladies and gentelman
 # i'm working on 212 version so please do not update it so freely, just ask first me :)
 # currently updating to 210
-Version:	210
-Release:	2
+Version:	214
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -158,7 +158,7 @@ Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
 Requires:	kmod
-%rename		readahead
+%rename	readahead
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
 BuildRequires:	distro-release-common >= 2012.0-0.4
@@ -173,7 +173,7 @@ Requires:	nss_myhostname = %{EVRD}
 Provides:	syslog-daemon
 
 # (tpg) conflict with old sysvinit subpackage
-%rename		systemd-sysvinit
+%rename	systemd-sysvinit
 Conflicts:	systemd-sysvinit < 207-1
 # (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
 #SysVinit < %sysvinit_release-%sysvinit_release It's provides something
@@ -600,7 +600,7 @@ popd
 %serverbuild_hardened
 mkdir -p shared
 pushd shared
-%configure2_5x \
+%configure \
 	--with-rootprefix="/" \
 	--with-rootlibdir=/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
