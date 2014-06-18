@@ -1,0 +1,72 @@
+diff -Naur systemd-214/src/libsystemd/sd-bus/test-bus-memfd.c systemd-214.tpg/src/libsystemd/sd-bus/test-bus-memfd.c
+--- systemd-214/src/libsystemd/sd-bus/test-bus-memfd.c	2014-03-18 17:05:51.374377792 +0000
++++ systemd-214.tpg/src/libsystemd/sd-bus/test-bus-memfd.c	2014-06-18 23:13:27.910309954 +0000
+@@ -151,6 +151,8 @@
+         /* check content */
+         assert_se(memcmp(buf, "ll", 2) == 0);
+ 
++#ifndef __UCLIBC__
++       /* uClibc doesn't support pwritev and preadv, skip this check */
+         /* writev it out*/
+         iov[0].iov_base = (char *)"ABC";
+         iov[0].iov_len = 3;
+@@ -168,7 +170,7 @@
+         iov[2].iov_base = bufv[2];
+         iov[2].iov_len = 3;
+         assert_se(preadv(fd, iov, 3, 0) == 9);
+-
++#endif
+         /* check content */
+         assert_se(memcmp(bufv[0], "ABC", 3) == 0);
+         assert_se(memcmp(bufv[1], "DEF", 3) == 0);
+diff -Naur systemd-214/src/nspawn/nspawn.c systemd-214.tpg/src/nspawn/nspawn.c
+--- systemd-214/src/nspawn/nspawn.c	2014-06-10 22:36:23.453890292 +0000
++++ systemd-214.tpg/src/nspawn/nspawn.c	2014-06-18 23:14:13.486663031 +0000
+@@ -46,6 +46,17 @@
+ #include <sys/personality.h>
+ #include <linux/loop.h>
+ 
++#ifdef __UCLIBC__
++/* uClibc doesn't currently have eventfd_read and eventfd_write */
++int eventfd_read(int fd, eventfd_t *value) {
++       return read(fd, value, sizeof(eventfd_t)) != sizeof(eventfd_t) ? -1 : 0;
++}
++
++int eventfd_write(int fd, eventfd_t value) {
++       return write(fd, &value, sizeof(eventfd_t)) != sizeof(eventfd_t) ? -1 : 0;
++}
++#endif
++
+ #ifdef HAVE_SELINUX
+ #include <selinux/selinux.h>
+ #endif
+diff -Naur systemd-214/src/shared/missing.h systemd-214.tpg/src/shared/missing.h
+--- systemd-214/src/shared/missing.h	2014-05-14 20:58:43.124845369 +0000
++++ systemd-214.tpg/src/shared/missing.h	2014-06-18 23:14:48.741409353 +0000
+@@ -29,6 +29,10 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <errno.h>
++#ifdef __UCLIBC__
++/* uClibc has its own sysinfo */
++#define _LINUX_SYSINFO_H 1
++#endif
+ #include <linux/oom.h>
+ #include <linux/input.h>
+ #include <linux/if_link.h>
+diff -Naur systemd-214/src/socket-proxy/socket-proxyd.c systemd-214.tpg/src/socket-proxy/socket-proxyd.c
+--- systemd-214/src/socket-proxy/socket-proxyd.c	2014-06-07 19:14:13.878292966 +0000
++++ systemd-214.tpg/src/socket-proxy/socket-proxyd.c	2014-06-18 23:16:04.484052479 +0000
+@@ -45,6 +45,12 @@
+ #define BUFFER_SIZE (256 * 1024)
+ #define CONNECTIONS_MAX 256
+ 
++#ifndef F_SETPIPE_SZ
++/* The joys of uClibc... */
++#define F_SETPIPE_SZ 1031
++#define F_GETPIPE_SZ 1032
++#endif
++
+ static const char *arg_remote_host = NULL;
+ 
+ typedef struct Context {
