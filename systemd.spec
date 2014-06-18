@@ -88,7 +88,7 @@ Patch6:		systemd-210-support-build-without-secure_getenv.patch
 Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
-Patch10:	systemd-210-uclibc.patch
+Patch10:	systemd-214-uclibc.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
