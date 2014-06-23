@@ -1,4 +1,4 @@
-diff -Naur systemd-214/src/libsystemd/sd-bus/test-bus-memfd.c systemd-214.tpg/src/libsystemd/sd-bus/test-bus-memfd.c
+:iff -Naur systemd-214/src/libsystemd/sd-bus/test-bus-memfd.c systemd-214.tpg/src/libsystemd/sd-bus/test-bus-memfd.c
 --- systemd-214/src/libsystemd/sd-bus/test-bus-memfd.c	2014-03-18 17:05:51.374377792 +0000
 +++ systemd-214.tpg/src/libsystemd/sd-bus/test-bus-memfd.c	2014-06-18 23:13:27.910309954 +0000
 @@ -151,6 +151,8 @@
@@ -19,27 +19,6 @@ diff -Naur systemd-214/src/libsystemd/sd-bus/test-bus-memfd.c systemd-214.tpg/sr
          /* check content */
          assert_se(memcmp(bufv[0], "ABC", 3) == 0);
          assert_se(memcmp(bufv[1], "DEF", 3) == 0);
-diff -Naur systemd-214/src/nspawn/nspawn.c systemd-214.tpg/src/nspawn/nspawn.c
---- systemd-214/src/nspawn/nspawn.c	2014-06-10 22:36:23.453890292 +0000
-+++ systemd-214.tpg/src/nspawn/nspawn.c	2014-06-18 23:14:13.486663031 +0000
-@@ -46,6 +46,17 @@
- #include <sys/personality.h>
- #include <linux/loop.h>
- 
-+#ifdef __UCLIBC__
-+/* uClibc doesn't currently have eventfd_read and eventfd_write */
-+int eventfd_read(int fd, eventfd_t *value) {
-+       return read(fd, value, sizeof(eventfd_t)) != sizeof(eventfd_t) ? -1 : 0;
-+}
-+
-+int eventfd_write(int fd, eventfd_t value) {
-+       return write(fd, &value, sizeof(eventfd_t)) != sizeof(eventfd_t) ? -1 : 0;
-+}
-+#endif
-+
- #ifdef HAVE_SELINUX
- #include <selinux/selinux.h>
- #endif
 diff -Naur systemd-214/src/shared/missing.h systemd-214.tpg/src/shared/missing.h
 --- systemd-214/src/shared/missing.h	2014-05-14 20:58:43.124845369 +0000
 +++ systemd-214.tpg/src/shared/missing.h	2014-06-18 23:14:48.741409353 +0000
@@ -54,19 +33,42 @@ diff -Naur systemd-214/src/shared/missing.h systemd-214.tpg/src/shared/missing.h
  #include <linux/oom.h>
  #include <linux/input.h>
  #include <linux/if_link.h>
-diff -Naur systemd-214/src/socket-proxy/socket-proxyd.c systemd-214.tpg/src/socket-proxy/socket-proxyd.c
---- systemd-214/src/socket-proxy/socket-proxyd.c	2014-06-07 19:14:13.878292966 +0000
-+++ systemd-214.tpg/src/socket-proxy/socket-proxyd.c	2014-06-18 23:16:04.484052479 +0000
-@@ -45,6 +45,12 @@
- #define BUFFER_SIZE (256 * 1024)
- #define CONNECTIONS_MAX 256
+diff --git a/src/libsystemd/sd-bus/bus-control.c b/src/libsystemd/sd-bus/bus-control.c
+index 076bbce..b28d842 100644
+--- a/src/libsystemd/sd-bus/bus-control.c
++++ b/src/libsystemd/sd-bus/bus-control.c
+@@ -26,6 +26,7 @@
+ #include <stddef.h>
+ #include <errno.h>
  
-+#ifndef F_SETPIPE_SZ
-+/* The joys of uClibc... */
-+#define F_SETPIPE_SZ 1031
-+#define F_GETPIPE_SZ 1032
-+#endif
-+
- static const char *arg_remote_host = NULL;
++#include "missing.h"
+ #include "strv.h"
+ #include "sd-bus.h"
+ #include "bus-internal.h"
+diff --git a/src/libsystemd/sd-bus/sd-bus.c b/src/libsystemd/sd-bus/sd-bus.c
+index 1f1a4d3..6ec7b8d 100644
+--- a/src/libsystemd/sd-bus/sd-bus.c
++++ b/src/libsystemd/sd-bus/sd-bus.c
+@@ -33,7 +33,6 @@
+ #include "macro.h"
+ #include "strv.h"
+ #include "set.h"
+-#include "missing.h"
+ #include "def.h"
+ #include "cgroup-util.h"
+ #include "bus-label.h"
+diff --git a/src/shared/util.h b/src/shared/util.h
+index 0f8c393..638bb01 100644
+--- a/src/shared/util.h
++++ b/src/shared/util.h
+@@ -42,6 +42,7 @@
+ #include <locale.h>
+ #include <mntent.h>
+ #include <sys/socket.h>
++#include "missing.h"
  
- typedef struct Context {
+ #if SIZEOF_PID_T == 4
+ #  define PID_FMT "%" PRIu32
+-- 
+1.9.0
+
