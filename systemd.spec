@@ -97,6 +97,7 @@ BuildRequires:	libtool
 BuildRequires:	acl-devel
 BuildRequires:	audit-devel
 BuildRequires:	docbook-style-xsl
+BuildRequires:	docbook-dtd45-xml
 BuildRequires:	gperf
 BuildRequires:	intltool
 BuildRequires:	cap-devel
@@ -622,8 +623,7 @@ pushd shared
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
-# (tpg) add -fno-lto for gcc-4.9 problems
-%make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
+%make GCC_COLORS="" V=1
 popd
 
 %install
