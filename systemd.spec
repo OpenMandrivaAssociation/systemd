@@ -590,7 +590,7 @@ pushd uclibc
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
-# (tpg) add -fno-lto for gcc-4.9 problems
+# (tpg) add -fno-lto for gcc-4.9 and clang problems
 %make CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
 
 popd
@@ -623,7 +623,8 @@ pushd shared
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont
 
-%make GCC_COLORS="" V=1
+# (tpg) add -fno-lto for gcc-4.9 and clang problems
+%make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
 popd
 
 %install
