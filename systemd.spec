@@ -1138,10 +1138,13 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
+%config(noreplace) %{_sysconfdir}/systemd/resolved.conf
+%config(noreplace) %{_sysconfdir}/systemd/timesyncd.conf
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) %{_sysconfdir}/pam.d/systemd-user
-%config(noreplace) /usr/lib/sysctl.d/50-coredump.conf
-%config(noreplace) /usr/lib/sysctl.d/50-default.conf
+%config(noreplace) %{_prefix}/lib/sysctl.d/50-coredump.conf
+%config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
+%config(noreplace) %{_prefix}/lib/systemd/ntp-units.d/90-systemd.list
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1162,6 +1165,7 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
+%dir %{_prefix}/lib/systemd/ntp-units.d
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
 %{_initrddir}/README
@@ -1210,9 +1214,11 @@ fi
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-initctl
 %{systemd_libdir}/systemd-journald
+%{systemd_libdir}/systemd-journal-remote
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-networkd
+%{systemd_libdir}/systemd-networkd-wait-online
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
 %{systemd_libdir}/systemd-re*
@@ -1282,6 +1288,7 @@ fi
 %{_mandir}/man8/systemd-hybrid*.8.*
 %{_mandir}/man8/systemd-initctl*.8.*
 %{_mandir}/man8/systemd-journald.8.*
+%{_mandir}/man8/systemd-journal-remote.8.*
 %{_mandir}/man8/systemd-journald.service.8.*
 %{_mandir}/man8/systemd-journald.socket.8.*
 %{_mandir}/man8/systemd-kexec*.8.*
@@ -1296,6 +1303,8 @@ fi
 %{_mandir}/man8/systemd-readahead*.8.*
 %{_mandir}/man8/systemd-reboot*.8.*
 %{_mandir}/man8/systemd-remount*.8.*
+%{_mandir}/man8/systemd-resolved.8.*
+%{_mandir}/man8/systemd-resolved.service.8.*
 %{_mandir}/man8/systemd-rfkill*.8.*
 %{_mandir}/man8/systemd-shutdown*.8.*
 %{_mandir}/man8/systemd-sleep*.8.*
@@ -1304,13 +1313,14 @@ fi
 %{_mandir}/man8/systemd-sysctl*.8.*
 %{_mandir}/man8/systemd-system*.8.*
 %{_mandir}/man8/systemd-timedated*.8.*
+%{_mandir}/man8/systemd-timesyncd.8.*
+%{_mandir}/man8/systemd-timesyncd.service.8.*
 %{_mandir}/man8/systemd-tmpfiles*.8.*
 %{_mandir}/man8/systemd-udev*.8.*
 %{_mandir}/man8/systemd-update*.8.*
 %{_mandir}/man8/systemd-user*.8.*
 %{_mandir}/man8/systemd-vconsole*.8.*
 %{_mandir}/man8/kernel-install.*
-
 
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1387,7 +1397,6 @@ fi
 %dir %{systemd_libdir}/network
 %dir %{_prefix}/lib/systemd
 %dir %{_prefix}/lib/systemd/catalog
-%dir %{_prefix}/lib/systemd/ntp-units.d
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
 %dir %{_prefix}/lib/systemd/user-generators
@@ -1442,12 +1451,14 @@ fi
 %{systemd_libdir}/system/systemd-initctl*.service
 %{systemd_libdir}/system/systemd-journal-flush.service
 %{systemd_libdir}/system/systemd-journald.service
+%{systemd_libdir}/system/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/systemd-kexec*.service
 %{systemd_libdir}/system/systemd-localed*.service
 %{systemd_libdir}/system/systemd-logind*.service
 %{systemd_libdir}/system/systemd-machined.service
 %{systemd_libdir}/system/systemd-modules-load.service
 %{systemd_libdir}/system/systemd-networkd.service
+%{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-nspawn*.service
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-quotacheck.service
@@ -1456,11 +1467,13 @@ fi
 %{systemd_libdir}/system/systemd-readahead*.timer
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount*.service
+%{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-rfkill@.service
 %{systemd_libdir}/system/systemd-shutdownd.service
 %{systemd_libdir}/system/systemd-suspend.service
 %{systemd_libdir}/system/systemd-sysctl.service
 %{systemd_libdir}/system/systemd-timedated.service
+%{systemd_libdir}/system/systemd-timesyncd.service
 %{systemd_libdir}/system/systemd-tmpfiles-*.service
 %{systemd_libdir}/system/systemd-tmpfiles-*.timer
 %{systemd_libdir}/system/systemd-udev*.service
@@ -1481,6 +1494,7 @@ fi
 
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/99-default.link
+%{systemd_libdir}/network/80-container-ve.network
 
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user/*.service
@@ -1705,11 +1719,11 @@ fi
 %{_libdir}/libgudev-%{gudev_api}.so
 %{_includedir}/gudev-%{gudev_api}
 %if !%{with bootstrap}
-%{_datadir}/gir-1.0/GUdev-%{gudev_api}.gir
+#%{_datadir}/gir-1.0/GUdev-%{gudev_api}.gir
 %endif
 %{_libdir}/pkgconfig/gudev-%{gudev_api}.pc
 
 %if !%{with bootstrap}
 %files -n %{girgudev}
-%{_libdir}/girepository-1.0/GUdev-%{gudev_api}.typelib
+#%{_libdir}/girepository-1.0/GUdev-%{gudev_api}.typelib
 %endif
