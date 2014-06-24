@@ -1153,7 +1153,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 %ghost %{_sysconfdir}/udev/hwdb.bin
-%dir /run
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/*-generators
 %dir %{systemd_libdir}/system-shutdown
