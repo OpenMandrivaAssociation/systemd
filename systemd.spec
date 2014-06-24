@@ -618,7 +618,7 @@ pushd shared
 	--enable-introspection=no \
 	--disable-libcryptsetup \
 %else
-	--enable-introspection=yes \
+	--enable-introspection=no \
 %endif
 	--enable-split-usr \
 	--with-kbd-loadkeys=/bin/loadkeys \
