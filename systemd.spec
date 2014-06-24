@@ -561,7 +561,7 @@ mkdir -p uclibc
 pushd uclibc
 %uclibc_configure \
 	--prefix=%{_prefix} \
-	--with-rootprefix="/" \
+	--with-rootprefix="" \
 	--with-rootlibdir=%{uclibc_root}/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
@@ -603,7 +603,7 @@ popd
 mkdir -p shared
 pushd shared
 %configure \
-	--with-rootprefix="/" \
+	--with-rootprefix="" \
 	--with-rootlibdir=/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
 	--with-firmware-path=/lib/firmware/updates:/lib/firmware \
