@@ -866,6 +866,20 @@ if ! getent group %{name}-journal >/dev/null 2>&1; then
 	/usr/sbin/groupadd -r %{name}-journal >/dev/null || :
 fi
 
+# (tpg) add timesync group and user
+if ! getent group %{name}-timesync >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-timesync >/dev/null || :
+fi
+
+if ! getent passwd %{name}-timesync >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /usr/sbin/nologin -c "Systemd Timesync" systemd-timesync >/dev/null 2>&1 || :
+fi
+
+# (tpg) add input group
+if ! getent group input >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r input >/dev/null || :
+fi
+
 if [ $1 -ge 2 ]; then
 systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 fi
