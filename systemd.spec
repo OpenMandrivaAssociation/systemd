@@ -50,7 +50,7 @@ Name:		systemd
 # i'm working on 212 version so please do not update it so freely, just ask first me :)
 # currently updating to 210
 Version:	214
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -589,7 +589,8 @@ pushd uclibc
 	--disable-manpages \
 	--with-python \
 	--with-kbd-loadkeys=/bin/loadkeys \
-	--with-kbd-setfont=/bin/setfont
+	--with-kbd-setfont=/bin/setfont \
+    --with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org"
 
 # (tpg) add -fno-lto for gcc-4.9 and clang problems
 %make CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
@@ -622,7 +623,8 @@ pushd shared
 %endif
 	--enable-split-usr \
 	--with-kbd-loadkeys=/bin/loadkeys \
-	--with-kbd-setfont=/bin/setfont
+	--with-kbd-setfont=/bin/setfont \
+    --with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org"
 
 # (tpg) add -fno-lto for gcc-4.9 and clang problems
 %make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
