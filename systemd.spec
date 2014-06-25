@@ -860,6 +860,11 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
+# (tpg) add input group
+if ! getent group input >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r input >/dev/null || :
+fi
+
 # (cg) Cannot use rpm-helper scripts as it results in a cyclical dep as
 # rpm-helper requires systemd-units which in turn requires systemd...
 if ! getent group %{name}-journal >/dev/null 2>&1; then
@@ -875,9 +880,31 @@ if ! getent passwd %{name}-timesync >/dev/null 2>&1; then
 	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /usr/sbin/nologin -c "Systemd Timesync" systemd-timesync >/dev/null 2>&1 || :
 fi
 
-# (tpg) add input group
-if ! getent group input >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r input >/dev/null || :
+# (tpg) add network group and user
+if ! getent group %{name}-network >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-network >/dev/null || :
+fi
+
+if ! getent passwd %{name}-network >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -l -g systemd-network -d / -s /usr/sbin/nologin -c "systemd Network Management" systemd-network >/dev/null 2>&1 || :
+fi
+
+# (tpg) add resolve group and user
+if ! getent group %{name}-resolve >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-resolve >/dev/null || :
+fi
+
+if ! getent passwd %{name}-resolve >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -l -g systemd-resolve -d / -s /usr/sbin/nologin -c "systemd Resolver" systemd-resolve >/dev/null 2>&1 || :
+fi
+
+# (tpg) add bus-proxy group and user
+if ! getent group %{name}-bus-proxy >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-bus-proxy >/dev/null || :
+fi
+
+if ! getent passwd %{name}-bus-proxy >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -l -g systemd-bus-proxy -d / -s /usr/sbin/nologin -c "systemd Bus Proxy" systemd-bus-proxy >/dev/null 2>&1 || :
 fi
 
 if [ $1 -ge 2 ]; then
