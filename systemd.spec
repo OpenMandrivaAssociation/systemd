@@ -1074,6 +1074,11 @@ if [ $1 -eq 1 ] ; then
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
+				systemd-networkd.service \
+				systemd-timesync.service \
+				console-getty.service \
+				console-shell.service \
+				debug-shell.service \
                 2>&1 || :
 fi
 
