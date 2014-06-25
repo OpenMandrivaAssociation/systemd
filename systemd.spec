@@ -891,6 +891,7 @@ fi
 /usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /usr/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
 /usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
+/usr/bin/systemd-tmpfiles --create >/dev/null 2>&1 || :
 
 #(tpg) BIG migration
 
