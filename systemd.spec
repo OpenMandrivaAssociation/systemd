@@ -1095,12 +1095,16 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
         /bin/systemctl --quiet disable \
-		getty@.service \
-		remote-fs.target \
-		systemd-readahead-replay.service \
-		systemd-readahead-collect.service \
-		systemd-udev-settle.service \
-		2>&1 || :
+			getty@tty1.service \
+			remote-fs.target \
+			systemd-readahead-replay.service \
+			systemd-readahead-collect.service \
+			systemd-networkd.service \
+			systemd-timesync.service \
+			console-getty.service \
+			console-shell.service \
+			debug-shell.service \
+			2>&1 || :
 
         /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
