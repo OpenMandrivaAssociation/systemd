@@ -4,7 +4,7 @@
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
-%define sysvinit_release %mkrel 18
+%define sysvinit_release %mkrel 23
 
 %define libsystemd_major 0
 %define libdaemon_major 0
@@ -46,11 +46,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-# (tpg) ladies and gentelman
-# i'm working on 212 version so please do not update it so freely, just ask first me :)
-# currently updating to 210
 Version:	214
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -590,7 +587,8 @@ pushd uclibc
 	--with-python \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
-    --with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org"
+	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
+	--with-dns-servers="208.67.222.222 208.67.220.220"
 
 # (tpg) add -fno-lto for gcc-4.9 and clang problems
 %make CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
@@ -624,7 +622,8 @@ pushd shared
 	--enable-split-usr \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
-    --with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org"
+	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
+	--with-dns-servers="208.67.222.222 208.67.220.220"
 
 # (tpg) add -fno-lto for gcc-4.9 and clang problems
 %make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
@@ -1070,16 +1069,16 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet enable \
-                getty@tty1.service \
-                remote-fs.target \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
-				systemd-networkd.service \
-				systemd-timesync.service \
-				console-getty.service \
-				console-shell.service \
-				debug-shell.service \
-                2>&1 || :
+			getty@tty1.service \
+			remote-fs.target \
+			systemd-readahead-replay.service \
+			systemd-readahead-collect.service \
+			systemd-networkd.service \
+			systemd-timesync.service \
+			console-getty.service \
+			console-shell.service \
+			debug-shell.service \
+			2>&1 || :
 fi
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
