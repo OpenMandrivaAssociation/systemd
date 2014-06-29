@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -126,6 +126,8 @@ BuildRequires:	ldetect-lst
 BuildRequires:	python-devel
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
+# To make sure _rundir is defined
+BuildRequires:  rpm-build >= 1:5.4.10-79
 
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
@@ -357,6 +359,8 @@ Requires:	uclibc-%{libjournal} = %{EVRD}
 %endif
 Provides:	libsystemd-journal-devel = %{EVRD}
 %rename		%{_lib}systemd-journal0-devel
+# sd-journal.h #includes sd-id128.h
+Requires:	%{libid128_devel} = %{EVRD}
 
 %description -n	%{libjournal_devel}
 Development files for the systemd-journal shared library.
