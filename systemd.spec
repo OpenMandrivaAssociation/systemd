@@ -72,14 +72,15 @@ Source16:	systemd.rpmlintrc
 # disable coldplug for storage and device pci
 #po 315
 #Patch2:		udev-199-coldplug.patch
-Patch3:		systemd-205-uclibc.patch
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
 Patch4:		systemd-205-static.patch
 Patch5:		systemd-186-set-udev_log-to-err.patch
+%if %{with uclibc}
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch6:		systemd-196-support-build-without-secure_getenv.patch
 Patch7:		systemd-191-uclibc-no-mkostemp.patch
+%endif
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 
@@ -100,48 +101,52 @@ Patch911:	0911-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 Patch912:	0912-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch913:	0913-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
 
-BuildRequires:	autoconf
-BuildRequires:	automake
-BuildRequires:	m4
-BuildRequires:	libtool
-BuildRequires:	acl-devel
-BuildRequires:	audit-devel
-BuildRequires:	docbook-style-xsl
-BuildRequires:	gperf
-BuildRequires:	intltool
-BuildRequires:	cap-devel
-BuildRequires:	pam-devel
-BuildRequires:	perl(XML::Parser)
-BuildRequires:	tcp_wrappers-devel
-BuildRequires:	vala >= 0.9
-BuildRequires:	pkgconfig(dbus-1) >= 1.4.0
-BuildRequires:	pkgconfig(dbus-glib-1)
-BuildRequires:	pkgconfig(gee-0.8)
-BuildRequires:	pkgconfig(glib-2.0)
-BuildRequires:	pkgconfig(gtk+-2.0)
-BuildRequires:	gtk-doc
-%if !%{with bootstrap}
-BuildRequires:	pkgconfig(libcryptsetup)
+%if %{with uclibc}
+Patch1000:		systemd-205-uclibc.patch
 %endif
-BuildRequires:	pkgconfig(libkmod) >= 5
-BuildRequires:	pkgconfig(liblzma)
-BuildRequires:	pkgconfig(libnotify)
-BuildRequires:	pkgconfig(libxslt)
-BuildRequires:	pkgconfig(libmicrohttpd)
-BuildRequires:	pkgconfig(libqrencode)
-BuildRequires:	xsltproc
-BuildRequires:	pkgconfig(blkid)
-BuildRequires:	usbutils >= 005-3
-BuildRequires:	pciutils-devel
-BuildRequires:	ldetect-lst
-BuildRequires:	python-devel
-BuildRequires:	chkconfig
+
+#BuildRequires:	autoconf
+#BuildRequires:	automake
+#BuildRequires:	m4
+#BuildRequires:	libtool
+#BuildRequires:	acl-devel
+#BuildRequires:	audit-devel
+#BuildRequires:	docbook-style-xsl
+#BuildRequires:	gperf
+#BuildRequires:	intltool
+#BuildRequires:	cap-devel
+#BuildRequires:	pam-devel
+#BuildRequires:	perl(XML::Parser)
+#BuildRequires:	tcp_wrappers-devel
+#BuildRequires:	vala >= 0.9
+#BuildRequires:	pkgconfig(dbus-1) >= 1.4.0
+#BuildRequires:	pkgconfig(dbus-glib-1)
+#BuildRequires:	pkgconfig(gee-0.8)
+#BuildRequires:	pkgconfig(glib-2.0)
+#BuildRequires:	pkgconfig(gtk+-2.0)
+#BuildRequires:	gtk-doc
+%if !%{with bootstrap}
+#BuildRequires:	pkgconfig(libcryptsetup)
+%endif
+#BuildRequires:	pkgconfig(libkmod) >= 5
+#BuildRequires:	pkgconfig(liblzma)
+#BuildRequires:	pkgconfig(libnotify)
+#BuildRequires:	pkgconfig(libxslt)
+#BuildRequires:	pkgconfig(libmicrohttpd)
+#BuildRequires:	pkgconfig(libqrencode)
+#BuildRequires:	xsltproc
+#BuildRequires:	pkgconfig(blkid)
+#BuildRequires:	usbutils >= 005-3
+#BuildRequires:	pciutils-devel
+#BuildRequires:	ldetect-lst
+#BuildRequires:	python-devel
+#BuildRequires:	chkconfig
 
 %if !%{with bootstrap}
-BuildRequires:	pkgconfig(gobject-introspection-1.0)
+#BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 %if %{with uclibc}
-BuildRequires:	uClibc-devel >= 0.9.33.2-15
+#BuildRequires:	uClibc-devel >= 0.9.33.2-15
 %endif
 Requires(pre,post):	coreutils
 Requires:	udev = %{version}-%{release}
@@ -170,7 +175,7 @@ Requires:	kmod
 %rename		readahead
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common >= 1:2012.0-0.4
+#BuildRequires:	distro-release-common >= 1:2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd-daemon = %{version}-%{release}
 Requires:	libsystemd-login = %{version}-%{release}
