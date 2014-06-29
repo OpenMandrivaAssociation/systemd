@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -294,6 +294,7 @@ This package provides the systemd-daemon shared library.
 Summary:	Systemd-daemon library development files
 Group:		Development/C
 Requires:	%{libdaemon} = %{EVRD}
+Requires:	%{libsystemd_devel} = %{EVRD}
 %if %{with uclibc}
 Requires:	uclibc-%{libdaemon} = %{EVRD}
 %endif
