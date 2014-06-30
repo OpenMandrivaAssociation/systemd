@@ -1,0 +1,71 @@
+From 42a0f3246f93e8c80f8964afab62bea500c486c3 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Wed, 11 Apr 2012 16:02:21 +0100
+Subject: [PATCH 509/509] udev: Allow the 'udevadm settle' timeout to be set
+ via the kernel cmdline
+
+On some really old hardware, the default timeout of 120 (which may even
+be reduced further on the command line) is insufficient.
+
+While such cases are specialist and (nowadays) relatively rare, it is
+still nice to be able to provide a method to increase the timeout
+when needed.
+
+Bug Link: https://bugs.mageia.org/show_bug.cgi?id=3315
+---
+ src/udev/udevadm-settle.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/src/udev/udevadm-settle.c b/src/udev/udevadm-settle.c
+index e70b351..c8d5ed9 100644
+--- a/src/udev/udevadm-settle.c
++++ b/src/udev/udevadm-settle.c
+@@ -53,6 +53,7 @@ static int adm_settle(struct udev *udev, int argc, char *argv[])
+         int quiet = 0;
+         const char *exists = NULL;
+         unsigned int timeout = 120;
++        char *line;
+         struct pollfd pfd[1] = { {.fd = -1}, };
+         struct udev_queue *udev_queue = NULL;
+         int rc = EXIT_FAILURE;
+@@ -99,6 +100,37 @@ static int adm_settle(struct udev *udev, int argc, char *argv[])
+                 }
+         }
+ 
++        /*
++         * read the kernel commandline, in case we need to tweak timeout
++         *   udev.settle-timeout=<timeout>  settle timeout
++         *
++         */
++        if (read_one_line_file("/proc/cmdline", &line) >= 0) {
++                char *w, *state;
++                size_t l;
++
++                FOREACH_WORD_QUOTED(w, l, line, state) {
++                        char *s, *opt;
++
++                        s = strndup(w, l);
++                        if (!s)
++                                break;
++
++                        /* accept the same options for the initrd, prefixed with "rd." */
++                        if (in_initrd() && startswith(s, "rd."))
++                                opt = s + 3;
++                        else
++                                opt = s;
++
++                        if (startswith(opt, "udev.settle-timeout=") && safe_atou(opt + 20, &timeout) >= 0)
++                                log_debug("timeout=%i (via kernel cmdline)\n", timeout);
++
++                        free(s);
++                }
++
++                free(line);
++        }
++
+         udev_queue = udev_queue_new(udev);
+         if (udev_queue == NULL)
+                 exit(2);
+-- 
+1.7.11
+
