@@ -27,7 +27,7 @@ enable polkit.service
 enable avahi*.service
 
 # Enable mandriva services
-enable mandriva*.service
+enable mandriva-everytime.service
 
 # Enable NM by default
 enable NetworkManager.service
@@ -50,7 +50,6 @@ enable rtkit-daemon.service
 enable usbmuxd.service
 
 # Network services
-enable firewalld.service
 enable iptables.service
 enable nmb.service
 enable smb.service
@@ -69,7 +68,7 @@ enable mdmonitor-takeover.service
 # Hardware services
 enable irqbalance.service
 enable lm_sensors.service
-enable uuidd.service
+enable uuidd.*
 enable gpm.*
 
 # Sound services

@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19
+Release:	19.3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -871,6 +871,7 @@ find -type d |xargs chmod 755
 autoreconf -fiv
 
 %build
+%global optflags %{optflags} -Os
 %serverbuild_hardened
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
