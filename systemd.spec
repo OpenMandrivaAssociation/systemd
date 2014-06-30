@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -74,8 +74,7 @@ Source16:	systemd.rpmlintrc
 # from Mandriva
 # disable coldplug for storage and device pci
 #po 315
-#Patch2:		udev-199-coldplug.patch
-##Patch3:		systemd-205-uclibc.patch fix?
+Patch2:		udev-199-coldplug.patch
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
 Patch4:		systemd-205-static.patch
