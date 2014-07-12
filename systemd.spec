@@ -1208,7 +1208,7 @@ if ! getent group %{name}-journal >/dev/null 2>&1; then
 fi
 
 if [ $1 -ge 2 ]; then
-systemctl stop stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 fi
 
 %post
