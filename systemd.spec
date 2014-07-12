@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -74,7 +74,7 @@ Source16:	systemd.rpmlintrc
 # from Mandriva
 # disable coldplug for storage and device pci
 #po 315
-Patch2:		udev-199-coldplug.patch
+#Patch2:		udev-199-coldplug.patch
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
 Patch4:		systemd-205-static.patch
@@ -85,6 +85,7 @@ Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 Patch10:	systemd-214-uclibc.patch
+Patch11:	systemd-214-silent-fsck-on-boot.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -550,7 +551,6 @@ find -type d |xargs chmod 755
 autoreconf -fiv
 
 %build
-%global optflags %{optflags} -Os
 %ifarch %arm
 export ac_cv_func_malloc_0_nonnull=yes
 %endif
