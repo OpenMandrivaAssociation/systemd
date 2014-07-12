@@ -82,6 +82,7 @@ Patch6:		systemd-196-support-build-without-secure_getenv.patch
 Patch7:		systemd-191-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
+Patch10:	systemd-208-silent-fsck-on-boot.patch
 
 #Upstream patchset
 Patch100:	0100-acpi-fptd-fix-memory-leak-in-acpi_get_boot_usec.patch
