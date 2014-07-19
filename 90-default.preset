@@ -72,6 +72,7 @@ enable lm_sensors.service
 enable uuidd.*
 enable gpm.*
 enable dkms.service
+enable cpupower.service
 
 # Sound services
 enable alsa*.service
