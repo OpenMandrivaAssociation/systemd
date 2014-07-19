@@ -70,6 +70,7 @@ enable irqbalance.service
 enable lm_sensors.service
 enable uuidd.*
 enable gpm.*
+enable cpupower.service
 
 # Sound services
 enable alsa*.service
