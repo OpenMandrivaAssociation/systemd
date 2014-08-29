@@ -50,6 +50,10 @@ enable rtkit-daemon.service
 enable usbmuxd.service
 
 # Network services
+enable systemd-networkd.service
+enable systemd-resolved.service
+enable systemd-timedated.service
+enable systemd-timesyncd.service
 enable firewalld.service
 enable iptables.service
 enable nmb.service
