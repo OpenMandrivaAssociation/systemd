@@ -184,6 +184,8 @@ Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_v
 Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
+Provides:	resolvconf = 1.75-3
+Conflicts:	resolvconf < 1.75-3
 %rename		systemd-tools
 
 %description
@@ -922,6 +924,14 @@ fi
 /usr/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
 /usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
+# (tpg) handle resolvconf
+if [ ! -e /etc/resolv.conf ]; then
+    ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+
 #(tpg) BIG migration
 
 # Migrate /etc/sysconfig/clock
@@ -1038,6 +1048,12 @@ if [ -f /etc/machine-id ]; then
 	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
 fi
 
+%triggerpostun -- resolvconf == 1.75-2
+if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+
 %triggerposttransin -- %{_tmpfilesdir}/*.conf
 if [ $1 -eq 1 -o $2 -eq 1 ]; then
     while [ -n "$3" ]; do
@@ -1078,7 +1094,10 @@ if [ $1 -eq 1 ] ; then
 			systemd-readahead-replay.service \
 			systemd-readahead-collect.service \
 			systemd-networkd.service \
+			systemd-networkd-wait-online.service \
+			systemd-resolvd.service \
 			systemd-timesync.service \
+			systemd-timedated.service \
 			console-getty.service \
 			console-shell.service \
 			debug-shell.service \
@@ -1103,7 +1122,10 @@ if [ $1 -eq 0 ] ; then
 			systemd-readahead-replay.service \
 			systemd-readahead-collect.service \
 			systemd-networkd.service \
+			systemd-networkd-wait-online.service \
+			systemd-resolvd.service \
 			systemd-timesync.service \
+			systemd-timedated.service \
 			console-getty.service \
 			console-shell.service \
 			debug-shell.service \
