@@ -1652,7 +1652,7 @@ fi
 %{_includedir}/libudev.h
 
 %files -n %{libgudev}
-/%{_lib}/libgudev-%{gudev_api}.so.%{gudev_major}*
+%{_libdir}/libgudev-%{gudev_api}.so.%{gudev_major}*
 
 %files -n %{libgudev_devel}
 %{_libdir}/libgudev-%{gudev_api}.so
