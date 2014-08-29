@@ -69,6 +69,8 @@ Source13:	90-default.preset
 Source14:	85-display-manager.preset
 Source15:	enable-numlock.conf
 Source16:	systemd.rpmlintrc
+# (tpg) by default enable network on eth, enp0s3
+Source17:	90-enable.network
 
 ### OMV patches###
 # from Mandriva
@@ -765,6 +767,9 @@ mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
 install -m 0644 %{SOURCE12} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
+
+# (tpg) install network file
+install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
 
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
@@ -1569,8 +1574,9 @@ fi
 %{systemd_libdir}/system/*.target
 
 %{systemd_libdir}/network/80-container-host0.network
-%{systemd_libdir}/network/99-default.link
 %{systemd_libdir}/network/80-container-ve.network
+%{systemd_libdir}/network/90-enable.network
+%{systemd_libdir}/network/99-default.link
 
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user/*.service
