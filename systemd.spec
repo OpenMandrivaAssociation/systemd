@@ -72,7 +72,7 @@ Source16:	systemd.rpmlintrc
 # disable coldplug for storage and device pci
 #po 315
 #Patch2:		udev-199-coldplug.patch
-Patch3:		systemd-205-uclibc.patch
+Patch3:		systemd-208-uclibc.patch
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
 Patch4:		systemd-205-static.patch
