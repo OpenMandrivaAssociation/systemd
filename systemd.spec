@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	9
+Release:	10
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -374,6 +374,8 @@ Development files for the systemd-journal shared library.
 Summary:	Systemd-id128 library package
 Group:		System/Libraries
 Provides:	libsystemd-id128 = %{EVRD}
+# (tpg) cooker only, should be removed soon
+Obsoletes:	%{_lib}systemd-id1280 < 214-10
 
 %description -n	%{libid128}
 This package provides the systemd-id128 shared library.
@@ -382,6 +384,7 @@ This package provides the systemd-id128 shared library.
 %package -n uclibc-%{libid128}
 Summary:	Systemd-id128 library package (uClibc linked)
 Group:		System/Libraries
+Obsoletes:	uclibc-%{_lib}systemd-id1280 < 214-10
 
 %description -n	uclibc-%{libid128}
 This package provides the systemd-id128 shared library.
