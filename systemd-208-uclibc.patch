@@ -1,0 +1,67 @@
+diff -Naur systemd-208/src/libsystemd-bus/bus-control.c systemd-208.tpg/src/libsystemd-bus/bus-control.c
+--- systemd-208/src/libsystemd-bus/bus-control.c	2013-08-13 20:02:46.000000000 +0000
++++ systemd-208.tpg/src/libsystemd-bus/bus-control.c	2014-08-29 22:04:30.402429058 +0000
+@@ -26,6 +26,7 @@
+ #include <stddef.h>
+ #include <errno.h>
+ 
++#include "missing.h"
+ #include "strv.h"
+ 
+ #include "sd-bus.h"
+diff -Naur systemd-208/src/libsystemd-bus/sd-bus.c systemd-208.tpg/src/libsystemd-bus/sd-bus.c
+--- systemd-208/src/libsystemd-bus/sd-bus.c	2014-08-29 22:00:20.000000000 +0000
++++ systemd-208.tpg/src/libsystemd-bus/sd-bus.c	2014-08-29 22:04:02.752676672 +0000
+@@ -33,7 +33,6 @@
+ #include "macro.h"
+ #include "strv.h"
+ #include "set.h"
+-#include "missing.h"
+ 
+ #include "sd-bus.h"
+ #include "bus-internal.h"
+diff -Naur systemd-208/src/libsystemd-bus/test-bus-memfd.c systemd-208.tpg/src/libsystemd-bus/test-bus-memfd.c
+--- systemd-208/src/libsystemd-bus/test-bus-memfd.c	2013-08-13 20:02:46.000000000 +0000
++++ systemd-208.tpg/src/libsystemd-bus/test-bus-memfd.c	2014-08-29 22:07:56.662037524 +0000
+@@ -145,6 +145,8 @@
+         /* check content */
+         assert_se(memcmp(buf, "ll", 2) == 0);
+ 
++#ifndef __UCLIBC__
++       /* uClibc doesn't support pwritev and preadv, skip this check */
+         /* writev it out*/
+         iov[0].iov_base = (char *)"ABC";
+         iov[0].iov_len = 3;
+@@ -162,6 +164,7 @@
+         iov[2].iov_base = bufv[2];
+         iov[2].iov_len = 3;
+         assert_se(preadv(fd, iov, 3, 0) == 9);
++#endif
+ 
+         /* check content */
+         assert_se(memcmp(bufv[0], "ABC", 3) == 0);
+diff -Naur systemd-208/src/shared/missing.h systemd-208.tpg/src/shared/missing.h
+--- systemd-208/src/shared/missing.h	2014-08-29 22:00:20.000000000 +0000
++++ systemd-208.tpg/src/shared/missing.h	2014-08-29 22:06:15.263281251 +0000
+@@ -27,6 +27,10 @@
+ #include <sys/syscall.h>
+ #include <fcntl.h>
+ #include <stdlib.h>
++#ifdef __UCLIBC__
++/* uClibc has its own sysinfo */
++#define _LINUX_SYSINFO_H 1
++#endif
+ #include <unistd.h>
+ #include <linux/oom.h>
+ #include <linux/input.h>
+diff -Naur systemd-208/src/shared/util.h systemd-208.tpg/src/shared/util.h
+--- systemd-208/src/shared/util.h	2014-08-29 22:00:21.000000000 +0000
++++ systemd-208.tpg/src/shared/util.h	2014-08-29 22:03:00.240975141 +0000
+@@ -44,6 +44,7 @@
+ 
+ #include "macro.h"
+ #include "time-util.h"
++#include "missing.h"
+ 
+ union dirent_storage {
+         struct dirent de;
