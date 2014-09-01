@@ -375,7 +375,7 @@ Summary:	Systemd-id128 library package
 Group:		System/Libraries
 Provides:	libsystemd-id128 = %{EVRD}
 # (tpg) cooker only, should be removed soon
-%rename:	%{_lib}systemd-id1280
+%rename		%{_lib}systemd-id1280
 
 %description -n	%{libid128}
 This package provides the systemd-id128 shared library.
