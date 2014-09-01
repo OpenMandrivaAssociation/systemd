@@ -375,7 +375,7 @@ Summary:	Systemd-id128 library package
 Group:		System/Libraries
 Provides:	libsystemd-id128 = %{EVRD}
 # (tpg) cooker only, should be removed soon
-Obsoletes:	%{_lib}systemd-id1280 < 214-10
+%rename:	%{_lib}systemd-id1280
 
 %description -n	%{libid128}
 This package provides the systemd-id128 shared library.
@@ -384,7 +384,7 @@ This package provides the systemd-id128 shared library.
 %package -n uclibc-%{libid128}
 Summary:	Systemd-id128 library package (uClibc linked)
 Group:		System/Libraries
-Obsoletes:	uclibc-%{_lib}systemd-id1280 < 214-10
+%rename		uclibc-%{_lib}systemd-id1280
 
 %description -n	uclibc-%{libid128}
 This package provides the systemd-id128 shared library.
