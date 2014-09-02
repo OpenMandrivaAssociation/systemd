@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	10
+Release:	11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -187,7 +187,7 @@ Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
 Provides:	resolvconf = 1.75-3
-Conflicts:	resolvconf < 1.75-3
+Obsoletes:	resolvconf < 1.75-3
 %rename		systemd-tools
 
 %description
