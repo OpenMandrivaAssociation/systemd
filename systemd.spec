@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	11
+Release:	12
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -890,7 +890,7 @@ if ! getent group %{name}-timesync >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-timesync >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /usr/sbin/nologin -c "Systemd Timesync" systemd-timesync >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /sbin/nologin -c "Systemd Timesync" systemd-timesync >/dev/null 2>&1 || :
 fi
 
 # (tpg) add network group and user
@@ -899,7 +899,7 @@ if ! getent group %{name}-network >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-network >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-network -d / -s /usr/sbin/nologin -c "systemd Network Management" systemd-network >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-network -d / -s /sbin/nologin -c "systemd Network Management" systemd-network >/dev/null 2>&1 || :
 fi
 
 # (tpg) add resolve group and user
@@ -908,16 +908,16 @@ if ! getent group %{name}-resolve >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-resolve >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-resolve -d / -s /usr/sbin/nologin -c "systemd Resolver" systemd-resolve >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-resolve -d / -s /sbin/nologin -c "systemd Resolver" systemd-resolve >/dev/null 2>&1 || :
 fi
 
-# (tpg) add bus-proxy group and user
-if ! getent group %{name}-bus-proxy >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-bus-proxy >/dev/null || :
+# (tpg) add busproxy group and user
+if ! getent group %{name}-busproxy >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-busproxy >/dev/null || :
 fi
 
-if ! getent passwd %{name}-bus-proxy >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-bus-proxy -d / -s /usr/sbin/nologin -c "systemd Bus Proxy" systemd-bus-proxy >/dev/null 2>&1 || :
+if ! getent passwd %{name}-busproxy >/dev/null 2>&1; then
+	/usr/sbin/useradd -r -l -g systemd-busproxy -d / -s /sbin/nologin -c "systemd Bus Proxy" systemd-busproxy >/dev/null 2>&1 || :
 fi
 
 if [ $1 -ge 2 ]; then
