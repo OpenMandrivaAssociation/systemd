@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	13
+Release:	14
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1083,6 +1083,18 @@ if [ $2 -eq 0 ]; then
     done
 fi
 
+%triggerin units -- %{name}-units < 214-14
+# make sure we use preset here
+/bin/systemctl --quiet preset \
+				getty@.service \
+                remote-fs.target \
+                systemd-readahead-replay.service \
+                systemd-readahead-collect.service \
+                console-getty.service \
+                console-shell.service \
+                debug-shell.service \
+                2>&1 || :
+
 %post units
 if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
@@ -1098,7 +1110,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
-			getty@tty1.service \
+			getty@.service \
 			remote-fs.target \
 			systemd-readahead-replay.service \
 			systemd-readahead-collect.service \
@@ -1126,7 +1138,7 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
         /bin/systemctl --quiet disable \
-			getty@tty1.service \
+			getty@.service \
 			remote-fs.target \
 			systemd-readahead-replay.service \
 			systemd-readahead-collect.service \
