@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.4
+Release:	19.5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -973,7 +973,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-    getty@tty1.service \
+	getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -1016,6 +1016,18 @@ if [ $2 -eq 0 ]; then
     done
 fi
 
+%triggerin units -- %{name}-units < 208-19.6
+# make sure we use preset here
+/bin/systemctl --quiet preset \
+		getty@.service \
+                remote-fs.target \
+                systemd-readahead-replay.service \
+                systemd-readahead-collect.service \
+                console-getty.service \
+                console-shell.service \
+                debug-shell.service \
+                2>&1 || :
+
 %post units
 if [ $1 -eq 1 ] ; then
         # Try to read default runlevel from the old inittab if it exists
@@ -1030,11 +1042,14 @@ if [ $1 -eq 1 ] ; then
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
         # Enable the services we install by default.
-        /bin/systemctl --quiet enable \
-                getty@tty1.service \
+        /bin/systemctl --quiet preset \
+    		getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
+                console-getty.service \
+                console-shell.service \
+                debug-shell.service \
                 2>&1 || :
 fi
 
@@ -1056,6 +1071,9 @@ if [ $1 -eq 0 ] ; then
 		systemd-readahead-replay.service \
 		systemd-readahead-collect.service \
 		systemd-udev-settle.service \
+		console-getty.service \
+                console-shell.service \
+                debug-shell.service \
 		2>&1 || :
 
         /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
