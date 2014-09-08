@@ -4,9 +4,9 @@
 
 # systemd stuff
 enable remote-fs.target
-enable getty@tty1.service
 enable systemd-readahead-replay.service
 enable systemd-readahead-collect.service
+
 
 # Enable ACPI daemon
 enable acpid.*
@@ -51,6 +51,7 @@ enable usbmuxd.service
 
 # Network services
 enable systemd-networkd.service
+enable systemd-networkd-wait-online.service
 enable systemd-resolved.service
 enable systemd-timedated.service
 enable systemd-timesyncd.service

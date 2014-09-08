@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	214
-Release:	12
+Release:	13
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1046,6 +1046,7 @@ rm -f /etc/systemd/system/multi-user.target.wants/rc-local.service || :
 #systemd 195 changed the prototype of logind's OpenSession()
 # see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
 # and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
+
 %triggerun -- %{name} < 196
 %{_bindir}/systemctl restart systemd-logind.service
 
@@ -1096,7 +1097,7 @@ if [ $1 -eq 1 ] ; then
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
         # Enable the services we install by default.
-        /bin/systemctl --quiet enable \
+        /bin/systemctl --quiet preset \
 			getty@tty1.service \
 			remote-fs.target \
 			systemd-readahead-replay.service \
