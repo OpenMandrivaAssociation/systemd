@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.6
+Release:	19.7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -892,7 +892,7 @@ fi
 
 # Migrate /etc/sysconfig/i18n
 if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
-		unset LANGUAGE
+	unset LANGUAGE
         unset LANG
         unset LC_CTYPE
         unset LC_NUMERIC
@@ -973,7 +973,6 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-	getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -1019,7 +1018,6 @@ fi
 %triggerin units -- %{name}-units < 208-19.7
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-				getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1027,6 +1025,15 @@ fi
                 console-shell.service \
                 debug-shell.service \
                 2>&1 || :
+
+/bin/systemctl --quiet stop getty@.service 2>&1 || :
+/bin/systemctl --quiet disable getty@.service 2>&1 || :
+
+%triggerpostun units -- %{name}-units < 208-19.7
+# remove buggy symlink
+if [ -L /etc/systemd/system/getty.target.wants/getty@.service ] ; then
+	rm -f /etc/systemd/system/getty.target.wants/getty@.service || :
+fi
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1043,13 +1050,10 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
-    			getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
-                console-getty.service \
-                console-shell.service \
-                debug-shell.service \
+                systemd-udev-settle.service \
                 2>&1 || :
 fi
 
