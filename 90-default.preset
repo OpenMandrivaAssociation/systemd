@@ -55,6 +55,7 @@ enable smb.service
 enable winbind.service
 enable realmd.service
 enable xinetd.service
+enable sshd.socket
 
 # Storage services
 enable multipathd.service
