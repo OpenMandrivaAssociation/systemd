@@ -34,7 +34,7 @@ enable NetworkManager-dispatcher.service
 enable ModemManager.service
 
 # Enable other system services
-enable sshd.service
+enable sshd.socket
 enable atd.*
 enable crond.*
 enable chronyd.service
@@ -55,7 +55,6 @@ enable smb.service
 enable winbind.service
 enable realmd.service
 enable xinetd.service
-enable sshd.socket
 
 # Storage services
 enable multipathd.service
