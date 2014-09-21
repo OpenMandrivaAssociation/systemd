@@ -38,6 +38,7 @@ enable sshd.socket
 enable atd.*
 enable crond.*
 enable chronyd.service
+enable dkms.service
 enable rpcbind.*
 enable bluetooth.*
 enable cups.*
