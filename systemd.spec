@@ -46,8 +46,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	214
-Release:	14
+Version:	216
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -80,14 +80,16 @@ Source17:	90-enable.network
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
 Patch4:		systemd-205-static.patch
-Patch5:		systemd-186-set-udev_log-to-err.patch
+Patch5:		systemd-216-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch6:		systemd-210-support-build-without-secure_getenv.patch
 Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
-Patch10:	systemd-214-uclibc.patch
+#Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
+Patch12:	systemd-209-uclibc-no-sysinfo.patch
+Patch13:	systemd-216-uclibc-exp10-replacement.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -595,7 +597,13 @@ pushd uclibc
 	--enable-gcrypt \
 	--disable-audit \
 	--disable-manpages \
-	--with-python \
+	--without-python \
+	--disable-selinux \
+	--disable-libidn \
+	--disable-gnutls \
+	--disable-elfutils \
+	--disable-libcurl \
+	--disable-sysusers \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
