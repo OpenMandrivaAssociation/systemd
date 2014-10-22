@@ -411,6 +411,7 @@ Group:		System/Libraries
 Provides:	libnss_myhostname = %{EVRD}
 Provides:	nss_myhostname = %{EVRD}
 Obsoletes:	nss_myhostname <= 0.3-1
+Requires(post,preun):	bash
 Requires(post,preun):	rpm-helper
 Requires(post,preun):	sed
 
@@ -443,6 +444,7 @@ Requires(pre):	coreutils
 Requires(pre):	filesystem
 Requires(pre):	rpm-helper
 Requires(post,preun):	rpm-helper
+Requires(pre,post,preun):	bash
 Provides:	should-restart = system
 Requires(post):	util-linux
 Obsoletes:	hal	<= 0.5.14-6
