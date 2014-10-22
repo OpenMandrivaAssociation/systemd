@@ -145,7 +145,7 @@ Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
 Requires:	dbus >= 1.3.2
-Requires(pre):	initscripts > 9.24
+Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.18-2
 Requires(pre):	shadow-utils
