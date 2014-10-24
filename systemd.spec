@@ -1660,14 +1660,17 @@ fi
 
 %files journal-gateway
 %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
+%config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
 %dir %{_datadir}/systemd/gatewayd
 %{systemd_libdir}/systemd-journal-gatewayd
 %{systemd_libdir}/systemd-journal-remote
+%{systemd_libdir}/systemd-journal-upload
 %{systemd_libdir}/system/systemd-journal-gatewayd.service
 %{systemd_libdir}/system/systemd-journal-gatewayd.socket
 %{systemd_libdir}/system/systemd-journal-remote.service
 %{systemd_libdir}/system/systemd-journal-remote.socket
+%{systemd_libdir}/system/systemd-journal-upload.service
 %{_mandir}/man8/systemd-journal-gatewayd.8.*
 %{_mandir}/man8/systemd-journal-upload.8.*
 %{_mandir}/man8/systemd-journal-remote.8.*
