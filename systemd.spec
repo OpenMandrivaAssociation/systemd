@@ -1396,6 +1396,7 @@ fi
 %{_mandir}/man1/systemd-machine-id-setup.1*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-nspawn.*
+%{_mandir}/man1/systemd-path.1.*
 %{_mandir}/man1/systemd-delta.1.*
 %{_mandir}/man1/systemd-detect-virt.1.*
 %{_mandir}/man1/systemd-inhibit.1.*
@@ -1489,6 +1490,8 @@ fi
 %{uclibc_root}/bin/machinectl
 %{uclibc_root}/bin/systemctl
 %{uclibc_root}/bin/systemd-ask-password
+%{uclibc_root}/bin/systemd-escape
+%{uclibc_root}/bin/systemd-firstboot
 %{uclibc_root}/bin/systemd-notify
 %{uclibc_root}/bin/systemd-tmpfiles
 %{uclibc_root}/bin/systemd-tty-ask-password-agent
@@ -1511,6 +1514,7 @@ fi
 %{uclibc_root}%{_bindir}/systemd-stdio-bridge
 %{uclibc_root}%{_bindir}/systemd-cat
 %{uclibc_root}%{_bindir}/systemd-cgtop
+%{uclibc_root}%{_bindir}/systemd-path
 %{uclibc_root}%{_bindir}/timedatectl
 %endif
 
@@ -1667,6 +1671,8 @@ fi
 %{_mandir}/man8/systemd-journal-gatewayd.8.*
 %{_mandir}/man8/systemd-journal-upload.8.*
 %{_mandir}/man8/systemd-journal-remote.8.*
+%{_mandir}/man8/systemd-journal-gatewayd.service.8.*
+%{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
 %{_datadir}/systemd/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
