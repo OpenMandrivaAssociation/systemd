@@ -130,6 +130,9 @@ BuildRequires:	ldetect-lst
 BuildRequires:	python-devel
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
+BuildRequires:	pkgconfig(libcurl)
+BuildRequires:	pkgconfig(libidn)
+#BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
 
@@ -1291,6 +1294,7 @@ fi
 %dir %{systemd_libdir}/user-preset
 %dir %{_datadir}/factory
 %dir %{_datadir}/factory/etc
+%dir %{_datadir}/factory/etc/pam.d
 %dir %{_datadir}/systemd
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
@@ -1385,7 +1389,7 @@ fi
 %{_mandir}/man1/systemd-cgtop.*
 %{_mandir}/man1/systemd-escape.1.*
 %{_mandir}/man1/systemd-firstboot*.1.*
-%{_mandir}/man1/systemd-path.1.
+%{_mandir}/man1/systemd-path.1.*
 %{_mandir}/man1/systemd-tty-ask-password-agent.*
 %{_mandir}/man1/coredumpctl.1.*
 %{_mandir}/man1/hostnamectl.*
@@ -1487,7 +1491,6 @@ fi
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
-%{uclibc_root}/bin/machinectl
 %{uclibc_root}/bin/systemctl
 %{uclibc_root}/bin/systemd-ask-password
 %{uclibc_root}/bin/systemd-escape
@@ -1500,11 +1503,8 @@ fi
 %{uclibc_root}/bin/systemd-inhibit
 %{uclibc_root}/sbin/systemd-machine-id-setup
 %{uclibc_root}%{_bindir}/busctl
-%{uclibc_root}%{_bindir}/hostnamectl
-%{uclibc_root}%{_bindir}/localectl
 %{uclibc_root}%{_bindir}/bootctl
 %{uclibc_root}%{_bindir}/kernel-install
-%{uclibc_root}%{_bindir}/coredumpctl
 %{uclibc_root}%{_bindir}/systemd-delta
 %{uclibc_root}%{_bindir}/systemd-detect-virt
 %{uclibc_root}%{_bindir}/systemd-loginctl
@@ -1515,7 +1515,6 @@ fi
 %{uclibc_root}%{_bindir}/systemd-cat
 %{uclibc_root}%{_bindir}/systemd-cgtop
 %{uclibc_root}%{_bindir}/systemd-path
-%{uclibc_root}%{_bindir}/timedatectl
 %endif
 
 %files units
