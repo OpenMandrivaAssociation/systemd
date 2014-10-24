@@ -276,7 +276,7 @@ Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{libsystemd} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libsystemd} = %{EVRD}
+#Requires:	uclibc-%{libsystemd} = %{EVRD}
 %endif
 Provides:	libsystemd-devel = %{EVRD}
 
@@ -306,7 +306,7 @@ Group:		Development/C
 Requires:	%{libdaemon} = %{EVRD}
 Requires:	%{libsystemd_devel} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libdaemon} = %{EVRD}
+#Requires:	uclibc-%{libdaemon} = %{EVRD}
 %endif
 Provides:	libsystemd-daemon-devel = %{EVRD}
 %rename		%{_lib}systemd-daemon0-devel
@@ -336,7 +336,7 @@ Summary:	Systemd-login library development files
 Group:		Development/C
 Requires:	%{liblogin} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{liblogin} = %{EVRD}
+#Requires:	uclibc-%{liblogin} = %{EVRD}
 %endif
 Provides:	libsystemd-login-devel = %{EVRD}
 %rename		%{_lib}systemd-login0-devel
@@ -366,7 +366,7 @@ Summary:	Systemd-journal library development files
 Group:		Development/C
 Requires:	%{libjournal} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libjournal} = %{EVRD}
+#Requires:	uclibc-%{libjournal} = %{EVRD}
 %endif
 Provides:	libsystemd-journal-devel = %{EVRD}
 %rename		%{_lib}systemd-journal0-devel
@@ -401,7 +401,7 @@ Summary:	Systemd-id128 library development files
 Group:		Development/C
 Requires:	%{libid128} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libid128} = %{EVRD}
+#Requires:	uclibc-%{libid128} = %{EVRD}
 %endif
 Provides:	libsystemd-id128-devel = %{EVRD}
 %rename		%{_lib}systemd-id1280-devel
@@ -511,7 +511,7 @@ License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
 %if %{with uclibc}
-Requires:	uclibc-%{libudev} = %{EVRD}
+#Requires:	uclibc-%{libudev} = %{EVRD}
 %endif
 Obsoletes:	%{_lib}udev0-devel
 Obsoletes:	%{name}-doc
