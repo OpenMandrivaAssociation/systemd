@@ -1043,7 +1043,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-	getty@tty1.service \
+    getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -1093,7 +1093,7 @@ if [ $2 -eq 0 ]; then
     done
 fi
 
-%triggerin units -- %{name}-units < 214-14
+%triggerin units -- %{name}-units < 216
 # make sure we use preset here
 /bin/systemctl --quiet preset \
 				getty@.service \
@@ -1104,6 +1104,15 @@ fi
                 console-shell.service \
                 debug-shell.service \
                 2>&1 || :
+
+/bin/systemctl --quiet stop getty@.service 2>&1 || :
+/bin/systemctl --quiet disable getty@.service 2>&1 || :
+
+%triggerpostun units -- %{name}-units < 216
+# remove buggy symlink
+if [ -L /etc/systemd/system/getty.target.wants/getty@.service ] ; then
+	rm -f /etc/systemd/system/getty.target.wants/getty@.service || :
+fi
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1120,7 +1129,6 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
-			getty@.service \
 			remote-fs.target \
 			systemd-readahead-replay.service \
 			systemd-readahead-collect.service \
@@ -1129,9 +1137,7 @@ if [ $1 -eq 1 ] ; then
 			systemd-resolvd.service \
 			systemd-timesync.service \
 			systemd-timedated.service \
-			console-getty.service \
-			console-shell.service \
-			debug-shell.service \
+            systemd-udev-settle.service
 			2>&1 || :
 fi
 
@@ -1148,7 +1154,7 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
         /bin/systemctl --quiet disable \
-			getty@.service \
+        	getty@.service \
 			remote-fs.target \
 			systemd-readahead-replay.service \
 			systemd-readahead-collect.service \
