@@ -1143,7 +1143,7 @@ if [ $1 -eq 1 ] ; then
 			systemd-resolvd.service \
 			systemd-timesync.service \
 			systemd-timedated.service \
-            systemd-udev-settle.service
+			systemd-udev-settle.service
 			2>&1 || :
 fi
 
@@ -1430,9 +1430,9 @@ fi
 %{_mandir}/man8/systemd-hybrid*.8.*
 %{_mandir}/man8/systemd-initctl*.8.*
 %{_mandir}/man8/systemd-journald.8.*
-%{_mandir}/man8/systemd-journal-*.8.*
 %{_mandir}/man8/systemd-journald.service.8.*
-%{_mandir}/man8/systemd-journald*.socket.8.*
+%{_mandir}/man8/systemd-journald.socket.8.*
+%{_mandir}/man8/systemd-journald-dev-log.socket.8.*
 %{_mandir}/man8/systemd-sysusers*.8.*
 %{_mandir}/man8/systemd-kexec*.8.*
 %{_mandir}/man8/systemd-localed*.8.*
@@ -1664,7 +1664,9 @@ fi
 %{systemd_libdir}/system/systemd-journal-gatewayd.socket
 %{systemd_libdir}/system/systemd-journal-remote.service
 %{systemd_libdir}/system/systemd-journal-remote.socket
-%{_mandir}/man8/systemd-journal-gatewayd.*
+%{_mandir}/man8/systemd-journal-gatewayd.8.*
+%{_mandir}/man8/systemd-journal-upload.8.*
+%{_mandir}/man8/systemd-journal-remote.8.*
 %{_datadir}/systemd/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
