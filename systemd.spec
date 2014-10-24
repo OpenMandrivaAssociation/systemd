@@ -1401,7 +1401,6 @@ fi
 %{_mandir}/man1/systemd-machine-id-setup.1*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-nspawn.*
-%{_mandir}/man1/systemd-path.1.*
 %{_mandir}/man1/systemd-delta.1.*
 %{_mandir}/man1/systemd-detect-virt.1.*
 %{_mandir}/man1/systemd-inhibit.1.*
