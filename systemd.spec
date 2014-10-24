@@ -935,12 +935,12 @@ systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-
 fi
 
 %post
-/usr/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
-/usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
-/usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
-/usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/usr/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
-/usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
+/sbin/systemd-machine-id-setup >/dev/null 2>&1 || :
+%{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
+/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
+/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
+/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
+/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) handle resolvconf
 if [ ! -e /etc/resolv.conf ]; then
