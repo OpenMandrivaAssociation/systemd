@@ -1043,7 +1043,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-    getty@tty1.service \
+	getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -1096,7 +1096,7 @@ fi
 %triggerin units -- %{name}-units < 216
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-				getty@.service \
+		getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1227,18 +1227,23 @@ fi
 %pre journal-gateway
 %_pre_groupadd systemd-journal systemd-journal-gateway
 %_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
-%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+%_pre_groupadd systemd-journal-remote systemd-journal-remote
+%_pre_groupadd systemd-journal-upload systemd-journal-upload
 
 %post journal-gateway
-%_post_service systemd-journal-gatewayd.socket
-%_post_service systemd-journal-gatewayd.service
+%systemd_post systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
+%systemd_post systemd-journal-remote.socket systemd-journal-remote.service
+%systemd_post systemd-journal-upload.service
 
 %preun journal-gateway
-%_preun_service systemd-journal-gatewayd.socket
-%_preun_service systemd-journal-gatewayd.service
+%systemd_preun systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
+%systemd_preun systemd-journal-remote.socket systemd-journal-remote.service
+%systemd_preun systemd-journal-upload.service
 
 %postun journal-gateway
-%_postun_service systemd-journal-gatewayd.service
+%systemd_postun_with systemd-journal-gatewayd.service
+%systemd_postun_with systemd-journal-remote.service
+%systemd_postun_with systemd-journal-upload.service
 
 %files -f %{name}.lang
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
@@ -1251,7 +1256,7 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/coredump.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
-%config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
+
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
@@ -1262,7 +1267,7 @@ fi
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-coredump.conf
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
-%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
+
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
@@ -1339,7 +1344,7 @@ fi
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-initctl
 %{systemd_libdir}/systemd-journald
-%{systemd_libdir}/systemd-journal-remote
+
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-networkd
@@ -1589,8 +1594,7 @@ fi
 %{systemd_libdir}/system/systemd-initctl*.service
 %{systemd_libdir}/system/systemd-journal-flush.service
 %{systemd_libdir}/system/systemd-journal-catalog-update.service
-%{systemd_libdir}/system/systemd-journal-remote.service
-%{systemd_libdir}/system/systemd-journal-remote.socket
+
 %{systemd_libdir}/system/systemd-journald.service
 %{systemd_libdir}/system/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/systemd-kexec*.service
@@ -1645,10 +1649,15 @@ fi
 %{_mandir}/man1/systemctl.*
 
 %files journal-gateway
+%config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
 %dir %{_datadir}/systemd/gatewayd
 %{systemd_libdir}/systemd-journal-gatewayd
+%{systemd_libdir}/systemd-journal-remote
 %{systemd_libdir}/system/systemd-journal-gatewayd.service
 %{systemd_libdir}/system/systemd-journal-gatewayd.socket
+%{systemd_libdir}/system/systemd-journal-remote.service
+%{systemd_libdir}/system/systemd-journal-remote.socket
 %{_mandir}/man8/systemd-journal-gatewayd.*
 %{_datadir}/systemd/gatewayd/browse.html
 
