@@ -1261,6 +1261,9 @@ fi
 %config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-coredump.conf
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1275,11 +1278,14 @@ fi
 %dir %{systemd_libdir}/system-sleep
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/user-preset
+%dir %{_datadir}/factory
+%dir %{_datadir}/factory/etc
 %dir %{_datadir}/systemd
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
+%dir %{_prefix}/lib/sysusers.d
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
 %{_initrddir}/README
@@ -1312,6 +1318,7 @@ fi
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-loginctl
+%{_bindir}/systemd-path
 %{_bindir}/systemd-run
 %{_bindir}/hostnamectl
 %{_bindir}/localectl
@@ -1343,6 +1350,7 @@ fi
 %{systemd_libdir}/systemd-rfkill
 %{systemd_libdir}/systemd-s*
 %{systemd_libdir}/systemd-time*
+%{systemd_libdir}/systemd-update-done
 %{systemd_libdir}/systemd-update-utmp
 %{systemd_libdir}/systemd-user-sessions
 %{systemd_libdir}/systemd-vconsole-setup
@@ -1361,10 +1369,13 @@ fi
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-ask-password.*
 %{_mandir}/man1/systemd-bootchart.1.*
-%{_mandir}/man1/systemd-tty-ask-password-agent.*
 %{_mandir}/man1/systemd-cat.1*
 %{_mandir}/man1/systemd-cgls.*
 %{_mandir}/man1/systemd-cgtop.*
+%{_mandir}/man1/systemd-escape.1.*
+%{_mandir}/man1/systemd-firstboot*.1.*
+%{_mandir}/man1/systemd-path.1.
+%{_mandir}/man1/systemd-tty-ask-password-agent.*
 %{_mandir}/man1/coredumpctl.1.*
 %{_mandir}/man1/hostnamectl.*
 %{_mandir}/man1/journalctl.1*
@@ -1396,6 +1407,7 @@ fi
 %{_mandir}/man8/systemd-binfmt*.8.*
 %{_mandir}/man8/systemd-coredump.8.*
 %{_mandir}/man8/systemd-cryptsetup*.8.*
+%{_mandir}/man8/systemd-debug-generator.8.*
 %{_mandir}/man8/systemd-efi-boot-generator*.8.*
 %{_mandir}/man8/systemd-gpt-auto-generator*.8.*
 %{_mandir}/man8/systemd-fsck*.8.*
@@ -1407,9 +1419,10 @@ fi
 %{_mandir}/man8/systemd-hybrid*.8.*
 %{_mandir}/man8/systemd-initctl*.8.*
 %{_mandir}/man8/systemd-journald.8.*
-%{_mandir}/man8/systemd-journal-remote.8.*
+%{_mandir}/man8/systemd-journal-*.8.*
 %{_mandir}/man8/systemd-journald.service.8.*
-%{_mandir}/man8/systemd-journald.socket.8.*
+%{_mandir}/man8/systemd-journald*.socket.8.*
+%{_mandir}/man8/systemd-sysusers*.8.*
 %{_mandir}/man8/systemd-kexec*.8.*
 %{_mandir}/man8/systemd-localed*.8.*
 %{_mandir}/man8/systemd-logind*.8.*
@@ -1455,6 +1468,9 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/systemd/kbd-model-map
+%{_datadir}/factory/etc/nsswitch.conf
+%{_datadir}/factory/etc/pam.d/other
+%{_datadir}/factory/etc/pam.d/system-auth
 %{_docdir}/systemd
 
 %if %{with uclibc}
@@ -1597,6 +1613,7 @@ fi
 %{systemd_libdir}/system/systemd-shutdownd.service
 %{systemd_libdir}/system/systemd-suspend.service
 %{systemd_libdir}/system/systemd-sysctl.service
+%{systemd_libdir}/system/systemd-sysusers.service
 %{systemd_libdir}/system/systemd-timedated.service
 %{systemd_libdir}/system/systemd-timesyncd.service
 %{systemd_libdir}/system/systemd-tmpfiles-*.service
