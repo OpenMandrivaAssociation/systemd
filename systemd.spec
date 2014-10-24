@@ -1049,7 +1049,7 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet enable \
 	hwclock-load.service \
-    getty@tty1.service \
+	getty@tty1.service \
 	quotaon.service \
 	quotacheck.service \
 	remote-fs.target
@@ -1102,7 +1102,7 @@ fi
 %triggerin units -- %{name}-units < 216
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-				getty@.service \
+		getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1233,18 +1233,23 @@ fi
 %pre journal-gateway
 %_pre_groupadd systemd-journal systemd-journal-gateway
 %_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
-%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+%_pre_groupadd systemd-journal-remote systemd-journal-remote
+%_pre_groupadd systemd-journal-upload systemd-journal-upload
 
 %post journal-gateway
-%_post_service systemd-journal-gatewayd.socket
-%_post_service systemd-journal-gatewayd.service
+%systemd_post systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
+%systemd_post systemd-journal-remote.socket systemd-journal-remote.service
+%systemd_post systemd-journal-upload.service
 
 %preun journal-gateway
-%_preun_service systemd-journal-gatewayd.socket
-%_preun_service systemd-journal-gatewayd.service
+%systemd_preun systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
+%systemd_preun systemd-journal-remote.socket systemd-journal-remote.service
+%systemd_preun systemd-journal-upload.service
 
 %postun journal-gateway
-%_postun_service systemd-journal-gatewayd.service
+%systemd_postun_with systemd-journal-gatewayd.service
+%systemd_postun_with systemd-journal-remote.service
+%systemd_postun_with systemd-journal-upload.service
 
 %files -f %{name}.lang
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
@@ -1252,9 +1257,12 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
+%config(noreplace) %{_sysconfdir}/systemd/coredump.conf
 %config(noreplace) %{_sysconfdir}/systemd/system.conf
 %config(noreplace) %{_sysconfdir}/systemd/logind.conf
+
 %config(noreplace) %{_sysconfdir}/systemd/journald.conf
 %config(noreplace) %{_sysconfdir}/systemd/user.conf
 %config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
@@ -1264,7 +1272,9 @@ fi
 %config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-coredump.conf
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
-%config(noreplace) %{_prefix}/lib/systemd/ntp-units.d/90-systemd.list
+%config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
+
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1279,12 +1289,14 @@ fi
 %dir %{systemd_libdir}/system-sleep
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/user-preset
+%dir %{_datadir}/factory
+%dir %{_datadir}/factory/etc
 %dir %{_datadir}/systemd
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
-%dir %{_prefix}/lib/systemd/ntp-units.d
+%dir %{_prefix}/lib/sysusers.d
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
 %{_initrddir}/README
@@ -1304,6 +1316,10 @@ fi
 /bin/systemd-tmpfiles
 /bin/systemd-tty-ask-password-agent
 /bin/systemd
+/bin/networkctl
+/bin/systemd-escape
+/bin/systemd-firstboot
+/bin/systemd-sysusers
 /bin/journalctl
 /bin/loginctl
 /bin/systemd-inhibit
@@ -1313,12 +1329,13 @@ fi
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-loginctl
+%{_bindir}/systemd-path
 %{_bindir}/systemd-run
 %{_bindir}/hostnamectl
 %{_bindir}/localectl
 %{_bindir}/kernel-install
 %{_bindir}/bootctl
-%{_bindir}/systemd-coredumpctl
+%{_bindir}/coredumpctl
 %{_bindir}/timedatectl
 %{_prefix}/lib/kernel/install.d/*.install
 %{systemd_libdir}/systemd
@@ -1333,7 +1350,7 @@ fi
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-initctl
 %{systemd_libdir}/systemd-journald
-%{systemd_libdir}/systemd-journal-remote
+
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-networkd
@@ -1344,6 +1361,7 @@ fi
 %{systemd_libdir}/systemd-rfkill
 %{systemd_libdir}/systemd-s*
 %{systemd_libdir}/systemd-time*
+%{systemd_libdir}/systemd-update-done
 %{systemd_libdir}/systemd-update-utmp
 %{systemd_libdir}/systemd-user-sessions
 %{systemd_libdir}/systemd-vconsole-setup
@@ -1362,11 +1380,14 @@ fi
 %{_mandir}/man1/systemd.*
 %{_mandir}/man1/systemd-ask-password.*
 %{_mandir}/man1/systemd-bootchart.1.*
-%{_mandir}/man1/systemd-tty-ask-password-agent.*
 %{_mandir}/man1/systemd-cat.1*
 %{_mandir}/man1/systemd-cgls.*
 %{_mandir}/man1/systemd-cgtop.*
-%{_mandir}/man1/systemd-coredumpctl.1.*
+%{_mandir}/man1/systemd-escape.1.*
+%{_mandir}/man1/systemd-firstboot*.1.*
+%{_mandir}/man1/systemd-path.1.
+%{_mandir}/man1/systemd-tty-ask-password-agent.*
+%{_mandir}/man1/coredumpctl.1.*
 %{_mandir}/man1/hostnamectl.*
 %{_mandir}/man1/journalctl.1*
 %{_mandir}/man1/localectl.*
@@ -1395,7 +1416,9 @@ fi
 %{_mandir}/man1/systemd-analyze.1*
 %{_mandir}/man8/systemd-backlight*.8.*
 %{_mandir}/man8/systemd-binfmt*.8.*
+%{_mandir}/man8/systemd-coredump.8.*
 %{_mandir}/man8/systemd-cryptsetup*.8.*
+%{_mandir}/man8/systemd-debug-generator.8.*
 %{_mandir}/man8/systemd-efi-boot-generator*.8.*
 %{_mandir}/man8/systemd-gpt-auto-generator*.8.*
 %{_mandir}/man8/systemd-fsck*.8.*
@@ -1407,9 +1430,10 @@ fi
 %{_mandir}/man8/systemd-hybrid*.8.*
 %{_mandir}/man8/systemd-initctl*.8.*
 %{_mandir}/man8/systemd-journald.8.*
-%{_mandir}/man8/systemd-journal-remote.8.*
+%{_mandir}/man8/systemd-journal-*.8.*
 %{_mandir}/man8/systemd-journald.service.8.*
-%{_mandir}/man8/systemd-journald.socket.8.*
+%{_mandir}/man8/systemd-journald*.socket.8.*
+%{_mandir}/man8/systemd-sysusers*.8.*
 %{_mandir}/man8/systemd-kexec*.8.*
 %{_mandir}/man8/systemd-localed*.8.*
 %{_mandir}/man8/systemd-logind*.8.*
@@ -1447,6 +1471,7 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
@@ -1454,6 +1479,9 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/systemd/kbd-model-map
+%{_datadir}/factory/etc/nsswitch.conf
+%{_datadir}/factory/etc/pam.d/other
+%{_datadir}/factory/etc/pam.d/system-auth
 %{_docdir}/systemd
 
 %if %{with uclibc}
@@ -1473,7 +1501,7 @@ fi
 %{uclibc_root}%{_bindir}/localectl
 %{uclibc_root}%{_bindir}/bootctl
 %{uclibc_root}%{_bindir}/kernel-install
-%{uclibc_root}%{_bindir}/systemd-coredumpctl
+%{uclibc_root}%{_bindir}/coredumpctl
 %{uclibc_root}%{_bindir}/systemd-delta
 %{uclibc_root}%{_bindir}/systemd-detect-virt
 %{uclibc_root}%{_bindir}/systemd-loginctl
@@ -1555,6 +1583,7 @@ fi
 %{systemd_libdir}/system/halt-*.service
 %{systemd_libdir}/system/initrd-*.service
 %{systemd_libdir}/system/kmod-*.service
+%{systemd_libdir}/system/ldconfig.service
 %{systemd_libdir}/system/quota*.service
 %{systemd_libdir}/system/rc-*.service
 %{systemd_libdir}/system/rescue*.service
@@ -1562,6 +1591,7 @@ fi
 %{systemd_libdir}/system/systemd-ask-password*.service
 %{systemd_libdir}/system/systemd-backlight*.service
 %{systemd_libdir}/system/systemd-binfmt*.service
+%{systemd_libdir}/system/systemd-firstboot.service
 %{systemd_libdir}/system/systemd-fsck*.service
 %{systemd_libdir}/system/systemd-halt*.service
 %{systemd_libdir}/system/systemd-hibernate*.service
@@ -1569,6 +1599,8 @@ fi
 %{systemd_libdir}/system/systemd-hybrid*.service
 %{systemd_libdir}/system/systemd-initctl*.service
 %{systemd_libdir}/system/systemd-journal-flush.service
+%{systemd_libdir}/system/systemd-journal-catalog-update.service
+
 %{systemd_libdir}/system/systemd-journald.service
 %{systemd_libdir}/system/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/systemd-kexec*.service
@@ -1591,6 +1623,7 @@ fi
 %{systemd_libdir}/system/systemd-shutdownd.service
 %{systemd_libdir}/system/systemd-suspend.service
 %{systemd_libdir}/system/systemd-sysctl.service
+%{systemd_libdir}/system/systemd-sysusers.service
 %{systemd_libdir}/system/systemd-timedated.service
 %{systemd_libdir}/system/systemd-timesyncd.service
 %{systemd_libdir}/system/systemd-tmpfiles-*.service
@@ -1622,10 +1655,15 @@ fi
 %{_mandir}/man1/systemctl.*
 
 %files journal-gateway
+%config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
 %dir %{_datadir}/systemd/gatewayd
 %{systemd_libdir}/systemd-journal-gatewayd
+%{systemd_libdir}/systemd-journal-remote
 %{systemd_libdir}/system/systemd-journal-gatewayd.service
 %{systemd_libdir}/system/systemd-journal-gatewayd.socket
+%{systemd_libdir}/system/systemd-journal-remote.service
+%{systemd_libdir}/system/systemd-journal-remote.socket
 %{_mandir}/man8/systemd-journal-gatewayd.*
 %{_datadir}/systemd/gatewayd/browse.html
 
@@ -1833,7 +1871,7 @@ fi
 %{_includedir}/libudev.h
 
 %files -n %{libgudev}
-/%{_lib}/libgudev-%{gudev_api}.so.%{gudev_major}*
+%{_libdir}/libgudev-%{gudev_api}.so.%{gudev_major}*
 
 %files -n %{libgudev_devel}
 %{_libdir}/libgudev-%{gudev_api}.so
