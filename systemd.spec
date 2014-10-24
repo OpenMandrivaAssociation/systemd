@@ -194,6 +194,7 @@ Conflicts:	usermode-consoleonly < 1:1.110
 Provides:	resolvconf = 1.75-3
 Obsoletes:	resolvconf < 1.75-3
 %rename		systemd-tools
+%rename		bootchart
 
 %description
 systemd is a system and session manager for Linux, compatible with
