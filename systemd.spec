@@ -1,5 +1,5 @@
 %bcond_with bootstrap
-%bcond_with uclibc
+%bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -562,10 +562,6 @@ find -type d |xargs chmod 755
 autoreconf -fiv
 
 %build
-%ifarch %arm
-export ac_cv_func_malloc_0_nonnull=yes
-%endif
-
 export CONFIGURE_TOP="$PWD"
 
 %if %{with uclibc}
@@ -606,6 +602,16 @@ pushd uclibc
 	--disable-elfutils \
 	--disable-libcurl \
 	--disable-sysusers \
+	--disable-resolved \
+	--disable-networkd \
+	--disable-localed \
+	--disable-coredump \
+	--disable-timesyncd \
+	--disable-timedated \
+	--disable-hostnamed \
+	--disable-machined \
+	--disable-bootchart \
+	--disable-quotacheck \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
