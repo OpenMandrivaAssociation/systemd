@@ -11,7 +11,7 @@
 %define liblogin_major 0
 %define libjournal_major 0
 %define libid128_major 0
-%define libnss_myhostname_major 2
+%define libnss_major 2
 
 %define libsystemd %mklibname %{name} %{libsystemd_major}
 %define libsystemd_devel %mklibname %{name} -d
@@ -28,7 +28,7 @@
 %define libid128 %mklibname systemd-id128 %{libid128_major}
 %define libid128_devel %mklibname systemd-id128 -d
 
-%define libnss_myhostname %mklibname nss_myhostname %{libnss_myhostname_major}
+%define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
 
 %define udev_major 1
 %define gudev_api 1.0
@@ -1676,12 +1676,14 @@ fi
 %{_datadir}/systemd/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
-%{_libdir}/libnss_myhostname.so.%{libnss_myhostname_major}*
+%{_libdir}/libnss_myhostname.so.%{libnss_major}*
+%{_libdir}/libnss_mymachines.so.%{libnss_major}
+%{_libdir}/libnss_resolve.so.%{libnss_major}
 %{_mandir}/man8/nss-myhostname.8*
 
 %if %{with uclibc}
 %files -n uclibc-%{libnss_myhostname}
-%{uclibc_root}%{_libdir}/libnss_myhostname.so.%{libnss_myhostname_major}*
+%{uclibc_root}%{_libdir}/libnss_myhostname.so.%{libnss_major}*
 %endif
 
 %files -n %{libsystemd}
