@@ -46,6 +46,9 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
+# (tpg) Warning !!!
+# if you are going to update to 217 version or never
+# please make sure that util-linux is updated to atleas 2.25.2 version
 Version:	216
 Release:	2
 License:	GPLv2+
