@@ -47,10 +47,10 @@
 Summary:	A System and Session Manager
 Name:		systemd
 # (tpg) Warning !!!
-# if you are going to update to 217 version or never
+# if you are going to update to 217 version or newer
 # please make sure that util-linux is updated to atleas 2.25.2 version
 Version:	216
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -154,7 +154,7 @@ Requires:	dbus >= 1.3.2
 Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.18-2
-Requires(pre):	shadow-utils
+Requires(pre):	shadow-utils >= 4.2.1-7
 Requires(pre):	%{name}-units
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
@@ -194,8 +194,7 @@ Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_v
 Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
-Provides:	resolvconf = 1.75-3
-Obsoletes:	resolvconf < 1.75-3
+%rename		resolvconf
 %rename		systemd-tools
 %rename		bootchart
 
@@ -238,8 +237,8 @@ Requires(post):	coreutils
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires(pre):	setup
-Requires(pre):	rpm-helper
+Requires(pre):	setup >= 2.8.7-1
+Requires(pre):	rpm-helper >= 0.24.12-11
 
 %description units
 Basic configuration files, directories and installation tool for the systemd
@@ -419,7 +418,7 @@ Provides:	libnss_myhostname = %{EVRD}
 Provides:	nss_myhostname = %{EVRD}
 Obsoletes:	nss_myhostname <= 0.3-1
 Requires(post,preun):	bash
-Requires(post,preun):	rpm-helper
+Requires(post,preun):	rpm-helper >= 0.24.12-11
 Requires(post,preun):	sed
 
 %description -n %{libnss_myhostname}
@@ -442,15 +441,14 @@ Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
 Requires:	%{name} = %{EVRD}
 Requires:	ldetect-lst
-Requires:	setup >= 2.7.16
+Requires:	setup >= 2.8.7-1
 Requires:	util-linux-ng >= 2.15
 Requires:	acl
 # for disk/lp groups
-Requires(pre):	setup
+Requires(pre):	setup >= 2.8.7-1
 Requires(pre):	coreutils
 Requires(pre):	filesystem
-Requires(pre):	rpm-helper
-Requires(post,preun):	rpm-helper
+Requires(pre,post,preun):	rpm-helper >= 0.24.12-11
 Requires(pre,post,preun):	bash
 Provides:	should-restart = system
 Requires(post):	util-linux
