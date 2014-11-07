@@ -46,9 +46,6 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-# (tpg) Warning !!!
-# if you are going to update to 217 version or newer
-# please make sure that util-linux is updated to atleas 2.25.2 version
 Version:	217
 Release:	1
 License:	GPLv2+
@@ -91,7 +88,6 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 #Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
-#Patch12:	systemd-209-uclibc-no-sysinfo.patch
 Patch13:	systemd-216-uclibc-exp10-replacement.patch
 
 BuildRequires:	autoconf
