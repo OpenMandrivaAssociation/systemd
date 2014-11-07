@@ -49,8 +49,8 @@ Name:		systemd
 # (tpg) Warning !!!
 # if you are going to update to 217 version or newer
 # please make sure that util-linux is updated to atleas 2.25.2 version
-Version:	216
-Release:	3
+Version:	217
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -153,7 +153,7 @@ Requires(post):	awk
 Requires:	dbus >= 1.3.2
 Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
-Requires(pre):	util-linux >= 2.18-2
+Requires(pre):	util-linux >= 2.25.2
 Requires(pre):	shadow-utils >= 4.2.1-7
 Requires(pre):	%{name}-units
 Requires:	lockdev
