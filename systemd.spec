@@ -1113,7 +1113,7 @@ fi
 %triggerin units -- %{name}-units < 216
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-		getty@.service \
+				getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1147,8 +1147,6 @@ if [ $1 -eq 1 ] ; then
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
 			remote-fs.target \
-			systemd-readahead-replay.service \
-			systemd-readahead-collect.service \
 			systemd-networkd.service \
 			systemd-networkd-wait-online.service \
 			systemd-resolvd.service \
@@ -1173,8 +1171,6 @@ if [ $1 -eq 0 ] ; then
         /bin/systemctl --quiet disable \
         	getty@.service \
 			remote-fs.target \
-			systemd-readahead-replay.service \
-			systemd-readahead-collect.service \
 			systemd-networkd.service \
 			systemd-networkd-wait-online.service \
 			systemd-resolvd.service \
@@ -1360,6 +1356,7 @@ fi
 %{systemd_libdir}/systemd-c*
 %{systemd_libdir}/systemd-fsck
 %{systemd_libdir}/systemd-hostnamed
+%{systemd_libdir}/systemd-hibernate-resume
 %{systemd_libdir}/systemd-initctl
 %{systemd_libdir}/systemd-journald
 
@@ -1455,7 +1452,6 @@ fi
 %{_mandir}/man8/systemd-poweroff*.8.*
 %{_mandir}/man8/systemd-quota*.8.*
 %{_mandir}/man8/systemd-random*.8.*
-%{_mandir}/man8/systemd-readahead*.8.*
 %{_mandir}/man8/systemd-reboot*.8.*
 %{_mandir}/man8/systemd-remount*.8.*
 %{_mandir}/man8/systemd-resolved.8.*
@@ -1537,7 +1533,6 @@ fi
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/system/basic.target.wants
 %dir %{systemd_libdir}/system/bluetooth.target.wants
-%dir %{systemd_libdir}/system/busnames.target.wants
 %dir %{systemd_libdir}/system/dbus.target.wants
 %dir %{systemd_libdir}/system/default.target.wants
 %dir %{systemd_libdir}/system/local-fs.target.wants
@@ -1566,7 +1561,6 @@ fi
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
-%{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/local-fs.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/multi-user.target.wants/*.target
@@ -1580,7 +1574,6 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.path
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/system/*.automount
-%{systemd_libdir}/system/*.busname
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/auto*.service
@@ -1624,8 +1617,6 @@ fi
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-quotacheck.service
 %{systemd_libdir}/system/systemd-random*service
-%{systemd_libdir}/system/systemd-readahead*.service
-%{systemd_libdir}/system/systemd-readahead*.timer
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount*.service
 %{systemd_libdir}/system/systemd-resolved.service
