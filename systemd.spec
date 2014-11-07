@@ -91,7 +91,7 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 #Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
-Patch12:	systemd-209-uclibc-no-sysinfo.patch
+#Patch12:	systemd-209-uclibc-no-sysinfo.patch
 Patch13:	systemd-216-uclibc-exp10-replacement.patch
 
 BuildRequires:	autoconf
