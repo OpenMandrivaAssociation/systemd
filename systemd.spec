@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -71,6 +71,7 @@ Source15:	enable-numlock.conf
 Source16:	systemd.rpmlintrc
 # (tpg) by default enable network on eth, enp0s3
 Source17:	90-enable.network
+Source18:	90-user-default.preset
 
 ### OMV patches###
 # from Mandriva
@@ -796,6 +797,9 @@ install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 # (tpg) install network file
 install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
 
+# (tpg) install userspace presets
+install -m 0644 %{SOURCE18} %{buildroot}%{systemd_libdir}/user-preset/
+
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
 install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/rsyslog.d/
@@ -1109,7 +1113,7 @@ fi
 %triggerin units -- %{name}-units < 216
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-				getty@.service \
+		getty@.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1372,6 +1376,7 @@ fi
 %{systemd_libdir}/systemd-vconsole-setup
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/system-preset/*.preset
+%{systemd_libdir}/user-preset/*.preset
 /usr/lib/tmpfiles.d/*.conf
 /%{_lib}/security/pam_systemd.so
 %{_bindir}/systemd-cgls

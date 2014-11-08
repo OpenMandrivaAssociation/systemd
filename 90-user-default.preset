@@ -1,0 +1,6 @@
+# tpg@mandriva.org
+# By default all user services are enabled
+# anyways just override it here
+
+# user stuff
+enable *
