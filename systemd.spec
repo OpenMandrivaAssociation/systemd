@@ -1316,7 +1316,7 @@ fi
 /bin/journalctl
 /bin/loginctl
 /bin/systemd-inhibit
-/sbin/systemd-machine-id-setup
+/bin/systemd-machine-id-setup
 %{_bindir}/busctl
 %{_bindir}/systemd-analyze
 %{_bindir}/systemd-delta
@@ -1491,7 +1491,7 @@ fi
 %{uclibc_root}/bin/journalctl
 %{uclibc_root}/bin/loginctl
 %{uclibc_root}/bin/systemd-inhibit
-%{uclibc_root}/sbin/systemd-machine-id-setup
+%{uclibc_root}/bin/systemd-machine-id-setup
 %{uclibc_root}%{_bindir}/busctl
 %{uclibc_root}%{_bindir}/bootctl
 %{uclibc_root}%{_bindir}/kernel-install
