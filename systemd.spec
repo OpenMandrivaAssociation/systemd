@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1109,6 +1109,7 @@ if [ $1 -eq 1 ] ; then
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
 			remote-fs.target \
+			systemd-firstboot.service \
 			systemd-networkd.service \
 			systemd-networkd-wait-online.service \
 			systemd-resolvd.service \
