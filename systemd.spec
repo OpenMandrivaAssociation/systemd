@@ -67,7 +67,6 @@ Source11:	listen.conf
 Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
-Source15:	enable-numlock.conf
 Source16:	systemd.rpmlintrc
 # (tpg) by default enable network on eth, enp0s3
 Source17:	90-enable.network
@@ -742,8 +741,6 @@ mkdir %{buildroot}/run
 
 # (tpg) create missing dir
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
-
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -1493,7 +1490,6 @@ fi
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
-%dir %{_sysconfdir}/systemd/system/getty@.service.d
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
