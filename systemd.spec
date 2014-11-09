@@ -234,7 +234,7 @@ Requires(post):	coreutils
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires(pre):	setup >= 2.8.7-3
+Requires(pre):	setup >= 2.8.7-2
 Requires(pre):	rpm-helper >= 0.24.12-11
 
 %description units
@@ -438,11 +438,11 @@ Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
 Requires:	%{name} = %{EVRD}
 Requires:	ldetect-lst
-Requires:	setup >= 2.8.7-3
+Requires:	setup >= 2.8.7-2
 Requires:	util-linux-ng >= 2.15
 Requires:	acl
 # for disk/lp groups
-Requires(pre):	setup >= 2.8.7-3
+Requires(pre):	setup >= 2.8.7-2
 Requires(pre):	coreutils
 Requires(pre):	filesystem
 Requires(pre,post,preun):	rpm-helper >= 0.24.12-11
