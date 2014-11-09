@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -728,13 +728,6 @@ rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/system-generators
 mkdir -p %{buildroot}%{_prefix}/lib/systemd/user-generators
 
-# We are not prepared to deal with tmpfs /var/run or /var/lock
-pushd %{buildroot}/%{systemd_libdir}/system/local-fs.target.wants && {
- rm -f var-lock.mount
- rm -f var-run.mount
-popd
-}
-
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 
@@ -745,12 +738,6 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 # (bor) enable rpcbind.target by default so we have something to plug portmapper service into
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
-# (bor) machine-id-setup is in /sbin in post-v20
-install -d %{buildroot}/sbin && mv %{buildroot}/bin/systemd-machine-id-setup %{buildroot}/sbin
-%if %{with uclibc}
-install -d %{buildroot}%{uclibc_root}/sbin && mv %{buildroot}%{uclibc_root}/bin/systemd-machine-id-setup %{buildroot}%{uclibc_root}/sbin
-%endif
-
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -758,7 +745,6 @@ mkdir %{buildroot}/run
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
 
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
-#install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -783,12 +769,13 @@ chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
 mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/systemd.macros
 
-# Make sure the NTP units dir exists
+# Install logdir for journald
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
 # (tpg) Install default distribution preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
+
 # (tpg) install presets
 install -m 0644 %{SOURCE12} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
@@ -830,10 +817,6 @@ install -m 0755 %{SOURCE7} %{buildroot}%{udev_libdir}/net_create_ifcfg
 install -m 0755 %{SOURCE8} %{buildroot}%{udev_libdir}/net_action
 install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
-# disable "predictable network interface names" for now..
-# ref: http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames
-ln -s /dev/null %{buildroot}%{udev_user_rules_dir}/80-net-name-slot.rules
-
 install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
 
 # probably not required, but let's just be on the safe side for now..
@@ -853,7 +836,6 @@ ln -s ..%{systemd_libdir}/systemd-udevd %{buildroot}/sbin/udevd
 ln -s %{systemd_libdir}/systemd-udevd %{buildroot}%{udev_libdir}/udevd
 
 # udev rules for zte 3g modems and drakx-net
-
 
 mkdir -p %{buildroot}/lib/firmware/updates
 # default /dev content, from Fedora RPM
@@ -1380,7 +1362,8 @@ fi
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/system-preset/*.preset
 %{systemd_libdir}/user-preset/*.preset
-/usr/lib/tmpfiles.d/*.conf
+%{_prefix}/lib/tmpfiles.d/*.conf
+%exclude %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
 /%{_lib}/security/pam_systemd.so
 %{_bindir}/systemd-cgls
 %{_bindir}/systemd-nspawn
@@ -1672,6 +1655,7 @@ fi
 %{systemd_libdir}/system/systemd-journal-remote.service
 %{systemd_libdir}/system/systemd-journal-remote.socket
 %{systemd_libdir}/system/systemd-journal-upload.service
+%{_prefix}/lib/tmpfiles.d/systemd-remote.conf
 %{_mandir}/man8/systemd-journal-gatewayd.8.*
 %{_mandir}/man8/systemd-journal-upload.8.*
 %{_mandir}/man8/systemd-journal-remote.8.*
