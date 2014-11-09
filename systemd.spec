@@ -715,7 +715,6 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
 ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
@@ -1039,24 +1038,6 @@ if [ $1 -ge 2 ]; then
     fi
 fi
 
-%triggerin units -- %{name}-units < 35-1
-# Enable the services we install by default.
-/bin/systemctl --quiet enable \
-	hwclock-load.service \
-	getty@tty1.service \
-	quotaon.service \
-	quotacheck.service \
-	remote-fs.target
-	systemd-readahead-replay.service \
-	systemd-readahead-collect.service \
-	2>&1 || :
-# rc-local is now enabled by default in base package
-rm -f /etc/systemd/system/multi-user.target.wants/rc-local.service || :
-
-#systemd 195 changed the prototype of logind's OpenSession()
-# see http://lists.freedesktop.org/archives/systemd-devel/2012-October/006969.html
-# and http://cgit.freedesktop.org/systemd/systemd/commit/?id=770858811930c0658b189d980159ea1ac5663467
-
 %triggerun -- %{name} < 196
 %{_bindir}/systemctl restart systemd-logind.service
 
@@ -1108,11 +1089,12 @@ fi
 /bin/systemctl --quiet stop getty@.service 2>&1 || :
 /bin/systemctl --quiet disable getty@.service 2>&1 || :
 
-%triggerpostun units -- %{name}-units < 216
-# remove buggy symlink
-if [ -L /etc/systemd/system/getty.target.wants/getty@.service ] ; then
-	rm -f /etc/systemd/system/getty.target.wants/getty@.service || :
+%triggerpostun units -- %{name}-units < 217
+# remove getty target
+if [ -d %{_sysconfdir}/systemd/system/getty.target.wants ]
+    rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
 fi
+
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1151,20 +1133,20 @@ fi
 
 %preun units
 if [ $1 -eq 0 ] ; then
-        /bin/systemctl --quiet disable \
-        	getty@.service \
-			remote-fs.target \
-			systemd-networkd.service \
-			systemd-networkd-wait-online.service \
-			systemd-resolvd.service \
-			systemd-timesync.service \
-			systemd-timedated.service \
-			console-getty.service \
-			console-shell.service \
-			debug-shell.service \
-			2>&1 || :
+    /bin/systemctl --quiet disable \
+		    getty@.service \
+    		    remote-fs.target \
+    		    systemd-networkd.service \
+    		    systemd-networkd-wait-online.service \
+    		    systemd-resolvd.service \
+    		    systemd-timesync.service \
+    		    systemd-timedated.service \
+    		    console-getty.service \
+    		    console-shell.service \
+    		    debug-shell.service \
+    		    2>&1 || :
 
-        /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
+    /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
 
 %triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
@@ -1511,7 +1493,6 @@ fi
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
-%dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/systemd/system/getty@.service.d
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
