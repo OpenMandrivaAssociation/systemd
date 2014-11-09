@@ -7,7 +7,6 @@ enable remote-fs.target
 enable systemd-readahead-replay.service
 enable systemd-readahead-collect.service
 
-
 # Enable ACPI daemon
 enable acpid.*
 
