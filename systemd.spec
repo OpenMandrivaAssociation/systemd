@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -234,7 +234,7 @@ Requires(post):	coreutils
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires(pre):	setup >= 2.8.7-1
+Requires(pre):	setup >= 2.8.7-3
 Requires(pre):	rpm-helper >= 0.24.12-11
 
 %description units
@@ -438,11 +438,11 @@ Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
 Requires:	%{name} = %{EVRD}
 Requires:	ldetect-lst
-Requires:	setup >= 2.8.7-1
+Requires:	setup >= 2.8.7-3
 Requires:	util-linux-ng >= 2.15
 Requires:	acl
 # for disk/lp groups
-Requires(pre):	setup >= 2.8.7-1
+Requires(pre):	setup >= 2.8.7-3
 Requires(pre):	coreutils
 Requires(pre):	filesystem
 Requires(pre,post,preun):	rpm-helper >= 0.24.12-11
@@ -899,6 +899,7 @@ fi
 #%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
 
 %pre
+if [ $1 -ge 2 ]; then
 # (tpg) add input group
 if ! getent group input >/dev/null 2>&1; then
 	/usr/sbin/groupadd -r input >/dev/null || :
@@ -916,7 +917,7 @@ if ! getent group %{name}-timesync >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-timesync >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /sbin/nologin -c "Systemd Timesync" systemd-timesync >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /sbin/nologin -c "systemd timesync" systemd-timesync >/dev/null 2>&1 || :
 fi
 
 # (tpg) add network group and user
@@ -925,7 +926,7 @@ if ! getent group %{name}-network >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-network >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-network -d / -s /sbin/nologin -c "systemd Network Management" systemd-network >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-network -d / -s /sbin/nologin -c "systemd network" systemd-network >/dev/null 2>&1 || :
 fi
 
 # (tpg) add resolve group and user
@@ -934,19 +935,19 @@ if ! getent group %{name}-resolve >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-resolve >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-resolve -d / -s /sbin/nologin -c "systemd Resolver" systemd-resolve >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-resolve -d / -s /sbin/nologin -c "systemd resolver" systemd-resolve >/dev/null 2>&1 || :
 fi
 
 # (tpg) add busproxy group and user
-if ! getent group %{name}-busproxy >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-busproxy >/dev/null || :
+if ! getent group %{name}-bus-proxy >/dev/null 2>&1; then
+	/usr/sbin/groupadd -r %{name}-bus-proxy >/dev/null || :
 fi
 
 if ! getent passwd %{name}-busproxy >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-busproxy -d / -s /sbin/nologin -c "systemd Bus Proxy" systemd-busproxy >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-bus-proxy -d / -s /sbin/nologin -c "systemd proxy" systemd-busproxy >/dev/null 2>&1 || :
 fi
 
-if [ $1 -ge 2 ]; then
+
 systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 fi
 
@@ -1238,10 +1239,12 @@ fi
 
 
 %pre journal-gateway
-%_pre_groupadd systemd-journal systemd-journal-gateway
-%_pre_useradd systemd-journal-gateway %{_var}/run/%{name}-journal-gateway /bin/false
+%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
+%_pre_useradd systemd-journal-gateway %{_var}/log/journal /sbin/nologin
 %_pre_groupadd systemd-journal-remote systemd-journal-remote
+%_pre_useradd systemd-journal-remote %{_var}/log/journal/remote /sbin/nologin
 %_pre_groupadd systemd-journal-upload systemd-journal-upload
+%_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
 
 %post journal-gateway
 %systemd_post systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
