@@ -1760,7 +1760,6 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/udev/*.conf
-%{udev_user_rules_dir}/80-net-name-slot.rules
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 
 %{systemd_libdir}/systemd-udevd
