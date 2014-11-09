@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.9
+Release:	19.10
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -63,8 +63,6 @@ Source11:	listen.conf
 Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
-Source15:	enable-numlock.conf
-
 Source16:	systemd.rpmlintrc
 
 ### OMV patches###
@@ -667,7 +665,6 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
 ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
@@ -708,9 +705,6 @@ mkdir %{buildroot}/run
 
 # (tpg) create missing dir
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
-
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d
-#install -m 0644 %{SOURCE15} %{buildroot}%{_sysconfdir}/systemd/system/getty@.service.d/
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -1029,10 +1023,10 @@ fi
 /bin/systemctl --quiet stop getty@.service 2>&1 || :
 /bin/systemctl --quiet disable getty@.service 2>&1 || :
 
-%triggerpostun units -- %{name}-units < 208-19.7
-# remove buggy symlink
-if [ -L /etc/systemd/system/getty.target.wants/getty@.service ] ; then
-	rm -f /etc/systemd/system/getty.target.wants/getty@.service || :
+%triggerpostun units -- %{name}-units < 208-19.10
+# remove getty target
+if [ -d %{_sysconfdir}/systemd/system/getty.target.wants ]
+    rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
 fi
 
 %post units
@@ -1363,8 +1357,6 @@ fi
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
-%dir %{_sysconfdir}/systemd/system/getty.target.wants
-%dir %{_sysconfdir}/systemd/system/getty@.service.d
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
