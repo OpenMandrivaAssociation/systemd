@@ -126,9 +126,11 @@ BuildRequires:	pkgconfig(blkid)
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	ldetect-lst
+%if !%{with bootstrap}
 BuildRequires:	python-devel
 BuildRequires:	python-lxml
 BuildRequires:	python-sphinx
+%endif
 BuildRequires:	valgrind-devel
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
@@ -254,6 +256,15 @@ Obsoletes:		systemd < 206-7
 
 %description journal-gateway
 Offers journal events over the network using HTTP.
+
+%if !%{with bootstrap}
+%package -n python-%{name}
+Summary:	Python bindings for %{name}
+Group:		Development/Python
+
+%description -n python-%{name}
+Python bindings for %{name}.
+%endif
 
 %package -n %{libsystemd}
 Summary:	Systemdlibrary package
@@ -649,6 +660,7 @@ pushd shared
 %if %{with bootstrap}
 	--enable-introspection=no \
 	--disable-libcryptsetup \
+	--withouth-python \
 %else
 	--enable-introspection=no \
 %endif
@@ -1639,6 +1651,11 @@ fi
 %{_mandir}/man8/systemd-journal-gatewayd.service.8.*
 %{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
 %{_datadir}/systemd/gatewayd/browse.html
+
+%if !%{with bootstrap}
+%files -n python-%{name} 
+%{py_platsitedir}/%{name}
+%endif
 
 %files -n %{libnss_myhostname}
 %{_libdir}/libnss_myhostname.so.%{libnss_major}*
