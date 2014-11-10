@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -625,9 +625,7 @@ pushd uclibc
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
-# (tpg) add -fno-lto for gcc-4.9 and clang problems
-%make 
-#CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
+%make
 
 popd
 %endif
@@ -648,7 +646,6 @@ pushd shared
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
-    --without-python \
 %if %{with bootstrap}
 	--enable-introspection=no \
 	--disable-libcryptsetup \
@@ -661,9 +658,7 @@ pushd shared
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
-# (tpg) add -fno-lto for gcc-4.9 and clang problems
-%make V=1
-#CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
+%make
 popd
 
 %install
