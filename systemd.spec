@@ -626,7 +626,8 @@ pushd uclibc
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
 # (tpg) add -fno-lto for gcc-4.9 and clang problems
-%make CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
+%make 
+#CFLAGS="${CFLAGS} -fno-lto -fno-stack-protector" GCC_COLORS="" V=1
 
 popd
 %endif
@@ -660,7 +661,8 @@ pushd shared
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
 # (tpg) add -fno-lto for gcc-4.9 and clang problems
-%make CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
+%make V=1
+#CFLAGS="${CFLAGS} -fno-lto" GCC_COLORS="" V=1
 popd
 
 %install
