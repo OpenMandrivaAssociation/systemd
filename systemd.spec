@@ -128,6 +128,8 @@ BuildRequires:	pciutils-devel
 BuildRequires:	ldetect-lst
 BuildRequires:	python-devel
 BuildRequires:	python-lxml
+BuildRequires:	python-sphinx
+BuildRequires:	valgrind-devel
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
