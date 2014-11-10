@@ -131,7 +131,9 @@ BuildRequires:	python-devel
 BuildRequires:	python-lxml
 BuildRequires:	python-sphinx
 %endif
+%ifnarch %armv7hl aarch64
 BuildRequires:	valgrind-devel
+%endif
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
