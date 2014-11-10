@@ -131,7 +131,7 @@ BuildRequires:	python-devel
 BuildRequires:	python-lxml
 BuildRequires:	python-sphinx
 %endif
-%ifnarch %armv7hl aarch64
+%ifnarch %armx
 BuildRequires:	valgrind-devel
 %endif
 BuildRequires:	chkconfig
