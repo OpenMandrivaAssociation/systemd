@@ -648,6 +648,7 @@ pushd shared
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
+    --without-python \
 %if %{with bootstrap}
 	--enable-introspection=no \
 	--disable-libcryptsetup \
