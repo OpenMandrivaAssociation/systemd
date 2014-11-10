@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -89,7 +89,7 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
 Patch13:	systemd-216-uclibc-exp10-replacement.patch
-
+Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -943,7 +943,9 @@ systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-
 fi
 
 %post
-systemd-firstboot --setup-machine-id
+/bin/systemd-machine-id-setup >/dev/null 2>&1 ||:
+# (tpg) do not use fistboot here as id hangs on firstboot in lxc :)
+# systemd-firstboot --setup-machine-id
 systemd-sysusers
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
