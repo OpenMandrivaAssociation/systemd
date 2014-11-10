@@ -127,7 +127,7 @@ BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	ldetect-lst
 BuildRequires:	python-devel
-BuildRequires:	python3-lxml
+BuildRequires:	python-lxml
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
