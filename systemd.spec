@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	9
+Release:	10
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -158,7 +158,7 @@ Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
 Requires(pre):	shadow-utils >= 4.2.1-7
-Requires(pre):	%{name}-units
+Requires:	%{name}-units >= %{EVRD}
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 186-5
@@ -236,7 +236,7 @@ work as a drop-in replacement for sysvinit.
 %package units
 Summary:	Configuration files, directories and installation tool for systemd
 Group:		System/Configuration/Boot and Init
-Requires:	%{name}
+Requires(post):	%{name} >= %{EVRD}
 Requires(post):	coreutils
 Requires(post):	gawk
 Requires(post):	grep
