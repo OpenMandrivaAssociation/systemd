@@ -1034,15 +1034,6 @@ else
         /usr/bin/rm -f /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf >/dev/null 2>&1 || :
 fi
 
-# sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
-if [ -f /etc/nsswitch.conf ] ; then
-        sed -i.bak -e '
-                /^hosts:/ !b
-                /\<myhostname\>/ b
-                s/[[:blank:]]*$/ myhostname/
-                ' /etc/nsswitch.conf
-fi
-
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
 if [ $1 -ge 2 ]; then
     if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
@@ -1204,7 +1195,6 @@ if [ -f /etc/nsswitch.conf ] ; then
 			s/[[:blank:]]*$/ myhostname/
 			' /etc/nsswitch.conf
 fi
-
 
 %preun -n %{libnss_myhostname}
 # sed-fu to remove myhostname from the hosts line of /etc/nsswitch.conf
