@@ -71,6 +71,7 @@ Source16:	systemd.rpmlintrc
 # (tpg) by default enable network on eth, enp0s3
 Source17:	90-enable.network
 Source18:	90-user-default.preset
+Source19:	10-imx.rules
 
 ### OMV patches###
 # from Mandriva
@@ -828,6 +829,7 @@ install -m 0755 %{SOURCE8} %{buildroot}%{udev_libdir}/net_action
 install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
 install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
+install -m 0644 %{SOURCE19} %{buildroot}%{udev_rules_dir}/
 
 # probably not required, but let's just be on the safe side for now..
 ln -sf /bin/udevadm %{buildroot}/sbin/udevadm
