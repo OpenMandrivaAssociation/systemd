@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.10
+Release:	19.11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1044,6 +1044,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
+    		getty@tty1.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1065,6 +1066,7 @@ fi
 if [ $1 -eq 0 ] ; then
         /bin/systemctl --quiet disable \
 		getty@.service \
+		getty@tty1.service \
 		remote-fs.target \
 		systemd-readahead-replay.service \
 		systemd-readahead-collect.service \
