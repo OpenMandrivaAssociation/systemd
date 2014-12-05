@@ -63,6 +63,7 @@ enable xinetd.service
 
 # Storage services
 enable multipathd.service
+enable blk-availability.service
 enable lvm2-monitor.*
 enable lvm2-lvmetad.*
 enable dm-event.*
