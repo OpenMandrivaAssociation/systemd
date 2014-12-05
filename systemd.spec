@@ -103,6 +103,7 @@ Patch509:	0509-pam_systemd-Always-reset-XDG_RUNTIME_DIR.patch
 Patch511:	0511-pam-Suppress-errors-in-the-SuSE-patch-to-unset-XDG_R.patch
 Patch512:	0512-Revert-systemctl-skip-native-unit-file-handling-if-s.patch
 Patch513:	0513-systemctl-Do-not-attempt-native-calls-for-enable-dis.patch
+Patch514:	0514-systemctl-when-invokes-as-reboot-f-sync.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake

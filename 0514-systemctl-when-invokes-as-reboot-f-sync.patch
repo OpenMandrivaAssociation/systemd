@@ -1,0 +1,30 @@
+From 4a3ad39957399c4a30fc472a804e72907ecaa4f9 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Thu, 6 Nov 2014 15:20:29 +0100
+Subject: [PATCH] systemctl: when invokes as "reboot -f", sync()
+
+We do this in the clean shutdown path in shutdown.c, hence we should do
+is for "reboot -f", too.
+---
+ src/systemctl/systemctl.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff -Naur systemd-208/src/systemctl/systemctl.c systemd-208.tpg/src/systemctl/systemctl.c
+--- systemd-208/src/systemctl/systemctl.c	2014-12-05 01:26:17.000000000 +0000
++++ systemd-208.tpg/src/systemctl/systemctl.c	2014-12-05 01:28:14.624911883 +0000
+@@ -5981,8 +5981,13 @@
+ 
+ static _noreturn_ void halt_now(enum action a) {
+ 
+-       /* Make sure C-A-D is handled by the kernel from this
+-         * point on... */
++        /* The kernel will automaticall flush ATA disks and suchlike
++         * on reboot(), but the file systems need to be synce'd
++         * explicitly in advance. */
++        sync();
++
++        /* Make sure C-A-D is handled by the kernel from this point
++         * on... */
+         reboot(RB_ENABLE_CAD);
+ 
+         switch (a) {
