@@ -729,6 +729,7 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
 ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
@@ -1080,7 +1081,7 @@ if [ $2 -eq 0 ]; then
     done
 fi
 
-%triggerin units -- %{name}-units < 216
+%triggerin units -- %{name}-units < 217-10
 # make sure we use preset here
 /bin/systemctl --quiet preset \
 		getty@.service \
@@ -1094,13 +1095,10 @@ fi
 
 /bin/systemctl --quiet stop getty@.service 2>&1 || :
 /bin/systemctl --quiet disable getty@.service 2>&1 || :
-
-%triggerpostun units -- %{name}-units < 217
-# remove getty target
-if [ -d %{_sysconfdir}/systemd/system/getty.target.wants ]
-    rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
-fi
-
+/bin/systemctl --quiet stop systemd-readahead-replay.service 2>&1 || :
+/bin/systemctl --quiet stop systemd-readahead-collect.service 2>&1 || :
+/bin/systemctl --quiet disable systemd-readahead-replay.service 2>&1 || :
+/bin/systemctl --quiet disable systemd-readahead-collect.service 2>&1 || :
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1117,6 +1115,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
+    			getty@tty1.service \
 			remote-fs.target \
 			systemd-firstboot.service \
 			systemd-networkd.service \
@@ -1141,6 +1140,7 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
+		    getty@tty1.service \
 		    getty@.service \
     		    remote-fs.target \
     		    systemd-networkd.service \
@@ -1499,6 +1499,7 @@ fi
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
+%dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/modules-load.d
