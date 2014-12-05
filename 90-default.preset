@@ -4,8 +4,7 @@
 
 # systemd stuff
 enable remote-fs.target
-enable systemd-readahead-replay.service
-enable systemd-readahead-collect.service
+enable getty@tty1.service
 
 # Enable ACPI daemon
 enable acpid.*
