@@ -12,18 +12,14 @@ This is used in Mageia and Mandriva (mga#4702)
  src/core/main.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/src/core/main.c b/src/core/main.c
-index 58c3a9e..d0765cd 100644
---- a/src/core/main.c
-+++ b/src/core/main.c
-@@ -259,6 +259,7 @@ static int parse_proc_cmdline_word(const char *word) {
+diff -Naur systemd-208/src/core/main.c systemd-208.tpg/src/core/main.c
+--- systemd-208/src/core/main.c	2014-12-05 01:12:20.000000000 +0000
++++ systemd-208.tpg/src/core/main.c	2014-12-05 01:13:48.635639721 +0000
+@@ -259,6 +259,7 @@
          static const char * const rlmap[] = {
                  "emergency", SPECIAL_EMERGENCY_TARGET,
                  "-b",        SPECIAL_EMERGENCY_TARGET,
 +                "failsafe",  SPECIAL_RESCUE_TARGET,
+                 "rescue",    SPECIAL_RESCUE_TARGET,
                  "single",    SPECIAL_RESCUE_TARGET,
                  "-s",        SPECIAL_RESCUE_TARGET,
-                 "s",         SPECIAL_RESCUE_TARGET,
--- 
-1.8.4.5
-

@@ -86,7 +86,7 @@ Patch10:	systemd-208-silent-fsck-on-boot.patch
 #make sure this patch is not inside 0137-gitignore-ignore-clang-analyze-output.patch
 # update this
 # generated from 4372855b7871dd4f639d0e5fca86eff0d38aeb18
-# to 53b1b6c653258b440bf6ce1a64703dad5b3ab158
+# to 75a17dd008d2a97df4c8901216b875382af9f570
 Patch100:	0100-systemd-stable-v208.patch.bz2
 
 
@@ -524,6 +524,7 @@ This package contains documentation of udev.
 %prep
 %setup -q
 %apply_patches
+
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
 #intltoolize --force --automake
