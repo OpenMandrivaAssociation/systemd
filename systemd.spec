@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	217
-Release:	10
+Release:	11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1084,7 +1084,7 @@ fi
 %triggerin units -- %{name}-units < 217-10
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-		getty@.service \
+				getty@getty.service \
                 remote-fs.target \
                 systemd-readahead-replay.service \
                 systemd-readahead-collect.service \
@@ -1093,12 +1093,19 @@ fi
                 debug-shell.service \
                 2>&1 || :
 
-/bin/systemctl --quiet stop getty@.service 2>&1 || :
-/bin/systemctl --quiet disable getty@.service 2>&1 || :
+/bin/systemctl --quiet stop getty@getty.service 2>&1 || :
+/bin/systemctl --quiet disable getty@getty.service 2>&1 || :
 /bin/systemctl --quiet stop systemd-readahead-replay.service 2>&1 || :
 /bin/systemctl --quiet stop systemd-readahead-collect.service 2>&1 || :
 /bin/systemctl --quiet disable systemd-readahead-replay.service 2>&1 || :
 /bin/systemctl --quiet disable systemd-readahead-collect.service 2>&1 || :
+
+%triggerpostun units -- %{name}-units < 217-10
+# remove wrong getty target
+if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
+	/bin/systemctl --quiet disable getty@getty.service  2>&1 || :
+    rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
+fi
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1115,7 +1122,7 @@ if [ $1 -eq 1 ] ; then
 
         # Enable the services we install by default.
         /bin/systemctl --quiet preset \
-    			getty@tty1.service \
+    		getty@tty1.service \
 			remote-fs.target \
 			systemd-firstboot.service \
 			systemd-networkd.service \
@@ -1140,8 +1147,8 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
-		    getty@tty1.service \
-		    getty@.service \
+		    	getty@tty1.service \
+		    	getty@getty.service \
     		    remote-fs.target \
     		    systemd-networkd.service \
     		    systemd-networkd-wait-online.service \
