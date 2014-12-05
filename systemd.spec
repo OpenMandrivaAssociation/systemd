@@ -1009,7 +1009,7 @@ if [ $2 -eq 0 ]; then
     done
 fi
 
-%triggerin units -- %{name}-units < 208-19.7
+%triggerin units -- %{name}-units < 208-19.11
 # make sure we use preset here
 /bin/systemctl --quiet preset \
                 remote-fs.target \
@@ -1022,12 +1022,10 @@ fi
 
 /bin/systemctl --quiet stop getty@.service 2>&1 || :
 /bin/systemctl --quiet disable getty@.service 2>&1 || :
-
-%triggerpostun units -- %{name}-units < 208-19.10
-# remove getty target
-if [ -d %{_sysconfdir}/systemd/system/getty.target.wants ]
-    rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
-fi
+/bin/systemctl --quiet stop systemd-readahead-replay.service 2>&1 || :
+/bin/systemctl --quiet stop systemd-readahead-collect.service 2>&1 || :
+/bin/systemctl --quiet disable systemd-readahead-replay.service 2>&1 || :
+/bin/systemctl --quiet disable systemd-readahead-collect.service 2>&1 || :
 
 %post units
 if [ $1 -eq 1 ] ; then
@@ -1046,8 +1044,6 @@ if [ $1 -eq 1 ] ; then
         /bin/systemctl --quiet preset \
     		getty@tty1.service \
                 remote-fs.target \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
                 systemd-udev-settle.service \
                 2>&1 || :
 fi
