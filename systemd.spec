@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.12
+Release:	19.13
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1051,14 +1051,14 @@ if [ $1 -eq 1 ] ; then
 
         # And symlink what we found to the new-style default.target
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-
-        # Enable the services we install by default.
-        /bin/systemctl --quiet preset \
-    			getty@tty1.service \
-                remote-fs.target \
-                systemd-udev-settle.service \
-                2>&1 || :
 fi
+
+# Enable the services we install by default.
+/bin/systemctl --quiet preset \
+		getty@tty1.service \
+        remote-fs.target \
+        systemd-udev-settle.service \
+        2>&1 || :
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
 if [ -z $hostname_new ]; then
