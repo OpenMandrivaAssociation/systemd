@@ -143,6 +143,7 @@ BuildRequires:	pkgconfig(libidn)
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
 BuildRequires:	pkgconfig(xkbcommon)
+BuildRequires:	pkgconfig(mount)
 
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
