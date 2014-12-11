@@ -142,6 +142,7 @@ BuildRequires:	pkgconfig(libidn)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
+BuildRequires:	pkgconfig(xkbcommon)
 
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
@@ -669,6 +670,7 @@ pushd shared
 	--enable-introspection=no \
 %endif
 	--enable-split-usr \
+    --enable-xkbcommon \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
