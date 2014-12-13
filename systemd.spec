@@ -1251,6 +1251,7 @@ fi
 %{_mandir}/man1/loginctl.*
 %{_mandir}/man1/systemd-run.1.*
 %{_mandir}/man1/systemd-machine-id-setup.1*
+%{_mandir}/man1/systemd-machine-id-commit.1*
 %{_mandir}/man1/systemd-notify.*
 %{_mandir}/man1/systemd-nspawn.*
 %{_mandir}/man1/systemd-delta.1.*
@@ -1291,6 +1292,7 @@ fi
 %{_mandir}/man8/systemd-localed*.8.*
 %{_mandir}/man8/systemd-logind*.8.*
 %{_mandir}/man8/systemd-machined*.8.*
+%{_mandir}/man8/systemd-machine-id-commit.service.8.*
 %{_mandir}/man8/systemd-modules*.8.*
 %{_mandir}/man8/systemd-poweroff*.8.*
 %{_mandir}/man8/systemd-quota*.8.*
@@ -1303,6 +1305,7 @@ fi
 %{_mandir}/man8/systemd-suspend*.8.*
 %{_mandir}/man8/systemd-sysctl*.8.*
 %{_mandir}/man8/systemd-system*.8.*
+%{_mandir}/man8/systemd-sysv-generator.8.*
 %{_mandir}/man8/systemd-timedated*.8.*
 %{_mandir}/man8/systemd-tmpfiles*.8.*
 %{_mandir}/man8/systemd-udev*.8.*
@@ -1434,6 +1437,7 @@ fi
 %{systemd_libdir}/system/systemd-ask-password*.service
 %{systemd_libdir}/system/systemd-backlight*.service
 %{systemd_libdir}/system/systemd-binfmt*.service
+%{systemd_libdir}/system/systemd-bootchart.service
 %{systemd_libdir}/system/systemd-fsck*.service
 %{systemd_libdir}/system/systemd-halt*.service
 %{systemd_libdir}/system/systemd-hibernate*.service
@@ -1446,6 +1450,7 @@ fi
 %{systemd_libdir}/system/systemd-localed*.service
 %{systemd_libdir}/system/systemd-logind*.service
 %{systemd_libdir}/system/systemd-machined.service
+%{systemd_libdir}/system/systemd-machine-id-commit.service
 %{systemd_libdir}/system/systemd-modules-load.service
 %{systemd_libdir}/system/systemd-nspawn*.service
 %{systemd_libdir}/system/systemd-poweroff.service
@@ -1473,6 +1478,7 @@ fi
 %{systemd_libdir}/system/syslog.socket
 %{systemd_libdir}/system/systemd-initctl.socket
 %{systemd_libdir}/system/systemd-journald.socket
+%{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-shutdownd.socket
 %{systemd_libdir}/system/systemd-udev*.socket
 %{systemd_libdir}/system/*.target
