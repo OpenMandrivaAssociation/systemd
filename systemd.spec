@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1126,12 +1126,12 @@ fi
 
 # Enable the services we install by default.
 /bin/systemctl --quiet preset \
-		getty@tty1.service \
+	getty@tty1.service \
         remote-fs.target \
         systemd-firstboot.service \
         systemd-networkd.service \
         systemd-networkd-wait-online.service \
-        systemd-resolvd.service \
+        systemd-resolved.service \
         systemd-timesync.service \
         systemd-timedated.service \
         systemd-udev-settle.service
