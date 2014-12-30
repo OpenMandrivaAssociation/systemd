@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -968,8 +968,8 @@ elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvc
     ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
+%if %mdvver < 201500
 #(tpg) BIG migration
-
 # Migrate /etc/sysconfig/clock
 if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
 	. /etc/sysconfig/clock 2>&1 || :
@@ -1039,6 +1039,8 @@ if [ ! -e /etc/X11/xorg.conf.d/00-keyboard.conf ] ; then
 else
         /usr/bin/rm -f /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf >/dev/null 2>&1 || :
 fi
+%endif
+# End BIG migration
 
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
 if [ $1 -ge 2 ]; then
@@ -1087,14 +1089,14 @@ fi
 %triggerin units -- %{name}-units < 217-10
 # make sure we use preset here
 /bin/systemctl --quiet preset \
-				getty@getty.service \
-                remote-fs.target \
-                systemd-readahead-replay.service \
-                systemd-readahead-collect.service \
-                console-getty.service \
-                console-shell.service \
-                debug-shell.service \
-                2>&1 || :
+	getty@getty.service \
+	remote-fs.target \
+	systemd-readahead-replay.service \
+	systemd-readahead-collect.service \
+	console-getty.service \
+	console-shell.service \
+	debug-shell.service \
+	2>&1 || :
 
 /bin/systemctl --quiet stop getty@getty.service 2>&1 || :
 /bin/systemctl --quiet disable getty@getty.service 2>&1 || :
@@ -1127,14 +1129,14 @@ fi
 # Enable the services we install by default.
 /bin/systemctl --quiet preset \
 	getty@tty1.service \
-        remote-fs.target \
-        systemd-firstboot.service \
-        systemd-networkd.service \
-        systemd-networkd-wait-online.service \
-        systemd-resolved.service \
-        systemd-timesync.service \
-        systemd-timedated.service \
-        systemd-udev-settle.service
+	remote-fs.target \
+	systemd-firstboot.service \
+	systemd-networkd.service \
+	systemd-networkd-wait-online.service \
+	systemd-resolved.service \
+	systemd-timesync.service \
+	systemd-timedated.service \
+	systemd-udev-settle.service \
         2>&1 || :
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
@@ -1150,18 +1152,18 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
-		    	getty@tty1.service \
-		    	getty@getty.service \
-    		    remote-fs.target \
-    		    systemd-networkd.service \
-    		    systemd-networkd-wait-online.service \
-    		    systemd-resolvd.service \
-    		    systemd-timesync.service \
-    		    systemd-timedated.service \
-    		    console-getty.service \
-    		    console-shell.service \
-    		    debug-shell.service \
-    		    2>&1 || :
+	    getty@tty1.service \
+	    getty@getty.service \
+	    remote-fs.target \
+	    systemd-networkd.service \
+	    systemd-networkd-wait-online.service \
+	    systemd-resolvd.service \
+	    systemd-timesync.service \
+	    systemd-timedated.service \
+	    console-getty.service \
+	    console-shell.service \
+	    debug-shell.service \
+	    2>&1 || :
 
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
@@ -1202,21 +1204,20 @@ fi
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
 if [ -f /etc/nsswitch.conf ] ; then
 	sed -i.bak -e '
-			/^hosts:/ !b
-			/\<myhostname\>/ b
-			s/[[:blank:]]*$/ myhostname/
-			' /etc/nsswitch.conf
+	    /^hosts:/ !b
+	    /\<myhostname\>/ b
+	    s/[[:blank:]]*$/ myhostname/
+	    ' /etc/nsswitch.conf
 fi
 
 %preun -n %{libnss_myhostname}
 # sed-fu to remove myhostname from the hosts line of /etc/nsswitch.conf
 if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
 	sed -i.bak -e '
-			/^hosts:/ !b
-			s/[[:blank:]]\+myhostname\>//
-			' /etc/nsswitch.conf
+	    /^hosts:/ !b
+	    s/[[:blank:]]\+myhostname\>//
+	    ' /etc/nsswitch.conf
 fi
-
 
 %pre journal-gateway
 %_pre_groupadd systemd-journal-gateway systemd-journal-gateway
