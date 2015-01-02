@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -967,10 +967,10 @@ systemd-sysusers
 
 # (tpg) handle resolvconf
 if [ ! -e /etc/resolv.conf ]; then
-    ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
-    ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
 %if %mdvver < 201500
@@ -1068,8 +1068,10 @@ fi
 %triggerposttransun -- resolvconf < 1.75-4
 if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
-    ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
+
+/bin/systemctl --quiet preset systemd-resolved.service 2>&1 || :
 
 %triggerin units -- %{name}-units < 217-10
 # make sure we use preset here
@@ -1119,7 +1121,7 @@ fi
 	systemd-networkd.service \
 	systemd-networkd-wait-online.service \
 	systemd-resolved.service \
-	systemd-timesync.service \
+	systemd-timesyncd.service \
 	systemd-timedated.service \
 	systemd-udev-settle.service \
         2>&1 || :
@@ -1152,6 +1154,9 @@ if [ $1 -eq 0 ] ; then
 
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
+
+%triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %post -n %{libnss_myhostname}
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
