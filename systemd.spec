@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -676,7 +676,7 @@ pushd shared
 	--enable-introspection=no \
 %endif
 	--enable-split-usr \
-    --enable-xkbcommon \
+	--enable-xkbcommon \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
@@ -1065,30 +1065,10 @@ if [ -f /etc/machine-id ]; then
 	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
 fi
 
-%triggerpostun -- resolvconf == 1.75-2
+%triggerposttransun -- resolvconf < 1.75-4
 if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
     ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
-fi
-
-%triggerposttransin -- %{_tmpfilesdir}/*.conf
-if [ $1 -eq 1 -o $2 -eq 1 ]; then
-    while [ -n "$3" ]; do
-        if [ -f "$3" ]; then
-            /bin/systemd-tmpfiles --create "$3"
-        fi
-        shift
-    done
-fi
-
-%triggerposttransun -- %{_tmpfilesdir}/*.conf
-if [ $2 -eq 0 ]; then
-    while [ -n "$3" ]; do
-        if [ -f "$3" ]; then
-            /bin/systemd-tmpfiles --remove "$3"
-        fi
-        shift
-    done
 fi
 
 %triggerin units -- %{name}-units < 217-10
@@ -1172,38 +1152,6 @@ if [ $1 -eq 0 ] ; then
 
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
-
-%triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
-# don't run trigger for units shipped with this package
-echo $*| grep -q %{_unitdir}/getty@.service && exit 0
-ARG1=$1
-ARG2=$2
-shift
-shift
-
-units=${*#%_unitdir/}
-if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
-    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
-elif [ $ARG2 -gt 1 ]; then
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
-fi
-
-%triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
-echo $*| grep -q %{_unitdir}/getty@.service && exit 0
-ARG1=$1
-ARG2=$2
-shift
-shift
-
-units=${*#%_unitdir/}
-if [ $ARG2 -eq 0 ]; then
-	/bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
-	/bin/systemctl stop ${units} >/dev/null 2>&1 || :
-fi
-
-%triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|target|path)$
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %post -n %{libnss_myhostname}
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
