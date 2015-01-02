@@ -1071,7 +1071,8 @@ if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvcon
     ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
-/bin/systemctl --quiet preset systemd-resolved.service 2>&1 || :
+/bin/systemctl enable systemd-resolved.service 2>&1 || :
+/bin/systemctl restart systemd-resolved.service 2>&1 || :
 
 %triggerposttransin -- %{_tmpfilesdir}/*.conf
 if [ $1 -eq 1 -o $2 -eq 1 ]; then
