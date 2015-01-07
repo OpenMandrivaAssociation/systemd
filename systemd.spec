@@ -160,7 +160,7 @@ Requires:	dbus >= 1.3.2
 Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
-Requires(pre):	shadow-utils >= 4.2.1-7
+Requires(pre):	shadow-utils >= 4.2.1-10
 Requires:	%{name}-units >= %{EVRD}
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
