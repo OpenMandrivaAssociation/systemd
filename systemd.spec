@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -965,13 +965,7 @@ systemd-sysusers
 /bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
-# (tpg) handle resolvconf
-if [ ! -e /etc/resolv.conf ]; then
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
-    rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-fi
+
 
 %if %mdvver < 201500
 #(tpg) BIG migration
@@ -1055,6 +1049,31 @@ if [ $1 -ge 2 ]; then
     fi
 fi
 
+%posttrans
+# (tpg) handle resolvconf
+if [ -f /etc/resolv.conf]; then
+    rm -f /etc/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ ! -e /etc/resolv.conf ]; then
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+
+%triggerin -- setup
+# setup package owns /etc/resolv.conf
+# so on every setup update /etc/resolv.conf needs to be symlinked
+# to /run/systemd/resolve/resolv.conf
+if [ $1 -ge 2 -o $2 -ge 2 ] ; then
+    if [ -f /etc/resolv.conf]; then
+	rm -f /etc/resolv.conf
+	ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    fi
+    /bin/systemctl enable systemd-resolved.service 2>&1 || :
+    /bin/systemctl restart systemd-resolved.service 2>&1 || :
+fi
+
 %triggerun -- %{name} < 196
 %{_bindir}/systemctl restart systemd-logind.service
 
@@ -1066,7 +1085,12 @@ if [ -f /etc/machine-id ]; then
 fi
 
 %triggerposttransun -- resolvconf < 1.75-4
-if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
+if [ -f /etc/resolv.conf]; then
+    rm -f /etc/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ ! -e /etc/resolv.conf ]; then
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
     ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
