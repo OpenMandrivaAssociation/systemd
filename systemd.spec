@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -947,7 +947,7 @@ if ! getent group %{name}-bus-proxy >/dev/null 2>&1; then
 fi
 
 if ! getent passwd %{name}-busproxy >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-bus-proxy -d / -s /sbin/nologin -c "systemd proxy" systemd-busproxy >/dev/null 2>&1 || :
+	/usr/sbin/useradd -r -l -g systemd-bus-proxy -d / -s /sbin/nologin -c "systemd proxy" systemd-bus-proxy >/dev/null 2>&1 || :
 fi
 
 
