@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	8
+Release:	9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1049,7 +1049,7 @@ if [ $1 -ge 2 ]; then
     fi
 fi
 
-%posttrans
+%posttrans units
 # (tpg) handle resolvconf
 if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
@@ -1117,6 +1117,7 @@ if [ $2 -eq 0 ]; then
         shift
     done
 fi
+
 %triggerin units -- %{name}-units < 217-10
 # make sure we use preset here
 /bin/systemctl --quiet preset \
