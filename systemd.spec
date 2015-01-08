@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1051,7 +1051,7 @@ fi
 
 %posttrans
 # (tpg) handle resolvconf
-if [ -f /etc/resolv.conf]; then
+if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
     ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ ! -e /etc/resolv.conf ]; then
@@ -1065,8 +1065,8 @@ fi
 # setup package owns /etc/resolv.conf
 # so on every setup update /etc/resolv.conf needs to be symlinked
 # to /run/systemd/resolve/resolv.conf
-if [ $1 -ge 2 -o $2 -ge 2 ] ; then
-    if [ -f /etc/resolv.conf]; then
+if [ $1 -ge 2 -o $2 -ge 2 ]; then
+    if [ -f /etc/resolv.conf ]; then
 	rm -f /etc/resolv.conf
 	ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
     fi
@@ -1085,7 +1085,7 @@ if [ -f /etc/machine-id ]; then
 fi
 
 %triggerposttransun -- resolvconf < 1.75-4
-if [ -f /etc/resolv.conf]; then
+if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
     ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ ! -e /etc/resolv.conf ]; then
