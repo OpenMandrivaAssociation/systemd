@@ -1232,6 +1232,12 @@ fi
 %triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
+%triggerposttransin -- %{_binfmtdir}/*.conf
+systemctl reload-or-try-restart systemd-binfmt
+
+%triggerposttransin -- %{_binfmtdir}/*.conf
+systemctl reload-or-try-restart systemd-binfmt
+
 %post -n %{libnss_myhostname}
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
 if [ -f /etc/nsswitch.conf ] ; then
