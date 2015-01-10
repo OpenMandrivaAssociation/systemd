@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	9
+Release:	10
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1059,6 +1059,13 @@ elif [ ! -e /etc/resolv.conf ]; then
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
     ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+
+
+if [ ! -f /run/systemd/resolve/resolv.conf ]; then
+    echo "Warning /run/systemd/resolve/resolv.conf does not exists. Restarting service."
+    /bin/systemctl enable systemd-resolved.service 2>&1 || :
+    /bin/systemctl restart systemd-resolved.service 2>&1 || :
 fi
 
 %triggerin -- setup
