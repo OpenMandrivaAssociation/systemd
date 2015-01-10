@@ -1064,8 +1064,8 @@ fi
 
 if [ ! -f /run/systemd/resolve/resolv.conf ]; then
     echo "Warning /run/systemd/resolve/resolv.conf does not exists. Restarting service."
-    /bin/systemctl enable systemd-resolved.service 2>&1 || :
-    /bin/systemctl restart systemd-resolved.service 2>&1 || :
+    ln -sf /lib/systemd/system/systemd-resolved.service /etc/systemd/system/multi-user.target.wants/systemd-resolved.service
+    /bin/systemctl restart systemd-resolved.service
 fi
 
 %triggerin -- setup
