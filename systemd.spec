@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	10
+Release:	11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1169,6 +1169,8 @@ fi
 /bin/systemctl --quiet preset \
 	getty@tty1.service \
 	remote-fs.target \
+	shadow.timer \
+	shadow.service \
 	systemd-firstboot.service \
 	systemd-networkd.service \
 	systemd-networkd-wait-online.service \
