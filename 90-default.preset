@@ -47,6 +47,7 @@ enable accounts-daemon.service
 enable rtkit-daemon.service
 enable usbmuxd.service
 enable man-db.*
+enable shadow.*
 
 # Network services
 enable systemd-networkd.service
