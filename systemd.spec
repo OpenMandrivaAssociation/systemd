@@ -107,7 +107,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	vala >= 0.9
-BuildRequires:	pkgconfig(dbus-1) >= 1.4.0
+BuildRequires:	pkgconfig(dbus-1) >= 1.8.0
 BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
@@ -156,7 +156,7 @@ Requires:	udev = %{EVRD}
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	dbus >= 1.3.2
+Requires:	dbus >= 1:1.8.0
 Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
