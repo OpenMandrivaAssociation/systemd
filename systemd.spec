@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	13
+Release:	14
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -156,7 +156,7 @@ Requires:	udev = %{EVRD}
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	dbus >= -1:1.8.0
+Requires:	dbus >= 1.8.0
 Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
