@@ -157,7 +157,6 @@ Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
 Requires:	dbus >= 1.8.0
-Requires(post):	initscripts > 9.24
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
 Requires(pre):	shadow >= 4.2.1-11
@@ -1152,7 +1151,7 @@ if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
 fi
 
 %post units
-if [ $1 -eq 1 ] ; then
+if [ $1 -eq 2 ] ; then
         # Try to read default runlevel from the old inittab if it exists
         runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
         if [ -z "$runlevel" ] ; then
