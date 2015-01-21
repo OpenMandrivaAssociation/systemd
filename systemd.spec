@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	16
+Release:	17
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1065,7 +1065,8 @@ if [ ! -f /run/systemd/resolve/resolv.conf ]; then
     echo "Warning /run/systemd/resolve/resolv.conf does not exists. Recreating it."
 	
     mkdir -p /run/systemd/resolve
-    echo -e "208.67.222.222\n208.67.220.220\n" > /run/systemd/resolve/resolv.conf
+    echo -e "nameserver 208.67.222.222\nnameserver 208.67.220.220\n" > /run/systemd/resolve/resolv.conf
+    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
     
     if [ ! -e /etc/systemd/system/multi-user.target.wants/systemd-resolved.service ]; then
     	ln -sf /lib/systemd/system/systemd-resolved.service /etc/systemd/system/multi-user.target.wants/systemd-resolved.service
