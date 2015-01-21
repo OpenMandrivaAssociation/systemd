@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	17
+Release:	18
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -964,8 +964,6 @@ systemd-sysusers
 /bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
-
-
 %if %mdvver < 201500
 #(tpg) BIG migration
 # Migrate /etc/sysconfig/clock
@@ -1072,7 +1070,6 @@ if [ ! -f /run/systemd/resolve/resolv.conf ]; then
     	ln -sf /lib/systemd/system/systemd-resolved.service /etc/systemd/system/multi-user.target.wants/systemd-resolved.service
     fi
 
-    /bin/systemctl restart systemd-resolved.service
 fi
 
 %triggerin -- setup
