@@ -1,0 +1,22 @@
+From: Robert Milasan <rmilasan@suse.com>
+Date: Tue, 12 Feb 2013 09:16:23 +0000
+Subject: create default links for primary cd_dvd drive
+
+cdrom_id: created links for the default cd/dvd drive (bnc#783054).
+---
+ rules/60-cdrom_id.rules | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- systemd-206.orig/rules/60-cdrom_id.rules
++++ systemd-206/rules/60-cdrom_id.rules
+@@ -15,6 +15,9 @@ ENV{DISK_EJECT_REQUEST}=="?*", RUN+="cdr
+ # enable the receiving of media eject button events
+ IMPORT{program}="cdrom_id --lock-media $devnode"
+ 
+-KERNEL=="sr0", SYMLINK+="cdrom", OPTIONS+="link_priority=-100"
++KERNEL=="sr0", ENV{ID_CDROM}=="1", SYMLINK+="cdrom", OPTIONS+="link_priority=-100"
++KERNEL=="sr0", ENV{ID_CDROM_CD_RW}=="1", SYMLINK+="cdrw", OPTIONS+="link_priority=-100"
++KERNEL=="sr0", ENV{ID_CDROM_DVD}=="1", SYMLINK+="dvd", OPTIONS+="link_priority=-100"
++KERNEL=="sr0", ENV{ID_CDROM_DVD_RW}=="1", SYMLINK+="dvdrw", OPTIONS+="link_priority=-100"
+ 
+ LABEL="cdrom_end"
