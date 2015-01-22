@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	18
+Release:	19
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -91,6 +91,7 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
 Patch13:	systemd-216-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
+Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -581,6 +582,7 @@ This package contains documentation of udev.
 %prep
 %setup -q
 %apply_patches
+
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
 #intltoolize --force --automake
