@@ -762,6 +762,7 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
 # (tpg) explicitly enable these services
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/multi-user.target.wants %{buildroot}%{_sysconfdir}/systemd/system/sysinit.target.wants
 ln -sf ../lib/systemd/system/systemd-resolved.service %{buildroot}%{_sysconfdir}/systemd/system/multi-user.target.wants/systemd-resolved.service
 ln -sf ../lib/systemd/system/systemd-networkd.service %{buildroot}%{_sysconfdir}/systemd/system/multi-user.target.wants/systemd-networkd.service
 ln -sf ../lib/systemd/system/systemd-timesyncd.service %{buildroot}%{_sysconfdir}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
