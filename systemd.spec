@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	19
+Release:	20
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -761,6 +761,11 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 # (bor) enable rpcbind.target by default so we have something to plug portmapper service into
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
+# (tpg) explicitly enable these services
+ln -sf ../lib/systemd/system/systemd-resolved.service %{buildroot}%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-resolved.service
+ln -sf ../lib/systemd/system/systemd-networkd.service %{buildroot}%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-networkd.service
+ln -sf ../lib/systemd/system/systemd-timesyncd.service %{buildroot}%{_sysconfig}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
+
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -1061,14 +1066,6 @@ elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvc
 fi
 
 # workarounds for ABF
-if [ ! -e /etc/systemd/system/multi-user.target.wants/systemd-resolved.service ]; then
-    ln -sf ../lib/systemd/system/systemd-resolved.service /etc/systemd/system/multi-user.target.wants/systemd-resolved.service
-fi
-
-if [ ! -e /etc/systemd/system/multi-user.target.wants/systemd-networkd.service ]; then
-    ln -sf ../lib/systemd/system/systemd-networkd.service /etc/systemd/system/multi-user.target.wants/systemd-networkd.service
-fi
-
 if [ ! -f /run/systemd/resolve/resolv.conf ]; then
     echo "Warning /run/systemd/resolve/resolv.conf does not exists. Recreating it."
     mkdir -p /run/systemd/resolve
@@ -1083,8 +1080,8 @@ fi
 # to /run/systemd/resolve/resolv.conf
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
     if [ -f /etc/resolv.conf ]; then
-	rm -f /etc/resolv.conf
-	ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+		rm -f /etc/resolv.conf
+		ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
     fi
     /bin/systemctl enable systemd-resolved.service 2>&1 || :
     /bin/systemctl restart systemd-resolved.service 2>&1 || :
@@ -1596,6 +1593,9 @@ fi
 %{_datadir}/zsh/site-functions/*
 /bin/systemctl
 /bin/machinectl
+%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-resolved.service
+%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-networkd.service
+%{_sysconfig}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
