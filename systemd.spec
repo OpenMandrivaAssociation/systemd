@@ -762,9 +762,9 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
 # (tpg) explicitly enable these services
-ln -sf ../lib/systemd/system/systemd-resolved.service %{buildroot}%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-resolved.service
-ln -sf ../lib/systemd/system/systemd-networkd.service %{buildroot}%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-networkd.service
-ln -sf ../lib/systemd/system/systemd-timesyncd.service %{buildroot}%{_sysconfig}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
+ln -sf ../lib/systemd/system/systemd-resolved.service %{buildroot}%{_sysconfdir}/systemd/system/multi-user.target.wants/systemd-resolved.service
+ln -sf ../lib/systemd/system/systemd-networkd.service %{buildroot}%{_sysconfdir}/systemd/system/multi-user.target.wants/systemd-networkd.service
+ln -sf ../lib/systemd/system/systemd-timesyncd.service %{buildroot}%{_sysconfdir}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 
 # (eugeni) install /run
 mkdir %{buildroot}/run
@@ -1593,9 +1593,9 @@ fi
 %{_datadir}/zsh/site-functions/*
 /bin/systemctl
 /bin/machinectl
-%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-resolved.service
-%{_sysconfig}/systemd/system/multi-user.target.wants/systemd-networkd.service
-%{_sysconfig}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
+%{_sysconfdir}/systemd/system/multi-user.target.wants/systemd-resolved.service
+%{_sysconfdir}/systemd/system/multi-user.target.wants/systemd-networkd.service
+%{_sysconfdir}/systemd/system/sysinit.target.wants/systemd-timesyncd.service
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
