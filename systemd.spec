@@ -1052,27 +1052,30 @@ fi
 # (tpg) handle resolvconf
 if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ ! -e /etc/resolv.conf ]; then
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
+# workarounds for ABF
+if [ ! -e /etc/systemd/system/multi-user.target.wants/systemd-resolved.service ]; then
+    ln -sf ../lib/systemd/system/systemd-resolved.service /etc/systemd/system/multi-user.target.wants/systemd-resolved.service
+fi
+
+if [ ! -e /etc/systemd/system/multi-user.target.wants/systemd-networkd.service ]; then
+    ln -sf ../lib/systemd/system/systemd-networkd.service /etc/systemd/system/multi-user.target.wants/systemd-networkd.service
+fi
 
 if [ ! -f /run/systemd/resolve/resolv.conf ]; then
     echo "Warning /run/systemd/resolve/resolv.conf does not exists. Recreating it."
-	
     mkdir -p /run/systemd/resolve
     echo -e "nameserver 208.67.222.222\nnameserver 208.67.220.220\n" > /run/systemd/resolve/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-    
-    if [ ! -e /etc/systemd/system/multi-user.target.wants/systemd-resolved.service ]; then
-    	ln -sf /lib/systemd/system/systemd-resolved.service /etc/systemd/system/multi-user.target.wants/systemd-resolved.service
-    fi
-
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
+# end of workarounds
 
 %triggerin -- setup
 # setup package owns /etc/resolv.conf
@@ -1100,12 +1103,12 @@ fi
 %triggerposttransun -- resolvconf < 1.75-4
 if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ ! -e /etc/resolv.conf ]; then
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
 /bin/systemctl enable systemd-resolved.service 2>&1 || :
