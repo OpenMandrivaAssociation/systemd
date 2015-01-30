@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	20
+Release:	21
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -72,6 +72,7 @@ Source16:	systemd.rpmlintrc
 Source17:	90-enable.network
 Source18:	90-user-default.preset
 Source19:	10-imx.rules
+Source20:	90-wireless.network
 
 ### OMV patches###
 # from Mandriva
@@ -809,6 +810,8 @@ install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
 # (tpg) install network file
 install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
+# (fedya) install wireless file
+install -m 0644 %{SOURCE20} %{buildroot}%{systemd_libdir}/network/
 
 # (tpg) install userspace presets
 install -m 0644 %{SOURCE18} %{buildroot}%{systemd_libdir}/user-preset/
