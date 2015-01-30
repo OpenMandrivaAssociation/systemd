@@ -1688,6 +1688,7 @@ fi
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/90-enable.network
+%{systemd_libdir}/network/90-wireless.network
 %{systemd_libdir}/network/99-default.link
 
 %{_prefix}/lib/systemd/catalog/*.catalog
