@@ -39,7 +39,9 @@ enable crond.*
 enable chronyd.service
 enable rpcbind.*
 enable bluetooth.*
-enable cups.*
+enable org.cups.cupsd.path
+enable org.cups.cupsd.socket
+enable org.cups.cups-lpd.socket
 enable rsyslog.*
 enable syslog-ng.*
 enable sysklogd.*
