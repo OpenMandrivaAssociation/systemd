@@ -1066,6 +1066,9 @@ elif [ ! -e /etc/resolv.conf ]; then
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
     ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/NetworkManager/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
 # workarounds for ABF
@@ -1107,6 +1110,9 @@ if [ -f /etc/resolv.conf ]; then
 elif [ ! -e /etc/resolv.conf ]; then
     ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/NetworkManager/resolv.conf" ]; then
     rm -f /etc/resolv.conf
     ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
