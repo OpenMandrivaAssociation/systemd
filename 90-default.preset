@@ -51,6 +51,7 @@ enable usbmuxd.service
 enable man-db.*
 enable nscd.*
 enable shadow.*
+enable saned.socket
 
 # Network services
 enable systemd-networkd.service
