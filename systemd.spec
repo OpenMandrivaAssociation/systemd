@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	9
+Release:	22
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -72,6 +72,7 @@ Source16:	systemd.rpmlintrc
 Source17:	90-enable.network
 Source18:	90-user-default.preset
 Source19:	10-imx.rules
+Source20:	90-wireless.network
 
 ### OMV patches###
 # from Mandriva
@@ -91,6 +92,7 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
 Patch13:	systemd-216-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
+Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -107,7 +109,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	vala >= 0.9
-BuildRequires:	pkgconfig(dbus-1) >= 1.4.0
+BuildRequires:	pkgconfig(dbus-1) >= 1.8.0
 BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
@@ -156,11 +158,10 @@ Requires:	udev = %{EVRD}
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	dbus >= 1.3.2
-Requires(post):	initscripts > 9.24
+Requires:	dbus >= 1.8.0
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
-Requires(pre):	shadow-utils >= 4.2.1-10
+Requires(pre):	shadow >= 4.2.1-11
 Requires:	%{name}-units >= %{EVRD}
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
@@ -582,6 +583,7 @@ This package contains documentation of udev.
 %prep
 %setup -q
 %apply_patches
+
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
 #intltoolize --force --automake
@@ -760,6 +762,11 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 # (bor) enable rpcbind.target by default so we have something to plug portmapper service into
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
+# (tpg) explicitly enable these services
+ln -sf ../lib/systemd/system/systemd-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
+ln -sf ../lib/systemd/system/systemd-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-networkd.service
+ln -sf ../lib/systemd/system/systemd-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/systemd-timesyncd.service
+
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -803,6 +810,8 @@ install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
 # (tpg) install network file
 install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
+# (fedya) install wireless file
+install -m 0644 %{SOURCE20} %{buildroot}%{systemd_libdir}/network/
 
 # (tpg) install userspace presets
 install -m 0644 %{SOURCE18} %{buildroot}%{systemd_libdir}/user-preset/
@@ -965,8 +974,6 @@ systemd-sysusers
 /bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
-
-
 %if %mdvver < 201500
 #(tpg) BIG migration
 # Migrate /etc/sysconfig/clock
@@ -1053,13 +1060,25 @@ fi
 # (tpg) handle resolvconf
 if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ ! -e /etc/resolv.conf ]; then
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/NetworkManager/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
+
+# workarounds for ABF
+if [ ! -f /run/systemd/resolve/resolv.conf ]; then
+    echo "Warning /run/systemd/resolve/resolv.conf does not exists. Recreating it."
+    mkdir -p /run/systemd/resolve
+    echo -e "nameserver 208.67.222.222\nnameserver 208.67.220.220\n" > /run/systemd/resolve/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+# end of workarounds
 
 %triggerin -- setup
 # setup package owns /etc/resolv.conf
@@ -1067,8 +1086,8 @@ fi
 # to /run/systemd/resolve/resolv.conf
 if [ $1 -ge 2 -o $2 -ge 2 ]; then
     if [ -f /etc/resolv.conf ]; then
-	rm -f /etc/resolv.conf
-	ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+		rm -f /etc/resolv.conf
+		ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
     fi
     /bin/systemctl enable systemd-resolved.service 2>&1 || :
     /bin/systemctl restart systemd-resolved.service 2>&1 || :
@@ -1087,12 +1106,15 @@ fi
 %triggerposttransun -- resolvconf < 1.75-4
 if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ ! -e /etc/resolv.conf ]; then
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
     rm -f /etc/resolv.conf
-    ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/NetworkManager/resolv.conf" ]; then
+    rm -f /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
 /bin/systemctl enable systemd-resolved.service 2>&1 || :
@@ -1145,7 +1167,7 @@ if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
 fi
 
 %post units
-if [ $1 -eq 1 ] ; then
+if [ $1 -eq 2 ] ; then
         # Try to read default runlevel from the old inittab if it exists
         runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
         if [ -z "$runlevel" ] ; then
@@ -1162,6 +1184,8 @@ fi
 /bin/systemctl --quiet preset \
 	getty@tty1.service \
 	remote-fs.target \
+	shadow.timer \
+	shadow.service \
 	systemd-firstboot.service \
 	systemd-networkd.service \
 	systemd-networkd-wait-online.service \
@@ -1203,6 +1227,8 @@ fi
 %triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
 # don't run trigger for units shipped with this package
 echo $*| grep -q %{_unitdir}/getty@.service && exit 0
+# skip any actions for display managers
+[ `grep -o "Alias=display-manager.service" $*` ] && exit 0
 ARG1=$1
 ARG2=$2
 shift
@@ -1218,6 +1244,8 @@ fi
 
 %triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
 echo $*| grep -q %{_unitdir}/getty@.service && exit 0
+# skip any actions for display managers
+[ `grep -o "Alias=display-manager.service" $*` ] && exit 0
 ARG1=$1
 ARG2=$2
 shift
@@ -1676,6 +1704,7 @@ fi
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/90-enable.network
+%{systemd_libdir}/network/90-wireless.network
 %{systemd_libdir}/network/99-default.link
 
 %{_prefix}/lib/systemd/catalog/*.catalog
