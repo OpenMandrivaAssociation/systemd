@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	22
+Release:	23
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -772,6 +772,7 @@ mkdir %{buildroot}/run
 
 # (tpg) create missing dir
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -1569,6 +1570,7 @@ fi
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
+%dir %{_sysconfdir}/systemd/user/default.target.wants
 %dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
