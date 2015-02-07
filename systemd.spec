@@ -1227,8 +1227,6 @@ fi
 %triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
 # don't run trigger for units shipped with this package
 echo $*| grep -q %{_unitdir}/getty@.service && exit 0
-# skip any actions for display managers
-[ `grep -o "Alias=display-manager.service" $*` ] && exit 0
 ARG1=$1
 ARG2=$2
 shift
@@ -1244,8 +1242,6 @@ fi
 
 %triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
 echo $*| grep -q %{_unitdir}/getty@.service && exit 0
-# skip any actions for display managers
-[ `grep -o "Alias=display-manager.service" $*` ] && exit 0
 ARG1=$1
 ARG2=$2
 shift
