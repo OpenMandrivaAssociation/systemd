@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	23
+Release:	24
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1181,21 +1181,6 @@ if [ $1 -eq 2 ] ; then
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 fi
 
-# Enable the services we install by default.
-/bin/systemctl --quiet preset \
-	getty@tty1.service \
-	remote-fs.target \
-	shadow.timer \
-	shadow.service \
-	systemd-firstboot.service \
-	systemd-networkd.service \
-	systemd-networkd-wait-online.service \
-	systemd-resolved.service \
-	systemd-timesyncd.service \
-	systemd-timedated.service \
-	systemd-udev-settle.service \
-        2>&1 || :
-
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
 if [ -z $hostname_new ]; then
         hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
@@ -1208,26 +1193,10 @@ fi
 
 %preun units
 if [ $1 -eq 0 ] ; then
-    /bin/systemctl --quiet disable \
-	    getty@tty1.service \
-	    getty@getty.service \
-	    remote-fs.target \
-	    systemd-networkd.service \
-	    systemd-networkd-wait-online.service \
-	    systemd-resolvd.service \
-	    systemd-timesync.service \
-	    systemd-timedated.service \
-	    console-getty.service \
-	    console-shell.service \
-	    debug-shell.service \
-	    2>&1 || :
-
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
 
 %triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
-# don't run trigger for units shipped with this package
-echo $*| grep -q %{_unitdir}/getty@.service && exit 0
 ARG1=$1
 ARG2=$2
 shift
@@ -1242,7 +1211,6 @@ elif [ $ARG2 -gt 1 ]; then
 fi
 
 %triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
-echo $*| grep -q %{_unitdir}/getty@.service && exit 0
 ARG1=$1
 ARG2=$2
 shift
@@ -1283,21 +1251,6 @@ fi
 %_pre_useradd systemd-journal-remote %{_var}/log/journal/remote /sbin/nologin
 %_pre_groupadd systemd-journal-upload systemd-journal-upload
 %_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
-
-%post journal-gateway
-%systemd_post systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
-%systemd_post systemd-journal-remote.socket systemd-journal-remote.service
-%systemd_post systemd-journal-upload.service
-
-%preun journal-gateway
-%systemd_preun systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
-%systemd_preun systemd-journal-remote.socket systemd-journal-remote.service
-%systemd_preun systemd-journal-upload.service
-
-%postun journal-gateway
-%systemd_postun_with systemd-journal-gatewayd.service
-%systemd_postun_with systemd-journal-remote.service
-%systemd_postun_with systemd-journal-upload.service
 
 %files -f %{name}.lang
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
