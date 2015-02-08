@@ -1189,7 +1189,6 @@ fi
        shadow.service \
        systemd-firstboot.service \
        systemd-networkd.service \
-       systemd-networkd-wait-online.service \
        systemd-resolved.service \
        systemd-timesyncd.service \
        systemd-timedated.service \
@@ -1213,7 +1212,6 @@ if [ $1 -eq 0 ] ; then
            getty@getty.service \
            remote-fs.target \
            systemd-networkd.service \
-           systemd-networkd-wait-online.service \
            systemd-resolvd.service \
            systemd-timesync.service \
            systemd-timedated.service \
