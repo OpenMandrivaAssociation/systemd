@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	218
-Release:	22
+Release:	25
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -772,6 +772,7 @@ mkdir %{buildroot}/run
 
 # (tpg) create missing dir
 mkdir -p %{buildroot}%{_libdir}/systemd/user/
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -1182,17 +1183,16 @@ fi
 
 # Enable the services we install by default.
 /bin/systemctl --quiet preset \
-	getty@tty1.service \
-	remote-fs.target \
-	shadow.timer \
-	shadow.service \
-	systemd-firstboot.service \
-	systemd-networkd.service \
-	systemd-networkd-wait-online.service \
-	systemd-resolved.service \
-	systemd-timesyncd.service \
-	systemd-timedated.service \
-	systemd-udev-settle.service \
+       getty@tty1.service \
+       remote-fs.target \
+       shadow.timer \
+       shadow.service \
+       systemd-firstboot.service \
+       systemd-networkd.service \
+       systemd-resolved.service \
+       systemd-timesyncd.service \
+       systemd-timedated.service \
+       systemd-udev-settle.service \
         2>&1 || :
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
@@ -1208,33 +1208,30 @@ fi
 %preun units
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
-	    getty@tty1.service \
-	    getty@getty.service \
-	    remote-fs.target \
-	    systemd-networkd.service \
-	    systemd-networkd-wait-online.service \
-	    systemd-resolvd.service \
-	    systemd-timesync.service \
-	    systemd-timedated.service \
-	    console-getty.service \
-	    console-shell.service \
-	    debug-shell.service \
-	    2>&1 || :
+           getty@tty1.service \
+           getty@getty.service \
+           remote-fs.target \
+           systemd-networkd.service \
+           systemd-resolvd.service \
+           systemd-timesync.service \
+           systemd-timedated.service \
+           console-getty.service \
+           console-shell.service \
+           debug-shell.service \
+           2>&1 || :
 
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
 
 %triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
-# don't run trigger for units shipped with this package
-echo $*| grep -q %{_unitdir}/getty@.service && exit 0
-# skip any actions for display managers
-[ `grep -o "Alias=display-manager.service" $*` ] && exit 0
 ARG1=$1
 ARG2=$2
 shift
 shift
 
-units=${*#%_unitdir/}
+skip="$(grep -l 'Alias=display-manager.service' $* 2>/dev/null)"
+units=${*#%{_unitdir}/}
+units=${units#${skip##*/}}
 if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 elif [ $ARG2 -gt 1 ]; then
@@ -1243,18 +1240,17 @@ elif [ $ARG2 -gt 1 ]; then
 fi
 
 %triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
-echo $*| grep -q %{_unitdir}/getty@.service && exit 0
-# skip any actions for display managers
-[ `grep -o "Alias=display-manager.service" $*` ] && exit 0
 ARG1=$1
 ARG2=$2
 shift
 shift
 
-units=${*#%_unitdir/}
+skip="$(grep -l 'Alias=display-manager.service' $*)"
+units=${*#%{_unitdir}/}
+units=${units#${skip##*/}}
 if [ $ARG2 -eq 0 ]; then
-	/bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
-	/bin/systemctl stop ${units} >/dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
+    /bin/systemctl stop ${units} >/dev/null 2>&1 || :
 fi
 
 %triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
@@ -1292,21 +1288,6 @@ fi
 %_pre_useradd systemd-journal-remote %{_var}/log/journal/remote /sbin/nologin
 %_pre_groupadd systemd-journal-upload systemd-journal-upload
 %_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
-
-%post journal-gateway
-%systemd_post systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
-%systemd_post systemd-journal-remote.socket systemd-journal-remote.service
-%systemd_post systemd-journal-upload.service
-
-%preun journal-gateway
-%systemd_preun systemd-journal-gatewayd.socket systemd-journal-gatewayd.service
-%systemd_preun systemd-journal-remote.socket systemd-journal-remote.service
-%systemd_preun systemd-journal-upload.service
-
-%postun journal-gateway
-%systemd_postun_with systemd-journal-gatewayd.service
-%systemd_postun_with systemd-journal-remote.service
-%systemd_postun_with systemd-journal-upload.service
 
 %files -f %{name}.lang
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
@@ -1579,6 +1560,7 @@ fi
 %dir %{_sysconfdir}/systemd
 %dir %{_sysconfdir}/systemd/system
 %dir %{_sysconfdir}/systemd/user
+%dir %{_sysconfdir}/systemd/user/default.target.wants
 %dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/sysctl.d
