@@ -7,11 +7,11 @@ cdrom_id: created links for the default cd/dvd drive (bnc#783054).
  rules/60-cdrom_id.rules | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
---- systemd-206.orig/rules/60-cdrom_id.rules
-+++ systemd-206/rules/60-cdrom_id.rules
-@@ -15,6 +15,9 @@ ENV{DISK_EJECT_REQUEST}=="?*", RUN+="cdr
- # enable the receiving of media eject button events
- IMPORT{program}="cdrom_id --lock-media $devnode"
+--- systemd.orig/rules/60-cdrom_id.rules
++++ systemd/rules/60-cdrom_id.rules
+@@ -20,6 +20,9 @@ IMPORT{program}="cdrom_id --lock-media $
+ # stale mounts after ejecting
+ ENV{DISK_MEDIA_CHANGE}=="?*", ENV{ID_CDROM_MEDIA}!="?*", ENV{SYSTEMD_READY}="0"
  
 -KERNEL=="sr0", SYMLINK+="cdrom", OPTIONS+="link_priority=-100"
 +KERNEL=="sr0", ENV{ID_CDROM}=="1", SYMLINK+="cdrom", OPTIONS+="link_priority=-100"
