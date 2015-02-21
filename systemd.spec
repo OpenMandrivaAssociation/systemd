@@ -587,6 +587,10 @@ This package contains documentation of udev.
 
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
+
+# (tpg) handle -Oz to enable -flto
+sed -e "/^AS_CASE/s/12345/12345z/" configure*
+
 #intltoolize --force --automake
 autoreconf -fiv
 
