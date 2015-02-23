@@ -90,7 +90,7 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 #Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-214-silent-fsck-on-boot.patch
-Patch13:	systemd-216-uclibc-exp10-replacement.patch
+Patch13:	systemd-219-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 BuildRequires:	autoconf
@@ -587,6 +587,10 @@ This package contains documentation of udev.
 
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
+
+# (tpg) handle -Oz to enable -flto
+sed -e "/^AS_CASE/s/12345/12345z/" configure*
+
 #intltoolize --force --automake
 autoreconf -fiv
 
