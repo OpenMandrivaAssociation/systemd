@@ -596,10 +596,8 @@ autoreconf -fiv
 
 %build
 # binutils issue
-%ifarch aarch64
 export CC=gcc
 export CXX=g++
-%endif
 export CONFIGURE_TOP="$PWD"
 
 %if %{with uclibc}
