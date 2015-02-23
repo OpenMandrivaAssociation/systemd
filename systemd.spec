@@ -1374,7 +1374,7 @@ fi
 %{_bindir}/systemd-analyze
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
-%{_bindir}/systemd-hwdb
+/bin/systemd-hwdb
 %{_bindir}/systemd-loginctl
 %{_bindir}/systemd-path
 %{_bindir}/systemd-run
@@ -1385,6 +1385,7 @@ fi
 %{_bindir}/coredumpctl
 %{_bindir}/timedatectl
 %{_prefix}/lib/kernel/install.d/*.install
+%{systemd_libdir}/import-pubring.gpg
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-ac-power
 %{systemd_libdir}/systemd-activate
@@ -1397,12 +1398,13 @@ fi
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-hibernate-resume
 %{systemd_libdir}/systemd-initctl
+%{systemd_libdir}/systemd-importd
 %{systemd_libdir}/systemd-journald
-
 %{systemd_libdir}/systemd-lo*
 %{systemd_libdir}/systemd-m*
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
+%{systemd_libdir}/systemd-pull
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
 %{systemd_libdir}/systemd-re*
@@ -1440,17 +1442,18 @@ fi
 %{_mandir}/man1/coredumpctl.1.*
 %{_mandir}/man1/hostnamectl.*
 %{_mandir}/man1/journalctl.1*
-%{_mandir}/man1/localectl.*
-%{_mandir}/man1/loginctl.*
+%{_mandir}/man1/localectl.1*
+%{_mandir}/man1/loginctl.1*
+%{_mandir}/man1/networkctl.1*
 %{_mandir}/man1/systemd-run.1.*
 %{_mandir}/man1/systemd-machine-id-setup.1*
 %{_mandir}/man1/systemd-machine-id-commit.1*
-%{_mandir}/man1/systemd-notify.*
-%{_mandir}/man1/systemd-nspawn.*
+%{_mandir}/man1/systemd-notify.1*
+%{_mandir}/man1/systemd-nspawn.1*
 %{_mandir}/man1/systemd-delta.1.*
 %{_mandir}/man1/systemd-detect-virt.1.*
 %{_mandir}/man1/systemd-inhibit.1.*
-%{_mandir}/man1/timedatectl.*
+%{_mandir}/man1/timedatectl.1*
 %{_mandir}/man1/machinectl.1.*
 %{_mandir}/man3/*
 %{_mandir}/man5/*
@@ -1479,6 +1482,7 @@ fi
 %{_mandir}/man8/systemd-hibernate*.8.*
 %{_mandir}/man8/systemd-hostnamed*.8.*
 %{_mandir}/man8/systemd-hybrid*.8.*
+%{_mandir}/man8/systemd-hwdb.8.*
 %{_mandir}/man8/systemd-initctl*.8.*
 %{_mandir}/man8/systemd-journald.8.*
 %{_mandir}/man8/systemd-journald.service.8.*
@@ -1536,6 +1540,7 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 
 %{_datadir}/systemd/kbd-model-map
+%{_datadir}/systemd/language-fallback-map
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
@@ -1547,6 +1552,7 @@ fi
 %{uclibc_root}/bin/systemd-ask-password
 %{uclibc_root}/bin/systemd-escape
 %{uclibc_root}/bin/systemd-firstboot
+%{uclibc_root}/bin/systemd-hwdb
 %{uclibc_root}/bin/systemd-notify
 %{uclibc_root}/bin/systemd-tmpfiles
 %{uclibc_root}/bin/systemd-tty-ask-password-agent
@@ -1650,6 +1656,8 @@ fi
 %{systemd_libdir}/system/systemd-hibernate*.service
 %{systemd_libdir}/system/systemd-hostnamed*.service
 %{systemd_libdir}/system/systemd-hybrid*.service
+%{systemd_libdir}/system/systemd-hwdb-update.service
+%{systemd_libdir}/system/systemd-importd.service
 %{systemd_libdir}/system/systemd-initctl*.service
 %{systemd_libdir}/system/systemd-journal-flush.service
 %{systemd_libdir}/system/systemd-journal-catalog-update.service
@@ -1662,6 +1670,7 @@ fi
 %{systemd_libdir}/system/systemd-machine-id-commit.service
 %{systemd_libdir}/system/systemd-modules-load.service
 %{systemd_libdir}/system/systemd-networkd.service
+%{systemd_libdir}/system/systemd-networkd.socket
 %{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-nspawn*.service
 %{systemd_libdir}/system/systemd-poweroff.service
@@ -1737,7 +1746,10 @@ fi
 %{_libdir}/libnss_myhostname.so.%{libnss_major}*
 %{_libdir}/libnss_mymachines.so.%{libnss_major}
 %{_libdir}/libnss_resolve.so.%{libnss_major}
+%{_mandir}/man8/libnss_myhostname.so*.8*
+%{_mandir}/man8/libnss_mymachines.so*.8*
 %{_mandir}/man8/nss-myhostname.8*
+%{_mandir}/man8/nss-mymachines.8*
 
 %if %{with uclibc}
 %files -n uclibc-%{libnss_myhostname}
@@ -1779,7 +1791,7 @@ fi
 %{uclibc_root}%{_libdir}/libsystemd-daemon.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
-%{_datadir}/pkgconfig/systemd.pc
+%{_libdir}/pkgconfig/systemd.pc
 %{_includedir}/systemd/sd-messages.h
 
 %files -n %{liblogin}
