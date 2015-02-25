@@ -93,6 +93,9 @@ Patch11:	systemd-214-silent-fsck-on-boot.patch
 Patch13:	systemd-219-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
+# (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1092
+# keep this patch until upstream will fix it
+Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
