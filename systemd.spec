@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	219
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -592,7 +592,7 @@ find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
 
 # (tpg) handle -Oz to enable -flto
-sed -e "/^AS_CASE/s/12345/12345z/" configure*
+sed -i -e "/^AS_CASE/s/12345/12345z/" configure*
 
 #intltoolize --force --automake
 autoreconf -fiv
