@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	219
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -96,6 +96,7 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 # (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1092
 # keep this patch until upstream will fix it
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
+Patch17:	0515-Add-path-to-locale-search.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
