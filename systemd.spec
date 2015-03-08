@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	219
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -137,6 +137,7 @@ BuildRequires:	pkgconfig(libnotify)
 BuildRequires:	pkgconfig(libxslt)
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
+BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid)
 BuildRequires:	usbutils >= 005-3
@@ -660,6 +661,7 @@ pushd uclibc
 	--disable-machined \
 	--disable-bootchart \
 	--disable-quotacheck \
+	--disable-libiptc \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
