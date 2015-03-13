@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	219
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1254,6 +1254,8 @@ if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 elif [ $ARG2 -gt 1 ]; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    echo "triggerin starts"
+    echo ${units}
     /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
 fi
 
@@ -1268,6 +1270,8 @@ units=${*#%{_unitdir}/}
 units=${units#${skip##*/}}
 if [ $ARG2 -eq 0 ]; then
     /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
+    echo "triggerun starts"
+    echo ${units}
     /bin/systemctl stop ${units} >/dev/null 2>&1 || :
 fi
 
