@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	219
-Release:	8
+Release:	9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1271,7 +1271,7 @@ if [ $ARG2 -eq 0 ]; then
     /bin/systemctl stop ${units} >/dev/null 2>&1 || :
 fi
 
-%triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
+%triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %triggerposttransin -- %{_binfmtdir}/*.conf
