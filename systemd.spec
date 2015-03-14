@@ -1241,7 +1241,7 @@ if [ $1 -eq 0 ] ; then
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
 
-%triggerin units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
+%triggerin units -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
@@ -1254,12 +1254,10 @@ if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 elif [ $ARG2 -gt 1 ]; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    echo "triggerin starts"
-    echo ${units}
     /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
 fi
 
-%triggerun units -- ^%{_unitdir}/.*\.(service|socket|target|path|timer)$
+%triggerun units -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
@@ -1270,8 +1268,6 @@ units=${*#%{_unitdir}/}
 units=${units#${skip##*/}}
 if [ $ARG2 -eq 0 ]; then
     /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
-    echo "triggerun starts"
-    echo ${units}
     /bin/systemctl stop ${units} >/dev/null 2>&1 || :
 fi
 
