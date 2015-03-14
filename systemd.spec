@@ -1248,7 +1248,7 @@ shift
 shift
 
 skip="$(grep -l 'Alias=display-manager.service' $* 2>/dev/null)"
-units=${*#%{_unitdir}/}
+units=${*#%{_unitdir}/.*\.(service|socket|path|timer)$}
 units=${units#${skip##*/}}
 if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
@@ -1264,7 +1264,7 @@ shift
 shift
 
 skip="$(grep -l 'Alias=display-manager.service' $*)"
-units=${*#%{_unitdir}/}
+units=${*#%{_unitdir}/.*\.(service|socket|path|timer)$}
 units=${units#${skip##*/}}
 if [ $ARG2 -eq 0 ]; then
     /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
