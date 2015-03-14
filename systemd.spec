@@ -781,9 +781,9 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
 # (tpg) explicitly enable these services
-ln -sf ../lib/systemd/system/systemd-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
-ln -sf ../lib/systemd/system/systemd-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-networkd.service
-ln -sf ../lib/systemd/system/systemd-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/systemd-timesyncd.service
+ln -sf /lib/systemd/system/systemd-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
+ln -sf /lib/systemd/system/systemd-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-networkd.service
+ln -sf /lib/systemd/system/systemd-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/systemd-timesyncd.service
 
 # (eugeni) install /run
 mkdir %{buildroot}/run
