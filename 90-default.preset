@@ -36,15 +36,11 @@ enable ModemManager.service
 enable sshd.socket
 enable atd.*
 enable crond.*
-enable chronyd.service
 enable rpcbind.*
 enable bluetooth.*
 enable org.cups.cupsd.path
 enable org.cups.cupsd.socket
 enable org.cups.cups-lpd.socket
-enable rsyslog.*
-enable syslog-ng.*
-enable sysklogd.*
 enable accounts-daemon.service
 enable rtkit-daemon.service
 enable usbmuxd.service
