@@ -47,7 +47,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	219
-Release:	10
+Release:	11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -98,8 +98,8 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 # (tpg) https://bugzilla.gnome.org/show_bug.cgi?id=743891
-Patch18:	0001-unit-When-stopping-due-to-BindsTo-log-which-unit-cau.patch
-Patch19:	0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch
+#Patch18:	0001-unit-When-stopping-due-to-BindsTo-log-which-unit-cau.patch
+#Patch19:	0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch
 # (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1121
 Patch20:	systemd-219-sd-daemon-replace-VLA-with-alloca-to-make-llvm-happy.patch
 # (tpg) patches from upstream git
