@@ -177,6 +177,7 @@ Requires:	dbus >= 1.8.0
 Requires(pre):	basesystem-minimal
 Requires(pre):	util-linux >= 2.25.2
 Requires(pre):	shadow >= 4.2.1-11
+Requires(pre):	setup >= 2.8.7-2
 Requires:	%{name}-units >= %{EVRD}
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
