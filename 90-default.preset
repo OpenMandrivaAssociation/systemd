@@ -40,6 +40,7 @@ enable rpcbind.*
 enable bluetooth.*
 enable org.cups.cupsd.path
 enable org.cups.cupsd.socket
+enable org.cups.cupsd.service
 enable org.cups.cups-lpd.socket
 enable accounts-daemon.service
 enable rtkit-daemon.service
