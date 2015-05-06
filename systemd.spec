@@ -100,9 +100,9 @@ Patch17:	0515-Add-path-to-locale-search.patch
 # (tpg) https://bugzilla.gnome.org/show_bug.cgi?id=743891
 #Patch18:	0001-unit-When-stopping-due-to-BindsTo-log-which-unit-cau.patch
 # (tpg )https://bugs.freedesktop.org/show_bug.cgi?id=89383
-#Patch19:	0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch
+Patch19:	0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch
 # use upstream solution for above bug
-Patch19:	0001-device-rework-how-we-enter-tentative-state.patch
+#Patch19:	0001-device-rework-how-we-enter-tentative-state.patch
 # (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1121
 Patch20:	systemd-219-sd-daemon-replace-VLA-with-alloca-to-make-llvm-happy.patch
 # (tpg) patches from upstream git
