@@ -130,6 +130,7 @@ BuildRequires:	pkgconfig(blkid)
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
+BuildRequires:	pkgconfig(liblz4)
 %if !%{with bootstrap}
 BuildRequires:	python-devel
 BuildRequires:	python-lxml
