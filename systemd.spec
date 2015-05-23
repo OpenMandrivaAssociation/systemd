@@ -31,13 +31,8 @@
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
 
 %define udev_major 1
-%define gudev_api 1.0
-%define gudev_major 0
 %define libudev %mklibname udev %{udev_major}
 %define libudev_devel %mklibname udev -d
-%define libgudev %mklibname gudev %{gudev_api} %{gudev_major}
-%define libgudev_devel %mklibname gudev %{gudev_api} -d
-%define girgudev %mklibname gudev-gir %{gudev_api}
 
 %define systemd_libdir /lib/systemd
 %define udev_libdir /lib/udev
@@ -81,7 +76,7 @@ Source20:	90-wireless.network
 #Patch2:		udev-199-coldplug.patch
 # We need a static libudev.a for the uClibc build because lvm2 requires it.
 # Put back support for building it.
-Patch4:		systemd-205-static.patch
+Patch4:		systemd-220-static.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch6:		systemd-210-support-build-without-secure_getenv.patch
@@ -89,25 +84,14 @@ Patch7:		systemd-210-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 #Patch10:	systemd-214-uclibc.patch
-Patch11:	systemd-214-silent-fsck-on-boot.patch
-Patch13:	systemd-219-uclibc-exp10-replacement.patch
+Patch11:	systemd-220-silent-fsck-on-boot.patch
+Patch13:	systemd-220-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 # (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1092
 # keep this patch until upstream will fix it
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
-# (tpg) https://bugzilla.gnome.org/show_bug.cgi?id=743891
-#Patch18:	0001-unit-When-stopping-due-to-BindsTo-log-which-unit-cau.patch
-# (tpg )https://bugs.freedesktop.org/show_bug.cgi?id=89383
-Patch19:	0001-Revert-core-mount-add-dependencies-to-dynamically-mo.patch
-# use upstream solution for above bug
-#Patch19:	0001-device-rework-how-we-enter-tentative-state.patch
-# (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1121
-Patch20:	systemd-219-sd-daemon-replace-VLA-with-alloca-to-make-llvm-happy.patch
-# (tpg) patches from upstream git
-Patch100:	0001-tmpfiles-avoid-creating-duplicate-acl-entries.patch
-Patch101:	0001-tmpfiles-Fix-handling-of-duplicate-lines.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -559,37 +543,6 @@ Obsoletes:	%{name}-doc
 %description -n	%{libudev_devel}
 Devel library for udev.
 
-%package -n %{libgudev}
-Summary:	Libraries for adding libudev support to applications that use glib
-Group:		System/Libraries
-#gw please don't remove this again, it is needed by the noarch package
-#gudev-sharp
-Provides:	libgudev = %{EVRD}
-
-%description -n	%{libgudev}
-This package contains the libraries that make it easier to use libudev
-functionality from applications that use glib.
-
-%if !%{with bootstrap}
-%package -n %{girgudev}
-Group:		System/Libraries
-Summary:	GObject Introspection interface library for gudev
-Conflicts:	%{_lib}gudev1.0_0 < 182-5
-Obsoletes:	%{_lib}udev-gir1.0
-
-%description -n %{girgudev}
-GObject Introspection interface library for gudev.
-%endif
-
-%package -n %{libgudev_devel}
-Summary:	Header files for adding libudev support to applications that use glib
-Group:		Development/C
-Requires:	%{libgudev} = %{EVRD}
-
-%description -n	%{libgudev_devel}
-This package contains the header and pkg-config files for developing
-glib-based applications using libudev functionality.
-
 %package -n udev-doc
 Summary:	Udev documentation
 Group:		Books/Computer books
@@ -684,12 +637,15 @@ pushd shared
 	--with-rootlibdir=/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
 	--enable-compat-libs \
+	--enable-bzip2 \
+	--enable-lz4 \
 	--disable-static \
 	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
+	--disable-gudev \
 %if %{with bootstrap}
 	--enable-introspection=no \
 	--disable-libcryptsetup \
@@ -1788,7 +1744,7 @@ fi
 %{uclibc_root}%{_libdir}/libsystemd.so
 %{uclibc_root}%{_libdir}/libsystemd.a
 %endif
-%{_libdir}/pkgconfig/libsystemd.pc
+%{_datadir}/pkgconfig/libsystemd.pc
 
 %files -n %{libdaemon}
 /%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
@@ -1963,19 +1919,3 @@ fi
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
-
-%files -n %{libgudev}
-%{_libdir}/libgudev-%{gudev_api}.so.%{gudev_major}*
-
-%files -n %{libgudev_devel}
-%{_libdir}/libgudev-%{gudev_api}.so
-%{_includedir}/gudev-%{gudev_api}
-%if !%{with bootstrap}
-#%{_datadir}/gir-1.0/GUdev-%{gudev_api}.gir
-%endif
-%{_libdir}/pkgconfig/gudev-%{gudev_api}.pc
-
-%if !%{with bootstrap}
-%files -n %{girgudev}
-#%{_libdir}/girepository-1.0/GUdev-%{gudev_api}.typelib
-%endif
