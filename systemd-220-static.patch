@@ -1,6 +1,7 @@
---- systemd-205/configure.ac.omv~	2013-07-05 23:56:37.470803488 +0200
-+++ systemd-205/configure.ac	2013-07-05 23:56:54.585981423 +0200
-@@ -44,7 +44,7 @@ AS_IF([test "x$host_cpu" = "xmips" || te
+diff -Naur systemd-220/configure.ac systemd-220.tpg/configure.ac
+--- systemd-220/configure.ac	2015-05-21 18:00:47.000000000 +0000
++++ systemd-220.tpg/configure.ac	2015-05-23 19:59:16.311097893 +0000
+@@ -41,7 +41,7 @@
  LT_PREREQ(2.2)
  LT_INIT([disable-static])
  
@@ -8,4 +9,4 @@
 +dnl AS_IF([test "x$enable_static" = "xyes"], [AC_MSG_ERROR([--enable-static is not supported by systemd])])
  AS_IF([test "x$enable_largefile" = "xno"], [AC_MSG_ERROR([--disable-largefile is not supported by systemd])])
  
- # i18n stuff for the PolicyKit policy files
+ SET_ARCH(X86_64, x86_64*)

@@ -1,0 +1,26 @@
+diff -Naur systemd-220/src/resolve/resolved-dns-rr.c systemd-220.tpg/src/resolve/resolved-dns-rr.c
+--- systemd-220/src/resolve/resolved-dns-rr.c	2015-05-11 20:39:43.000000000 +0000
++++ systemd-220.tpg/src/resolve/resolved-dns-rr.c	2015-05-23 20:10:15.229376460 +0000
+@@ -20,6 +20,9 @@
+ ***/
+ 
+ #include <math.h>
++#ifdef __UCLIBC__
++#define exp10(x) (pow(10, (x)))
++#endif /* __UCLIBC__ */
+ 
+ #include "strv.h"
+ 
+diff -Naur systemd-220/src/shared/json.c systemd-220.tpg/src/shared/json.c
+--- systemd-220/src/shared/json.c	2015-05-21 21:29:45.000000000 +0000
++++ systemd-220.tpg/src/shared/json.c	2015-05-23 20:10:51.716361952 +0000
+@@ -21,6 +21,9 @@
+ 
+ #include <sys/types.h>
+ #include <math.h>
++#ifdef __UCLIBC__
++#define exp10(x) (pow(10, (x)))
++#endif /* __UCLIBC__ */
+ #include "macro.h"
+ #include "utf8.h"
+ #include "json.h"
