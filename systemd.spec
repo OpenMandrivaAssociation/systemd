@@ -1609,7 +1609,6 @@ fi
 %{systemd_libdir}/system/multi-user.target.wants/*.path
 %{systemd_libdir}/system/multi-user.target.wants/*.service
 %{systemd_libdir}/system/rescue.target.wants/*.service
-%{systemd_libdir}/system/runlevel*.target.wants/*.service
 %{systemd_libdir}/system/sockets.target.wants/*.socket
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/sysinit.target.wants/*.*mount
@@ -1668,7 +1667,6 @@ fi
 %{systemd_libdir}/system/systemd-remount*.service
 %{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-rfkill@.service
-%{systemd_libdir}/system/systemd-shutdownd.service
 %{systemd_libdir}/system/systemd-suspend.service
 %{systemd_libdir}/system/systemd-sysctl.service
 %{systemd_libdir}/system/systemd-sysusers.service
@@ -1689,7 +1687,6 @@ fi
 %{systemd_libdir}/system/systemd-initctl.socket
 %{systemd_libdir}/system/systemd-journald.socket
 %{systemd_libdir}/system/systemd-journald-audit.socket
-%{systemd_libdir}/system/systemd-shutdownd.socket
 %{systemd_libdir}/system/systemd-udev*.socket
 %{systemd_libdir}/system/*.target
 
@@ -1780,7 +1777,6 @@ fi
 %{uclibc_root}%{_libdir}/libsystemd-daemon.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
-%{_libdir}/pkgconfig/systemd.pc
 %{_includedir}/systemd/sd-messages.h
 
 %files -n %{liblogin}
