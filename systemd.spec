@@ -143,7 +143,9 @@ BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
+%ifnarch %armx
 BuildRequires:	gnu-efi
+%endif
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
@@ -622,6 +624,7 @@ pushd uclibc
 	--disable-bootchart \
 	--disable-quotacheck \
 	--disable-libiptc \
+	--disable-gnuefi \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
@@ -651,6 +654,9 @@ pushd shared
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 	--disable-gudev \
+%ifarch %armx
+	--disable-gnuefi \
+%endif
 %if %{with bootstrap}
 	--enable-introspection=no \
 	--disable-libcryptsetup \
