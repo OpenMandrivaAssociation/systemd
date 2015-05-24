@@ -654,7 +654,7 @@ pushd shared
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
 	--disable-gudev \
-%ifarch %armx
+%ifnarch %armx
 	--disable-gnuefi \
 %endif
 %if %{with bootstrap}
