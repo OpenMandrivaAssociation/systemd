@@ -555,6 +555,9 @@ This package contains documentation of udev.
 %setup -q
 %apply_patches
 
+# (tpg) clean tarball as these should not be here
+rm src/journal/audit_type-to-name.h src/udev/keyboard-keys-from-name.gperf
+
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
 
