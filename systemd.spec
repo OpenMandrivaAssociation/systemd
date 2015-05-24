@@ -143,6 +143,7 @@ BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
+BuildRequires:	gnu-efi
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
@@ -1370,6 +1371,8 @@ fi
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-c*
 %{systemd_libdir}/systemd-fsck
+%{systemd_libdir}/systemd-export
+%{systemd_libdir}/systemd-import
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-hibernate-resume
 %{systemd_libdir}/systemd-initctl
@@ -1591,11 +1594,13 @@ fi
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
+%{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/multi-user.target.wants/*.target
 %{systemd_libdir}/system/multi-user.target.wants/*.path
 %{systemd_libdir}/system/multi-user.target.wants/*.service
+%{systemd_libdir}/system/rescue.target.wants/*.service
 %{systemd_libdir}/system/runlevel*.target.wants/*.service
 %{systemd_libdir}/system/sockets.target.wants/*.socket
 %{systemd_libdir}/system/sysinit.target.wants/*.target
@@ -1748,7 +1753,8 @@ fi
 %{uclibc_root}%{_libdir}/libsystemd.so
 %{uclibc_root}%{_libdir}/libsystemd.a
 %endif
-%{_datadir}/pkgconfig/libsystemd.pc
+%{_datadir}/pkgconfig/systemd.pc
+%{_libdir}/pkgconfig/libsystemd.pc
 
 %files -n %{libdaemon}
 /%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
