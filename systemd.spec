@@ -1166,6 +1166,8 @@ if [ $1 -eq 2 ] ; then
 
         # And symlink what we found to the new-style default.target
         /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+	# (tpg) need to restart it to catch new auth
+	/bin/systemctl try-restart systemd-logind.service 2>&1 || :
 fi
 
 # Enable the services we install by default.
