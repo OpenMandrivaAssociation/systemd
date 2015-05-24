@@ -655,7 +655,7 @@ pushd shared
 	--disable-selinux \
 	--disable-gudev \
 %ifnarch %armx
-	--disable-gnuefi \
+	--enable-gnuefi \
 %endif
 %if %{with bootstrap}
 	--enable-introspection=no \
