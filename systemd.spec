@@ -1574,8 +1574,10 @@ fi
 %dir %{systemd_libdir}/system/bluetooth.target.wants
 %dir %{systemd_libdir}/system/dbus.target.wants
 %dir %{systemd_libdir}/system/default.target.wants
+%dir %{systemd_libdir}/system/graphical.target.wants
 %dir %{systemd_libdir}/system/local-fs.target.wants
 %dir %{systemd_libdir}/system/multi-user.target.wants
+%dir %{systemd_libdir}/system/rescue.target.wants
 %dir %{systemd_libdir}/system/runlevel1.target.wants
 %dir %{systemd_libdir}/system/runlevel2.target.wants
 %dir %{systemd_libdir}/system/runlevel3.target.wants
