@@ -95,7 +95,9 @@ Patch17:	0515-Add-path-to-locale-search.patch
 
 # UPSTREAM GIT PATCHES
 Patch100:	0001-shared-generator-correct-path-to-systemd-fsck.patch
-
+Patch101:	0002-build-sys-fix-headers-installation.patch
+Patch102:	0003-swap-use-swapon-o.patch
+Patch103:	0004-udev-fix-inotify-handling.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -161,14 +163,14 @@ BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.2-15
 %endif
-Requires(pre,post):	coreutils
+Requires(pre,post):	coreutils >= 8.23
 Requires:	udev = %{EVRD}
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
 Requires:	dbus >= 1.8.0
-Requires(pre):	basesystem-minimal
-Requires(pre):	util-linux >= 2.25.2
+Requires(pre):	basesystem-minimal >= 2015.0
+Requires(pre):	util-linux >= 2.26.2
 Requires(pre):	shadow >= 4.2.1-11
 Requires(pre):	setup >= 2.8.7-2
 Requires:	%{name}-units >= %{EVRD}
@@ -184,7 +186,7 @@ Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
-Requires:	kmod
+Requires:	kmod >= 20
 %rename	readahead
 %if %mdvver >= 201500
 # (tpg) this is obsoleted
@@ -470,18 +472,17 @@ uClibc version of nss-myhostname.
 %package -n udev
 Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
-Requires:	ldetect-lst
 Requires:	setup >= 2.8.7-2
-Requires:	util-linux-ng >= 2.15
+Requires:	util-linux >= 2.26.2
 Requires:	acl
 # for disk/lp groups
 Requires(pre):	setup >= 2.8.7-2
-Requires(pre):	coreutils
-Requires(pre):	filesystem
+Requires(pre):	coreutils >= 8.23
+Requires(pre):	filesystem > 3.0-15
 Requires(pre,post,preun):	rpm-helper >= 0.24.12-11
 Requires(pre,post,preun):	bash
 Provides:	should-restart = system
-Requires(post):	util-linux
+Requires(post):	util-linux >= 2.26.2
 Obsoletes:	hal	<= 0.5.14-6
 # (tpg) moved form makedev package
 Provides:	dev
@@ -500,7 +501,6 @@ removed from the system
 Summary:	Device manager for the Linux kernel (uClibc linked)
 Group:		System/Configuration/Hardware
 Requires:	udev = %{EVRD}
-#Requires:	ldetect-lst
 #Requires:	setup >= 2.7.16
 #Requires:	util-linux-ng >= 2.15
 #Requires:	acl

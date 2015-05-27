@@ -1,0 +1,22 @@
+From 49f582c0a09100e7b282a32af2b2da66828ddcde Mon Sep 17 00:00:00 2001
+From: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+Date: Mon, 25 May 2015 13:35:14 +0200
+Subject: build-sys: fix headers installation
+
+
+diff --git a/Makefile.am b/Makefile.am
+index 1bfccfd..81a7f4c 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -3128,7 +3128,7 @@ pkginclude_HEADERS += \
+ 	src/systemd/sd-bus.h \
+ 	src/systemd/sd-bus-protocol.h \
+ 	src/systemd/sd-bus-vtable.h \
+-	src/systemd/sd-event.h
++	src/systemd/sd-event.h \
+ 	src/systemd/sd-login.h \
+ 	src/systemd/sd-id128.h \
+ 	src/systemd/sd-daemon.h
+-- 
+cgit v0.10.2
+

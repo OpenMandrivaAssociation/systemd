@@ -1,0 +1,179 @@
+From bf1d7ba70aceddb5dae0cd2e370b8afaf0c81b05 Mon Sep 17 00:00:00 2001
+From: Karel Zak <kzak@redhat.com>
+Date: Mon, 25 May 2015 12:11:23 +0200
+Subject: swap: use swapon -o
+
+This patch simplify swapon usage in systemd. The command swapon(8)
+since util-linux v2.26 supports "-o <list>". The idea is exactly the
+same like for mount(8). The -o specifies options in fstab-compatible
+way. For systemd it means that it does not have to care about things
+like "discard" or another swapon specific options.
+
+        swapon -o <options-from-fstab>
+
+For backward compatibility the code cares about "Priority:" swap unit
+field (for a case when Priority: is set, but pri= in the Options: is
+missing).
+
+References: http://lists.freedesktop.org/archives/systemd-devel/2014-October/023576.html
+
+diff --git a/README b/README
+index 039110e..2b8c68e 100644
+--- a/README
++++ b/README
+@@ -136,7 +136,7 @@ REQUIREMENTS:
+         During runtime, you need the following additional
+         dependencies:
+ 
+-        util-linux >= v2.25 required
++        util-linux >= v2.26 required
+         dbus >= 1.4.0 (strictly speaking optional, but recommended)
+         dracut (optional)
+         PolicyKit (optional)
+diff --git a/man/systemd.swap.xml b/man/systemd.swap.xml
+index 5016f45..c398677 100644
+--- a/man/systemd.swap.xml
++++ b/man/systemd.swap.xml
+@@ -177,7 +177,8 @@
+ 
+         <listitem><para>Swap priority to use when activating the swap
+         device or file. This takes an integer. This setting is
+-        optional.</para></listitem>
++        optional and ignored when priotiry is set by <option>pri=</option> in the
++        <varname>Options=</varname> option.</para></listitem>
+       </varlistentry>
+ 
+       <varlistentry>
+diff --git a/src/core/swap.c b/src/core/swap.c
+index 12ebf84..193c8c3 100644
+--- a/src/core/swap.c
++++ b/src/core/swap.c
+@@ -717,8 +717,8 @@ fail:
+ }
+ 
+ static void swap_enter_activating(Swap *s) {
+-        _cleanup_free_ char *discard = NULL;
+-        int r, priority = -1;
++        _cleanup_free_ char *opts = NULL;
++        int r;
+ 
+         assert(s);
+ 
+@@ -726,13 +726,21 @@ static void swap_enter_activating(Swap *s) {
+         s->control_command = s->exec_command + SWAP_EXEC_ACTIVATE;
+ 
+         if (s->from_fragment) {
+-                fstab_filter_options(s->parameters_fragment.options, "discard\0", NULL, &discard, NULL);
++                int priority = -1;
+ 
+-                priority = s->parameters_fragment.priority;
+-                if (priority < 0) {
+-                        r = fstab_find_pri(s->parameters_fragment.options, &priority);
++                r = fstab_find_pri(s->parameters_fragment.options, &priority);
++                if (r < 0)
++                        log_warning_errno(r, "Failed to parse swap priority \"%s\", ignoring: %m", s->parameters_fragment.options);
++                else if (r == 1 && s->parameters_fragment.priority >= 0)
++                        log_warning("Duplicate swap priority configuration by Priority and Options fields.");
++
++                if (r <= 0 && s->parameters_fragment.priority >= 0) {
++                        if (s->parameters_fragment.options)
++                                r = asprintf(&opts, "%s,pri=%i", s->parameters_fragment.options, s->parameters_fragment.priority);
++                        else
++                                r = asprintf(&opts, "pri=%i", s->parameters_fragment.priority);
+                         if (r < 0)
+-                                log_notice_errno(r, "Failed to parse swap priority \"%s\", ignoring: %m", s->parameters_fragment.options);
++                                goto fail;
+                 }
+         }
+ 
+@@ -740,24 +748,9 @@ static void swap_enter_activating(Swap *s) {
+         if (r < 0)
+                 goto fail;
+ 
+-        if (priority >= 0) {
+-                char p[DECIMAL_STR_MAX(int)];
+-
+-                sprintf(p, "%i", priority);
+-                r = exec_command_append(s->control_command, "-p", p, NULL);
+-                if (r < 0)
+-                        goto fail;
+-        }
+-
+-        if (discard && !streq(discard, "none")) {
+-                const char *discard_arg;
+-
+-                if (streq(discard, "all"))
+-                        discard_arg = "--discard";
+-                else
+-                        discard_arg = strjoina("--discard=", discard);
+-
+-                r = exec_command_append(s->control_command, discard_arg, NULL);
++        if (s->parameters_fragment.options || opts) {
++                r = exec_command_append(s->control_command, "-o",
++                                opts ? : s->parameters_fragment.options, NULL);
+                 if (r < 0)
+                         goto fail;
+         }
+diff --git a/src/fstab-generator/fstab-generator.c b/src/fstab-generator/fstab-generator.c
+index 302fad3..a88b68e 100644
+--- a/src/fstab-generator/fstab-generator.c
++++ b/src/fstab-generator/fstab-generator.c
+@@ -53,10 +53,9 @@ static int add_swap(
+                 bool noauto,
+                 bool nofail) {
+ 
+-        _cleanup_free_ char *name = NULL, *unit = NULL, *lnk = NULL, *filtered = NULL;
++        _cleanup_free_ char *name = NULL, *unit = NULL, *lnk = NULL;
+         _cleanup_fclose_ FILE *f = NULL;
+-        int r, pri = -1;
+-        const char *opts;
++        int r;
+ 
+         assert(what);
+         assert(me);
+@@ -71,18 +70,6 @@ static int add_swap(
+                 return 0;
+         }
+ 
+-        opts = me->mnt_opts;
+-        r = fstab_find_pri(opts, &pri);
+-        if (r < 0) {
+-                log_error_errno(r, "Failed to parse priority, ignoring: %m");
+-
+-                /* Remove invalid pri field */
+-                r = fstab_filter_options(opts, "pri\0", NULL, NULL, &filtered);
+-                if (r < 0)
+-                        return log_error_errno(r, "Failed to parse options: %m");
+-                opts = filtered;
+-        }
+-
+         r = unit_name_from_path(what, ".swap", &name);
+         if (r < 0)
+                 return log_error_errno(r, "Failed to generate unit name: %m");
+@@ -109,20 +96,15 @@ static int add_swap(
+                 "What=%s\n",
+                 what);
+ 
+-        /* Note that we currently pass the priority field twice, once
+-         * in Priority=, and once in Options= */
+-        if (pri >= 0)
+-                fprintf(f, "Priority=%i\n", pri);
+-
+-        if (!isempty(opts) && !streq(opts, "defaults"))
+-                fprintf(f, "Options=%s\n", opts);
++        if (!isempty(me->mnt_opts) && !streq(me->mnt_opts, "defaults"))
++                fprintf(f, "Options=%s\n", me->mnt_opts);
+ 
+         r = fflush_and_check(f);
+         if (r < 0)
+                 return log_error_errno(r, "Failed to write unit file %s: %m", unit);
+ 
+         /* use what as where, to have a nicer error message */
+-        r = generator_write_timeouts(arg_dest, what, what, opts, NULL);
++        r = generator_write_timeouts(arg_dest, what, what, me->mnt_opts, NULL);
+         if (r < 0)
+                 return r;
+ 
+-- 
+cgit v0.10.2
+
