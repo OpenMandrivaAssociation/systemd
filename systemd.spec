@@ -93,6 +93,9 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 
+# UPSTREAM GIT PATCHES
+Patch100:	0001-shared-generator-correct-path-to-systemd-fsck.patch
+
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -571,9 +574,6 @@ sed -i -e "/^AS_CASE/s/12345/12345z/" configure*
 autoreconf -fiv
 
 %build
-# binutils issue
-#export CC=gcc
-#export CXX=g++
 export CONFIGURE_TOP="$PWD"
 
 %if %{with uclibc}
