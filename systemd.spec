@@ -1,5 +1,5 @@
 %bcond_with bootstrap
-%bcond_with uclibc
+%bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -161,7 +161,7 @@ BuildRequires:	pkgconfig(mount)
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 %if %{with uclibc}
-BuildRequires:	uClibc-devel >= 0.9.33.2-15
+BuildRequires:	uClibc-devel >= 0.9.33.3-0.20140421.8
 %endif
 Requires(pre,post):	coreutils >= 8.23
 Requires:	udev = %{EVRD}
