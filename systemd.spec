@@ -95,9 +95,7 @@ Patch17:	0515-Add-path-to-locale-search.patch
 
 # UPSTREAM GIT PATCHES
 Patch100:	0001-shared-generator-correct-path-to-systemd-fsck.patch
-Patch101:	0002-build-sys-fix-headers-installation.patch
-Patch102:	0003-swap-use-swapon-o.patch
-Patch103:	0004-udev-fix-inotify-handling.patch
+Patch101:	0003-swap-use-swapon-o.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
