@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.13
+Release:	19.14
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -403,8 +403,6 @@ uClibc version of nss-myhostname.
 %package -n udev
 Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
-Requires:	%{name} = %{version}-%{release}
-Requires:	ldetect-lst
 Requires:	setup >= 2.7.16
 Requires:	util-linux-ng >= 2.15
 Requires:	acl
@@ -434,15 +432,6 @@ removed from the system
 Summary:	Device manager for the Linux kernel (uClibc linked)
 Group:		System/Configuration/Hardware
 Requires:	udev = %{EVRD}
-#Requires:	ldetect-lst
-#Requires:	setup >= 2.7.16
-#Requires:	util-linux-ng >= 2.15
-#Requires:	acl
-# for disk/lp groups
-#Requires(pre):	setup
-#Requires(pre):	coreutils
-#Requires(post,preun):	rpm-helper
-#Provides:	should-restart = system
 
 %description -n	uclibc-udev
 A collection of tools and a daemon to manage events received
@@ -670,8 +659,8 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
-ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
-ln -s %{systemd_libdir}/system/systemd-udev-settle.service %{buildroot}/%{systemd_libdir}/system/udev-settle.service
+ln -s -r %{buildroot}/%{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
+ln -s -r %{buildroot}/%{systemd_libdir}/system/systemd-udev-settle.service %{buildroot}/%{systemd_libdir}/system/udev-settle.service
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
@@ -805,7 +794,7 @@ ln -sf /bin/udevadm %{buildroot}%{_sbindir}/udevadm
 
 # (tpg) this is needed, because udevadm is in /bin
 # altering the path allows to boot on before root pivot
-sed -i -e 's#/usr/bin/udevadm#/bin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
+sed -i --follow-symlinks -e 's#/bin/udevadm#/sbin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
 
 mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
@@ -879,6 +868,7 @@ fi
 
 #(tpg) BIG migration
 
+if [ $1 -ge 2 ]; then
 # Migrate /etc/sysconfig/clock
 if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
 	. /etc/sysconfig/clock 2>&1 || :
@@ -920,7 +910,7 @@ if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
         [ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
 fi
 
-# Migrate /etc/sysconfig/keyboard
+# Migrate /etc/sysconfig/keyboard to the vconsole configuration
 if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
         unset SYSFONT
         unset SYSFONTACM
@@ -934,6 +924,24 @@ if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
         [ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
 fi
 
+# Migrate /etc/sysconfig/keyboard to the X11 keyboard configuration
+if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
+        unset XkbLayout
+        unset XkbModel
+        unset XkbVariant
+        unset XkbOptions
+        . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+
+        echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+fi
+
 # Migrate HOSTNAME= from /etc/sysconfig/network
 if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
         unset HOSTNAME
@@ -941,13 +949,6 @@ if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
         [ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
 fi
 /usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
-
-# Migrate the old systemd-setup-keyboard X11 configuration fragment
-if [ ! -e /etc/X11/xorg.conf.d/00-keyboard.conf ] ; then
-        /usr/bin/mv /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf /etc/X11/xorg.conf.d/00-keyboard.conf >/dev/null 2>&1 || :
-else
-        /usr/bin/rm -f /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf >/dev/null 2>&1 || :
-fi
 
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
 if [ -f /etc/nsswitch.conf ] ; then
@@ -959,12 +960,13 @@ if [ -f /etc/nsswitch.conf ] ; then
 fi
 
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
-if [ $1 -ge 2 ]; then
-    if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
+if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
 	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
 	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
-    fi
 fi
+
+fi
+# End BIG migration
 
 %triggerin units -- %{name}-units < 35-1
 # Enable the services we install by default.
