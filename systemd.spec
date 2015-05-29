@@ -962,6 +962,7 @@ systemd-sysusers
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 %if %mdvver < 201500
+if [ $1 -ge 2 ]; then
 #(tpg) BIG migration
 # Migrate /etc/sysconfig/clock
 if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
@@ -1004,7 +1005,7 @@ if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
         [ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
 fi
 
-# Migrate /etc/sysconfig/keyboard
+# Migrate /etc/sysconfig/keyboard to the vconsole configuration
 if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
         unset SYSFONT
         unset SYSFONTACM
@@ -1018,19 +1019,35 @@ if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
         [ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
 fi
 
+# Migrate /etc/sysconfig/keyboard to the X11 keyboard configuration
+if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
+        unset XkbLayout
+        unset XkbModel
+        unset XkbVariant
+        unset XkbOptions
+        . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+
+        echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        [ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+        echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+fi
+
+rm -f /etc/sysconfig/i18n >/dev/null 2>&1 || :
+rm -f /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+
 # Migrate HOSTNAME= from /etc/sysconfig/network
 if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
         unset HOSTNAME
         . /etc/sysconfig/network >/dev/null 2>&1 || :
         [ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
 fi
-/usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
 
-# Migrate the old systemd-setup-keyboard X11 configuration fragment
-if [ ! -e /etc/X11/xorg.conf.d/00-keyboard.conf ] ; then
-        /usr/bin/mv /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf /etc/X11/xorg.conf.d/00-keyboard.conf >/dev/null 2>&1 || :
-else
-        /usr/bin/rm -f /etc/X11/xorg.conf.d/00-system-setup-keyboard.conf >/dev/null 2>&1 || :
+/usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
 fi
 %endif
 # End BIG migration
