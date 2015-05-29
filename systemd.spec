@@ -727,8 +727,9 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
 
 #(tpg) keep these compat symlink
-ln -s %{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
-ln -s %{systemd_libdir}/system/systemd-udev-settle.service %{buildroot}/%{systemd_libdir}/system/udev-settle.service
+ln -s -r %{buildroot}/%{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
+ln -s -r %{buildroot}/%{systemd_libdir}/system/systemd-udev-settle.service %{buildroot}/%{systemd_libdir}/system/udev-settle.service
+
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
@@ -842,7 +843,7 @@ ln -sf /bin/udevadm %{buildroot}%{_sbindir}/udevadm
 
 # (tpg) this is needed, because udevadm is in /bin
 # altering the path allows to boot on before root pivot
-sed -i -e 's#/usr/bin/udevadm#/bin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
+sed -i --follow-symlinks -e 's#/bin/udevadm#/sbin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
 
 mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
