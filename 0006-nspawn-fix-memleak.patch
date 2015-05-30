@@ -1,0 +1,25 @@
+From cc9fce65544117f9c5e02daed6fb445c10127e37 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Mon, 25 May 2015 23:01:45 +0200
+Subject: nspawn: fix memleak
+
+This was a typo, swapping prefix_root() in place of prefix_roota().
+
+Fixes CID 1299640.
+
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 3226752..23bb959 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -1782,7 +1782,7 @@ static int setup_pts(const char *dest) {
+                 return log_oom();
+ 
+         /* Mount /dev/pts itself */
+-        p = prefix_root(dest, "/dev/pts");
++        p = prefix_roota(dest, "/dev/pts");
+         if (mkdir(p, 0755) < 0)
+                 return log_error_errno(errno, "Failed to create /dev/pts: %m");
+         if (mount("devpts", p, "devpts", MS_NOSUID|MS_NOEXEC, options) < 0)
+-- 
+cgit v0.10.2
+

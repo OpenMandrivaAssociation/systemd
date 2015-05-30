@@ -96,6 +96,11 @@ Patch17:	0515-Add-path-to-locale-search.patch
 # UPSTREAM GIT PATCHES
 Patch100:	0001-shared-generator-correct-path-to-systemd-fsck.patch
 Patch101:	0003-swap-use-swapon-o.patch
+Patch102:	0004-networkd-fix-IFF_UP-when-ipv6-support-is-disabled.patch
+Patch103:	0005-nspawn-avoid-memleak.patch
+Patch104:	0006-nspawn-fix-memleak.patch
+Patch105:	0007-udevd-fix-SIGCHLD-handling-in-daemon-mode.patch
+
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -668,7 +673,7 @@ pushd shared
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
-%make -j1
+%make
 
 popd
 

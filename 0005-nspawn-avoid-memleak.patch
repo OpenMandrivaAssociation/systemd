@@ -1,0 +1,46 @@
+From 2371271c2acaeab31e232b6749f12aeac7c18348 Mon Sep 17 00:00:00 2001
+From: Tom Gundersen <teg@jklm.no>
+Date: Mon, 25 May 2015 22:55:52 +0200
+Subject: nspawn: avoid memleak
+
+Simplify the code a bit, at the cost of potentially duplicating some
+memory unneccessarily.
+
+Fixes CID 1299641.
+
+diff --git a/src/nspawn/nspawn.c b/src/nspawn/nspawn.c
+index 4e41990..3226752 100644
+--- a/src/nspawn/nspawn.c
++++ b/src/nspawn/nspawn.c
+@@ -4065,7 +4065,7 @@ static int inner_child(
+                 NULL
+         };
+ 
+-        char **env_use;
++        _cleanup_strv_free_ char **env_use = NULL;
+         int r;
+ 
+         assert(barrier);
+@@ -4173,16 +4173,9 @@ static int inner_child(
+                         return log_oom();
+         }
+ 
+-        if (!strv_isempty(arg_setenv)) {
+-                char **n;
+-
+-                n = strv_env_merge(2, envp, arg_setenv);
+-                if (!n)
+-                        return log_oom();
+-
+-                env_use = n;
+-        } else
+-                env_use = (char**) envp;
++        env_use = strv_env_merge(2, envp, arg_setenv);
++        if (!env_use)
++                return log_oom();
+ 
+         /* Let the parent know that we are ready and
+          * wait until the parent is ready with the
+-- 
+cgit v0.10.2
+
