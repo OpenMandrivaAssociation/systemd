@@ -151,7 +151,7 @@ BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
 %ifnarch %armx
-BuildRequires:	gnu-efi
+#BuildRequires:	gnu-efi
 %endif
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
@@ -653,7 +653,7 @@ pushd shared
 	--disable-selinux \
 	--disable-gudev \
 %ifnarch %armx
-	--enable-gnuefi \
+	--disable-gnuefi \
 %endif
 %if %{with bootstrap}
 	--enable-introspection=no \
