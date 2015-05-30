@@ -116,7 +116,6 @@ BuildRequires:	pkgconfig(dbus-1) >= 1.8.0
 BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
-BuildRequires:	pkgconfig(gtk+-2.0)
 BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
