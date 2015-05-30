@@ -453,8 +453,8 @@ Provides:	libnss_myhostname = %{EVRD}
 Provides:	nss_myhostname = %{EVRD}
 Obsoletes:	nss_myhostname <= 0.3-1
 Requires(post,preun):	bash
-Requires(post,preun):	rpm-helper >= 0.24.12-11
 Requires(post,preun):	sed
+Requires(post,preun):	glibc
 
 %description -n %{libnss_myhostname}
 nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
@@ -477,15 +477,11 @@ Group:		System/Configuration/Hardware
 Requires:	setup >= 2.8.7-2
 Requires:	util-linux >= 2.26.2
 Requires:	acl
-# for disk/lp groups
-Requires(pre):	setup >= 2.8.7-2
-Requires(pre):	coreutils >= 8.23
-Requires(pre):	filesystem > 3.0-15
-Requires(pre,post,preun):	rpm-helper >= 0.24.12-11
-Requires(pre,post,preun):	bash
+Requires(post,preun):	rpm-helper >= 0.24.12-11
+Requires(post,preun):	bash
 Provides:	should-restart = system
 Requires(post):	util-linux >= 2.26.2
-Obsoletes:	hal	<= 0.5.14-6
+Obsoletes:	hal <= 0.5.14-6
 # (tpg) moved form makedev package
 Provides:	dev
 Provides:	MAKEDEV
@@ -872,7 +868,7 @@ mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 
 # (tpg) just delete this for now
 # file /usr/share/man/man5/crypttab.5.xz 
-# from install of systemd-186-2.x86_64 
+# from install of systemd-186-2.x86_64
 # conflicts with file from package initscripts-9.25-10.x86_64
 rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 
@@ -884,15 +880,6 @@ rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 # extra own post
 if [ $1 -ge 2 -o $2 -ge 2 ] ; then
 	/bin/systemctl daemon-reexec 2>&1 || :
-fi
-
-%pre -n udev
-if [ -d /lib/hotplug/firmware ]; then
-	echo "Moving /lib/hotplug/firmware to /lib/firmware"
-	mkdir -p /lib/firmware
-	mv /lib/hotplug/firmware/* /lib/firmware/ 2>/dev/null
-	rmdir -p --ignore-fail-on-non-empty /lib/hotplug/firmware
-	:
 fi
 
 %post -n udev
