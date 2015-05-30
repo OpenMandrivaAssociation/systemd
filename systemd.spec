@@ -174,7 +174,7 @@ Requires:	dbus >= 1.8.0
 Requires(pre):	basesystem-minimal >= 2015.0
 Requires(pre):	util-linux >= 2.26.2
 Requires(pre):	shadow >= 4.2.1-11
-Requires(pre):	setup >= 2.8.7-2
+Requires(pre):	setup >= 2.8.8-16
 Requires:	%{name}-units >= %{EVRD}
 Requires:	lockdev
 Conflicts:	initscripts < 9.24
@@ -263,7 +263,7 @@ Requires(post):	coreutils
 Requires(post):	gawk
 Requires(post):	grep
 Requires(post):	awk
-Requires(pre):	setup >= 2.8.7-2
+Requires(pre):	setup >= 2.8.8-16
 Requires(pre):	rpm-helper >= 0.24.12-11
 
 %description units
@@ -474,7 +474,7 @@ uClibc version of nss-myhostname.
 %package -n udev
 Summary:	Device manager for the Linux kernel
 Group:		System/Configuration/Hardware
-Requires:	setup >= 2.8.7-2
+Requires:	setup >= 2.8.8-16
 Requires:	util-linux >= 2.26.2
 Requires:	acl
 Requires(post,preun):	rpm-helper >= 0.24.12-11
