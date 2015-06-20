@@ -1,4 +1,4 @@
-%bcond_with bootstrap
+%bcond_without bootstrap
 %bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
@@ -41,8 +41,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	220
-Release:	2
+Version:	221
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -151,7 +151,7 @@ BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
 %ifnarch %armx
-#BuildRequires:	gnu-efi
+BuildRequires:	gnu-efi
 %endif
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
@@ -625,6 +625,7 @@ pushd uclibc
 	--disable-gnuefi \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
+	--disable-kdbus \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
@@ -653,7 +654,7 @@ pushd shared
 	--disable-selinux \
 	--disable-gudev \
 %ifnarch %armx
-	--disable-gnuefi \
+	--enable-gnuefi \
 %endif
 %if %{with bootstrap}
 	--enable-introspection=no \
@@ -666,6 +667,7 @@ pushd shared
 	--enable-xkbcommon \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
+	--disable-kdbus \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
