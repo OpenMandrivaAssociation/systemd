@@ -1,0 +1,13 @@
+diff -Naur systemd-221/src/basic/missing.h systemd-221.tpg/src/basic/missing.h
+--- systemd-221/src/basic/missing.h	2015-06-11 09:52:10.000000000 +0000
++++ systemd-221.tpg/src/basic/missing.h	2015-06-21 11:35:35.784249266 +0000
+@@ -564,7 +564,8 @@
+ #  ifdef HAVE___SECURE_GETENV
+ #    define secure_getenv __secure_getenv
+ #  else
+-#    error "neither secure_getenv nor __secure_getenv are available"
++#    warning "neither secure_getenv nor __secure_getenv are available"
++#    define secure_getenv getenv
+ #  endif
+ #endif
+ 

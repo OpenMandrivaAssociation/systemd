@@ -79,13 +79,13 @@ Source20:	90-wireless.network
 Patch4:		systemd-220-static.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
-Patch6:		systemd-210-support-build-without-secure_getenv.patch
-Patch7:		systemd-210-uclibc-no-mkostemp.patch
+Patch6:		systemd-221-support-build-without-secure_getenv.patch
+Patch7:		systemd-221-uclibc-no-mkostemp.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 #Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
-Patch13:	systemd-220-uclibc-exp10-replacement.patch
+Patch13:	systemd-221-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 # (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1092
@@ -94,12 +94,6 @@ Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 
 # UPSTREAM GIT PATCHES
-Patch100:	0001-shared-generator-correct-path-to-systemd-fsck.patch
-Patch101:	0003-swap-use-swapon-o.patch
-Patch102:	0004-networkd-fix-IFF_UP-when-ipv6-support-is-disabled.patch
-Patch103:	0005-nspawn-avoid-memleak.patch
-Patch104:	0006-nspawn-fix-memleak.patch
-Patch105:	0007-udevd-fix-SIGCHLD-handling-in-daemon-mode.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
