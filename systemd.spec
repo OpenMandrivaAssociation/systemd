@@ -1132,7 +1132,7 @@ if [ $2 -eq 0 ]; then
     done
 fi
 
-%triggerin units -- %{name}-units < 217-10
+%triggerin -- %{name}-units < 217-10
 # make sure we use preset here
 /bin/systemctl --quiet preset \
 	getty@getty.service \
@@ -1151,7 +1151,7 @@ fi
 /bin/systemctl --quiet disable systemd-readahead-replay.service 2>&1 || :
 /bin/systemctl --quiet disable systemd-readahead-collect.service 2>&1 || :
 
-%triggerpostun units -- %{name}-units < 217-10
+%triggerpostun -- %{name}-units < 217-10
 # remove wrong getty target
 if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
 	/bin/systemctl --quiet disable getty@getty.service  2>&1 || :
