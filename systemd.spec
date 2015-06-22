@@ -111,6 +111,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	vala >= 0.9
+BuildRequires:	elfutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.8.0
 BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
