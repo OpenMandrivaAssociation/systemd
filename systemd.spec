@@ -1238,6 +1238,8 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/systemd/boot
+%dir %{_prefix}/lib/systemd/boot/efi
 %dir %{_prefix}/lib/systemd/catalog
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
@@ -1286,6 +1288,10 @@ fi
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
+%exclude %{_mandir}/man8/libnss_myhostname.so.2.8.*
+%exclude %{_mandir}/man8/libnss_mymachines.so.2.8.*
+%exclude %{_mandir}/man8/nss-myhostname.8.*
+%exclude %{_mandir}/man8/nss-mymachines.8.*
 %exclude %{_mandir}/man8/systemd-journal-gatewayd.8.*
 %exclude %{_mandir}/man8/systemd-journal-gatewayd.service.8.*
 %exclude %{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
@@ -1348,7 +1354,7 @@ fi
 %{_bindir}/systemd-*
 %{_bindir}/timedatectl
 %{_datadir}/bash-completion/completions/*
-%{_datadir}/dbus-1/services/*.service
+%{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
@@ -1390,7 +1396,9 @@ fi
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/*.service
 %{systemd_libdir}/system/*.slice
+%{systemd_libdir}/system/*.socket
 %{systemd_libdir}/system/*.target
+%{systemd_libdir}/system/*.timer
 %{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
