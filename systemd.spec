@@ -1,4 +1,4 @@
-%bcond_without bootstrap
+%bcond_with bootstrap
 %bcond_with uclibc
 
 # macros for sysvinit transition - should be equal to
@@ -650,7 +650,7 @@ pushd shared
 %if %{with bootstrap}
 	--enable-introspection=no \
 	--disable-libcryptsetup \
-	--withouth-python \
+	--without-python \
 %else
 	--enable-introspection=no \
 %endif
