@@ -1328,8 +1328,10 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
 %dir %{_prefix}/lib/sysusers.d
+%dir %{_prefix}/lib/systemd/user-generators
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_sysconfdir}/xdg/systemd
+%{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_initrddir}/README
 %{_logdir}/README
 
@@ -1413,6 +1415,9 @@ fi
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgtop
+%{_prefix}/lib/systemd/boot/efi/*.stub
+%{_prefix}/lib/systemd/boot/efi/*.efi
+%{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
 %{_mandir}/man1/bootctl.1.*
 %{_mandir}/man1/busctl.1.*
 %{_mandir}/man1/init.*
@@ -1457,6 +1462,7 @@ fi
 %{_mandir}/man1/systemd-analyze.1*
 %{_mandir}/man8/systemd-backlight*.8.*
 %{_mandir}/man8/systemd-binfmt*.8.*
+%{_mandir}/man8/systemd-bus-proxyd*.8.*
 %{_mandir}/man8/systemd-coredump.8.*
 %{_mandir}/man8/systemd-cryptsetup*.8.*
 %{_mandir}/man8/systemd-debug-generator.8.*
@@ -1575,6 +1581,7 @@ fi
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/system/basic.target.wants
 %dir %{systemd_libdir}/system/bluetooth.target.wants
+%dir %{systemd_libdir}/system/busnames.target.wants
 %dir %{systemd_libdir}/system/dbus.target.wants
 %dir %{systemd_libdir}/system/default.target.wants
 %dir %{systemd_libdir}/system/graphical.target.wants
@@ -1595,7 +1602,6 @@ fi
 %dir %{_prefix}/lib/systemd/catalog
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
-%dir %{_prefix}/lib/systemd/user-generators
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
 %{_datadir}/bash-completion/completions/*
@@ -1605,6 +1611,7 @@ fi
 %{_bindir}/systemctl
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
+%{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
@@ -1619,6 +1626,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.path
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/system/*.automount
+%{systemd_libdir}/system/*.busname
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/auto*.service
@@ -1640,6 +1648,8 @@ fi
 %{systemd_libdir}/system/systemd-backlight*.service
 %{systemd_libdir}/system/systemd-binfmt*.service
 %{systemd_libdir}/system/systemd-bootchart.service
+%{systemd_libdir}/system/systemd-bus-proxyd.service
+%{systemd_libdir}/system/systemd-bus-proxyd.socket
 %{systemd_libdir}/system/systemd-firstboot.service
 %{systemd_libdir}/system/systemd-fsck*.service
 %{systemd_libdir}/system/systemd-halt*.service
@@ -1701,6 +1711,7 @@ fi
 
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user/*.service
+%{_prefix}/lib/systemd/user/*.socket
 %{_prefix}/lib/systemd/user/*.target
 %{_mandir}/man1/systemctl.*
 
@@ -1756,6 +1767,10 @@ fi
 %files -n %{libsystemd_devel}
 %dir %{_includedir}/systemd
 %{_includedir}/systemd/_sd-common.h
+%{_includedir}/systemd/sd-bus-protocol.h
+%{_includedir}/systemd/sd-bus-vtable.h
+%{_includedir}/systemd/sd-bus.h
+%{_includedir}/systemd/sd-event.h
 %{_libdir}/libsystemd.so
 %if %{with uclibc}
 %{uclibc_root}%{_libdir}/libsystemd.so
