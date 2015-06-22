@@ -42,7 +42,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	221
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -222,7 +222,6 @@ Conflicts:	makedev < 4.4-17
 %rename		bootchart
 %rename		systemd-units
 %rename		udev
-
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -454,20 +453,6 @@ Group:		System/Libraries
 
 %description -n uclibc-%{libnss_myhostname}
 uClibc version of nss-myhostname.
-%endif
-
-%if %{with uclibc}
-%package -n uclibc-udev
-Summary:	Device manager for the Linux kernel (uClibc linked)
-Group:		System/Configuration/Hardware
-Requires:	%{name} = %{EVRD}
-
-%description -n	uclibc-udev
-A collection of tools and a daemon to manage events received
-from the kernel and deal with them in user-space. Primarily this
-involves managing permissions, and creating and removing meaningful
-symlinks to device nodes in /dev when hardware is discovered or
-removed from the system
 %endif
 
 %package -n %{libudev}
