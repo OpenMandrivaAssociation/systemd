@@ -159,20 +159,21 @@ BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.3-0.20140421.8
 %endif
+Requires:	acl
+Requires:	dbus >= 1.8.0
 Requires(pre,post):	coreutils >= 8.23
-Requires:	udev = %{EVRD}
 Requires(post):	gawk
+Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	dbus >= 1.8.0
 Requires(pre):	basesystem-minimal >= 2015.0
 Requires(pre):	util-linux >= 2.26.2
 Requires(pre):	shadow >= 4.2.1-11
-Requires(pre):	setup >= 2.8.8-16
-Requires:	%{name}-units >= %{EVRD}
+Requires(pre,post,postun):	setup >= 2.8.8-16
 Requires:	lockdev
+Requires:	kmod >= 20
 Conflicts:	initscripts < 9.24
-Conflicts:	udev < 186-5
+Conflicts:	udev < 221-1
 %if "%{distepoch}" >= "2013.0"
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
@@ -182,12 +183,10 @@ Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
-Requires:	kmod >= 20
-%rename	readahead
 %if %mdvver >= 201500
 # (tpg) this is obsoleted
-%rename	suspend
-%rename	suspend-s2ram
+%rename		suspend
+%rename		suspend-s2ram
 %endif
 Provides:	should-restart = system
 # make sure we have /etc/os-release available, required by --with-distro
@@ -201,9 +200,8 @@ Requires:	libsystemd-id128 = %{EVRD}
 Requires:	nss_myhostname = %{EVRD}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
-
 # (tpg) conflict with old sysvinit subpackage
-%rename	systemd-sysvinit
+%rename		systemd-sysvinit
 Conflicts:	systemd-sysvinit < 207-1
 # (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
 #SysVinit < %sysvinit_release-%sysvinit_release It's provides something
@@ -213,9 +211,18 @@ Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_v
 Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
+Obsoletes:	hal <= 0.5.14-6
+# (tpg) moved form makedev package
+Provides:	dev
+Provides:	MAKEDEV
+Conflicts:	makedev < 4.4-17
+%rename		readahead
 %rename		resolvconf
 %rename		systemd-tools
 %rename		bootchart
+%rename		systemd-units
+%rename		udev
+
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -232,7 +239,6 @@ work as a drop-in replacement for sysvinit.
 Summary:	A System and Session Manager (uClibc linked)
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{EVRD}
-Requires:	uclibc-udev = %{EVRD}
 Requires:	uclibc-%{libdaemon} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
@@ -248,21 +254,6 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 %endif
-
-%package units
-Summary:	Configuration files, directories and installation tool for systemd
-Group:		System/Configuration/Boot and Init
-Requires(post):	%{name} >= %{EVRD}
-Requires(post):	coreutils
-Requires(post):	gawk
-Requires(post):	grep
-Requires(post):	awk
-Requires(pre):	setup >= 2.8.8-16
-Requires(pre):	rpm-helper >= 0.24.12-11
-
-%description units
-Basic configuration files, directories and installation tool for the systemd
-system and session manager.
 
 %package journal-gateway
 Summary:	Gateway for serving journal events over the network using HTTP
@@ -465,42 +456,11 @@ Group:		System/Libraries
 uClibc version of nss-myhostname.
 %endif
 
-%package -n udev
-Summary:	Device manager for the Linux kernel
-Group:		System/Configuration/Hardware
-Requires:	setup >= 2.8.8-16
-Requires:	util-linux >= 2.26.2
-Requires:	acl
-Requires(post,preun):	rpm-helper >= 0.24.12-11
-Requires(post,preun):	bash
-Provides:	should-restart = system
-Requires(post):	util-linux >= 2.26.2
-Obsoletes:	hal <= 0.5.14-6
-# (tpg) moved form makedev package
-Provides:	dev
-Provides:	MAKEDEV
-Conflicts:	makedev < 4.4-17
-
-%description -n	udev
-A collection of tools and a daemon to manage events received
-from the kernel and deal with them in user-space. Primarily this
-involves managing permissions, and creating and removing meaningful
-symlinks to device nodes in /dev when hardware is discovered or
-removed from the system
-
 %if %{with uclibc}
 %package -n uclibc-udev
 Summary:	Device manager for the Linux kernel (uClibc linked)
 Group:		System/Configuration/Hardware
-Requires:	udev = %{EVRD}
-#Requires:	setup >= 2.7.16
-#Requires:	util-linux-ng >= 2.15
-#Requires:	acl
-# for disk/lp groups
-#Requires(pre):	setup
-#Requires(pre):	coreutils
-#Requires(post,preun):	rpm-helper
-#Provides:	should-restart = system
+Requires:	%{name} = %{EVRD}
 
 %description -n	uclibc-udev
 A collection of tools and a daemon to manage events received
@@ -875,13 +835,6 @@ if [ $1 -ge 2 -o $2 -ge 2 ] ; then
 	/bin/systemctl daemon-reexec 2>&1 || :
 fi
 
-%post -n udev
-/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
-/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
-
-#%post -n uclibc-udev
-#%{uclibc_root}/bin/systemctl --quiet try-restart systemd-udevd.service >/dev/null 2>&1 || :
-
 %pre
 if [ $1 -ge 2 ]; then
 # (tpg) add input group
@@ -937,102 +890,103 @@ fi
 
 %post
 /bin/systemd-machine-id-setup >/dev/null 2>&1 ||:
-# (tpg) do not use fistboot here as id hangs on firstboot in lxc :)
-# systemd-firstboot --setup-machine-id
-systemd-sysusers
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
+/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
+
+# (tpg) do not use fistboot here as id hangs on firstboot in lxc :)
+# systemd-firstboot --setup-machine-id
+systemd-sysusers
 
 %if %mdvver < 201500
 if [ $1 -ge 2 ]; then
 #(tpg) BIG migration
 # Migrate /etc/sysconfig/clock
-if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
-	. /etc/sysconfig/clock 2>&1 || :
-	if [ -n "$ZONE" -a -e "/usr/share/zoneinfo/$ZONE" ] ; then
-	    /usr/bin/ln -sf "../usr/share/zoneinfo/$ZONE" /etc/localtime >/dev/null 2>&1 || :
-	fi
-fi
+  if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
+	  . /etc/sysconfig/clock 2>&1 || :
+	  if [ -n "$ZONE" -a -e "/usr/share/zoneinfo/$ZONE" ] ; then
+	      /usr/bin/ln -sf "../usr/share/zoneinfo/$ZONE" /etc/localtime >/dev/null 2>&1 || :
+	  fi
+  fi
 
 # Migrate /etc/sysconfig/i18n
-if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
-	unset LANGUAGE
-        unset LANG
-        unset LC_CTYPE
-        unset LC_NUMERIC
-        unset LC_TIME
-        unset LC_COLLATE
-        unset LC_MONETARY
-        unset LC_MESSAGES
-        unset LC_PAPER
-        unset LC_NAME
-        unset LC_ADDRESS
-        unset LC_TELEPHONE
-        unset LC_MEASUREMENT
-        unset LC_IDENTIFICATION
-        . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-        [ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
-        [ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_COLLATE" ] && echo LC_COLLATE=$LC_COLLATE >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_MONETARY" ] && echo LC_MONETARY=$LC_MONETARY >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_MESSAGES" ] && echo LC_MESSAGES=$LC_MESSAGES >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_PAPER" ] && echo LC_PAPER=$LC_PAPER >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_NAME" ] && echo LC_NAME=$LC_NAME >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_ADDRESS" ] && echo LC_ADDRESS=$LC_ADDRESS >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_TELEPHONE" ] && echo LC_TELEPHONE=$LC_TELEPHONE >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_MEASUREMENT" ] && echo LC_MEASUREMENT=$LC_MEASUREMENT >> /etc/locale.conf 2>&1 || :
-        [ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
-fi
+  if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
+	  unset LANGUAGE
+	  unset LANG
+	  unset LC_CTYPE
+	  unset LC_NUMERIC
+	  unset LC_TIME
+	  unset LC_COLLATE
+	  unset LC_MONETARY
+	  unset LC_MESSAGES
+	  unset LC_PAPER
+	  unset LC_NAME
+	  unset LC_ADDRESS
+	  unset LC_TELEPHONE
+	  unset LC_MEASUREMENT
+	  unset LC_IDENTIFICATION
+	  . /etc/sysconfig/i18n >/dev/null 2>&1 || :
+	  [ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
+	  [ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_COLLATE" ] && echo LC_COLLATE=$LC_COLLATE >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_MONETARY" ] && echo LC_MONETARY=$LC_MONETARY >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_MESSAGES" ] && echo LC_MESSAGES=$LC_MESSAGES >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_PAPER" ] && echo LC_PAPER=$LC_PAPER >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_NAME" ] && echo LC_NAME=$LC_NAME >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_ADDRESS" ] && echo LC_ADDRESS=$LC_ADDRESS >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_TELEPHONE" ] && echo LC_TELEPHONE=$LC_TELEPHONE >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_MEASUREMENT" ] && echo LC_MEASUREMENT=$LC_MEASUREMENT >> /etc/locale.conf 2>&1 || :
+	  [ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
+  fi
 
 # Migrate /etc/sysconfig/keyboard to the vconsole configuration
-if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
-        unset SYSFONT
-        unset SYSFONTACM
-        unset UNIMAP
-        unset KEYMAP
-        [ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-        . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
-        [ -n "$SYSFONT" ] && echo FONT=$SYSFONT > /etc/vconsole.conf 2>&1 || :
-        [ -n "$SYSFONTACM" ] && echo FONT_MAP=$SYSFONTACM >> /etc/vconsole.conf 2>&1 || :
-        [ -n "$UNIMAP" ] && echo FONT_UNIMAP=$UNIMAP >> /etc/vconsole.conf 2>&1 || :
-        [ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
-fi
+  if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
+	  unset SYSFONT
+	  unset SYSFONTACM
+	  unset UNIMAP
+	  unset KEYMAP
+	  [ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n >/dev/null 2>&1 || :
+	  . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+	  [ -n "$SYSFONT" ] && echo FONT=$SYSFONT > /etc/vconsole.conf 2>&1 || :
+	  [ -n "$SYSFONTACM" ] && echo FONT_MAP=$SYSFONTACM >> /etc/vconsole.conf 2>&1 || :
+	  [ -n "$UNIMAP" ] && echo FONT_UNIMAP=$UNIMAP >> /etc/vconsole.conf 2>&1 || :
+	  [ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
+  fi
 
 # Migrate /etc/sysconfig/keyboard to the X11 keyboard configuration
-if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
-        unset XkbLayout
-        unset XkbModel
-        unset XkbVariant
-        unset XkbOptions
-        . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+  if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
+	  unset XkbLayout
+	  unset XkbModel
+	  unset XkbVariant
+	  unset XkbOptions
+	  . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
 
-        echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        [ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        [ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        [ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        [ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-        echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-fi
+	  echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  [ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  [ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  [ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  [ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	  echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+  fi
 
-rm -f /etc/sysconfig/i18n >/dev/null 2>&1 || :
-rm -f /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+  rm -f /etc/sysconfig/i18n >/dev/null 2>&1 || :
+  rm -f /etc/sysconfig/keyboard >/dev/null 2>&1 || :
 
 # Migrate HOSTNAME= from /etc/sysconfig/network
-if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
-        unset HOSTNAME
-        . /etc/sysconfig/network >/dev/null 2>&1 || :
-        [ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
-fi
+  if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
+	  unset HOSTNAME
+	  . /etc/sysconfig/network >/dev/null 2>&1 || :
+	  [ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
+  fi
 
-/usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
+  /usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
 fi
 %endif
 # End BIG migration
@@ -1045,7 +999,70 @@ if [ $1 -ge 2 ]; then
     fi
 fi
 
-%posttrans units
+# (tpg) from old units package
+if [ $1 -eq 2 ] ; then
+        # Try to read default runlevel from the old inittab if it exists
+        runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
+        if [ -z "$runlevel" ] ; then
+                target="/lib/systemd/system/graphical.target"
+        else
+                target="/lib/systemd/system/runlevel$runlevel.target"
+        fi
+
+        # And symlink what we found to the new-style default.target
+        /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+	# (tpg) need to restart it to catch new auth
+	/bin/systemctl try-restart systemd-logind.service 2>&1 || :
+fi
+
+# Enable the services we install by default.
+/bin/systemctl --quiet preset \
+       getty@tty1.service \
+       remote-fs.target \
+       shadow.timer \
+       shadow.service \
+       systemd-firstboot.service \
+       systemd-networkd.service \
+       systemd-resolved.service \
+       systemd-timesyncd.service \
+       systemd-timedated.service \
+       systemd-udev-settle.service \
+        2>&1 || :
+
+hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
+if [ -z $hostname_new ]; then
+        hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
+	if [ ! -z $hostname_old ]; then
+    		echo $hostname_old >> %{_sysconfdir}/hostname
+        else
+    		echo "localhost" >> %{_sysconfdir}/hostname
+        fi
+fi
+
+%preun
+if [ $1 -eq 0 ] ; then
+    /bin/systemctl --quiet disable \
+           getty@tty1.service \
+           getty@getty.service \
+           remote-fs.target \
+           systemd-networkd.service \
+           systemd-resolvd.service \
+           systemd-timesync.service \
+           systemd-timedated.service \
+           console-getty.service \
+           console-shell.service \
+           debug-shell.service \
+           2>&1 || :
+
+    /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
+fi
+
+%postun
+if [ $1 -ge 1 ] ; then
+  systemctl daemon-reload > /dev/null 2>&1 || :
+fi
+
+%posttrans
 # (tpg) handle resolvconf
 if [ -f /etc/resolv.conf ]; then
     rm -f /etc/resolv.conf
@@ -1155,65 +1172,7 @@ if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
     rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
 fi
 
-%post units
-if [ $1 -eq 2 ] ; then
-        # Try to read default runlevel from the old inittab if it exists
-        runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
-        if [ -z "$runlevel" ] ; then
-                target="/lib/systemd/system/graphical.target"
-        else
-                target="/lib/systemd/system/runlevel$runlevel.target"
-        fi
-
-        # And symlink what we found to the new-style default.target
-        /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-	# (tpg) need to restart it to catch new auth
-	/bin/systemctl try-restart systemd-logind.service 2>&1 || :
-fi
-
-# Enable the services we install by default.
-/bin/systemctl --quiet preset \
-       getty@tty1.service \
-       remote-fs.target \
-       shadow.timer \
-       shadow.service \
-       systemd-firstboot.service \
-       systemd-networkd.service \
-       systemd-resolved.service \
-       systemd-timesyncd.service \
-       systemd-timedated.service \
-       systemd-udev-settle.service \
-        2>&1 || :
-
-hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
-if [ -z $hostname_new ]; then
-        hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
-	if [ ! -z $hostname_old ]; then
-    		echo $hostname_old >> %{_sysconfdir}/hostname
-        else
-    		echo "localhost" >> %{_sysconfdir}/hostname
-        fi
-fi
-
-%preun units
-if [ $1 -eq 0 ] ; then
-    /bin/systemctl --quiet disable \
-           getty@tty1.service \
-           getty@getty.service \
-           remote-fs.target \
-           systemd-networkd.service \
-           systemd-resolvd.service \
-           systemd-timesync.service \
-           systemd-timedated.service \
-           console-getty.service \
-           console-shell.service \
-           debug-shell.service \
-           2>&1 || :
-
-    /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
-fi
-
-%triggerin units -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
@@ -1229,7 +1188,7 @@ elif [ $ARG2 -gt 1 ]; then
     /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
 fi
 
-%triggerun units -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
@@ -1243,7 +1202,7 @@ if [ $ARG2 -eq 0 ]; then
     /bin/systemctl stop ${units} >/dev/null 2>&1 || :
 fi
 
-%triggerpostun units -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerpostun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %triggerposttransin -- %{_binfmtdir}/*.conf
@@ -1280,264 +1239,213 @@ fi
 %_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
 
 %files -f %{name}.lang
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.systemd1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.hostname1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.import1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.locale1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.login1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.machine1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.network1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.resolve1.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/org.freedesktop.timedate1.conf
-%config(noreplace) %{_sysconfdir}/systemd/coredump.conf
-%config(noreplace) %{_sysconfdir}/systemd/system.conf
-%config(noreplace) %{_sysconfdir}/systemd/logind.conf
-
-%config(noreplace) %{_sysconfdir}/systemd/journald.conf
-%config(noreplace) %{_sysconfdir}/systemd/user.conf
-%config(noreplace) %{_sysconfdir}/systemd/bootchart.conf
-%config(noreplace) %{_sysconfdir}/systemd/resolved.conf
-%config(noreplace) %{_sysconfdir}/systemd/timesyncd.conf
-%config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
-%config(noreplace) %{_sysconfdir}/pam.d/systemd-user
-%config(noreplace) %{_prefix}/lib/sysctl.d/50-coredump.conf
-%config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
-%config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
-
-%config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
-%ghost %config(noreplace) %{_sysconfdir}/hostname
-%ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
-%ghost %config(noreplace) %{_sysconfdir}/locale.conf
-%ghost %config(noreplace) %{_sysconfdir}/machine-id
-%ghost %config(noreplace) %{_sysconfdir}/machine-info
-%ghost %config(noreplace) %{_sysconfdir}/timezone
-%ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-%ghost %{_sysconfdir}/udev/hwdb.bin
-%dir %{systemd_libdir}
-%dir %{systemd_libdir}/*-generators
-%dir %{systemd_libdir}/system-shutdown
-%dir %{systemd_libdir}/system-sleep
-%dir %{systemd_libdir}/system-preset
-%dir %{systemd_libdir}/user-preset
+%doc %{_docdir}/systemd
+%dir /lib/firmware
+%dir /lib/firmware/updates
+%dir %{_datadir}/bash-completion
+%dir %{_datadir}/bash-completion/completions
 %dir %{_datadir}/factory
 %dir %{_datadir}/factory/etc
 %dir %{_datadir}/factory/etc/pam.d
 %dir %{_datadir}/systemd
-%dir %{_prefix}/lib/tmpfiles.d
-%dir %{_prefix}/lib/sysctl.d
-%dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/binfmt.d
-%dir %{_prefix}/lib/sysusers.d
+%dir %{_prefix}/lib/modules-load.d
+%dir %{_prefix}/lib/sysctl.d
+%dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/systemd/catalog
+%dir %{_prefix}/lib/systemd/system-generators
+%dir %{_prefix}/lib/systemd/user
 %dir %{_prefix}/lib/systemd/user-generators
-%attr(02755,root,systemd-journal) %dir %{_logdir}/journal
-%{_sysconfdir}/xdg/systemd
-%{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
-%{_initrddir}/README
-%{_logdir}/README
-
-# (tpg) from sysvinit subpackage
-/sbin/init
-/bin/reboot
+%dir %{_prefix}/lib/sysusers.d
+%dir %{_prefix}/lib/tmpfiles.d
+%dir %{_sysconfdir}/binfmt.d
+%dir %{_sysconfdir}/modules-load.d
+%dir %{_sysconfdir}/sysctl.d
+%dir %{_sysconfdir}/systemd
+%dir %{_sysconfdir}/systemd/system
+%dir %{_sysconfdir}/systemd/system/getty.target.wants
+%dir %{_sysconfdir}/systemd/user
+%dir %{_sysconfdir}/systemd/user/default.target.wants
+%dir %{_sysconfdir}/tmpfiles.d
+%dir %{_sysconfdir}/udev
+%dir %{_sysconfdir}/udev/agents.d
+%dir %{_sysconfdir}/udev/agents.d/usb
+%dir %{_sysconfdir}/udev/rules.d
+%dir %{systemd_libdir}
+%dir %{systemd_libdir}/*-generators
+%dir %{systemd_libdir}/network
+%dir %{systemd_libdir}/system
+%dir %{systemd_libdir}/system-preset
+%dir %{systemd_libdir}/system-shutdown
+%dir %{systemd_libdir}/system-sleep
+%dir %{systemd_libdir}/system/basic.target.wants
+%dir %{systemd_libdir}/system/bluetooth.target.wants
+%dir %{systemd_libdir}/system/busnames.target.wants
+%dir %{systemd_libdir}/system/dbus.target.wants
+%dir %{systemd_libdir}/system/default.target.wants
+%dir %{systemd_libdir}/system/graphical.target.wants
+%dir %{systemd_libdir}/system/local-fs.target.wants
+%dir %{systemd_libdir}/system/multi-user.target.wants
+%dir %{systemd_libdir}/system/rescue.target.wants
+%dir %{systemd_libdir}/system/runlevel1.target.wants
+%dir %{systemd_libdir}/system/runlevel2.target.wants
+%dir %{systemd_libdir}/system/runlevel3.target.wants
+%dir %{systemd_libdir}/system/runlevel4.target.wants
+%dir %{systemd_libdir}/system/runlevel5.target.wants
+%dir %{systemd_libdir}/system/sockets.target.wants
+%dir %{systemd_libdir}/system/sysinit.target.wants
+%dir %{systemd_libdir}/system/syslog.target.wants
+%dir %{systemd_libdir}/system/timers.target.wants
+%dir %{systemd_libdir}/user-preset
+%dir %{udev_libdir}
+%dir %{udev_libdir}/hwdb.d
+%dir %{udev_rules_dir}
+%exclude %{_mandir}/man8/systemd-journal-gatewayd.8.*
+%exclude %{_mandir}/man8/systemd-journal-gatewayd.service.8.*
+%exclude %{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
+%exclude %{_mandir}/man8/systemd-journal-remote.8.*
+%exclude %{_mandir}/man8/systemd-journal-upload.8.*
+%exclude %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
+%exclude %{systemd_libdir}/system/systemd-journal-gatewayd.service
+%exclude %{systemd_libdir}/system/systemd-journal-gatewayd.socket
+%exclude %{systemd_libdir}/system/systemd-journal-remote.service
+%exclude %{systemd_libdir}/system/systemd-journal-remote.socket
+%exclude %{systemd_libdir}/system/systemd-journal-upload.service
+%exclude %{systemd_libdir}/systemd-journal-gatewayd
+%exclude %{systemd_libdir}/systemd-journal-remote
+%exclude %{systemd_libdir}/systemd-journal-upload
+%exclude %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
+%exclude %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
+%exclude %config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
+%ghost %{_sysconfdir}/udev/hwdb.bin
+%ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
+%ghost %config(noreplace) %{_sysconfdir}/hostname
+%ghost %config(noreplace) %{_sysconfdir}/locale.conf
+%ghost %config(noreplace) %{_sysconfdir}/machine-id
+%ghost %config(noreplace) %{_sysconfdir}/machine-info
+%ghost %config(noreplace) %{_sysconfdir}/timezone
+%ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
+%ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/*.conf
+/%{_lib}/security/pam_systemd.so
 /bin/halt
-/bin/poweroff
-/sbin/shutdown
-/sbin/telinit
-/sbin/runlevel
-#
-/bin/systemd-ask-password
-/bin/systemd-notify
-/bin/systemd-tmpfiles
-/bin/systemd-tty-ask-password-agent
-/bin/systemd
-/bin/networkctl
-/bin/systemd-escape
-/bin/systemd-firstboot
-/bin/systemd-sysusers
 /bin/journalctl
 /bin/loginctl
+/bin/machinectl
+/bin/networkctl
+/bin/poweroff
+/bin/reboot
+/bin/systemctl
+/bin/systemd
+/bin/systemd-ask-password
+/bin/systemd-escape
+/bin/systemd-firstboot
+/bin/systemd-hwdb
 /bin/systemd-inhibit
 /bin/systemd-machine-id-setup
-%{_bindir}/busctl
-%{_bindir}/systemd-analyze
-%{_bindir}/systemd-delta
-%{_bindir}/systemd-detect-virt
-/bin/systemd-hwdb
-%{_bindir}/systemd-loginctl
-%{_bindir}/systemd-path
-%{_bindir}/systemd-run
-%{_bindir}/hostnamectl
-%{_bindir}/localectl
-%{_bindir}/kernel-install
+/bin/systemd-notify
+/bin/systemd-sysusers
+/bin/systemd-tmpfiles
+/bin/systemd-tty-ask-password-agent
+/bin/udevadm
+/sbin/init
+/sbin/runlevel
+/sbin/shutdown
+/sbin/telinit
 %{_bindir}/bootctl
+%{_bindir}/busctl
 %{_bindir}/coredumpctl
+%{_bindir}/hostnamectl
+%{_bindir}/kernel-install
+%{_bindir}/localectl
+%{_bindir}/systemctl
+%{_bindir}/systemd-*
 %{_bindir}/timedatectl
-%{_prefix}/lib/kernel/install.d/*.install
-%{systemd_libdir}/import-pubring.gpg
-%{systemd_libdir}/systemd
-%{systemd_libdir}/systemd-ac-power
-%{systemd_libdir}/systemd-activate
-%{systemd_libdir}/systemd-bootchart
-%{systemd_libdir}/systemd-backlight
-%{systemd_libdir}/systemd-bus-proxyd
-%{systemd_libdir}/systemd-binfmt
-%{systemd_libdir}/systemd-c*
-%{systemd_libdir}/systemd-fsck
-%{systemd_libdir}/systemd-export
-%{systemd_libdir}/systemd-import
-%{systemd_libdir}/systemd-hostnamed
-%{systemd_libdir}/systemd-hibernate-resume
-%{systemd_libdir}/systemd-initctl
-%{systemd_libdir}/systemd-importd
-%{systemd_libdir}/systemd-journald
-%{systemd_libdir}/systemd-lo*
-%{systemd_libdir}/systemd-m*
-%{systemd_libdir}/systemd-networkd
-%{systemd_libdir}/systemd-networkd-wait-online
-%{systemd_libdir}/systemd-pull
-%{systemd_libdir}/systemd-quotacheck
-%{systemd_libdir}/systemd-random-seed
-%{systemd_libdir}/systemd-re*
-%{systemd_libdir}/systemd-rfkill
-%{systemd_libdir}/systemd-s*
-%{systemd_libdir}/systemd-time*
-%{systemd_libdir}/systemd-update-done
-%{systemd_libdir}/systemd-update-utmp
-%{systemd_libdir}/systemd-user-sessions
-%{systemd_libdir}/systemd-vconsole-setup
-%{systemd_libdir}/*-generators/*
-%{systemd_libdir}/system-preset/*.preset
-%{systemd_libdir}/user-preset/*.preset
-%{_prefix}/lib/tmpfiles.d/*.conf
-%exclude %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
-/%{_lib}/security/pam_systemd.so
-%{_bindir}/systemd-cgls
-%{_bindir}/systemd-nspawn
-%{_bindir}/systemd-stdio-bridge
-%{_bindir}/systemd-cat
-%{_bindir}/systemd-cgtop
-%{_prefix}/lib/systemd/boot/efi/*.stub
-%{_prefix}/lib/systemd/boot/efi/*.efi
-%{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
-%{_mandir}/man1/bootctl.1.*
-%{_mandir}/man1/busctl.1.*
-%{_mandir}/man1/init.*
-%{_mandir}/man1/systemd.*
-%{_mandir}/man1/systemd-ask-password.*
-%{_mandir}/man1/systemd-bootchart.1.*
-%{_mandir}/man1/systemd-cat.1*
-%{_mandir}/man1/systemd-cgls.*
-%{_mandir}/man1/systemd-cgtop.*
-%{_mandir}/man1/systemd-escape.1.*
-%{_mandir}/man1/systemd-firstboot*.1.*
-%{_mandir}/man1/systemd-path.1.*
-%{_mandir}/man1/systemd-tty-ask-password-agent.*
-%{_mandir}/man1/coredumpctl.1.*
-%{_mandir}/man1/hostnamectl.*
-%{_mandir}/man1/journalctl.1*
-%{_mandir}/man1/localectl.1*
-%{_mandir}/man1/loginctl.1*
-%{_mandir}/man1/networkctl.1*
-%{_mandir}/man1/systemd-run.1.*
-%{_mandir}/man1/systemd-machine-id-setup.1*
-%{_mandir}/man1/systemd-machine-id-commit.1*
-%{_mandir}/man1/systemd-notify.1*
-%{_mandir}/man1/systemd-nspawn.1*
-%{_mandir}/man1/systemd-delta.1.*
-%{_mandir}/man1/systemd-detect-virt.1.*
-%{_mandir}/man1/systemd-inhibit.1.*
-%{_mandir}/man1/timedatectl.1*
-%{_mandir}/man1/machinectl.1.*
-%{_mandir}/man3/*
-%{_mandir}/man5/*
-%{_mandir}/man7/*
-%{_mandir}/man8/halt.*
-%{_mandir}/man8/reboot.*
-%{_mandir}/man8/shutdown.*
-%{_mandir}/man8/poweroff.*
-%{_mandir}/man8/telinit.*
-%{_mandir}/man8/runlevel.*
-%{_mandir}/man8/pam_systemd.*
-%{_mandir}/man8/systemd-activate.8.*
-%{_mandir}/man8/systemd-ask-*.8.*
-%{_mandir}/man1/systemd-analyze.1*
-%{_mandir}/man8/systemd-backlight*.8.*
-%{_mandir}/man8/systemd-binfmt*.8.*
-%{_mandir}/man8/systemd-bus-proxyd*.8.*
-%{_mandir}/man8/systemd-coredump.8.*
-%{_mandir}/man8/systemd-cryptsetup*.8.*
-%{_mandir}/man8/systemd-debug-generator.8.*
-%{_mandir}/man8/systemd-efi-boot-generator*.8.*
-%{_mandir}/man8/systemd-gpt-auto-generator*.8.*
-%{_mandir}/man8/systemd-fsck*.8.*
-%{_mandir}/man8/systemd-fstab*.8.*
-%{_mandir}/man8/systemd-getty*.8.*
-%{_mandir}/man8/systemd-halt*.8.*
-%{_mandir}/man8/systemd-hibernate*.8.*
-%{_mandir}/man8/systemd-hostnamed*.8.*
-%{_mandir}/man8/systemd-hybrid*.8.*
-%{_mandir}/man8/systemd-hwdb.8.*
-%{_mandir}/man8/systemd-initctl*.8.*
-%{_mandir}/man8/systemd-journald.8.*
-%{_mandir}/man8/systemd-journald.service.8.*
-%{_mandir}/man8/systemd-journald.socket.8.*
-%{_mandir}/man8/systemd-journald-dev-log.socket.8.*
-%{_mandir}/man8/systemd-sysusers*.8.*
-%{_mandir}/man8/systemd-kexec*.8.*
-%{_mandir}/man8/systemd-localed*.8.*
-%{_mandir}/man8/systemd-logind*.8.*
-%{_mandir}/man8/systemd-machined*.8.*
-%{_mandir}/man8/systemd-machine-id-commit.service.8.*
-%{_mandir}/man8/systemd-modules*.8.*
-%{_mandir}/man8/systemd-networkd*.8.*
-%{_mandir}/man8/systemd-poweroff*.8.*
-%{_mandir}/man8/systemd-quota*.8.*
-%{_mandir}/man8/systemd-random*.8.*
-%{_mandir}/man8/systemd-reboot*.8.*
-%{_mandir}/man8/systemd-remount*.8.*
-%{_mandir}/man8/systemd-resolved.8.*
-%{_mandir}/man8/systemd-resolved.service.8.*
-%{_mandir}/man8/systemd-rfkill*.8.*
-%{_mandir}/man8/systemd-shutdown*.8.*
-%{_mandir}/man8/systemd-sleep*.8.*
-%{_mandir}/man8/systemd-socket-proxyd.8.*
-%{_mandir}/man8/systemd-suspend*.8.*
-%{_mandir}/man8/systemd-sysctl*.8.*
-%{_mandir}/man8/systemd-system*.8.*
-%{_mandir}/man8/systemd-sysv-generator.8.*
-%{_mandir}/man8/systemd-timedated*.8.*
-%{_mandir}/man8/systemd-timesyncd.8.*
-%{_mandir}/man8/systemd-timesyncd.service.8.*
-%{_mandir}/man8/systemd-tmpfiles*.8.*
-%{_mandir}/man8/systemd-udev*.8.*
-%{_mandir}/man8/systemd-update*.8.*
-%{_mandir}/man8/systemd-user*.8.*
-%{_mandir}/man8/systemd-vconsole*.8.*
-%{_mandir}/man8/kernel-install.*
-
-%{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
-%{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
-
-%{_datadir}/systemd/kbd-model-map
-%{_datadir}/systemd/language-fallback-map
+%{_datadir}/bash-completion/completions/*
+%{_datadir}/dbus-1/services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
-%{_docdir}/systemd
+%{_datadir}/polkit-1/actions/*.policy
+%{_datadir}/systemd/kbd-model-map
+%{_datadir}/systemd/language-fallback-map
+%{_datadir}/zsh/site-functions/*
+%{_initrddir}/README
+%{_logdir}/README
+%{_mandir}/man1/*.*
+%{_mandir}/man3/*.*
+%{_mandir}/man5/*.*
+%{_mandir}/man7/*.*
+%{_mandir}/man8/*.*
+%{_prefix}/lib/kernel/install.d/*.install
+%{_prefix}/lib/systemd/boot/efi/*.efi
+%{_prefix}/lib/systemd/boot/efi/*.stub
+%{_prefix}/lib/systemd/catalog/*.catalog
+%{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
+%{_prefix}/lib/systemd/user/*.service
+%{_prefix}/lib/systemd/user/*.socket
+%{_prefix}/lib/systemd/user/*.target
+%{_prefix}/lib/tmpfiles.d/*.conf
+%{_sysconfdir}/profile.d/40systemd.sh
+%{_sysconfdir}/rpm/macros.d/systemd.macros
+%{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
+%{_sysconfdir}/xdg/systemd
+%{systemd_libdir}/*-generators/*
+%{systemd_libdir}/import-pubring.gpg
+%{systemd_libdir}/network/80-container-host0.network
+%{systemd_libdir}/network/80-container-ve.network
+%{systemd_libdir}/network/90-enable.network
+%{systemd_libdir}/network/90-wireless.network
+%{systemd_libdir}/network/99-default.link
+%{systemd_libdir}/system-preset/*.preset
+%{systemd_libdir}/system/*.automount
+%{systemd_libdir}/system/*.busname
+%{systemd_libdir}/system/*.mount
+%{systemd_libdir}/system/*.path
+%{systemd_libdir}/system/*.service
+%{systemd_libdir}/system/*.slice
+%{systemd_libdir}/system/*.target
+%{systemd_libdir}/system/busnames.target.wants/*.busname
+%{systemd_libdir}/system/graphical.target.wants/*.service
+%{systemd_libdir}/system/local-fs.target.wants/*.mount
+%{systemd_libdir}/system/local-fs.target.wants/*.service
+%{systemd_libdir}/system/multi-user.target.wants/*.path
+%{systemd_libdir}/system/multi-user.target.wants/*.service
+%{systemd_libdir}/system/multi-user.target.wants/*.target
+%{systemd_libdir}/system/rescue.target.wants/*.service
+%{systemd_libdir}/system/sockets.target.wants/*.socket
+%{systemd_libdir}/system/sysinit.target.wants/*.*mount
+%{systemd_libdir}/system/sysinit.target.wants/*.path
+%{systemd_libdir}/system/sysinit.target.wants/*.service
+%{systemd_libdir}/system/sysinit.target.wants/*.target
+%{systemd_libdir}/system/timers.target.wants/*.timer
+%{systemd_libdir}/systemd*
+%{systemd_libdir}/user-preset/*.preset
+%{udev_libdir}/hwdb.d/*.hwdb
+%{udev_rules_dir}/*.rules
+%attr(02755,root,systemd-journal) %dir %{_logdir}/journal
+%attr(0755,root,root) /sbin/udevadm
+%attr(0755,root,root) /sbin/udevd
+%attr(0755,root,root) %{_bindir}/udevadm
+%attr(0755,root,root) %{_sbindir}/udevadm
+%attr(0755,root,root) %{udev_libdir}/accelerometer
+%attr(0755,root,root) %{udev_libdir}/ata_id
+%attr(0755,root,root) %{udev_libdir}/cdrom_id
+%attr(0755,root,root) %{udev_libdir}/collect
+%attr(0755,root,root) %{udev_libdir}/mtd_probe
+%attr(0755,root,root) %{udev_libdir}/net_action
+%attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
+%attr(0755,root,root) %{udev_libdir}/scsi_id
+%attr(0755,root,root) %{udev_libdir}/udevd
+%attr(0755,root,root) %{udev_libdir}/v4l_id
+%config(noreplace) %{_prefix}/lib/sysctl.d/*.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/*.conf
+%config(noreplace) %{_sysconfdir}/pam.d/systemd-user
+%config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
+%config(noreplace) %{_sysconfdir}/sysconfig/udev
+%config(noreplace) %{_sysconfdir}/sysconfig/udev_net
+%config(noreplace) %{_sysconfdir}/systemd/*.conf
+%config(noreplace) %{_sysconfdir}/udev/*.conf
 
 %if %{with uclibc}
 %files -n uclibc-%{name}
@@ -1566,154 +1474,9 @@ fi
 %{uclibc_root}%{_bindir}/systemd-cat
 %{uclibc_root}%{_bindir}/systemd-cgtop
 %{uclibc_root}%{_bindir}/systemd-path
+%attr(0755,root,root) %{uclibc_root}/bin/udevadm
+%attr(0755,root,root) %{uclibc_root}/sbin/udevadm
 %endif
-
-%files units
-%dir %{_sysconfdir}/systemd
-%dir %{_sysconfdir}/systemd/system
-%dir %{_sysconfdir}/systemd/user
-%dir %{_sysconfdir}/systemd/user/default.target.wants
-%dir %{_sysconfdir}/systemd/system/getty.target.wants
-%dir %{_sysconfdir}/tmpfiles.d
-%dir %{_sysconfdir}/sysctl.d
-%dir %{_sysconfdir}/modules-load.d
-%dir %{_sysconfdir}/binfmt.d
-%dir %{systemd_libdir}/system
-%dir %{systemd_libdir}/system/basic.target.wants
-%dir %{systemd_libdir}/system/bluetooth.target.wants
-%dir %{systemd_libdir}/system/busnames.target.wants
-%dir %{systemd_libdir}/system/dbus.target.wants
-%dir %{systemd_libdir}/system/default.target.wants
-%dir %{systemd_libdir}/system/graphical.target.wants
-%dir %{systemd_libdir}/system/local-fs.target.wants
-%dir %{systemd_libdir}/system/multi-user.target.wants
-%dir %{systemd_libdir}/system/rescue.target.wants
-%dir %{systemd_libdir}/system/runlevel1.target.wants
-%dir %{systemd_libdir}/system/runlevel2.target.wants
-%dir %{systemd_libdir}/system/runlevel3.target.wants
-%dir %{systemd_libdir}/system/runlevel4.target.wants
-%dir %{systemd_libdir}/system/runlevel5.target.wants
-%dir %{systemd_libdir}/system/sockets.target.wants
-%dir %{systemd_libdir}/system/sysinit.target.wants
-%dir %{systemd_libdir}/system/syslog.target.wants
-%dir %{systemd_libdir}/system/timers.target.wants
-%dir %{systemd_libdir}/network
-%dir %{_prefix}/lib/systemd
-%dir %{_prefix}/lib/systemd/catalog
-%dir %{_prefix}/lib/systemd/system-generators
-%dir %{_prefix}/lib/systemd/user
-%dir %{_datadir}/bash-completion
-%dir %{_datadir}/bash-completion/completions
-%{_datadir}/bash-completion/completions/*
-%{_datadir}/zsh/site-functions/*
-/bin/systemctl
-/bin/machinectl
-%{_bindir}/systemctl
-%{_sysconfdir}/profile.d/40systemd.sh
-%{_sysconfdir}/rpm/macros.d/systemd.macros
-%{systemd_libdir}/system/busnames.target.wants/*.busname
-%{systemd_libdir}/system/graphical.target.wants/*.service
-%{systemd_libdir}/system/local-fs.target.wants/*.service
-%{systemd_libdir}/system/local-fs.target.wants/*.mount
-%{systemd_libdir}/system/multi-user.target.wants/*.target
-%{systemd_libdir}/system/multi-user.target.wants/*.path
-%{systemd_libdir}/system/multi-user.target.wants/*.service
-%{systemd_libdir}/system/rescue.target.wants/*.service
-%{systemd_libdir}/system/sockets.target.wants/*.socket
-%{systemd_libdir}/system/sysinit.target.wants/*.target
-%{systemd_libdir}/system/sysinit.target.wants/*.*mount
-%{systemd_libdir}/system/sysinit.target.wants/*.service
-%{systemd_libdir}/system/sysinit.target.wants/*.path
-%{systemd_libdir}/system/timers.target.wants/*.timer
-%{systemd_libdir}/system/*.automount
-%{systemd_libdir}/system/*.busname
-%{systemd_libdir}/system/*.mount
-%{systemd_libdir}/system/*.path
-%{systemd_libdir}/system/auto*.service
-%{systemd_libdir}/system/console*.service
-%{systemd_libdir}/system/container-getty@.service
-%{systemd_libdir}/system/dbus-org*.service
-%{systemd_libdir}/system/de*.service
-%{systemd_libdir}/system/emergency*.service
-%{systemd_libdir}/system/getty*.service
-%{systemd_libdir}/system/halt-*.service
-%{systemd_libdir}/system/initrd-*.service
-%{systemd_libdir}/system/kmod-*.service
-%{systemd_libdir}/system/ldconfig.service
-%{systemd_libdir}/system/quota*.service
-%{systemd_libdir}/system/rc-*.service
-%{systemd_libdir}/system/rescue*.service
-%{systemd_libdir}/system/serial-*.service
-%{systemd_libdir}/system/systemd-ask-password*.service
-%{systemd_libdir}/system/systemd-backlight*.service
-%{systemd_libdir}/system/systemd-binfmt*.service
-%{systemd_libdir}/system/systemd-bootchart.service
-%{systemd_libdir}/system/systemd-bus-proxyd.service
-%{systemd_libdir}/system/systemd-bus-proxyd.socket
-%{systemd_libdir}/system/systemd-firstboot.service
-%{systemd_libdir}/system/systemd-fsck*.service
-%{systemd_libdir}/system/systemd-halt*.service
-%{systemd_libdir}/system/systemd-hibernate*.service
-%{systemd_libdir}/system/systemd-hostnamed*.service
-%{systemd_libdir}/system/systemd-hybrid*.service
-%{systemd_libdir}/system/systemd-hwdb-update.service
-%{systemd_libdir}/system/systemd-importd.service
-%{systemd_libdir}/system/systemd-initctl*.service
-%{systemd_libdir}/system/systemd-journal-flush.service
-%{systemd_libdir}/system/systemd-journal-catalog-update.service
-%{systemd_libdir}/system/systemd-journald.service
-%{systemd_libdir}/system/systemd-journald-dev-log.socket
-%{systemd_libdir}/system/systemd-kexec*.service
-%{systemd_libdir}/system/systemd-localed*.service
-%{systemd_libdir}/system/systemd-logind*.service
-%{systemd_libdir}/system/systemd-machined.service
-%{systemd_libdir}/system/systemd-machine-id-commit.service
-%{systemd_libdir}/system/systemd-modules-load.service
-%{systemd_libdir}/system/systemd-networkd.service
-%{systemd_libdir}/system/systemd-networkd.socket
-%{systemd_libdir}/system/systemd-networkd-wait-online.service
-%{systemd_libdir}/system/systemd-nspawn*.service
-%{systemd_libdir}/system/systemd-poweroff.service
-%{systemd_libdir}/system/systemd-quotacheck.service
-%{systemd_libdir}/system/systemd-random*service
-%{systemd_libdir}/system/systemd-reboot.service
-%{systemd_libdir}/system/systemd-remount*.service
-%{systemd_libdir}/system/systemd-resolved.service
-%{systemd_libdir}/system/systemd-rfkill@.service
-%{systemd_libdir}/system/systemd-suspend.service
-%{systemd_libdir}/system/systemd-sysctl.service
-%{systemd_libdir}/system/systemd-sysusers.service
-%{systemd_libdir}/system/systemd-timedated.service
-%{systemd_libdir}/system/systemd-timesyncd.service
-%{systemd_libdir}/system/systemd-tmpfiles-*.service
-%{systemd_libdir}/system/systemd-tmpfiles-*.timer
-%{systemd_libdir}/system/systemd-udev*.service
-%{systemd_libdir}/system/systemd-update-*.service
-%{systemd_libdir}/system/systemd-user-*.service
-%{systemd_libdir}/system/systemd-vconsole-*.service
-%{systemd_libdir}/system/udev*.service
-%{systemd_libdir}/system/user*.service
-
-%{systemd_libdir}/system/*.slice
-
-%{systemd_libdir}/system/syslog.socket
-%{systemd_libdir}/system/systemd-initctl.socket
-%{systemd_libdir}/system/systemd-journald.socket
-%{systemd_libdir}/system/systemd-journald-audit.socket
-%{systemd_libdir}/system/systemd-udev*.socket
-%{systemd_libdir}/system/*.target
-
-%{systemd_libdir}/network/80-container-host0.network
-%{systemd_libdir}/network/80-container-ve.network
-%{systemd_libdir}/network/90-enable.network
-%{systemd_libdir}/network/90-wireless.network
-%{systemd_libdir}/network/99-default.link
-
-%{_prefix}/lib/systemd/catalog/*.catalog
-%{_prefix}/lib/systemd/user/*.service
-%{_prefix}/lib/systemd/user/*.socket
-%{_prefix}/lib/systemd/user/*.target
-%{_mandir}/man1/systemctl.*
 
 %files journal-gateway
 %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
@@ -1761,7 +1524,6 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libsystemd}
 %{uclibc_root}/%{_lib}/libsystemd.so.%{libsystemd_major}*
-#%{uclibc_root}/%{_libdir}/libsystemd.so.%{libsystemd_major}*
 %endif
 
 %files -n %{libsystemd_devel}
@@ -1850,88 +1612,6 @@ fi
 %{uclibc_root}%{_libdir}/libsystemd-id128.a
 %endif
 %{_libdir}/pkgconfig/libsystemd-id128.pc
-
-%files -n udev
-%dir /lib/firmware
-%dir /lib/firmware/updates
-%dir %{udev_libdir}
-%dir %{udev_libdir}/hwdb.d
-%dir %{_sysconfdir}/udev
-%dir %{udev_rules_dir}
-%dir %{_sysconfdir}/udev/rules.d
-%dir %{_sysconfdir}/udev/agents.d
-%dir %{_sysconfdir}/udev/agents.d/usb
-%config(noreplace) %{_sysconfdir}/sysconfig/udev
-%config(noreplace) %{_sysconfdir}/sysconfig/udev_net
-%config(noreplace) %{_sysconfdir}/udev/*.conf
-%ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
-
-%{systemd_libdir}/systemd-udevd
-/bin/udevadm
-%attr(0755,root,root) /sbin/udevadm
-%attr(0755,root,root) %{_sbindir}/udevadm
-%attr(0755,root,root) %{_bindir}/udevadm
-%attr(0755,root,root) /sbin/udevd
-%attr(0755,root,root) %{udev_libdir}/udevd
-%{udev_libdir}/hwdb.d/*.hwdb
-%{udev_rules_dir}/*.rules
-
-%attr(0755,root,root) %{udev_libdir}/accelerometer
-%attr(0755,root,root) %{udev_libdir}/ata_id
-%attr(0755,root,root) %{udev_libdir}/cdrom_id
-%attr(0755,root,root) %{udev_libdir}/scsi_id
-%attr(0755,root,root) %{udev_libdir}/collect
-%attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
-%attr(0755,root,root) %{udev_libdir}/net_action
-%attr(0755,root,root) %{udev_libdir}/v4l_id
-%attr(0755,root,root) %{udev_libdir}/mtd_probe
-
-# From previous Mandriva /etc/udev/devices.d and patches
-%attr(0666,root,root) %dev(c,1,3) %{udev_libdir}/devices/null
-%attr(0600,root,root) %dev(b,2,0) %{udev_libdir}/devices/fd0
-%attr(0600,root,root) %dev(b,2,1) %{udev_libdir}/devices/fd1
-%attr(0600,root,root) %dev(c,21,0) %{udev_libdir}/devices/sg0
-%attr(0600,root,root) %dev(c,21,1) %{udev_libdir}/devices/sg1
-%attr(0600,root,root) %dev(c,9,0) %{udev_libdir}/devices/st0
-%attr(0600,root,root) %dev(c,9,1) %{udev_libdir}/devices/st1
-%attr(0600,root,root) %dev(c,99,0) %{udev_libdir}/devices/parport0
-%dir %{udev_libdir}/devices/cpu
-%dir %{udev_libdir}/devices/cpu/0
-%attr(0600,root,root) %dev(c,203,0) %{udev_libdir}/devices/cpu/0/cpuid
-%attr(0600,root,root) %dev(c,10,184) %{udev_libdir}/devices/cpu/0/microcode
-%attr(0600,root,root) %dev(c,202,0) %{udev_libdir}/devices/cpu/0/msr
-%attr(0600,root,root) %dev(c,162,0) %{udev_libdir}/devices/rawctl
-%attr(0600,root,root) %dev(c,195,0) %{udev_libdir}/devices/nvidia0
-%attr(0600,root,root) %dev(c,195,255) %{udev_libdir}/devices/nvidiactl
-# Default static nodes to copy to /dev on udevd start
-%dir %{udev_libdir}/devices
-# From Fedora RPM
-%attr(0755,root,root) %dir %{udev_libdir}/devices/net
-%attr(0755,root,root) %dir %{udev_libdir}/devices/hugepages
-%attr(0755,root,root) %dir %{udev_libdir}/devices/pts
-%attr(0755,root,root) %dir %{udev_libdir}/devices/shm
-%attr(666,root,root) %dev(c,10,200) %{udev_libdir}/devices/net/tun
-%attr(600,root,root) %dev(c,108,0) %{udev_libdir}/devices/ppp
-%attr(666,root,root) %dev(c,10,229) %{udev_libdir}/devices/fuse
-%attr(660,root,lp) %dev(c,6,0) %{udev_libdir}/devices/lp0
-%attr(660,root,lp) %dev(c,6,1) %{udev_libdir}/devices/lp1
-%attr(660,root,lp) %dev(c,6,2) %{udev_libdir}/devices/lp2
-%attr(660,root,lp) %dev(c,6,3) %{udev_libdir}/devices/lp3
-%attr(640,root,disk) %dev(b,7,0) %{udev_libdir}/devices/loop0
-%attr(640,root,disk) %dev(b,7,1) %{udev_libdir}/devices/loop1
-%attr(640,root,disk) %dev(b,7,2) %{udev_libdir}/devices/loop2
-%attr(640,root,disk) %dev(b,7,3) %{udev_libdir}/devices/loop3
-%attr(640,root,disk) %dev(b,7,4) %{udev_libdir}/devices/loop4
-%attr(640,root,disk) %dev(b,7,5) %{udev_libdir}/devices/loop5
-%attr(640,root,disk) %dev(b,7,6) %{udev_libdir}/devices/loop6
-%attr(640,root,disk) %dev(b,7,7) %{udev_libdir}/devices/loop7
-%{_mandir}/man8/udevadm.8.*
-
-%if %{with uclibc}
-%files -n uclibc-udev
-%attr(0755,root,root) %{uclibc_root}/bin/udevadm
-%attr(0755,root,root) %{uclibc_root}/sbin/udevadm
-%endif
 
 %files -n %{libudev}
 /%{_lib}/libudev.so.%{udev_major}*
