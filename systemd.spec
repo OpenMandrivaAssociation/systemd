@@ -1,5 +1,5 @@
 %bcond_with bootstrap
-%bcond_with uclibc
+%bcond_without uclibc
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
