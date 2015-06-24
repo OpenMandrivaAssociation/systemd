@@ -158,7 +158,7 @@ BuildRequires:	pkgconfig(mount)
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 %if %{with uclibc}
-BuildRequires:	uClibc-devel >= 0.9.33.3-0.20140421.8
+BuildRequires:	uClibc-devel >= 0.9.33.3-0.20150520.2
 %endif
 Requires:	acl
 Requires:	dbus >= 1.8.0
