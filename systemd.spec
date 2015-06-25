@@ -160,6 +160,10 @@ BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 %if %{with uclibc}
 BuildRequires:	uClibc-devel >= 0.9.33.3-0.20150520.2
+BuildRequires:	uclibc-acl-devel
+BuildRequires:	uclibc-bzip2-devel
+BuildRequires:	uclibc-lzma-devel
+BuildRequires:	uclibc-kmod-devel
 %endif
 Requires:	acl
 Requires:	dbus >= 1.8.0
