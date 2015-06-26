@@ -42,7 +42,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	221
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -120,6 +120,9 @@ BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
+%if %{with uclibc}
+BuildRequires:	uclibc-cryptsetup-devel
+%endif
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
@@ -296,15 +299,23 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{libsystemd}
 This package provides the systemd shared library.
+
+%package -n uclibc-%{libsystemd_devel}
+Summary:	Systemd library development files
+Group:		Development/C
+Requires:	uclibc-%{libsystemd} = %{EVRD}
+Requires:	%{libsystemd_devel} = %{EVRD}
+Provides:	uclibc-libsystemd-devel = %{EVRD}
+Conflicts:	%{libsystemd_devel} < 221-3
+
+%description -n	uclibc-%{libsystemd_devel}
+Development files for the systemd shared library.
 %endif
 
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{libsystemd} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{libsystemd} = %{EVRD}
-%endif
 Provides:	libsystemd-devel = %{EVRD}
 
 %description -n	%{libsystemd_devel}
@@ -325,6 +336,17 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{libdaemon}
 This package provides the systemd-daemon shared library.
+
+%package -n uclibc-%{libdaemon_devel}
+Summary:	Systemd-daemon library development files
+Group:		Development/C
+Requires:	uclibc-%{libdaemon} = %{EVRD}
+Requires:	%{libdaemon_devel} = %{EVRD}
+Provides:	uclibc-libsystemd-daemon-devel = %{EVRD}
+Conflicts:	%{libdaemon_devel} < 221-3
+
+%description -n	uclibc-%{libdaemon_devel}
+Development files for the systemd-daemon shared library.
 %endif
 
 %package -n %{libdaemon_devel}
@@ -332,9 +354,6 @@ Summary:	Systemd-daemon library development files
 Group:		Development/C
 Requires:	%{libdaemon} = %{EVRD}
 Requires:	%{libsystemd_devel} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{libdaemon} = %{EVRD}
-%endif
 Provides:	libsystemd-daemon-devel = %{EVRD}
 %rename		%{_lib}systemd-daemon0-devel
 
@@ -356,15 +375,23 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{liblogin}
 This package provides the systemd-login shared library.
+
+%package -n uclibc-%{liblogin_devel}
+Summary:	Systemd-login library development files
+Group:		Development/C
+Requires:	uclibc-%{liblogin} = %{EVRD}
+Requires:	%{liblogin_devel}} = %{EVRD}
+Provides:	uclibc-libsystemd-login-devel = %{EVRD}
+Conflicts:	%{liblogin_devel} < 221-3
+
+%description -n	uclibc-%{liblogin_devel}
+Development files for the systemd-login shared library.
 %endif
 
 %package -n %{liblogin_devel}
 Summary:	Systemd-login library development files
 Group:		Development/C
 Requires:	%{liblogin} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{liblogin} = %{EVRD}
-%endif
 Provides:	libsystemd-login-devel = %{EVRD}
 %rename		%{_lib}systemd-login0-devel
 
@@ -386,15 +413,24 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{libjournal}
 This package provides the systemd-journal shared library.
+
+%package -n uclibc-%{libjournal_devel}
+Summary:	Systemd-journal library development files
+Group:		Development/C
+Requires:	uclibc-%{libjournal} = %{EVRD}
+Requires:	%{libjournal_devel} = %{EVRD}
+Provides:	uclibc-libsystemd-journal-devel = %{EVRD}
+Requires:	%{libid128_devel} = %{EVRD}
+Conflicts:	%{libjournal_devel} < 221-3
+
+%description -n	uclibc-%{libjournal_devel}
+Development files for the systemd-journal shared library.
 %endif
 
 %package -n %{libjournal_devel}
 Summary:	Systemd-journal library development files
 Group:		Development/C
 Requires:	%{libjournal} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{libjournal} = %{EVRD}
-%endif
 Provides:	libsystemd-journal-devel = %{EVRD}
 %rename		%{_lib}systemd-journal0-devel
 # sd-journal.h #includes sd-id128.h
@@ -421,6 +457,17 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{libid128}
 This package provides the systemd-id128 shared library.
+
+%package -n uclibc-%{libid128_devel}
+Summary:	Systemd-id128 library development files
+Group:		Development/C
+Requires:	uclibc-%{libid128} = %{EVRD}
+Requires:	%{libid128_devel} = %{EVRD}
+Provides:	uclibc-libsystemd-id128-devel = %{EVRD}
+Conflicts:	%{libid128_devel} < 221-3
+
+%description -n uclibc-%{libid128_devel}
+Development files for the systemd-id128 shared library.
 %endif
 
 %package -n %{libid128_devel}
@@ -476,6 +523,18 @@ Group:		System/Libraries
 
 %description -n	uclibc-%{libudev}
 Library for udev.
+
+%package -n uclibc-%{libudev_devel}
+Summary:	Devel library for udev
+Group:		Development/C
+License:	LGPLv2+
+Provides:	uclibc-udev-devel = %{EVRD}
+Requires:	uclibc-%{libudev} = %{EVRD}
+Requires:	%{libudev_devel} = %{EVRD}
+Conflicts:	%{libudev_devel} < 221-3
+
+%description -n	uclibc-%{libudev_devel}
+Devel library for udev.
 %endif
 
 %package -n %{libudev_devel}
@@ -1523,6 +1582,10 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libsystemd}
 %{uclibc_root}/%{_lib}/libsystemd.so.%{libsystemd_major}*
+
+%files -n uclibc-%{libsystemd_devel}
+%{uclibc_root}%{_libdir}/libsystemd.so
+%{uclibc_root}%{_libdir}/libsystemd.a
 %endif
 
 %files -n %{libsystemd_devel}
@@ -1533,10 +1596,6 @@ fi
 %{_includedir}/systemd/sd-bus.h
 %{_includedir}/systemd/sd-event.h
 %{_libdir}/libsystemd.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libsystemd.so
-%{uclibc_root}%{_libdir}/libsystemd.a
-%endif
 %{_datadir}/pkgconfig/systemd.pc
 %{_libdir}/pkgconfig/libsystemd.pc
 
@@ -1546,15 +1605,15 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libdaemon}
 %{uclibc_root}/%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
+
+%files -n uclibc-%{libdaemon_devel}
+%{uclibc_root}%{_libdir}/libsystemd-daemon.so
+%{uclibc_root}%{_libdir}/libsystemd-daemon.a
 %endif
 
 %files -n %{libdaemon_devel}
 %{_includedir}/systemd/sd-daemon.h
 %{_libdir}/libsystemd-daemon.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libsystemd-daemon.so
-%{uclibc_root}%{_libdir}/libsystemd-daemon.a
-%endif
 %{_libdir}/pkgconfig/libsystemd-daemon.pc
 %{_includedir}/systemd/sd-messages.h
 
@@ -1564,16 +1623,16 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{liblogin}
 %{uclibc_root}/%{_lib}/libsystemd-login.so.%{liblogin_major}*
+
+%files -n uclibc-%{liblogin_devel}
+%{uclibc_root}%{_libdir}/libsystemd-login.so
+%{uclibc_root}%{_libdir}/libsystemd-login.a
 %endif
 
 %files -n %{liblogin_devel}
 %dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-login.h
 %{_libdir}/libsystemd-login.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libsystemd-login.so
-%{uclibc_root}%{_libdir}/libsystemd-login.a
-%endif
 %{_libdir}/pkgconfig/libsystemd-login.pc
 
 %files -n %{libjournal}
@@ -1582,16 +1641,16 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libjournal}
 %{uclibc_root}/%{_lib}/libsystemd-journal.so.%{libjournal_major}*
+
+%files -n uclibc-%{libjournal_devel}
+%{uclibc_root}%{_libdir}/libsystemd-journal.so
+%{uclibc_root}%{_libdir}/libsystemd-journal.a
 %endif
 
 %files -n %{libjournal_devel}
 %dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-journal.h
 %{_libdir}/libsystemd-journal.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libsystemd-journal.so
-%{uclibc_root}%{_libdir}/libsystemd-journal.a
-%endif
 %{_libdir}/pkgconfig/libsystemd-journal.pc
 
 %files -n %{libid128}
@@ -1600,16 +1659,17 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libid128}
 %{uclibc_root}/%{_lib}/libsystemd-id128.so.%{libid128_major}*
+
+%files -n uclibc-%{libid128_devel}
+%{uclibc_root}%{_libdir}/libsystemd-id128.so
+%{uclibc_root}%{_libdir}/libsystemd-id128.a
 %endif
 
 %files -n %{libid128_devel}
 %dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-id128.h
 %{_libdir}/libsystemd-id128.so
-%if %{with uclibc}
-%{uclibc_root}%{_libdir}/libsystemd-id128.so
-%{uclibc_root}%{_libdir}/libsystemd-id128.a
-%endif
+
 %{_libdir}/pkgconfig/libsystemd-id128.pc
 
 %files -n %{libudev}
@@ -1618,15 +1678,15 @@ fi
 %if %{with uclibc}
 %files -n uclibc-%{libudev}
 %{uclibc_root}/%{_lib}/libudev.so.%{udev_major}*
-%endif
 
-%files -n %{libudev_devel}
-%{_libdir}/libudev.so
-%if %{with uclibc}
+%files -n uclibc-%{libudev_devel}
 # do not remove static library, required by lvm2
 %{uclibc_root}%{_libdir}/libudev.a
 %{uclibc_root}%{_libdir}/libudev.so
 %endif
+
+%files -n %{libudev_devel}
+%{_libdir}/libudev.so
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
