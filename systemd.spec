@@ -167,6 +167,7 @@ BuildRequires:	uclibc-acl-devel
 BuildRequires:	uclibc-bzip2-devel
 BuildRequires:	uclibc-lzma-devel
 BuildRequires:	uclibc-kmod-devel
+BuildRequires:	uclibc-libcap-devel
 %endif
 Requires:	acl
 Requires:	dbus >= 1.8.0
