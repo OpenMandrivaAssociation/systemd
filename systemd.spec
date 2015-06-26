@@ -381,7 +381,7 @@ This package provides the systemd-login shared library.
 Summary:	Systemd-login library development files
 Group:		Development/C
 Requires:	uclibc-%{liblogin} = %{EVRD}
-Requires:	%{liblogin_devel}} = %{EVRD}
+Requires:	%{liblogin_devel} = %{EVRD}
 Provides:	uclibc-libsystemd-login-devel = %{EVRD}
 Conflicts:	%{liblogin_devel} < 221-3
 
