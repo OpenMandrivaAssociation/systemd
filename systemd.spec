@@ -42,7 +42,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	221
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -544,9 +544,6 @@ Group:		Development/C
 License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{libudev} = %{EVRD}
-%endif
 Obsoletes:	%{_lib}udev0-devel
 Obsoletes:	%{name}-doc
 
