@@ -16,12 +16,11 @@ Resolves: #1199644
  src/core/unit.c | 10 +---------
  1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/src/core/unit.c b/src/core/unit.c
-index b9e1f13..fa17567 100644
---- a/src/core/unit.c
-+++ b/src/core/unit.c
-@@ -3546,15 +3546,7 @@ int unit_kill_context(
-                                 log_unit_warning_errno(u->id, r, "Failed to kill control group: %m");
+diff -Naur systemd-221/src/core/unit.c systemd-221.tpg/src/core/unit.c
+--- systemd-221/src/core/unit.c	2015-06-11 10:13:57.000000000 +0000
++++ systemd-221.tpg/src/core/unit.c	2015-06-28 11:56:10.776884852 +0000
+@@ -3557,15 +3557,7 @@
+                                 log_unit_warning_errno(u, r, "Failed to kill control group: %m");
                  } else if (r > 0) {
  
 -                        /* FIXME: For now, we will not wait for the
