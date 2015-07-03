@@ -156,6 +156,7 @@ BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
+BuildRequires:	qemu
 %ifnarch %armx
 BuildRequires:	gnu-efi
 %endif
