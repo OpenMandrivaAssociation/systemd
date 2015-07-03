@@ -160,7 +160,8 @@ BuildRequires:	gnu-efi
 BuildRequires:  rpm-build >= 1:5.4.10-79
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount)
-
+# make sure we have /etc/os-release available, required by --with-distro
+BuildRequires:	distro-release-common >= 2012.0-0.4
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
@@ -196,14 +197,14 @@ Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
-%if %mdvver >= 201500
+%if "%{distepoch}" >= "2015.0"
 # (tpg) this is obsoleted
-%rename		suspend
-%rename		suspend-s2ram
+Obsoletes:	suspend < 1.0-10
+Provides:	suspend = 1.0-10
+Obsoletes:	suspend-s2ram < 1.0-10
+Provides:	suspend-s2ram = 1.0-10
 %endif
 Provides:	should-restart = system
-# make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common >= 2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd = %{EVRD}
 Requires:	libsystemd-daemon = %{EVRD}
@@ -227,12 +228,16 @@ Conflicts:	usermode-consoleonly < 1:1.110
 Obsoletes:	hal <= 0.5.14-6
 # (tpg) moved form makedev package
 Provides:	dev
-Provides:	MAKEDEV
-Conflicts:	makedev < 4.4-17
-%rename		readahead
-%rename		resolvconf
+Obsoletes:	MAKEDEV < 4.4-23
+Provides:	MAKEDEV = 4.4-23
+Conflicts:	makedev < 4.4-23
+Obsoletes:	readahead < 1.5.7-8
+Provides:	readahead = 1.5.7-8
+Obsoletes:	resolvconf < 1.75-3
+Provides:	resolvconf = 1.75-3
+Obsoletes:	bootchart < 2.0.11.4-3
+Provides:	bootchart = 2.0.11.4-3
 %rename		systemd-tools
-%rename		bootchart
 %rename		systemd-units
 %rename		udev
 
@@ -944,7 +949,7 @@ fi
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
+/bin/systemd-hwdb update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) do not use fistboot here as id hangs on firstboot in lxc :)
@@ -1229,14 +1234,10 @@ ARG2=$2
 shift
 shift
 
-skip="$(grep -l 'Alias=display-manager.service' $* 2>/dev/null)"
 units=${*#%{_unitdir}/}
-units=${units#${skip##*/}}
 if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
-elif [ $ARG2 -gt 1 ]; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
 fi
 
 %triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
@@ -1259,7 +1260,7 @@ fi
 %triggerposttransin -- %{_binfmtdir}/*.conf
 systemctl reload-or-try-restart systemd-binfmt
 
-%triggerposttransin -- %{_binfmtdir}/*.conf
+%triggerposttransun -- %{_binfmtdir}/*.conf
 systemctl reload-or-try-restart systemd-binfmt
 
 %post -n %{libnss_myhostname}
