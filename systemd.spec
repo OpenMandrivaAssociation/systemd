@@ -151,15 +151,13 @@ BuildRequires:	python-sphinx
 %endif
 %ifnarch %armx
 BuildRequires:	valgrind-devel
+BuildRequires:	gnu-efi
+BuildRequires:	qemu
 %endif
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
-BuildRequires:	qemu
-%ifnarch %armx
-BuildRequires:	gnu-efi
-%endif
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
@@ -1441,8 +1439,10 @@ fi
 %{_mandir}/man7/*.*
 %{_mandir}/man8/*.*
 %{_prefix}/lib/kernel/install.d/*.install
+%ifnarch %armx
 %{_prefix}/lib/systemd/boot/efi/*.efi
 %{_prefix}/lib/systemd/boot/efi/*.stub
+%endif
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
 %{_prefix}/lib/systemd/user/*.service
