@@ -265,7 +265,6 @@ Requires:	uclibc-%{libdaemon} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
-%rename		uclibc-udev
 
 %description -n	uclibc-%{name}
 systemd is a system and session manager for Linux, compatible with
@@ -276,6 +275,18 @@ Linux cgroups, supports snapshotting and restoring of the system
 state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
+%endif
+
+%package -n uclibc-udev
+Summary:       Device manager for the Linux kernel
+Group:         System/Configuration/Hardware
+
+%description -n	uclibc-udev
+A collection of tools and a daemon to manage events received
+from the kernel and deal with them in user-space. Primarily this
+involves managing permissions, and creating and removing meaningful
+symlinks to device nodes in /dev when hardware is discovered or
+removed from the system
 %endif
 
 %package journal-gateway
@@ -1544,6 +1555,10 @@ fi
 %{uclibc_root}%{_bindir}/systemd-cat
 %{uclibc_root}%{_bindir}/systemd-cgtop
 %{uclibc_root}%{_bindir}/systemd-path
+%endif
+
+%if %{with uclibc}
+%files -n uclibc-udev
 %attr(0755,root,root) %{uclibc_root}/bin/udevadm
 %attr(0755,root,root) %{uclibc_root}/sbin/udevadm
 %endif
