@@ -255,6 +255,7 @@ Requires:	uclibc-%{libdaemon} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
 Requires:	uclibc-%{liblogin} = %{EVRD}
+%rename		uclibc-udev
 
 %description -n	uclibc-%{name}
 systemd is a system and session manager for Linux, compatible with
