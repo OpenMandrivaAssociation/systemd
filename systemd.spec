@@ -176,6 +176,7 @@ BuildRequires:	uclibc-lzma-devel
 BuildRequires:	uclibc-kmod-devel
 BuildRequires:	uclibc-libcap-devel
 BuildRequires:	uclibc-libmount-devel
+BuildRequires:	uclibc-dbus-devel
 %endif
 Requires:	acl
 Requires:	dbus >= 1.8.0
