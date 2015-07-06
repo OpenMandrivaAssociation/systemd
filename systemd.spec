@@ -1,5 +1,9 @@
 %bcond_with bootstrap
+%ifarch %armx
+%bcond_with uclibc
+%else
 %bcond_without uclibc
+%endif
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -42,7 +46,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	221
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -147,20 +151,20 @@ BuildRequires:	python-sphinx
 %endif
 %ifnarch %armx
 BuildRequires:	valgrind-devel
+BuildRequires:	gnu-efi
+BuildRequires:	qemu
 %endif
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
-%ifnarch %armx
-BuildRequires:	gnu-efi
-%endif
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount)
-
+# make sure we have /etc/os-release available, required by --with-distro
+BuildRequires:	distro-release-common >= 2012.0-0.4
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
@@ -171,6 +175,8 @@ BuildRequires:	uclibc-bzip2-devel
 BuildRequires:	uclibc-lzma-devel
 BuildRequires:	uclibc-kmod-devel
 BuildRequires:	uclibc-libcap-devel
+BuildRequires:	uclibc-libmount-devel
+BuildRequires:	uclibc-dbus-devel
 %endif
 Requires:	acl
 Requires:	dbus >= 1.8.0
@@ -196,14 +202,14 @@ Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
 %endif
-%if %mdvver >= 201500
+%if "%{distepoch}" >= "2015.0"
 # (tpg) this is obsoleted
-%rename		suspend
-%rename		suspend-s2ram
+Obsoletes:	suspend < 1.0-10
+Provides:	suspend = 1.0-10
+Obsoletes:	suspend-s2ram < 1.0-10
+Provides:	suspend-s2ram = 1.0-10
 %endif
 Provides:	should-restart = system
-# make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common >= 2012.0-0.4
 # (tpg) just to be sure we install this libraries
 Requires:	libsystemd = %{EVRD}
 Requires:	libsystemd-daemon = %{EVRD}
@@ -227,12 +233,16 @@ Conflicts:	usermode-consoleonly < 1:1.110
 Obsoletes:	hal <= 0.5.14-6
 # (tpg) moved form makedev package
 Provides:	dev
-Provides:	MAKEDEV
-Conflicts:	makedev < 4.4-17
-%rename		readahead
-%rename		resolvconf
+Obsoletes:	MAKEDEV < 4.4-23
+Provides:	MAKEDEV = 4.4-23
+Conflicts:	makedev < 4.4-23
+Obsoletes:	readahead < 1.5.7-8
+Provides:	readahead = 1.5.7-8
+Obsoletes:	resolvconf < 1.75-3
+Provides:	resolvconf = 1.75-3
+Obsoletes:	bootchart < 2.0.11.4-3
+Provides:	bootchart = 2.0.11.4-3
 %rename		systemd-tools
-%rename		bootchart
 %rename		systemd-units
 %rename		udev
 
@@ -945,7 +955,7 @@ fi
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/sbin/udevadm hwdb --update >/dev/null 2>&1 || :
+/bin/systemd-hwdb update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) do not use fistboot here as id hangs on firstboot in lxc :)
@@ -1230,14 +1240,10 @@ ARG2=$2
 shift
 shift
 
-skip="$(grep -l 'Alias=display-manager.service' $* 2>/dev/null)"
 units=${*#%{_unitdir}/}
-units=${units#${skip##*/}}
 if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
-elif [ $ARG2 -gt 1 ]; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    /bin/systemctl try-restart ${units} >/dev/null 2>&1 || :
 fi
 
 %triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
@@ -1260,7 +1266,7 @@ fi
 %triggerposttransin -- %{_binfmtdir}/*.conf
 systemctl reload-or-try-restart systemd-binfmt
 
-%triggerposttransin -- %{_binfmtdir}/*.conf
+%triggerposttransun -- %{_binfmtdir}/*.conf
 systemctl reload-or-try-restart systemd-binfmt
 
 %post -n %{libnss_myhostname}
@@ -1436,8 +1442,10 @@ fi
 %{_mandir}/man7/*.*
 %{_mandir}/man8/*.*
 %{_prefix}/lib/kernel/install.d/*.install
+%ifnarch %armx
 %{_prefix}/lib/systemd/boot/efi/*.efi
 %{_prefix}/lib/systemd/boot/efi/*.stub
+%endif
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
 %{_prefix}/lib/systemd/user/*.service
