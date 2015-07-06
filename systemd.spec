@@ -1310,8 +1310,10 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/systemd
+%ifnarch %armx
 %dir %{_prefix}/lib/systemd/boot
 %dir %{_prefix}/lib/systemd/boot/efi
+%endif
 %dir %{_prefix}/lib/systemd/catalog
 %dir %{_prefix}/lib/systemd/system-generators
 %dir %{_prefix}/lib/systemd/user
