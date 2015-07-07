@@ -275,7 +275,6 @@ Linux cgroups, supports snapshotting and restoring of the system
 state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
-%endif
 
 %package -n uclibc-udev
 Summary:       Device manager for the Linux kernel
