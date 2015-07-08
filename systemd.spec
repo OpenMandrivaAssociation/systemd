@@ -1513,7 +1513,6 @@ fi
 %attr(0755,root,root) /sbin/udevd
 %attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) %{_sbindir}/udevadm
-%attr(0755,root,root) %{udev_libdir}/accelerometer
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/cdrom_id
 %attr(0755,root,root) %{udev_libdir}/collect
