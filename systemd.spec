@@ -591,8 +591,7 @@ find -type d |xargs chmod 755
 # (tpg) handle -Oz to enable -flto
 sed -i -e "/^AS_CASE/s/12345/12345z/" configure*
 
-#intltoolize --force --automake
-autoreconf -fiv
+./autogen.sh
 
 %build
 export CONFIGURE_TOP="$PWD"
