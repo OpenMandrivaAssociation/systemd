@@ -46,7 +46,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	221
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1278,6 +1278,12 @@ systemctl reload-or-try-restart systemd-binfmt
 
 %triggerposttransun -- %{_binfmtdir}/*.conf
 systemctl reload-or-try-restart systemd-binfmt
+
+%triggerposttransin -- /lib/udev/hwdb.d/*.hwdb
+/bin/systemd-hwdb update
+
+%triggerposttransun -- /lib/udev/hwdb.d/*.hwdb
+/bin/systemd-hwdb update
 
 %post -n %{libnss_myhostname}
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
