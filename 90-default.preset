@@ -36,7 +36,7 @@ enable ModemManager.service
 enable sshd.socket
 enable atd.*
 enable crond.*
-enable rpcbind.*
+enable rpcbind.socket
 enable bluetooth.*
 enable cups.path
 enable cups.socket
