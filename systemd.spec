@@ -2,7 +2,7 @@
 %ifarch %armx
 %bcond_with uclibc
 %else
-%bcond_without uclibc
+%bcond_with uclibc
 %endif
 
 # macros for sysvinit transition - should be equal to
