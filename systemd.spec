@@ -98,7 +98,6 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 # keep this patch until upstream will fix it
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
-Patch18:	systemd-221-add-missing-signal_h-header.patch
 # (tpg) prolly this will be fixed dirrefently in next release
 # https://bugzilla.redhat.com/show_bug.cgi?id=1141137
 Patch19:	systemd-221-revert-wait_for_exit-true.patch
