@@ -45,12 +45,12 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	222
-Release:	5
+Version:	224
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
-Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.xz
+Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.gz
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
