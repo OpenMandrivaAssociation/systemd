@@ -82,14 +82,16 @@ Source20:	90-wireless.network
 # Put back support for building it.
 Patch4:		systemd-220-static.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
+%if %{with uclibc}
 # uClibc lacks secure_getenv(), DO NOT REMOVE!
 Patch6:		systemd-221-support-build-without-secure_getenv.patch
 Patch7:		systemd-221-uclibc-no-mkostemp.patch
+#Patch10:	systemd-214-uclibc.patch
+Patch13:	systemd-221-uclibc-exp10-replacement.patch
+%endif
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
-#Patch10:	systemd-214-uclibc.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
-Patch13:	systemd-221-uclibc-exp10-replacement.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 # (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1092
