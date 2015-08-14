@@ -41,6 +41,7 @@ enable bluetooth.*
 enable cups.path
 enable cups.socket
 enable cups.service
+enable cups-browsed.service
 enable cups-lpd.socket
 enable accounts-daemon.service
 enable rtkit-daemon.service
