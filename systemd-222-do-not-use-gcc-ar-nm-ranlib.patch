@@ -1,0 +1,16 @@
+diff -Naur systemd-225/configure.ac systemd-225.tpg/configure.ac
+--- systemd-225/configure.ac	2015-08-27 15:03:18.000000000 +0000
++++ systemd-225.tpg/configure.ac	2015-08-30 10:44:25.854189995 +0000
+@@ -39,9 +39,9 @@
+ AC_CANONICAL_HOST
+ AC_DEFINE_UNQUOTED([CANONICAL_HOST], "$host", [Canonical host string.])
+ 
+-AC_CHECK_TOOLS([AR], [gcc-ar ar], [:])
+-AC_CHECK_TOOLS([NM], [gcc-nm nm], [:])
+-AC_CHECK_TOOLS([RANLIB], [gcc-ranlib ranlib], [:])
++AC_CHECK_TOOLS([AR], [ar], [:])
++AC_CHECK_TOOLS([NM], [nm], [:])
++AC_CHECK_TOOLS([RANLIB], [ranlib], [:])
+ 
+ LT_PREREQ(2.2)
+ LT_INIT([disable-static])

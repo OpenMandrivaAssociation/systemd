@@ -101,6 +101,7 @@ Patch17:	0515-Add-path-to-locale-search.patch
 # (tpg) prolly this will be fixed dirrefently in next release
 # https://bugzilla.redhat.com/show_bug.cgi?id=1141137
 Patch19:	systemd-221-revert-wait_for_exit-true.patch
+Patch20:	systemd-222-do-not-use-gcc-ar-nm-ranlib.patch
 
 # UPSTREAM GIT PATCHES
 
@@ -589,9 +590,6 @@ This package contains documentation of udev.
 find src/ -name "*.vala" -exec touch '{}' \;
 find -type d |xargs chmod 755
 
-# (tpg) handle -Oz to enable -flto
-sed -i -e "/^AS_CASE/s/12345/12345z/" configure*
-
 ./autogen.sh
 
 %build
@@ -691,11 +689,10 @@ pushd shared
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--disable-kdbus \
-	--disable-tests \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
-%make V=1
+%make
 
 popd
 
