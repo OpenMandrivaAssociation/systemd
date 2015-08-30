@@ -146,11 +146,6 @@ BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
 BuildRequires:	pkgconfig(liblz4)
-%if !%{with bootstrap}
-BuildRequires:	python-devel
-BuildRequires:	python-lxml
-BuildRequires:	python-sphinx
-%endif
 %ifnarch %armx
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
@@ -244,6 +239,8 @@ Obsoletes:	resolvconf < 1.75-3
 Provides:	resolvconf = 1.75-3
 Obsoletes:	bootchart < 2.0.11.4-3
 Provides:	bootchart = 2.0.11.4-3
+Obsoletes:	python-%{name} < 223
+Provides:	python-%{name} = 223
 %rename		systemd-tools
 %rename		systemd-units
 %rename		udev
@@ -301,15 +298,6 @@ Obsoletes:		systemd < 206-7
 
 %description journal-gateway
 Offers journal events over the network using HTTP.
-
-%if !%{with bootstrap}
-%package -n python-%{name}
-Summary:	Python bindings for %{name}
-Group:		Development/Python
-
-%description -n python-%{name}
-Python bindings for %{name}.
-%endif
 
 %package -n %{libsystemd}
 Summary:	Systemdlibrary package
@@ -704,7 +692,6 @@ mkdir -p %{buildroot}%{uclibc_root}/sbin
 ln -sf %{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
 rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
 rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
-rm -rf %{buildroot}%{uclibc_root}%{python_sitelib}/%{name}
 %endif
 
 %makeinstall_std -C shared
@@ -1585,11 +1572,6 @@ fi
 %{_mandir}/man8/systemd-journal-gatewayd.service.8.*
 %{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
 %{_datadir}/systemd/gatewayd/browse.html
-
-%if !%{with bootstrap}
-%files -n python-%{name} 
-%{py_platsitedir}/%{name}
-%endif
 
 %files -n %{libnss_myhostname}
 %{_libdir}/libnss_myhostname.so.%{libnss_major}*
