@@ -45,7 +45,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	225
+Version:	226
 Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -100,8 +100,10 @@ Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 # (tpg) prolly this will be fixed dirrefently in next release
 # https://bugzilla.redhat.com/show_bug.cgi?id=1141137
-Patch19:	systemd-221-revert-wait_for_exit-true.patch
-Patch20:	systemd-222-do-not-use-gcc-ar-nm-ranlib.patch
+# For now best sollution is to enable UCH in kernel
+# https://github.com/systemd/systemd/pull/350#issuecomment-137005614
+# add to kernel boot parameter this systemd.unified_cgroup_hierarchy=1
+# Patch19:	systemd-221-revert-wait_for_exit-true.patch
 
 # UPSTREAM GIT PATCHES
 
@@ -122,7 +124,7 @@ BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	vala >= 0.9
 BuildRequires:	elfutils-devel
-BuildRequires:	pkgconfig(dbus-1) >= 1.8.0
+BuildRequires:	pkgconfig(dbus-1) >= 1.10.0
 BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
@@ -176,7 +178,7 @@ BuildRequires:	uclibc-libmount-devel
 BuildRequires:	uclibc-dbus-devel
 %endif
 Requires:	acl
-Requires:	dbus >= 1.8.0
+Requires:	dbus >= 1.10.0
 Requires(pre,post):	coreutils >= 8.23
 Requires(post):	gawk
 Requires(post):	awk
