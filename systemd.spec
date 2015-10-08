@@ -143,7 +143,7 @@ BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
 BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
-BuildRequires:	pkgconfig(blkid)
+BuildRequires:	pkgconfig(blkid) >= 2.27
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
@@ -161,7 +161,7 @@ BuildRequires:	pkgconfig(libidn)
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
 BuildRequires:	pkgconfig(xkbcommon)
-BuildRequires:	pkgconfig(mount)
+BuildRequires:	pkgconfig(mount) >= 2.27
 # make sure we have /etc/os-release available, required by --with-distro
 BuildRequires:	distro-release-common >= 2012.0-0.4
 %if !%{with bootstrap}
@@ -185,7 +185,7 @@ Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
 Requires(pre):	basesystem-minimal >= 2015.0
-Requires(pre):	util-linux >= 2.26.2
+Requires(pre):	util-linux >= 2.27
 Requires(pre):	shadow >= 4.2.1-11
 Requires(pre,post,postun):	setup >= 2.8.8-16
 Requires:	lockdev
@@ -658,7 +658,6 @@ pushd shared
 	--enable-bzip2 \
 	--enable-lz4 \
 	--disable-static \
-	--enable-chkconfig \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
@@ -678,6 +677,7 @@ pushd shared
 	--enable-xkbcommon \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
+	--with-certificate-root="%{_sysconfdir}/pki"
 	--disable-kdbus \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
