@@ -677,7 +677,7 @@ pushd shared
 	--enable-xkbcommon \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
-	--with-certificate-root="%{_sysconfdir}/pki"
+	--with-certificate-root="%{_sysconfdir}/pki" \
 	--disable-kdbus \
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
