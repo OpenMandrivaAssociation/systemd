@@ -1,6 +1,14 @@
---- systemd-206/src/journal/journald.conf~	2013-08-16 08:42:25.042323969 +0200
-+++ systemd-206/src/journal/journald.conf	2013-08-16 08:42:26.411343412 +0200
-@@ -15,10 +15,10 @@
+diff -Naur systemd-227/src/journal/journald.conf systemd-227.tpg/src/journal/journald.conf
+--- systemd-227/src/journal/journald.conf	2015-10-07 15:06:22.000000000 +0000
++++ systemd-227.tpg/src/journal/journald.conf	2015-10-11 22:37:36.052172457 +0000
+@@ -13,17 +13,17 @@
+ 
+ [Journal]
+ #Storage=auto
+-#Compress=yes
++Compress=yes
+ #Seal=yes
+ #SplitMode=uid
  #SyncIntervalSec=5m
  #RateLimitInterval=30s
  #RateLimitBurst=1000
@@ -8,8 +16,9 @@
 +SystemMaxUse=150M
  #SystemKeepFree=
  #SystemMaxFileSize=
+ #SystemMaxFiles=100
 -#RuntimeMaxUse=
 +RuntimeMaxUse=150M
  #RuntimeKeepFree=
  #RuntimeMaxFileSize=
- #MaxRetentionSec=
+ #RuntimeMaxFiles=100
