@@ -853,7 +853,7 @@ systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-
 fi
 
 %post
-/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
+/sbin/systemd-machine-id-setup >/dev/null 2>&1 || :
 /lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
