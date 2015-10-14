@@ -43,7 +43,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	208
-Release:	19.14
+Release:	19.15
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -686,12 +686,6 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
 # (bor) enable rpcbind.target by default so we have something to plug portmapper service into
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
-# (bor) machine-id-setup is in /sbin in post-v20
-install -d %{buildroot}/sbin && mv %{buildroot}/bin/systemd-machine-id-setup %{buildroot}/sbin
-%if %{with uclibc}
-install -d %{buildroot}%{uclibc_root}/sbin && mv %{buildroot}%{uclibc_root}/bin/systemd-machine-id-setup %{buildroot}%{uclibc_root}/sbin
-%endif
-
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -859,12 +853,12 @@ systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-
 fi
 
 %post
-/usr/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
+/bin/systemd-machine-id-setup >/dev/null 2>&1 || :
 /usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
-/usr/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
-/usr/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/usr/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
-/usr/bin/journalctl --update-catalog >/dev/null 2>&1 || :
+/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
+/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
+/bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
+/bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 #(tpg) BIG migration
 
@@ -1192,7 +1186,7 @@ fi
 /bin/journalctl
 /bin/loginctl
 /bin/systemd-inhibit
-/sbin/systemd-machine-id-setup
+/bin/systemd-machine-id-setup
 %{_bindir}/systemd-analyze
 %{_bindir}/systemd-delta
 %{_bindir}/systemd-detect-virt
@@ -1347,7 +1341,7 @@ fi
 %{uclibc_root}/bin/journalctl
 %{uclibc_root}/bin/loginctl
 %{uclibc_root}/bin/systemd-inhibit
-%{uclibc_root}/sbin/systemd-machine-id-setup
+%{uclibc_root}/bin/systemd-machine-id-setup
 %{uclibc_root}%{_bindir}/hostnamectl
 %{uclibc_root}%{_bindir}/localectl
 %{uclibc_root}%{_bindir}/bootctl
