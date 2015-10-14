@@ -114,8 +114,6 @@ BuildRequires:	libtool
 BuildRequires:	acl-devel
 BuildRequires:	audit-devel
 BuildRequires:	docbook-style-xsl
-BuildRequires:	docbook-dtd42-xml
-BuildRequires:	docbook-dtd45-xml
 BuildRequires:	gperf
 BuildRequires:	intltool
 BuildRequires:	cap-devel
