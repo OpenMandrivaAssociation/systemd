@@ -854,7 +854,7 @@ fi
 
 %post
 /bin/systemd-machine-id-setup >/dev/null 2>&1 || :
-/usr/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
+/lib/systemd/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /bin/systemctl restart systemd-localed.service >/dev/null 2>&1 || :
