@@ -46,7 +46,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	228
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -122,10 +122,8 @@ BuildRequires:	cap-devel
 BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
-BuildRequires:	vala >= 0.9
 BuildRequires:	elfutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.10.0
-BuildRequires:	pkgconfig(dbus-glib-1)
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
@@ -187,7 +185,7 @@ Requires(post):	awk
 Requires(pre):	basesystem-minimal >= 2015.0
 Requires(pre):	util-linux >= 2.27
 Requires(pre):	shadow >= 4.2.1-11
-Requires(pre,post,postun):	setup >= 2.8.8-16
+Requires(pre,post,postun):	setup >= 2.8.9
 Requires:	lockdev
 Requires:	kmod >= 20
 Conflicts:	initscripts < 9.24
@@ -243,6 +241,7 @@ Obsoletes:	bootchart < 2.0.11.4-3
 Provides:	bootchart = 2.0.11.4-3
 Obsoletes:	python-%{name} < 223
 Provides:	python-%{name} = 223
+Obsoletes:	gummiboot
 %rename		systemd-tools
 %rename		systemd-units
 %rename		udev
@@ -577,9 +576,6 @@ This package contains documentation of udev.
 %setup -q
 %apply_patches
 
-find src/ -name "*.vala" -exec touch '{}' \;
-find -type d |xargs chmod 755
-
 ./autogen.sh
 
 %build
@@ -712,11 +708,11 @@ ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
 
 # (tpg) install compat symlinks
 for i in halt poweroff reboot; do
-	ln -s /bin/systemctl %{buildroot}/bin/$i
+    ln -s /bin/systemctl %{buildroot}/bin/$i
 done
 
 for i in runlevel shutdown telinit; do
-	ln -s ../bin/systemctl %{buildroot}/sbin/$i
+    ln -s ../bin/systemctl %{buildroot}/sbin/$i
 done
 
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
@@ -738,11 +734,6 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
-
-#(tpg) keep these compat symlink
-ln -s -r %{buildroot}/%{systemd_libdir}/system/systemd-udevd.service %{buildroot}/%{systemd_libdir}/system/udev.service
-ln -s -r %{buildroot}/%{systemd_libdir}/system/systemd-udev-settle.service %{buildroot}/%{systemd_libdir}/system/udev-settle.service
-
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
@@ -963,89 +954,89 @@ systemd-sysusers
 if [ $1 -ge 2 ]; then
 #(tpg) BIG migration
 # Migrate /etc/sysconfig/clock
-  if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
-	  . /etc/sysconfig/clock 2>&1 || :
-	  if [ -n "$ZONE" -a -e "/usr/share/zoneinfo/$ZONE" ] ; then
-	      /usr/bin/ln -sf "../usr/share/zoneinfo/$ZONE" /etc/localtime >/dev/null 2>&1 || :
-	  fi
-  fi
+    if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
+	. /etc/sysconfig/clock 2>&1 || :
+	if [ -n "$ZONE" -a -e "/usr/share/zoneinfo/$ZONE" ] ; then
+	    /usr/bin/ln -sf "../usr/share/zoneinfo/$ZONE" /etc/localtime >/dev/null 2>&1 || :
+	fi
+    fi
 
 # Migrate /etc/sysconfig/i18n
-  if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
-	  unset LANGUAGE
-	  unset LANG
-	  unset LC_CTYPE
-	  unset LC_NUMERIC
-	  unset LC_TIME
-	  unset LC_COLLATE
-	  unset LC_MONETARY
-	  unset LC_MESSAGES
-	  unset LC_PAPER
-	  unset LC_NAME
-	  unset LC_ADDRESS
-	  unset LC_TELEPHONE
-	  unset LC_MEASUREMENT
-	  unset LC_IDENTIFICATION
-	  . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-	  [ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
-	  [ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_COLLATE" ] && echo LC_COLLATE=$LC_COLLATE >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_MONETARY" ] && echo LC_MONETARY=$LC_MONETARY >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_MESSAGES" ] && echo LC_MESSAGES=$LC_MESSAGES >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_PAPER" ] && echo LC_PAPER=$LC_PAPER >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_NAME" ] && echo LC_NAME=$LC_NAME >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_ADDRESS" ] && echo LC_ADDRESS=$LC_ADDRESS >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_TELEPHONE" ] && echo LC_TELEPHONE=$LC_TELEPHONE >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_MEASUREMENT" ] && echo LC_MEASUREMENT=$LC_MEASUREMENT >> /etc/locale.conf 2>&1 || :
-	  [ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
-  fi
+    if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
+	unset LANGUAGE
+	unset LANG
+	unset LC_CTYPE
+	unset LC_NUMERIC
+	unset LC_TIME
+	unset LC_COLLATE
+	unset LC_MONETARY
+	unset LC_MESSAGES
+	unset LC_PAPER
+	unset LC_NAME
+	unset LC_ADDRESS
+	unset LC_TELEPHONE
+	unset LC_MEASUREMENT
+	unset LC_IDENTIFICATION
+	. /etc/sysconfig/i18n >/dev/null 2>&1 || :
+	[ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
+	[ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_COLLATE" ] && echo LC_COLLATE=$LC_COLLATE >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_MONETARY" ] && echo LC_MONETARY=$LC_MONETARY >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_MESSAGES" ] && echo LC_MESSAGES=$LC_MESSAGES >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_PAPER" ] && echo LC_PAPER=$LC_PAPER >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_NAME" ] && echo LC_NAME=$LC_NAME >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_ADDRESS" ] && echo LC_ADDRESS=$LC_ADDRESS >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_TELEPHONE" ] && echo LC_TELEPHONE=$LC_TELEPHONE >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_MEASUREMENT" ] && echo LC_MEASUREMENT=$LC_MEASUREMENT >> /etc/locale.conf 2>&1 || :
+	[ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
+    fi
 
 # Migrate /etc/sysconfig/keyboard to the vconsole configuration
-  if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
-	  unset SYSFONT
-	  unset SYSFONTACM
-	  unset UNIMAP
-	  unset KEYMAP
-	  [ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-	  . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
-	  [ -n "$SYSFONT" ] && echo FONT=$SYSFONT > /etc/vconsole.conf 2>&1 || :
-	  [ -n "$SYSFONTACM" ] && echo FONT_MAP=$SYSFONTACM >> /etc/vconsole.conf 2>&1 || :
-	  [ -n "$UNIMAP" ] && echo FONT_UNIMAP=$UNIMAP >> /etc/vconsole.conf 2>&1 || :
-	  [ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
-  fi
+    if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
+	unset SYSFONT
+	unset SYSFONTACM
+	unset UNIMAP
+	unset KEYMAP
+	[ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n >/dev/null 2>&1 || :
+	. /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+	[ -n "$SYSFONT" ] && echo FONT=$SYSFONT > /etc/vconsole.conf 2>&1 || :
+	[ -n "$SYSFONTACM" ] && echo FONT_MAP=$SYSFONTACM >> /etc/vconsole.conf 2>&1 || :
+	[ -n "$UNIMAP" ] && echo FONT_UNIMAP=$UNIMAP >> /etc/vconsole.conf 2>&1 || :
+	[ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
+    fi
 
 # Migrate /etc/sysconfig/keyboard to the X11 keyboard configuration
-  if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
-	  unset XkbLayout
-	  unset XkbModel
-	  unset XkbVariant
-	  unset XkbOptions
-	  . /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+    if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
+	unset XkbLayout
+	unset XkbModel
+	unset XkbVariant
+	unset XkbOptions
+	. /etc/sysconfig/keyboard >/dev/null 2>&1 || :
 
-	  echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  [ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  [ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  [ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  [ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	  echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-  fi
+	echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	[ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	[ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	[ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	[ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+	echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
+    fi
 
-  rm -f /etc/sysconfig/i18n >/dev/null 2>&1 || :
-  rm -f /etc/sysconfig/keyboard >/dev/null 2>&1 || :
+    rm -f /etc/sysconfig/i18n >/dev/null 2>&1 || :
+    rm -f /etc/sysconfig/keyboard >/dev/null 2>&1 || :
 
 # Migrate HOSTNAME= from /etc/sysconfig/network
-  if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
-	  unset HOSTNAME
-	  . /etc/sysconfig/network >/dev/null 2>&1 || :
-	  [ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
-  fi
+    if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
+	unset HOSTNAME
+	. /etc/sysconfig/network >/dev/null 2>&1 || :
+	[ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
+    fi
 
-  /usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
+    /usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
 fi
 %endif
 # End BIG migration
@@ -1060,102 +1051,97 @@ fi
 
 # (tpg) from old units package
 if [ $1 -eq 2 ] ; then
-        # Try to read default runlevel from the old inittab if it exists
-        runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
-        if [ -z "$runlevel" ] ; then
-                target="/lib/systemd/system/graphical.target"
-        else
-                target="/lib/systemd/system/runlevel$runlevel.target"
-        fi
+    # Try to read default runlevel from the old inittab if it exists
+    runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
+    if [ -z "$runlevel" ] ; then
+	target="/lib/systemd/system/graphical.target"
+    else
+	target="/lib/systemd/system/runlevel$runlevel.target"
+    fi
 
-        # And symlink what we found to the new-style default.target
-        /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-	# (tpg) need to restart it to catch new auth
-	/bin/systemctl try-restart systemd-logind.service 2>&1 || :
+# And symlink what we found to the new-style default.target
+    /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+# (tpg) need to restart it to catch new auth
+    /bin/systemctl try-restart systemd-logind.service 2>&1 || :
 fi
 
 # Enable the services we install by default.
 /bin/systemctl --quiet preset \
-       getty@tty1.service \
-       remote-fs.target \
-       shadow.timer \
-       shadow.service \
-       systemd-firstboot.service \
-       systemd-networkd.service \
-       systemd-resolved.service \
-       systemd-timesyncd.service \
-       systemd-timedated.service \
-       systemd-udev-settle.service \
-        2>&1 || :
+	getty@tty1.service \
+	remote-fs.target \
+	shadow.timer \
+	shadow.service \
+	systemd-firstboot.service \
+	systemd-networkd.service \
+	systemd-resolved.service \
+	systemd-timesyncd.service \
+	systemd-timedated.service \
+	systemd-udev-settle.service \
+	2>&1 || :
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
 if [ -z $hostname_new ]; then
-        hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
-	if [ ! -z $hostname_old ]; then
-    		echo $hostname_old >> %{_sysconfdir}/hostname
-        else
-    		echo "localhost" >> %{_sysconfdir}/hostname
-        fi
+    hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
+    if [ ! -z $hostname_old ]; then
+	echo $hostname_old >> %{_sysconfdir}/hostname
+    else
+	echo "localhost" >> %{_sysconfdir}/hostname
+    fi
+fi
+
+# Remove spurious /etc/fstab entries from very old installations
+if [ -e /etc/fstab ]; then
+    grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
+	sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+fi
+
+# (tpg) create resolv.conf based on systemd
+if [ $1 -ge 1 ]; then
+    if [ ! -e /run/systemd/resolve/resolv.conf ]; then
+	mkdir -p /run/systemd/resolve
+	echo -e "nameserver 208.67.222.222\nnameserver 208.67.220.220\n" > /run/systemd/resolve/resolv.conf
+    fi
+fi
+
+# (tpg) link to resolv.conf from systemd
+if [ $1 -eq 1 ]; then
+    if [ -e /etc/resolv.conf ]; then
+	rm -f /etc/resolv.conf
+    fi
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+
+# (tpg) on update always set to systemd resolv.conf
+if [ $1 -ge 2 ]; then
+    if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" != "../run/systemd/resolve/resolv.conf" ]; then
+	rm -f /etc/resolv.conf
+	ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+    fi
+
+    /bin/systemctl restart systemd-resolved.service 2>&1 || :
 fi
 
 %preun
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
-           getty@tty1.service \
-           getty@getty.service \
-           remote-fs.target \
-           systemd-networkd.service \
-           systemd-resolvd.service \
-           systemd-timesync.service \
-           systemd-timedated.service \
-           console-getty.service \
-           console-shell.service \
-           debug-shell.service \
-           2>&1 || :
+	    getty@tty1.service \
+	    getty@getty.service \
+	    remote-fs.target \
+	    systemd-networkd.service \
+	    systemd-resolvd.service \
+	    systemd-timesync.service \
+	    systemd-timedated.service \
+	    console-getty.service \
+	    console-shell.service \
+	    debug-shell.service \
+	    2>&1 || :
 
     /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
 fi
 
 %postun
 if [ $1 -ge 1 ] ; then
-  systemctl daemon-reload > /dev/null 2>&1 || :
-fi
-
-%posttrans
-# (tpg) handle resolvconf
-if [ -f /etc/resolv.conf ]; then
-    rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ ! -e /etc/resolv.conf ]; then
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
-    rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/NetworkManager/resolv.conf" ]; then
-    rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-fi
-
-# workarounds for ABF
-if [ ! -f /run/systemd/resolve/resolv.conf ]; then
-    echo "Warning /run/systemd/resolve/resolv.conf does not exists. Recreating it."
-    mkdir -p /run/systemd/resolve
-    echo -e "nameserver 208.67.222.222\nnameserver 208.67.220.220\n" > /run/systemd/resolve/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-fi
-# end of workarounds
-
-%triggerin -- setup
-# setup package owns /etc/resolv.conf
-# so on every setup update /etc/resolv.conf needs to be symlinked
-# to /run/systemd/resolve/resolv.conf
-if [ $1 -ge 2 -o $2 -ge 2 ]; then
-    if [ -f /etc/resolv.conf ]; then
-		rm -f /etc/resolv.conf
-		ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-    fi
-    /bin/systemctl enable systemd-resolved.service 2>&1 || :
-    /bin/systemctl restart systemd-resolved.service 2>&1 || :
+    systemctl daemon-reload > /dev/null 2>&1 || :
 fi
 
 %triggerun -- %{name} < 196
@@ -1165,7 +1151,7 @@ fi
 chgrp -R systemd-journal /var/log/journal || :
 chmod 02755 /var/log/journal || :
 if [ -f /etc/machine-id ]; then
-	chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
+    chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
 fi
 
 %triggerposttransun -- resolvconf < 1.75-4
@@ -1188,8 +1174,8 @@ fi
 %triggerposttransin -- %{_tmpfilesdir}/*.conf
 if [ $1 -eq 1 -o $2 -eq 1 ]; then
     while [ -n "$3" ]; do
-        if [ -f "$3" ]; then
-            /bin/systemd-tmpfiles --create "$3"
+	if [ -f "$3" ]; then
+	    /bin/systemd-tmpfiles --create "$3"
         fi
         shift
     done
@@ -1227,7 +1213,7 @@ fi
 %triggerpostun -- %{name}-units < 217-10
 # remove wrong getty target
 if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
-	/bin/systemctl --quiet disable getty@getty.service  2>&1 || :
+    /bin/systemctl --quiet disable getty@getty.service  2>&1 || :
     rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
 fi
 
@@ -1275,20 +1261,13 @@ systemctl reload-or-try-restart systemd-binfmt
 %post -n %{libnss_myhostname}
 # sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
 if [ -f /etc/nsswitch.conf ] ; then
-	sed -i.bak -e '
-	    /^hosts:/ !b
-	    /\<myhostname\>/ b
-	    s/[[:blank:]]*$/ myhostname/
-	    ' /etc/nsswitch.conf
+    sed -i.bak -e '/^hosts:/ !b/\<myhostname\>/ bs/[[:blank:]]*$/ myhostname/' /etc/nsswitch.conf
 fi
 
 %preun -n %{libnss_myhostname}
 # sed-fu to remove myhostname from the hosts line of /etc/nsswitch.conf
 if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
-	sed -i.bak -e '
-	    /^hosts:/ !b
-	    s/[[:blank:]]\+myhostname\>//
-	    ' /etc/nsswitch.conf
+    sed -i.bak -e '/^hosts:/ !bs/[[:blank:]]\+myhostname\>//' /etc/nsswitch.conf
 fi
 
 %pre journal-gateway
