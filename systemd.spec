@@ -46,7 +46,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	228
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -790,6 +790,9 @@ mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysc
 # Install logdir for journald
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
+#
+install -m 0755 -d %{buildroot}%{_sysconfdir}/%{name}/network
+
 # (tpg) Install default distribution preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
 mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
@@ -882,14 +885,14 @@ rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 # trigger is executed on both self and target install so no need to have
 # extra own post
 if [ $1 -ge 2 -o $2 -ge 2 ] ; then
-	/bin/systemctl daemon-reexec 2>&1 || :
+    /bin/systemctl daemon-reexec 2>&1 || :
 fi
 
 %pre
 if [ $1 -ge 2 ]; then
 # (tpg) add input group
 if ! getent group input >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r input >/dev/null || :
+    /usr/sbin/groupadd -r input >/dev/null || :
 fi
 
 # (cg) Cannot use rpm-helper scripts as it results in a cyclical dep as
@@ -1259,15 +1262,28 @@ systemctl reload-or-try-restart systemd-binfmt
 /bin/systemd-hwdb update
 
 %post -n %{libnss_myhostname}
-# sed-fu to add myhostname to the hosts line of /etc/nsswitch.conf
+# sed-fu to remove mymachines from passwd and group lines of /etc/nsswitch.conf
+# https://bugzilla.redhat.com/show_bug.cgi?id=1284325
+# To avoid the removal, e.g. add a space at the end of the line.
 if [ -f /etc/nsswitch.conf ] ; then
-    sed -i.bak -e '/^hosts:/ !b/\<myhostname\>/ bs/[[:blank:]]*$/ myhostname/' /etc/nsswitch.conf
+    grep -E -q '^(passwd|group):.* mymachines$' /etc/nsswitch.conf &&
+    sed -i.bak -r -e '
+	s/^(passwd:.*) mymachines$/\1/;
+	s/^(group:.*) mymachines$/\1/;
+	' /etc/nsswitch.conf >/dev/null 2>&1 || :
 fi
 
 %preun -n %{libnss_myhostname}
-# sed-fu to remove myhostname from the hosts line of /etc/nsswitch.conf
-if [ "$1" -eq 0 -a -f /etc/nsswitch.conf ] ; then
-    sed -i.bak -e '/^hosts:/ !bs/[[:blank:]]\+myhostname\>//' /etc/nsswitch.conf
+if [ -f /etc/nsswitch.conf ] ; then
+    sed -i.bak -e '
+	/^hosts:/ !b
+	s/[[:blank:]]\+myhostname\>//
+	' /etc/nsswitch.conf >/dev/null 2>&1 || :
+
+    sed -i.bak -e '
+	/^hosts:/ !b
+	s/[[:blank:]]\+mymachines\>//
+	' /etc/nsswitch.conf >/dev/null 2>&1 || :
 fi
 
 %pre journal-gateway
@@ -1310,6 +1326,7 @@ fi
 %dir %{_sysconfdir}/systemd/system/getty.target.wants
 %dir %{_sysconfdir}/systemd/user
 %dir %{_sysconfdir}/systemd/user/default.target.wants
+%dir %{_sysconfdir}/systemd/network
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/udev
 %dir %{_sysconfdir}/udev/agents.d
