@@ -11,6 +11,7 @@ enable acpid.*
 
 # Enable udev service
 enable systemd-udev*.service
+enable systemd-udev*.socket
 
 # Enable udisk service
 enable udisks2.service
@@ -22,7 +23,7 @@ enable upower.service
 enable polkit.service
 
 # Enable Avahi by default
-enable avahi*.service
+enable avahi*.*
 
 # Enable mandriva services
 enable mandriva-everytime.service
@@ -50,12 +51,17 @@ enable man-db.*
 enable nscd.*
 enable shadow.*
 enable saned.socket
+enable systemd-bus-proxy.socket
+enable systemd-initctl.socket
+enable systemd-journald.socket
 
 # Network services
+enable systemd-networkd.socket
 enable systemd-networkd.service
 enable systemd-resolved.service
 enable systemd-timedated.service
 enable systemd-timesyncd.service
+enable systemd-rfkill.socket
 enable firewalld.service
 enable iptables.service
 enable nmb.service
