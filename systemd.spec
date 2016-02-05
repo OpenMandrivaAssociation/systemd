@@ -1,9 +1,5 @@
 %bcond_with bootstrap
-%ifarch %armx
 %bcond_with uclibc
-%else
-%bcond_with uclibc
-%endif
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -46,7 +42,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	228
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
