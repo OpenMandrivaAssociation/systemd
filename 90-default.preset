@@ -77,7 +77,6 @@ enable lvm2-monitor.*
 enable lvm2-lvmetad.*
 enable dm-event.*
 enable mdmonitor.service
-enable mdmonitor-takeover.service
 
 # Hardware services
 enable irqbalance.service
