@@ -42,7 +42,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	228
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -575,6 +575,9 @@ This package contains documentation of udev.
 ./autogen.sh
 
 %build
+export CC=gcc
+export CXX=g++
+
 export CONFIGURE_TOP="$PWD"
 
 %if %{with uclibc}
