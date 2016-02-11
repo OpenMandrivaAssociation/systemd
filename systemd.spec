@@ -41,7 +41,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	229
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -383,6 +383,10 @@ This package contains documentation of udev.
 ./autogen.sh
 
 %build
+# (tpg) since LLVM/clang-3.8.0 systemd hangs system
+export CC=gcc
+export CXX=g++
+
 %serverbuild_hardened
 %configure \
 	--with-rootprefix="" \
