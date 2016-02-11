@@ -1,5 +1,4 @@
 %bcond_with bootstrap
-%bcond_with uclibc
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -41,8 +40,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	228
-Release:	6
+Version:	229
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -74,17 +73,7 @@ Source20:	90-wireless.network
 # disable coldplug for storage and device pci
 #po 315
 #Patch2:		udev-199-coldplug.patch
-# We need a static libudev.a for the uClibc build because lvm2 requires it.
-# Put back support for building it.
-Patch4:		systemd-220-static.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
-%if %{with uclibc}
-# uClibc lacks secure_getenv(), DO NOT REMOVE!
-Patch6:		systemd-221-support-build-without-secure_getenv.patch
-Patch7:		systemd-221-uclibc-no-mkostemp.patch
-#Patch10:	systemd-214-uclibc.patch
-Patch13:	systemd-221-uclibc-exp10-replacement.patch
-%endif
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 #Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
@@ -125,9 +114,6 @@ BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
-%if %{with uclibc}
-BuildRequires:	uclibc-cryptsetup-devel
-%endif
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
@@ -160,16 +146,6 @@ BuildRequires:	pkgconfig(mount) >= 2.27
 BuildRequires:	distro-release-common >= 2012.0-0.4
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
-%endif
-%if %{with uclibc}
-BuildRequires:	uClibc-devel >= 0.9.33.3-0.20150520.2
-BuildRequires:	uclibc-acl-devel
-BuildRequires:	uclibc-bzip2-devel
-BuildRequires:	uclibc-lzma-devel
-BuildRequires:	uclibc-kmod-devel
-BuildRequires:	uclibc-libcap-devel
-BuildRequires:	uclibc-libmount-devel
-BuildRequires:	uclibc-dbus-devel
 %endif
 Requires:	acl
 Requires:	dbus >= 1.10.0
@@ -252,38 +228,6 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
-%if %{with uclibc}
-%package -n uclibc-%{name}
-Summary:	A System and Session Manager (uClibc linked)
-Group:		System/Configuration/Boot and Init
-Requires:	%{name} = %{EVRD}
-Requires:	uclibc-%{libdaemon} = %{EVRD}
-Requires:	uclibc-%{liblogin} = %{EVRD}
-Requires:	uclibc-%{liblogin} = %{EVRD}
-Requires:	uclibc-%{liblogin} = %{EVRD}
-
-%description -n	uclibc-%{name}
-systemd is a system and session manager for Linux, compatible with
-SysV and LSB init scripts. systemd provides aggressive parallelization
-capabilities, uses socket and D-Bus activation for starting services,
-offers on-demand starting of daemons, keeps track of processes using
-Linux cgroups, supports snapshotting and restoring of the system
-state, maintains mount and automount points and implements an
-elaborate transactional dependency-based service control logic. It can
-work as a drop-in replacement for sysvinit.
-
-%package -n uclibc-udev
-Summary:       Device manager for the Linux kernel
-Group:         System/Configuration/Hardware
-
-%description -n	uclibc-udev
-A collection of tools and a daemon to manage events received
-from the kernel and deal with them in user-space. Primarily this
-involves managing permissions, and creating and removing meaningful
-symlinks to device nodes in /dev when hardware is discovered or
-removed from the system
-%endif
-
 %package journal-gateway
 Summary:	Gateway for serving journal events over the network using HTTP
 Requires:	%{name} = %{EVRD}
@@ -304,26 +248,6 @@ Provides:	libsystemd = %{EVRD}
 %description -n	%{libsystemd}
 This package provides the systemd shared library.
 
-%if %{with uclibc}
-%package -n	uclibc-%{libsystemd}
-Summary:	Systemd library package (uClibc linked)
-Group:		System/Libraries
-
-%description -n	uclibc-%{libsystemd}
-This package provides the systemd shared library.
-
-%package -n uclibc-%{libsystemd_devel}
-Summary:	Systemd library development files
-Group:		Development/C
-Requires:	uclibc-%{libsystemd} = %{EVRD}
-Requires:	%{libsystemd_devel} = %{EVRD}
-Provides:	uclibc-libsystemd-devel = %{EVRD}
-Conflicts:	%{libsystemd_devel} < 221-3
-
-%description -n	uclibc-%{libsystemd_devel}
-Development files for the systemd shared library.
-%endif
-
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
@@ -340,26 +264,6 @@ Provides:	libsystemd-daemon = %{EVRD}
 
 %description -n	%{libdaemon}
 This package provides the systemd-daemon shared library.
-
-%if %{with uclibc}
-%package -n	uclibc-%{libdaemon}
-Summary:	Systemd-daemon library package (uClibc linked)
-Group:		System/Libraries
-
-%description -n	uclibc-%{libdaemon}
-This package provides the systemd-daemon shared library.
-
-%package -n uclibc-%{libdaemon_devel}
-Summary:	Systemd-daemon library development files
-Group:		Development/C
-Requires:	uclibc-%{libdaemon} = %{EVRD}
-Requires:	%{libdaemon_devel} = %{EVRD}
-Provides:	uclibc-libsystemd-daemon-devel = %{EVRD}
-Conflicts:	%{libdaemon_devel} < 221-3
-
-%description -n	uclibc-%{libdaemon_devel}
-Development files for the systemd-daemon shared library.
-%endif
 
 %package -n %{libdaemon_devel}
 Summary:	Systemd-daemon library development files
@@ -380,26 +284,6 @@ Provides:	libsystemd-login = %{EVRD}
 %description -n	%{liblogin}
 This package provides the systemd-login shared library.
 
-%if %{with uclibc}
-%package -n uclibc-%{liblogin}
-Summary:	Systemd-login library package (uClibc linked)
-Group:		System/Libraries
-
-%description -n	uclibc-%{liblogin}
-This package provides the systemd-login shared library.
-
-%package -n uclibc-%{liblogin_devel}
-Summary:	Systemd-login library development files
-Group:		Development/C
-Requires:	uclibc-%{liblogin} = %{EVRD}
-Requires:	%{liblogin_devel} = %{EVRD}
-Provides:	uclibc-libsystemd-login-devel = %{EVRD}
-Conflicts:	%{liblogin_devel} < 221-3
-
-%description -n	uclibc-%{liblogin_devel}
-Development files for the systemd-login shared library.
-%endif
-
 %package -n %{liblogin_devel}
 Summary:	Systemd-login library development files
 Group:		Development/C
@@ -417,27 +301,6 @@ Provides:	libsystemd-journal = %{EVRD}
 
 %description -n	%{libjournal}
 This package provides the systemd-journal shared library.
-
-%if %{with uclibc}
-%package -n uclibc-%{libjournal}
-Summary:	Systemd-journal library package (uClibc linked)
-Group:		System/Libraries
-
-%description -n	uclibc-%{libjournal}
-This package provides the systemd-journal shared library.
-
-%package -n uclibc-%{libjournal_devel}
-Summary:	Systemd-journal library development files
-Group:		Development/C
-Requires:	uclibc-%{libjournal} = %{EVRD}
-Requires:	%{libjournal_devel} = %{EVRD}
-Provides:	uclibc-libsystemd-journal-devel = %{EVRD}
-Requires:	%{libid128_devel} = %{EVRD}
-Conflicts:	%{libjournal_devel} < 221-3
-
-%description -n	uclibc-%{libjournal_devel}
-Development files for the systemd-journal shared library.
-%endif
 
 %package -n %{libjournal_devel}
 Summary:	Systemd-journal library development files
@@ -461,34 +324,10 @@ Provides:	libsystemd-id128 = %{EVRD}
 %description -n	%{libid128}
 This package provides the systemd-id128 shared library.
 
-%if %{with uclibc}
-%package -n uclibc-%{libid128}
-Summary:	Systemd-id128 library package (uClibc linked)
-Group:		System/Libraries
-%rename		uclibc-%{_lib}systemd-id1280
-
-%description -n	uclibc-%{libid128}
-This package provides the systemd-id128 shared library.
-
-%package -n uclibc-%{libid128_devel}
-Summary:	Systemd-id128 library development files
-Group:		Development/C
-Requires:	uclibc-%{libid128} = %{EVRD}
-Requires:	%{libid128_devel} = %{EVRD}
-Provides:	uclibc-libsystemd-id128-devel = %{EVRD}
-Conflicts:	%{libid128_devel} < 221-3
-
-%description -n uclibc-%{libid128_devel}
-Development files for the systemd-id128 shared library.
-%endif
-
 %package -n %{libid128_devel}
 Summary:	Systemd-id128 library development files
 Group:		Development/C
 Requires:	%{libid128} = %{EVRD}
-%if %{with uclibc}
-Requires:	uclibc-%{libid128} = %{EVRD}
-%endif
 Provides:	libsystemd-id128-devel = %{EVRD}
 %rename		%{_lib}systemd-id1280-devel
 
@@ -511,15 +350,6 @@ functionality of the GNU C Library (glibc) providing host name
 resolution for the locally configured system hostname as returned by
 gethostname(2).
 
-%if %{with uclibc}
-%package -n uclibc-%{libnss_myhostname}
-Summary:	Library for local system host name resolution (uClibc linked)
-Group:		System/Libraries
-
-%description -n uclibc-%{libnss_myhostname}
-uClibc version of nss-myhostname.
-%endif
-
 %package -n %{libudev}
 Summary:	Library for udev
 Group:		System/Libraries
@@ -527,27 +357,6 @@ Obsoletes:	%{mklibname hal 1} <= 0.5.14-6
 
 %description -n	%{libudev}
 Library for udev.
-
-%if %{with uclibc}
-%package -n uclibc-%{libudev}
-Summary:	Library for udev (uClibc linked)
-Group:		System/Libraries
-
-%description -n	uclibc-%{libudev}
-Library for udev.
-
-%package -n uclibc-%{libudev_devel}
-Summary:	Devel library for udev
-Group:		Development/C
-License:	LGPLv2+
-Provides:	uclibc-udev-devel = %{EVRD}
-Requires:	uclibc-%{libudev} = %{EVRD}
-Requires:	%{libudev_devel} = %{EVRD}
-Conflicts:	%{libudev_devel} < 221-3
-
-%description -n	uclibc-%{libudev_devel}
-Devel library for udev.
-%endif
 
 %package -n %{libudev_devel}
 Summary:	Devel library for udev
@@ -575,76 +384,7 @@ This package contains documentation of udev.
 ./autogen.sh
 
 %build
-export CC=gcc
-export CXX=g++
-
-export CONFIGURE_TOP="$PWD"
-
-%if %{with uclibc}
-mkdir -p uclibc
-pushd uclibc
-%uclibc_configure \
-	--prefix=%{_prefix} \
-	--with-rootprefix="" \
-	--with-rootlibdir=%{uclibc_root}/%{_lib} \
-	--libexecdir=%{_prefix}/lib \
-	--enable-compat-libs \
-	--enable-static \
-	--enable-chkconfig \
-	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
-	--disable-selinux \
-	--disable-seccomp \
-	--enable-split-usr \
-	--enable-introspection=no \
-	--disable-gudev \
-	--disable-qrencode \
-	--disable-microhttpd \
-	--disable-pam \
-%if %{with bootstrap}
-	--disable-libcryptsetup \
-%else
-	--enable-libcryptsetup	\
-%endif
-	--enable-gcrypt \
-	--disable-audit \
-	--disable-manpages \
-	--without-python \
-	--disable-selinux \
-	--disable-libidn \
-	--disable-gnutls \
-	--disable-elfutils \
-	--disable-libcurl \
-	--disable-sysusers \
-	--disable-resolved \
-	--disable-networkd \
-	--disable-localed \
-	--disable-coredump \
-	--disable-timesyncd \
-	--disable-timedated \
-	--disable-hostnamed \
-	--disable-machined \
-	--disable-bootchart \
-	--disable-quotacheck \
-	--disable-libiptc \
-	--disable-gnuefi \
-	--with-kbd-loadkeys=/bin/loadkeys \
-	--with-kbd-setfont=/bin/setfont \
-	--disable-kdbus \
-	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
-	--with-dns-servers="208.67.222.222 208.67.220.220"
-
-%make
-
-popd
-%endif
-
-# This has to go after the uClibc build -- uClibc doesn't have
-# functions needed for SSP
 %serverbuild_hardened
-mkdir -p shared
-pushd shared
 %configure \
 	--with-rootprefix="" \
 	--with-rootlibdir=/%{_lib} \
@@ -682,15 +422,6 @@ pushd shared
 popd
 
 %install
-%if %{with uclibc}
-%makeinstall_std -C uclibc
-mv %{buildroot}/bin %{buildroot}%{uclibc_root}/bin
-mkdir -p %{buildroot}%{uclibc_root}/sbin
-ln -sf %{uclibc_root}/bin/udevadm %{buildroot}%{uclibc_root}/sbin
-rm -f %{buildroot}%{uclibc_root}%{_bindir}/systemd-analyze
-rm -rf %{buildroot}%{uclibc_root}%{_libdir}/pkgconfig
-%endif
-
 %makeinstall_std -C shared
 
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
@@ -715,9 +446,6 @@ for i in runlevel shutdown telinit; do
 done
 
 ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
-%if %{with uclibc}
-ln -srf %{buildroot}%{uclibc_root}/bin/loginctl %{buildroot}%{uclibc_root}%{_bindir}/systemd-loginctl
-%endif
 
 # (tpg) dracut needs this
 ln -s /bin/systemctl %{buildroot}%{_bindir}/systemctl
@@ -1514,41 +1242,6 @@ fi
 %config(noreplace) %{_sysconfdir}/systemd/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
 
-%if %{with uclibc}
-%files -n uclibc-%{name}
-%{uclibc_root}/bin/systemctl
-%{uclibc_root}/bin/systemd-ask-password
-%{uclibc_root}/bin/systemd-escape
-%{uclibc_root}/bin/systemd-firstboot
-%{uclibc_root}/bin/systemd-hwdb
-%{uclibc_root}/bin/systemd-notify
-%{uclibc_root}/bin/systemd-tmpfiles
-%{uclibc_root}/bin/systemd-tty-ask-password-agent
-%{uclibc_root}/bin/journalctl
-%{uclibc_root}/bin/loginctl
-%{uclibc_root}/bin/systemd-inhibit
-%{uclibc_root}/bin/systemd-machine-id-setup
-%{uclibc_root}%{_bindir}/busctl
-%{uclibc_root}%{_bindir}/bootctl
-%{uclibc_root}%{_bindir}/kernel-install
-%{uclibc_root}%{_bindir}/systemd-delta
-%{uclibc_root}%{_bindir}/systemd-detect-virt
-%{uclibc_root}%{_bindir}/systemd-loginctl
-%{uclibc_root}%{_bindir}/systemd-run
-%{uclibc_root}%{_bindir}/systemd-cgls
-%{uclibc_root}%{_bindir}/systemd-nspawn
-%{uclibc_root}%{_bindir}/systemd-stdio-bridge
-%{uclibc_root}%{_bindir}/systemd-cat
-%{uclibc_root}%{_bindir}/systemd-cgtop
-%{uclibc_root}%{_bindir}/systemd-path
-%endif
-
-%if %{with uclibc}
-%files -n uclibc-udev
-%attr(0755,root,root) %{uclibc_root}/bin/udevadm
-%attr(0755,root,root) %{uclibc_root}/sbin/udevadm
-%endif
-
 %files journal-gateway
 %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
 %config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
@@ -1579,22 +1272,8 @@ fi
 %{_mandir}/man8/nss-myhostname.8*
 %{_mandir}/man8/nss-mymachines.8*
 
-%if %{with uclibc}
-%files -n uclibc-%{libnss_myhostname}
-%{uclibc_root}%{_libdir}/libnss_myhostname.so.%{libnss_major}*
-%endif
-
 %files -n %{libsystemd}
 /%{_lib}/libsystemd.so.%{libsystemd_major}*
-
-%if %{with uclibc}
-%files -n uclibc-%{libsystemd}
-%{uclibc_root}/%{_lib}/libsystemd.so.%{libsystemd_major}*
-
-%files -n uclibc-%{libsystemd_devel}
-%{uclibc_root}%{_libdir}/libsystemd.so
-%{uclibc_root}%{_libdir}/libsystemd.a
-%endif
 
 %files -n %{libsystemd_devel}
 %dir %{_includedir}/systemd
@@ -1610,15 +1289,6 @@ fi
 %files -n %{libdaemon}
 /%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
 
-%if %{with uclibc}
-%files -n uclibc-%{libdaemon}
-%{uclibc_root}/%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
-
-%files -n uclibc-%{libdaemon_devel}
-%{uclibc_root}%{_libdir}/libsystemd-daemon.so
-%{uclibc_root}%{_libdir}/libsystemd-daemon.a
-%endif
-
 %files -n %{libdaemon_devel}
 %{_includedir}/systemd/sd-daemon.h
 %{_libdir}/libsystemd-daemon.so
@@ -1627,15 +1297,6 @@ fi
 
 %files -n %{liblogin}
 /%{_lib}/libsystemd-login.so.%{liblogin_major}*
-
-%if %{with uclibc}
-%files -n uclibc-%{liblogin}
-%{uclibc_root}/%{_lib}/libsystemd-login.so.%{liblogin_major}*
-
-%files -n uclibc-%{liblogin_devel}
-%{uclibc_root}%{_libdir}/libsystemd-login.so
-%{uclibc_root}%{_libdir}/libsystemd-login.a
-%endif
 
 %files -n %{liblogin_devel}
 %dir %{_includedir}/systemd
@@ -1646,15 +1307,6 @@ fi
 %files -n %{libjournal}
 /%{_lib}/libsystemd-journal.so.%{libjournal_major}*
 
-%if %{with uclibc}
-%files -n uclibc-%{libjournal}
-%{uclibc_root}/%{_lib}/libsystemd-journal.so.%{libjournal_major}*
-
-%files -n uclibc-%{libjournal_devel}
-%{uclibc_root}%{_libdir}/libsystemd-journal.so
-%{uclibc_root}%{_libdir}/libsystemd-journal.a
-%endif
-
 %files -n %{libjournal_devel}
 %dir %{_includedir}/systemd
 %{_includedir}/systemd/sd-journal.h
@@ -1663,15 +1315,6 @@ fi
 
 %files -n %{libid128}
 /%{_lib}/libsystemd-id128.so.%{libid128_major}*
-
-%if %{with uclibc}
-%files -n uclibc-%{libid128}
-%{uclibc_root}/%{_lib}/libsystemd-id128.so.%{libid128_major}*
-
-%files -n uclibc-%{libid128_devel}
-%{uclibc_root}%{_libdir}/libsystemd-id128.so
-%{uclibc_root}%{_libdir}/libsystemd-id128.a
-%endif
 
 %files -n %{libid128_devel}
 %dir %{_includedir}/systemd
@@ -1682,16 +1325,6 @@ fi
 
 %files -n %{libudev}
 /%{_lib}/libudev.so.%{udev_major}*
-
-%if %{with uclibc}
-%files -n uclibc-%{libudev}
-%{uclibc_root}/%{_lib}/libudev.so.%{udev_major}*
-
-%files -n uclibc-%{libudev_devel}
-# do not remove static library, required by lvm2
-%{uclibc_root}%{_libdir}/libudev.a
-%{uclibc_root}%{_libdir}/libudev.so
-%endif
 
 %files -n %{libudev_devel}
 %{_libdir}/libudev.so

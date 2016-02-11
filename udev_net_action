@@ -7,8 +7,6 @@ if ! [[ `/usr/bin/systemctl is-enabled NetworkManager` = "enabled" ]]; then
 [ -z "$INTERFACE" ] && exit 0
 [ ! -f /var/lock/subsys/network ] && exit 0
 
-#[ "${INTERFACE#ppp}" = "$INTERFACE" ] && /usr/sbin/mdv-network-event $ACTION $INTERFACE
-
 [ -r /etc/sysconfig/udev_net ] && . /etc/sysconfig/udev_net
 [ -n "$BLACKLIST_ALL" ] && eval "case $INTERFACE in $BLACKLIST_ALL) exit 1;; esac"
 
