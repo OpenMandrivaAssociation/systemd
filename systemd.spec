@@ -158,7 +158,6 @@ Requires(pre):	basesystem-minimal >= 2015.0
 Requires(pre):	util-linux >= 2.27
 Requires(pre):	shadow >= 4.2.1-11
 Requires(pre,post,postun):	setup >= 2.8.9
-Requires:	lockdev
 Requires:	kmod >= 20
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
