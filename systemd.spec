@@ -418,8 +418,6 @@ This package contains documentation of udev.
 
 %make
 
-popd
-
 %install
 %makeinstall_std -C shared
 
