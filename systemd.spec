@@ -419,7 +419,7 @@ This package contains documentation of udev.
 %make
 
 %install
-%makeinstall_std -C shared
+%makeinstall_std
 
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
 
