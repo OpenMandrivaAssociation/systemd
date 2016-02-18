@@ -67,6 +67,9 @@ Source17:	90-enable.network
 Source18:	90-user-default.preset
 Source19:	10-imx.rules
 Source20:	90-wireless.network
+# (tpg) EFI bootctl
+Source21:	efi-loader.conf
+Source22:	efi-omv.conf
 
 ### OMV patches###
 # from Mandriva
@@ -552,6 +555,11 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/systemd/journald.conf
 
+%ifnarch %armx
+install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/systemd/bootctl/loader.conf
+install -m644 -D %{SOURCE22 %{buildroot}%{_datadir}/systemd/bootctl/omv.conf
+%endif
+
 #################
 #	UDEV	#
 #	START	#
@@ -1001,6 +1009,7 @@ fi
 %ifnarch %armx
 %dir %{_prefix}/lib/systemd/boot
 %dir %{_prefix}/lib/systemd/boot/efi
+%dir %{_datadir}/systemd/bootctl
 %endif
 %dir %{_prefix}/lib/systemd/catalog
 %dir %{_prefix}/lib/systemd/system-generators
@@ -1136,6 +1145,7 @@ fi
 %ifnarch %armx
 %{_prefix}/lib/systemd/boot/efi/*.efi
 %{_prefix}/lib/systemd/boot/efi/*.stub
+%{_datadir}/systemd/bootctl/*.conf
 %endif
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
