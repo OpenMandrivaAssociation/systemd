@@ -41,7 +41,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	229
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -618,68 +618,18 @@ fi
 
 %pre
 if [ $1 -ge 2 ]; then
-# (tpg) add input group
-if ! getent group input >/dev/null 2>&1; then
-    /usr/sbin/groupadd -r input >/dev/null || :
-fi
-
-# (cg) Cannot use rpm-helper scripts as it results in a cyclical dep as
-# rpm-helper requires systemd-units which in turn requires systemd...
-if ! getent group %{name}-journal >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-journal >/dev/null || :
-fi
-
-# (tpg) add timesync group and user
-if ! getent group %{name}-timesync >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-timesync >/dev/null || :
-fi
-
-if ! getent passwd %{name}-timesync >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-timesync -d / -s /sbin/nologin -c "systemd timesync" systemd-timesync >/dev/null 2>&1 || :
-fi
-
-# (tpg) add network group and user
-if ! getent group %{name}-network >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-network >/dev/null || :
-fi
-
-if ! getent passwd %{name}-network >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-network -d / -s /sbin/nologin -c "systemd network" systemd-network >/dev/null 2>&1 || :
-fi
-
-# (tpg) add resolve group and user
-if ! getent group %{name}-resolve >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-resolve >/dev/null || :
-fi
-
-if ! getent passwd %{name}-resolve >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-resolve -d / -s /sbin/nologin -c "systemd resolver" systemd-resolve >/dev/null 2>&1 || :
-fi
-
-# (tpg) add busproxy group and user
-if ! getent group %{name}-bus-proxy >/dev/null 2>&1; then
-	/usr/sbin/groupadd -r %{name}-bus-proxy >/dev/null || :
-fi
-
-if ! getent passwd %{name}-busproxy >/dev/null 2>&1; then
-	/usr/sbin/useradd -r -l -g systemd-bus-proxy -d / -s /sbin/nologin -c "systemd proxy" systemd-bus-proxy >/dev/null 2>&1 || :
-fi
-
-
-systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
+    systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 fi
 
 %post
+/bin/systemd-firstboot --setup-machine-id
+/bin/systemd-sysusers
 /bin/systemd-machine-id-setup >/dev/null 2>&1 ||:
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /bin/systemd-hwdb update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
-
-# (tpg) do not use fistboot here as id hangs on firstboot in lxc :)
-# systemd-firstboot --setup-machine-id
-systemd-sysusers
 
 %if %mdvver < 201500
 if [ $1 -ge 2 ]; then
@@ -915,7 +865,7 @@ fi
 %triggerposttransun -- %{_tmpfilesdir}/*.conf
 if [ $2 -eq 0 ]; then
     while [ -n "$3" ]; do
-        if [ -f "$3" ]; then
+	if [ -f "$3" ]; then
             /bin/systemd-tmpfiles --remove "$3"
         fi
         shift
@@ -988,6 +938,18 @@ systemctl reload-or-try-restart systemd-binfmt
 
 %triggerposttransun -- /lib/udev/hwdb.d/*.hwdb
 /bin/systemd-hwdb update
+
+%triggerposttransin -- %{_prefix}/lib/sysusers.d/*.conf
+/bin/systemd-sysusers
+
+%triggerposttransun -- %{_prefix}/lib/sysusers.d/*.conf
+/bin/systemd-sysusers
+
+%triggerposttransin -- %{_prefix}/lib/systemd/catalog/
+/bin/journalctl --update-catalog
+
+%triggerposttransun -- %{_prefix}/lib/systemd/catalog/*.catalog
+/bin/journalctl --update-catalog
 
 %post -n %{libnss_myhostname}
 # sed-fu to remove mymachines from passwd and group lines of /etc/nsswitch.conf
