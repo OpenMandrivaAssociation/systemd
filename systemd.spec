@@ -557,7 +557,7 @@ sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/sy
 
 %ifnarch %armx
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/systemd/bootctl/loader.conf
-install -m644 -D %{SOURCE22 %{buildroot}%{_datadir}/systemd/bootctl/omv.conf
+install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/systemd/bootctl/omv.conf
 %endif
 
 #################
