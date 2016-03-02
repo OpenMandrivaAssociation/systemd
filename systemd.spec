@@ -953,7 +953,7 @@ systemctl reload-or-try-restart systemd-binfmt
 %triggerposttransun -- %{_prefix}/lib/sysusers.d/*.conf
 /bin/systemd-sysusers
 
-%triggerposttransin -- %{_prefix}/lib/systemd/catalog/
+%triggerposttransin -- %{_prefix}/lib/systemd/catalog/*.catalog
 /bin/journalctl --update-catalog
 
 %triggerposttransun -- %{_prefix}/lib/systemd/catalog/*.catalog
