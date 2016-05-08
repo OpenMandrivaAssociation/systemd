@@ -41,7 +41,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	229
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -184,13 +184,6 @@ Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
 %endif
 Provides:	should-restart = system
-# (tpg) just to be sure we install this libraries
-Requires:	libsystemd = %{EVRD}
-Requires:	libsystemd-daemon = %{EVRD}
-Requires:	libsystemd-login = %{EVRD}
-Requires:	libsystemd-journal = %{EVRD}
-Requires:	libsystemd-id128 = %{EVRD}
-Requires:	nss_myhostname = %{EVRD}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
 # (tpg) conflict with old sysvinit subpackage
@@ -240,7 +233,7 @@ Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
 Requires(postun):	rpm-helper
-Obsoletes:		systemd < 206-7
+Obsoletes:	systemd < 206-7
 
 %description journal-gateway
 Offers journal events over the network using HTTP.
@@ -248,7 +241,8 @@ Offers journal events over the network using HTTP.
 %package -n %{libsystemd}
 Summary:	Systemdlibrary package
 Group:		System/Libraries
-Provides:	libsystemd = %{EVRD}
+Provides:	libsystemd = 208-20
+Obsoletes:	libsystemd < 208-20
 
 %description -n	%{libsystemd}
 This package provides the systemd shared library.
@@ -257,7 +251,6 @@ This package provides the systemd shared library.
 Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{libsystemd} = %{EVRD}
-Provides:	libsystemd-devel = %{EVRD}
 
 %description -n	%{libsystemd_devel}
 Development files for the systemd shared library.
@@ -265,7 +258,8 @@ Development files for the systemd shared library.
 %package -n %{libdaemon}
 Summary:	Systemd-daemon library package
 Group:		System/Libraries
-Provides:	libsystemd-daemon = %{EVRD}
+Provides:	libsystemd-daemon = 208-20
+Obsoletes:	libsystemd-daemon < 208-20
 
 %description -n	%{libdaemon}
 This package provides the systemd-daemon shared library.
@@ -275,7 +269,6 @@ Summary:	Systemd-daemon library development files
 Group:		Development/C
 Requires:	%{libdaemon} = %{EVRD}
 Requires:	%{libsystemd_devel} = %{EVRD}
-Provides:	libsystemd-daemon-devel = %{EVRD}
 %rename		%{_lib}systemd-daemon0-devel
 
 %description -n	%{libdaemon_devel}
@@ -284,7 +277,8 @@ Development files for the systemd-daemon shared library.
 %package -n %{liblogin}
 Summary:	Systemd-login library package
 Group:		System/Libraries
-Provides:	libsystemd-login = %{EVRD}
+Provides:	libsystemd-login = 208-20
+Obsoletes:	libsystemd-login < 208-20
 
 %description -n	%{liblogin}
 This package provides the systemd-login shared library.
@@ -293,7 +287,6 @@ This package provides the systemd-login shared library.
 Summary:	Systemd-login library development files
 Group:		Development/C
 Requires:	%{liblogin} = %{EVRD}
-Provides:	libsystemd-login-devel = %{EVRD}
 %rename		%{_lib}systemd-login0-devel
 
 %description -n	%{liblogin_devel}
@@ -302,7 +295,8 @@ Development files for the systemd-login shared library.
 %package -n %{libjournal}
 Summary:	Systemd-journal library package
 Group:		System/Libraries
-Provides:	libsystemd-journal = %{EVRD}
+Provides:	libsystemd-journal = 208-20
+Obsoletes:	libsystemd-journal < 208-20
 
 %description -n	%{libjournal}
 This package provides the systemd-journal shared library.
@@ -311,7 +305,6 @@ This package provides the systemd-journal shared library.
 Summary:	Systemd-journal library development files
 Group:		Development/C
 Requires:	%{libjournal} = %{EVRD}
-Provides:	libsystemd-journal-devel = %{EVRD}
 %rename		%{_lib}systemd-journal0-devel
 # sd-journal.h #includes sd-id128.h
 Requires:	%{libid128_devel} = %{EVRD}
@@ -323,8 +316,10 @@ Development files for the systemd-journal shared library.
 Summary:	Systemd-id128 library package
 Group:		System/Libraries
 Provides:	libsystemd-id128 = %{EVRD}
-# (tpg) cooker only, should be removed soon
 %rename		%{_lib}systemd-id1280
+# (tpg) fix upgrade from 2014.x
+Obsoletes:	libsystemd-id1280 < 208-20
+Provides:	libsystemd-id1280 = 208-20
 
 %description -n	%{libid128}
 This package provides the systemd-id128 shared library.
@@ -344,7 +339,9 @@ Summary:	Library for local system host name resolution
 Group:		System/Libraries
 Provides:	libnss_myhostname = %{EVRD}
 Provides:	nss_myhostname = %{EVRD}
-Obsoletes:	nss_myhostname <= 0.3-1
+# (tpg) fix update from 2014.0
+Provides:	nss_myhostname = 208-20
+Obsoletes:	nss_myhostname < 208-20
 Requires(post,preun):	bash
 Requires(post,preun):	sed
 Requires(post,preun):	glibc
