@@ -96,7 +96,7 @@ Patch17:	0515-Add-path-to-locale-search.patch
 # UPSTREAM GIT PATCHES
 # (tpg) fix build with kernel-headers >= 4.5
 # https://github.com/systemd/systemd/issues/2864
-Patch100:	0000-shared-add-a-temporary-work-around-for-kernel-header.patch
+#Patch100:	0000-shared-add-a-temporary-work-around-for-kernel-header.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
