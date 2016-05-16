@@ -41,7 +41,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	229
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -184,6 +184,13 @@ Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
 %endif
 Provides:	should-restart = system
+# (tpg) just to be sure we install this libraries
+Requires:	%{libsystemd} = %{EVRD}
+Requires:	%{libdaemon} = %{EVRD}
+Requires:	%{liblogin} = %{EVRD}
+Requires:	%{libjournal} = %{EVRD}
+Requires:	%{libid128} = %{EVRD}
+Requires:	%{libnss_myhostname} = %{EVRD}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
 # (tpg) conflict with old sysvinit subpackage
