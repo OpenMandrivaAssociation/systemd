@@ -41,7 +41,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	229
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -160,7 +160,7 @@ Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
-Requires(pre):	basesystem-minimal >= 2015.0
+Requires(pre):	basesystem-minimal >= 1:3-0.1
 Requires(pre):	util-linux >= 2.27
 Requires(pre):	shadow >= 4.2.1-11
 Requires(pre,post,postun):	setup >= 2.8.9
