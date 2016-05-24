@@ -6,26 +6,10 @@
 %define sysvinit_release %mkrel 23
 
 %define libsystemd_major 0
-%define libdaemon_major 0
-%define liblogin_major 0
-%define libjournal_major 0
-%define libid128_major 0
 %define libnss_major 2
 
 %define libsystemd %mklibname %{name} %{libsystemd_major}
 %define libsystemd_devel %mklibname %{name} -d
-
-%define libdaemon %mklibname systemd-daemon %{libdaemon_major}
-%define libdaemon_devel %mklibname systemd-daemon -d
-
-%define liblogin %mklibname systemd-login %{liblogin_major}
-%define liblogin_devel %mklibname systemd-login -d
-
-%define libjournal %mklibname systemd-journal %{libjournal_major}
-%define libjournal_devel %mklibname systemd-journal -d
-
-%define libid128 %mklibname systemd-id128 %{libid128_major}
-%define libid128_devel %mklibname systemd-id128 -d
 
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
 
@@ -186,10 +170,6 @@ Provides:	suspend-s2ram = 1.0-10
 Provides:	should-restart = system
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
-Requires:	%{libdaemon} = %{EVRD}
-Requires:	%{liblogin} = %{EVRD}
-Requires:	%{libjournal} = %{EVRD}
-Requires:	%{libid128} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
@@ -248,8 +228,22 @@ Offers journal events over the network using HTTP.
 %package -n %{libsystemd}
 Summary:	Systemdlibrary package
 Group:		System/Libraries
+# (tpg) old, pre 230 stuff - keep for smooth update from old relases
 Provides:	libsystemd = 208-20
 Obsoletes:	libsystemd < 208-20
+Provides:	libsystemd-daemon = 208-20
+Obsoletes:	libsystemd-daemon < 208-20
+%rename		%{_lib}systemd-daemon0
+Provides:	libsystemd-login = 208-20
+Obsoletes:	libsystemd-login < 208-20
+%rename		%{_lib}systemd-login0
+Provides:	libsystemd-journal = 208-20
+Obsoletes:	libsystemd-journal < 208-20
+%rename		%{_lib}systemd-journal0
+%rename		%{_lib}systemd-id1280
+Obsoletes:	libsystemd-id1280 < 208-20
+Provides:	libsystemd-id1280 = 208-20
+%rename		%{_lib}systemd-id128_0
 
 %description -n	%{libsystemd}
 This package provides the systemd shared library.
@@ -258,88 +252,18 @@ This package provides the systemd shared library.
 Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{libsystemd} = %{EVRD}
+# (tpg) old, pre 230 stuff - keep for smooth update from old relases
+%rename		%{_lib}systemd-daemon0-devel
+%rename		%{_lib}systemd-daemon-devel
+%rename		%{_lib}systemd-login0-devel
+%rename		%{_lib}systemd-login-devel
+%rename		%{_lib}systemd-journal0-devel
+%rename		%{_lib}systemd-journal-devel
+%rename		%{_lib}systemd-id1280-devel
+%rename		%{_lib}systemd-id128-devel
 
 %description -n	%{libsystemd_devel}
 Development files for the systemd shared library.
-
-%package -n %{libdaemon}
-Summary:	Systemd-daemon library package
-Group:		System/Libraries
-Provides:	libsystemd-daemon = 208-20
-Obsoletes:	libsystemd-daemon < 208-20
-
-%description -n	%{libdaemon}
-This package provides the systemd-daemon shared library.
-
-%package -n %{libdaemon_devel}
-Summary:	Systemd-daemon library development files
-Group:		Development/C
-Requires:	%{libdaemon} = %{EVRD}
-Requires:	%{libsystemd_devel} = %{EVRD}
-%rename		%{_lib}systemd-daemon0-devel
-
-%description -n	%{libdaemon_devel}
-Development files for the systemd-daemon shared library.
-
-%package -n %{liblogin}
-Summary:	Systemd-login library package
-Group:		System/Libraries
-Provides:	libsystemd-login = 208-20
-Obsoletes:	libsystemd-login < 208-20
-
-%description -n	%{liblogin}
-This package provides the systemd-login shared library.
-
-%package -n %{liblogin_devel}
-Summary:	Systemd-login library development files
-Group:		Development/C
-Requires:	%{liblogin} = %{EVRD}
-%rename		%{_lib}systemd-login0-devel
-
-%description -n	%{liblogin_devel}
-Development files for the systemd-login shared library.
-
-%package -n %{libjournal}
-Summary:	Systemd-journal library package
-Group:		System/Libraries
-Provides:	libsystemd-journal = 208-20
-Obsoletes:	libsystemd-journal < 208-20
-
-%description -n	%{libjournal}
-This package provides the systemd-journal shared library.
-
-%package -n %{libjournal_devel}
-Summary:	Systemd-journal library development files
-Group:		Development/C
-Requires:	%{libjournal} = %{EVRD}
-%rename		%{_lib}systemd-journal0-devel
-# sd-journal.h #includes sd-id128.h
-Requires:	%{libid128_devel} = %{EVRD}
-
-%description -n	%{libjournal_devel}
-Development files for the systemd-journal shared library.
-
-%package -n %{libid128}
-Summary:	Systemd-id128 library package
-Group:		System/Libraries
-Provides:	libsystemd-id128 = %{EVRD}
-%rename		%{_lib}systemd-id1280
-# (tpg) fix upgrade from 2014.x
-Obsoletes:	libsystemd-id1280 < 208-20
-Provides:	libsystemd-id1280 = 208-20
-
-%description -n	%{libid128}
-This package provides the systemd-id128 shared library.
-
-%package -n %{libid128_devel}
-Summary:	Systemd-id128 library development files
-Group:		Development/C
-Requires:	%{libid128} = %{EVRD}
-Provides:	libsystemd-id128-devel = %{EVRD}
-%rename		%{_lib}systemd-id1280-devel
-
-%description -n %{libid128_devel}
-Development files for the systemd-id128 shared library.
 
 %package -n %{libnss_myhostname}
 Summary:	Library for local system host name resolution
@@ -1157,7 +1081,6 @@ fi
 %{_prefix}/lib/systemd/catalog/*.catalog
 %{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
 %{_prefix}/lib/systemd/user/*.service
-%{_prefix}/lib/systemd/user/*.socket
 %{_prefix}/lib/systemd/user/*.target
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
@@ -1168,6 +1091,7 @@ fi
 %{systemd_libdir}/import-pubring.gpg
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
+%{systemd_libdir}/network/80-container-vz.network
 %{systemd_libdir}/network/90-enable.network
 %{systemd_libdir}/network/90-wireless.network
 %{systemd_libdir}/network/99-default.link
@@ -1262,46 +1186,14 @@ fi
 %{_includedir}/systemd/sd-bus-vtable.h
 %{_includedir}/systemd/sd-bus.h
 %{_includedir}/systemd/sd-event.h
+%{_includedir}/systemd/sd-id128.h
+%{_includedir}/systemd/sd-journal.h
+%{_includedir}/systemd/sd-login.h
+%{_includedir}/systemd/sd-messages.h
+%{_includedir}/systemd/sd-daemon.h
 %{_libdir}/libsystemd.so
 %{_datadir}/pkgconfig/systemd.pc
 %{_libdir}/pkgconfig/libsystemd.pc
-
-%files -n %{libdaemon}
-/%{_lib}/libsystemd-daemon.so.%{libdaemon_major}*
-
-%files -n %{libdaemon_devel}
-%{_includedir}/systemd/sd-daemon.h
-%{_libdir}/libsystemd-daemon.so
-%{_libdir}/pkgconfig/libsystemd-daemon.pc
-%{_includedir}/systemd/sd-messages.h
-
-%files -n %{liblogin}
-/%{_lib}/libsystemd-login.so.%{liblogin_major}*
-
-%files -n %{liblogin_devel}
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-login.h
-%{_libdir}/libsystemd-login.so
-%{_libdir}/pkgconfig/libsystemd-login.pc
-
-%files -n %{libjournal}
-/%{_lib}/libsystemd-journal.so.%{libjournal_major}*
-
-%files -n %{libjournal_devel}
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-journal.h
-%{_libdir}/libsystemd-journal.so
-%{_libdir}/pkgconfig/libsystemd-journal.pc
-
-%files -n %{libid128}
-/%{_lib}/libsystemd-id128.so.%{libid128_major}*
-
-%files -n %{libid128_devel}
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/sd-id128.h
-%{_libdir}/libsystemd-id128.so
-
-%{_libdir}/pkgconfig/libsystemd-id128.pc
 
 %files -n %{libudev}
 /%{_lib}/libudev.so.%{udev_major}*
