@@ -317,9 +317,11 @@ This package contains documentation of udev.
 ./autogen.sh
 
 %build
+%ifarch %{ix86}
 # (tpg) since LLVM/clang-3.8.0 systemd hangs system
-#export CC=gcc
-#export CXX=g++
+export CC=gcc
+export CXX=g++
+%endif
 
 %serverbuild_hardened
 %configure \
