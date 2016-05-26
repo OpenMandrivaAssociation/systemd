@@ -318,8 +318,8 @@ This package contains documentation of udev.
 
 %build
 # (tpg) since LLVM/clang-3.8.0 systemd hangs system
-export CC=gcc
-export CXX=g++
+#export CC=gcc
+#export CXX=g++
 
 %serverbuild_hardened
 %configure \
