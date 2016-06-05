@@ -1,6 +1,6 @@
-diff -Naur systemd-227/src/journal/journald.conf systemd-227.tpg/src/journal/journald.conf
---- systemd-227/src/journal/journald.conf	2015-10-07 15:06:22.000000000 +0000
-+++ systemd-227.tpg/src/journal/journald.conf	2015-10-11 22:37:36.052172457 +0000
+diff -Naur systemd-230/src/journal/journald.conf systemd-230.tpg/src/journal/journald.conf
+--- systemd-230/src/journal/journald.conf	2016-05-21 22:31:29.000000000 +0000
++++ systemd-230.tpg/src/journal/journald.conf	2016-05-24 17:11:18.853126631 +0000
 @@ -13,17 +13,17 @@
  
  [Journal]
@@ -10,7 +10,7 @@ diff -Naur systemd-227/src/journal/journald.conf systemd-227.tpg/src/journal/jou
  #Seal=yes
  #SplitMode=uid
  #SyncIntervalSec=5m
- #RateLimitInterval=30s
+ #RateLimitIntervalSec=30s
  #RateLimitBurst=1000
 -#SystemMaxUse=
 +SystemMaxUse=150M
