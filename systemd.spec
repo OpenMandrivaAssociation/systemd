@@ -29,7 +29,7 @@ Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
-Source0:	http://www.freedesktop.org/software/systemd/%{name}-%{version}.tar.gz
+Source0:	http://www.freedesktop.org/software/%{name}/%{name}-%{version}.tar.gz
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
@@ -56,6 +56,8 @@ Source21:	efi-loader.conf
 Source22:	efi-omv.conf
 
 ### OMV patches###
+# (tpg) add rpm macro to easy installation of user presets
+Patch0:		systemd-230-add-userpreset-rpm-macro.patch
 # from Mandriva
 # disable coldplug for storage and device pci
 #po 315
@@ -370,8 +372,8 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
 mkdir -p %{buildroot}/sbin
-ln -s ..%{systemd_libdir}/systemd %{buildroot}/sbin/init
-ln -s ..%{systemd_libdir}/systemd %{buildroot}/bin/systemd
+ln -s ..%{systemd_libdir}/%{name} %{buildroot}/sbin/init
+ln -s ..%{systemd_libdir}/%{name} %{buildroot}/bin/%{name}
 
 # (tpg) install compat symlinks
 for i in halt poweroff reboot; do
@@ -382,7 +384,7 @@ for i in runlevel shutdown telinit; do
     ln -s ../bin/systemctl %{buildroot}/sbin/$i
 done
 
-ln -s /bin/loginctl %{buildroot}%{_bindir}/systemd-loginctl
+ln -s /bin/loginctl %{buildroot}%{_bindir}/%{name}-loginctl
 
 # (tpg) dracut needs this
 ln -s /bin/systemctl %{buildroot}%{_bindir}/systemctl
@@ -390,43 +392,43 @@ ln -s /bin/systemctl %{buildroot}%{_bindir}/systemctl
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
-rm -r %{buildroot}%{_sysconfdir}/systemd/system/*.target.wants
+rm -r %{buildroot}%{_sysconfdir}/%{name}/system/*.target.wants
 
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/getty.target.wants
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/system/getty.target.wants
 
 # And the default symlink we generate automatically based on inittab
-rm -f %{buildroot}%{_sysconfdir}/systemd/system/default.target
+rm -f %{buildroot}%{_sysconfdir}/%{name}/system/default.target
 
 # (tpg) this is needed
-mkdir -p %{buildroot}%{_prefix}/lib/systemd/system-generators
-mkdir -p %{buildroot}%{_prefix}/lib/systemd/user-generators
+mkdir -p %{buildroot}%{_prefix}/lib/%{name}/system-generators
+mkdir -p %{buildroot}%{_prefix}/lib/%{name}/user-generators
 
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 
 # (tpg) use systemd's own mounting capability
-sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/systemd/system.conf
-sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/systemd/system.conf
+sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/%{name}/system.conf
+sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 
 # (bor) enable rpcbind.target by default so we have something to plug portmapper service into
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
 # (tpg) explicitly enable these services
-ln -sf /lib/systemd/system/systemd-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
-ln -sf /lib/systemd/system/systemd-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/systemd-networkd.service
-ln -sf /lib/systemd/system/systemd-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/systemd-timesyncd.service
+ln -sf /lib/%{name}/system/%{name}-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-resolved.service
+ln -sf /lib/%{name}/system/%{name}-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-networkd.service
+ln -sf /lib/%{name}/system/%{name}-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/%{name}-timesyncd.service
 
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
 # (tpg) create missing dir
-mkdir -p %{buildroot}%{_libdir}/systemd/user/
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/user/default.target.wants
+mkdir -p %{buildroot}%{_libdir}/%{name}/user/
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/user/default.target.wants
 
 # Create new-style configuration files so that we can ghost-own them
 touch %{buildroot}%{_sysconfdir}/hostname
@@ -458,8 +460,11 @@ install -m 0755 -d %{buildroot}%{_logdir}/journal
 install -m 0755 -d %{buildroot}%{_sysconfdir}/%{name}/network
 
 # (tpg) Install default distribution preset policy for services
-mkdir -p %{buildroot}%{systemd_libdir}/system-preset/
-mkdir -p %{buildroot}%{systemd_libdir}/user-preset/
+mkdir -p %{buildroot}%{systemd_libdir}/system-preset
+# (tpg) add local user preset dir
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/user-preset
+# (tpg) add global user preset dir
+mkdir -p %{buildroot}%{_prefix}/lib/%{name}/user-preset
 
 # (tpg) install presets
 install -m 0644 %{SOURCE12} %{buildroot}%{systemd_libdir}/system-preset/
@@ -472,7 +477,7 @@ install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
 install -m 0644 %{SOURCE20} %{buildroot}%{systemd_libdir}/network/
 
 # (tpg) install userspace presets
-install -m 0644 %{SOURCE18} %{buildroot}%{systemd_libdir}/user-preset/
+install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
 
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
@@ -486,11 +491,11 @@ echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
 sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d/50-default.conf
 
 # (tpg) use 100M as a default maximum value for journal logs
-sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/systemd/journald.conf
+sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
 %ifnarch %armx
-install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/systemd/bootctl/loader.conf
-install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/systemd/bootctl/omv.conf
+install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
+install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
 
 #################
@@ -525,8 +530,8 @@ mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
 touch %{buildroot}%{_sysconfdir}/scsi_id.config
 
-ln -s ..%{systemd_libdir}/systemd-udevd %{buildroot}/sbin/udevd
-ln -s %{systemd_libdir}/systemd-udevd %{buildroot}%{udev_libdir}/udevd
+ln -s ..%{systemd_libdir}/%{name}-udevd %{buildroot}/sbin/udevd
+ln -s %{systemd_libdir}/%{name}-udevd %{buildroot}%{udev_libdir}/udevd
 
 # udev rules for zte 3g modems and drakx-net
 
@@ -926,7 +931,7 @@ fi
 %_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
 
 %files -f %{name}.lang
-%doc %{_docdir}/systemd
+%doc %{_docdir}/%{name}
 %dir /lib/firmware
 %dir /lib/firmware/updates
 %dir %{_datadir}/bash-completion
@@ -934,31 +939,33 @@ fi
 %dir %{_datadir}/factory
 %dir %{_datadir}/factory/etc
 %dir %{_datadir}/factory/etc/pam.d
-%dir %{_datadir}/systemd
+%dir %{_datadir}/%{name}
 %dir %{_prefix}/lib/binfmt.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/sysctl.d
-%dir %{_prefix}/lib/systemd
+%dir %{_prefix}/lib/%{name}
 %ifnarch %armx
-%dir %{_prefix}/lib/systemd/boot
-%dir %{_prefix}/lib/systemd/boot/efi
-%dir %{_datadir}/systemd/bootctl
+%dir %{_prefix}/lib/%{name}/boot
+%dir %{_prefix}/lib/%{name}/boot/efi
+%dir %{_datadir}/%{name}/bootctl
 %endif
-%dir %{_prefix}/lib/systemd/catalog
-%dir %{_prefix}/lib/systemd/system-generators
-%dir %{_prefix}/lib/systemd/user
-%dir %{_prefix}/lib/systemd/user-generators
+%dir %{_prefix}/lib/%{name}/catalog
+%dir %{_prefix}/lib/%{name}/system-generators
+%dir %{_prefix}/lib/%{name}/user
+%dir %{_prefix}/lib/%{name}/user-preset
+%dir %{_prefix}/lib/%{name}/user-generators
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/sysctl.d
-%dir %{_sysconfdir}/systemd
-%dir %{_sysconfdir}/systemd/system
-%dir %{_sysconfdir}/systemd/system/getty.target.wants
-%dir %{_sysconfdir}/systemd/user
-%dir %{_sysconfdir}/systemd/user/default.target.wants
-%dir %{_sysconfdir}/systemd/network
+%dir %{_sysconfdir}/%{name}
+%dir %{_sysconfdir}/%{name}/system
+%dir %{_sysconfdir}/%{name}/system/getty.target.wants
+%dir %{_sysconfdir}/%{name}/user
+%dir %{_sysconfdir}/%{name}/user-preset
+%dir %{_sysconfdir}/%{name}/user/default.target.wants
+%dir %{_sysconfdir}/%{name}/network
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/udev
 %dir %{_sysconfdir}/udev/agents.d
@@ -989,7 +996,6 @@ fi
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
-%dir %{systemd_libdir}/user-preset
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
@@ -997,23 +1003,23 @@ fi
 %exclude %{_mandir}/man8/libnss_mymachines.so.2.8.*
 %exclude %{_mandir}/man8/nss-myhostname.8.*
 %exclude %{_mandir}/man8/nss-mymachines.8.*
-%exclude %{_mandir}/man8/systemd-journal-gatewayd.8.*
-%exclude %{_mandir}/man8/systemd-journal-gatewayd.service.8.*
-%exclude %{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
-%exclude %{_mandir}/man8/systemd-journal-remote.8.*
-%exclude %{_mandir}/man8/systemd-journal-upload.8.*
-%exclude %{_prefix}/lib/tmpfiles.d/systemd-remote.conf
-%exclude %{systemd_libdir}/system/systemd-journal-gatewayd.service
-%exclude %{systemd_libdir}/system/systemd-journal-gatewayd.socket
-%exclude %{systemd_libdir}/system/systemd-journal-remote.service
-%exclude %{systemd_libdir}/system/systemd-journal-remote.socket
-%exclude %{systemd_libdir}/system/systemd-journal-upload.service
-%exclude %{systemd_libdir}/systemd-journal-gatewayd
-%exclude %{systemd_libdir}/systemd-journal-remote
-%exclude %{systemd_libdir}/systemd-journal-upload
-%exclude %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
-%exclude %config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
-%exclude %config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
+%exclude %{_mandir}/man8/%{name}-journal-gatewayd.8.*
+%exclude %{_mandir}/man8/%{name}-journal-gatewayd.service.8.*
+%exclude %{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
+%exclude %{_mandir}/man8/%{name}-journal-remote.8.*
+%exclude %{_mandir}/man8/%{name}-journal-upload.8.*
+%exclude %{_prefix}/lib/tmpfiles.d/%{name}-remote.conf
+%exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.service
+%exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.socket
+%exclude %{systemd_libdir}/system/%{name}-journal-remote.service
+%exclude %{systemd_libdir}/system/%{name}-journal-remote.socket
+%exclude %{systemd_libdir}/system/%{name}-journal-upload.service
+%exclude %{systemd_libdir}/%{name}-journal-gatewayd
+%exclude %{systemd_libdir}/%{name}-journal-remote
+%exclude %{systemd_libdir}/%{name}-journal-upload
+%exclude %config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
+%exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
+%exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
 %ghost %{_sysconfdir}/udev/hwdb.bin
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
@@ -1033,17 +1039,17 @@ fi
 /bin/poweroff
 /bin/reboot
 /bin/systemctl
-/bin/systemd
-/bin/systemd-ask-password
-/bin/systemd-escape
-/bin/systemd-firstboot
-/bin/systemd-hwdb
-/bin/systemd-inhibit
-/bin/systemd-machine-id-setup
-/bin/systemd-notify
-/bin/systemd-sysusers
-/bin/systemd-tmpfiles
-/bin/systemd-tty-ask-password-agent
+/bin/%{name}
+/bin/%{name}-ask-password
+/bin/%{name}-escape
+/bin/%{name}-firstboot
+/bin/%{name}-hwdb
+/bin/%{name}-inhibit
+/bin/%{name}-machine-id-setup
+/bin/%{name}-notify
+/bin/%{name}-sysusers
+/bin/%{name}-tmpfiles
+/bin/%{name}-tty-ask-password-agent
 /bin/udevadm
 /sbin/init
 /sbin/runlevel
@@ -1056,7 +1062,7 @@ fi
 %{_bindir}/kernel-install
 %{_bindir}/localectl
 %{_bindir}/systemctl
-%{_bindir}/systemd-*
+%{_bindir}/%{name}-*
 %{_bindir}/timedatectl
 %{_datadir}/bash-completion/completions/*
 %{_datadir}/dbus-1/*services/*.service
@@ -1064,8 +1070,8 @@ fi
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/*.policy
-%{_datadir}/systemd/kbd-model-map
-%{_datadir}/systemd/language-fallback-map
+%{_datadir}/%{name}/kbd-model-map
+%{_datadir}/%{name}/language-fallback-map
 %{_datadir}/zsh/site-functions/*
 %{_initrddir}/README
 %{_logdir}/README
@@ -1076,19 +1082,20 @@ fi
 %{_mandir}/man8/*.*
 %{_prefix}/lib/kernel/install.d/*.install
 %ifnarch %armx
-%{_prefix}/lib/systemd/boot/efi/*.efi
-%{_prefix}/lib/systemd/boot/efi/*.stub
-%{_datadir}/systemd/bootctl/*.conf
+%{_prefix}/lib/%{name}/boot/efi/*.efi
+%{_prefix}/lib/%{name}/boot/efi/*.stub
+%{_datadir}/%{name}/bootctl/*.conf
 %endif
-%{_prefix}/lib/systemd/catalog/*.catalog
-%{_prefix}/lib/systemd/user-generators/systemd-dbus1-generator
-%{_prefix}/lib/systemd/user/*.service
-%{_prefix}/lib/systemd/user/*.target
+%{_prefix}/lib/%{name}/catalog/*.catalog
+%{_prefix}/lib/%{name}/user-generators/%{name}-dbus1-generator
+%{_prefix}/lib/%{name}/user-preset/*.preset
+%{_prefix}/lib/%{name}/user/*.service
+%{_prefix}/lib/%{name}/user/*.target
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
-%{_sysconfdir}/xdg/systemd
+%{_sysconfdir}/xdg/%{name}
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/import-pubring.gpg
 %{systemd_libdir}/network/80-container-host0.network
@@ -1122,7 +1129,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/systemd*
-%{systemd_libdir}/user-preset/*.preset
+
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
@@ -1141,33 +1148,33 @@ fi
 %attr(0755,root,root) %{udev_libdir}/v4l_id
 %config(noreplace) %{_prefix}/lib/sysctl.d/*.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/*.conf
-%config(noreplace) %{_sysconfdir}/pam.d/systemd-user
+%config(noreplace) %{_sysconfdir}/pam.d/%{name}-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
-%config(noreplace) %{_sysconfdir}/systemd/*.conf
+%config(noreplace) %{_sysconfdir}/%{name}/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
 
 %files journal-gateway
-%config(noreplace) %{_sysconfdir}/systemd/journal-remote.conf
-%config(noreplace) %{_sysconfdir}/systemd/journal-upload.conf
-%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
-%dir %{_datadir}/systemd/gatewayd
-%{systemd_libdir}/systemd-journal-gatewayd
-%{systemd_libdir}/systemd-journal-remote
-%{systemd_libdir}/systemd-journal-upload
-%{systemd_libdir}/system/systemd-journal-gatewayd.service
-%{systemd_libdir}/system/systemd-journal-gatewayd.socket
-%{systemd_libdir}/system/systemd-journal-remote.service
-%{systemd_libdir}/system/systemd-journal-remote.socket
-%{systemd_libdir}/system/systemd-journal-upload.service
-%{_prefix}/lib/tmpfiles.d/systemd-remote.conf
-%{_mandir}/man8/systemd-journal-gatewayd.8.*
-%{_mandir}/man8/systemd-journal-upload.8.*
-%{_mandir}/man8/systemd-journal-remote.8.*
-%{_mandir}/man8/systemd-journal-gatewayd.service.8.*
-%{_mandir}/man8/systemd-journal-gatewayd.socket.8.*
-%{_datadir}/systemd/gatewayd/browse.html
+%config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
+%config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
+%dir %{_datadir}/%{name}/gatewayd
+%{systemd_libdir}/%{name}-journal-gatewayd
+%{systemd_libdir}/%{name}-journal-remote
+%{systemd_libdir}/%{name}-journal-upload
+%{systemd_libdir}/system/%{name}-journal-gatewayd.service
+%{systemd_libdir}/system/%{name}-journal-gatewayd.socket
+%{systemd_libdir}/system/%{name}-journal-remote.service
+%{systemd_libdir}/system/%{name}-journal-remote.socket
+%{systemd_libdir}/system/%{name}-journal-upload.service
+%{_prefix}/lib/tmpfiles.d/%{name}-remote.conf
+%{_mandir}/man8/%{name}-journal-gatewayd.8.*
+%{_mandir}/man8/%{name}-journal-upload.8.*
+%{_mandir}/man8/%{name}-journal-remote.8.*
+%{_mandir}/man8/%{name}-journal-gatewayd.service.8.*
+%{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
+%{_datadir}/%{name}/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
 %{_libdir}/libnss_myhostname.so.%{libnss_major}*
@@ -1182,20 +1189,20 @@ fi
 /%{_lib}/libsystemd.so.%{libsystemd_major}*
 
 %files -n %{libsystemd_devel}
-%dir %{_includedir}/systemd
-%{_includedir}/systemd/_sd-common.h
-%{_includedir}/systemd/sd-bus-protocol.h
-%{_includedir}/systemd/sd-bus-vtable.h
-%{_includedir}/systemd/sd-bus.h
-%{_includedir}/systemd/sd-event.h
-%{_includedir}/systemd/sd-id128.h
-%{_includedir}/systemd/sd-journal.h
-%{_includedir}/systemd/sd-login.h
-%{_includedir}/systemd/sd-messages.h
-%{_includedir}/systemd/sd-daemon.h
-%{_libdir}/libsystemd.so
-%{_datadir}/pkgconfig/systemd.pc
-%{_libdir}/pkgconfig/libsystemd.pc
+%dir %{_includedir}/%{name}
+%{_includedir}/%{name}/_sd-common.h
+%{_includedir}/%{name}/sd-bus-protocol.h
+%{_includedir}/%{name}/sd-bus-vtable.h
+%{_includedir}/%{name}/sd-bus.h
+%{_includedir}/%{name}/sd-event.h
+%{_includedir}/%{name}/sd-id128.h
+%{_includedir}/%{name}/sd-journal.h
+%{_includedir}/%{name}/sd-login.h
+%{_includedir}/%{name}/sd-messages.h
+%{_includedir}/%{name}/sd-daemon.h
+%{_libdir}/lib%{name}.so
+%{_datadir}/pkgconfig/%{name}.pc
+%{_libdir}/pkgconfig/lib%{name}.pc
 
 %files -n %{libudev}
 /%{_lib}/libudev.so.%{udev_major}*
