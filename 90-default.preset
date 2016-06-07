@@ -22,9 +22,6 @@ enable upower.service
 # Enable polkit service
 enable polkit.service
 
-# Enable Avahi by default
-enable avahi*.*
-
 # Enable mandriva services
 enable mandriva-everytime.service
 
