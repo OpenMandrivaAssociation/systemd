@@ -333,6 +333,7 @@ export CXX=g++
 	--enable-compat-libs \
 	--enable-bzip2 \
 	--enable-lz4 \
+	--without-kill-user-processes \
 	--disable-static \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
