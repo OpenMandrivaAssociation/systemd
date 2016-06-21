@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	230
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -83,7 +83,7 @@ Patch17:	0515-Add-path-to-locale-search.patch
 # (tpg) fix build with kernel-headers >= 4.5
 # https://github.com/systemd/systemd/issues/2864
 #Patch100:	0000-shared-add-a-temporary-work-around-for-kernel-header.patch
-
+BuildRequires:	kernel-release-headers
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -333,6 +333,7 @@ export CXX=g++
 	--enable-compat-libs \
 	--enable-bzip2 \
 	--enable-lz4 \
+	--without-kill-user-processes \
 	--disable-static \
 	--with-sysvinit-path=%{_initrddir} \
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
