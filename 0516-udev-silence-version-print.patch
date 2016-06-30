@@ -1,0 +1,16 @@
+
+Printing this version during boot breaks splash, so hide it behind debug
+
+Signed-off-by: Thomas Backlund <tmb@mageia.org>
+
+--- systemd-230/src/udev/udevd.c.orig	2016-05-22 01:31:29.000000000 +0300
++++ systemd-230/src/udev/udevd.c	2016-06-23 15:59:02.187587351 +0300
+@@ -1732,7 +1732,7 @@ int main(int argc, char *argv[]) {
+         if (arg_daemonize) {
+                 pid_t pid;
+ 
+-                log_info("starting version " VERSION);
++                log_debug("starting version " VERSION);
+ 
+                 /* connect /dev/null to stdin, stdout, stderr */
+                 if (log_get_max_level() < LOG_DEBUG)
