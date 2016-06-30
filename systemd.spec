@@ -315,6 +315,11 @@ This package contains documentation of udev.
 %setup -q
 %apply_patches
 
+%ifarch %{ix86}
+# (tpg) remove -flto as on i586 it hangs boot
+sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
+%endif
+
 ./autogen.sh
 
 %build
