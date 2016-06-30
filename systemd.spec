@@ -72,6 +72,8 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 # keep this patch until upstream will fix it
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
+Patch18:	0516-udev-silence-version-print.patch
+Patch19:	0101-automount-handle-expire_tokens-when-the-mount-unit-c.patch
 # (tpg) prolly this will be fixed dirrefently in next release
 # https://bugzilla.redhat.com/show_bug.cgi?id=1141137
 # For now best sollution is to enable UCH in kernel
