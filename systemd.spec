@@ -1092,6 +1092,7 @@ fi
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
+%{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/import-pubring.gpg
 %{systemd_libdir}/network/80-container-host0.network
@@ -1125,6 +1126,9 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/systemd*
+# (tpg) internal library - only systemd uses it
+%{systemd_libdir}/libsystemd-shared-231.so
+%{systemd_libdir}/libsystemd-shared.so
 
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
