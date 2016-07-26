@@ -1083,7 +1083,6 @@ fi
 %{_datadir}/%{name}/bootctl/*.conf
 %endif
 %{_prefix}/lib/%{name}/catalog/*.catalog
-%{_prefix}/lib/%{name}/user-generators/%{name}-dbus1-generator
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
