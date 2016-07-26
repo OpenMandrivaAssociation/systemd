@@ -24,8 +24,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	230
-Release:	4
+Version:	231
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -64,7 +64,6 @@ Patch0:		systemd-230-add-userpreset-rpm-macro.patch
 #Patch2:		udev-199-coldplug.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
-#Patch9:		systemd-208-fix-race-condition-between-udev-and-vconsole.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
@@ -73,18 +72,8 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
-Patch19:	0101-automount-handle-expire_tokens-when-the-mount-unit-c.patch
-# (tpg) prolly this will be fixed dirrefently in next release
-# https://bugzilla.redhat.com/show_bug.cgi?id=1141137
-# For now best sollution is to enable UCH in kernel
-# https://github.com/systemd/systemd/pull/350#issuecomment-137005614
-# add to kernel boot parameter this systemd.unified_cgroup_hierarchy=1
-# Patch19:	systemd-221-revert-wait_for_exit-true.patch
 
 # UPSTREAM GIT PATCHES
-# (tpg) fix build with kernel-headers >= 4.5
-# https://github.com/systemd/systemd/issues/2864
-#Patch100:	0000-shared-add-a-temporary-work-around-for-kernel-header.patch
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	m4
@@ -1094,7 +1083,6 @@ fi
 %{_datadir}/%{name}/bootctl/*.conf
 %endif
 %{_prefix}/lib/%{name}/catalog/*.catalog
-%{_prefix}/lib/%{name}/user-generators/%{name}-dbus1-generator
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
@@ -1103,6 +1091,7 @@ fi
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
+%{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/import-pubring.gpg
 %{systemd_libdir}/network/80-container-host0.network
@@ -1136,6 +1125,9 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/systemd*
+# (tpg) internal library - only systemd uses it
+%{systemd_libdir}/libsystemd-shared-231.so
+%{systemd_libdir}/libsystemd-shared.so
 
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
