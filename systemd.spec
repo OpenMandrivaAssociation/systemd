@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	231
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -689,18 +689,7 @@ if [ $1 -eq 2 ] ; then
 fi
 
 # Enable the services we install by default.
-/bin/systemctl --quiet preset \
-	getty@tty1.service \
-	remote-fs.target \
-	shadow.timer \
-	shadow.service \
-	systemd-firstboot.service \
-	systemd-networkd.service \
-	systemd-resolved.service \
-	systemd-timesyncd.service \
-	systemd-timedated.service \
-	systemd-udev-settle.service \
-	2>&1 || :
+/bin/systemctl preset-all &>/dev/null || :
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
 if [ -z $hostname_new ]; then
