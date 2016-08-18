@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	231
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -314,8 +314,9 @@ sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
 ./autogen.sh
 
 %build
-%ifarch %{ix86}
-# (tpg) since LLVM/clang-3.8.0 systemd hangs system
+%ifarch %{ix86} x86_64
+# (tpg) since LLVM/clang-3.8.0 systemd hangs system on i586
+# (bero) since 3.9.0, also hangs system on x86_64
 export CC=gcc
 export CXX=g++
 %endif
