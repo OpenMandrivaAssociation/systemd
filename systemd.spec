@@ -317,7 +317,7 @@ sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
 ./autogen.sh
 
 %build
-%ifarch %{ix86}
+%ifarch %{ix86} %{arm}
 # (tpg) since LLVM/clang-3.8.0 systemd hangs system
 export CC=gcc
 export CXX=g++
