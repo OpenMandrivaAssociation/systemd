@@ -1086,6 +1086,7 @@ fi
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
+%{_sysconfdir}/systemd/system/ctrl-alt-del.target
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/import-pubring.gpg
@@ -1122,8 +1123,8 @@ fi
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
-%{systemd_libdir}/libsystemd-shared-231.so
-%{systemd_libdir}/libsystemd-shared.so
+/%{_lib}/systemd/libsystemd-shared-%{version}.so
+/%{_lib}/systemd/libsystemd-shared.so
 
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
@@ -1172,9 +1173,10 @@ fi
 %{_datadir}/%{name}/gatewayd/browse.html
 
 %files -n %{libnss_myhostname}
-%{_libdir}/libnss_myhostname.so.%{libnss_major}*
-%{_libdir}/libnss_mymachines.so.%{libnss_major}
-%{_libdir}/libnss_resolve.so.%{libnss_major}
+/%{_lib}/libnss_myhostname.so.%{libnss_major}*
+/%{_lib}/libnss_mymachines.so.%{libnss_major}
+/%{_lib}/libnss_resolve.so.%{libnss_major}
+/%{_lib}/libnss_systemd.so.%{libnss_major}
 %{_mandir}/man8/libnss_myhostname.so*.8*
 %{_mandir}/man8/libnss_mymachines.so*.8*
 %{_mandir}/man8/nss-myhostname.8*
@@ -1195,7 +1197,7 @@ fi
 %{_includedir}/%{name}/sd-login.h
 %{_includedir}/%{name}/sd-messages.h
 %{_includedir}/%{name}/sd-daemon.h
-%{_libdir}/lib%{name}.so
+/%{_lib}/lib%{name}.so
 %{_datadir}/pkgconfig/%{name}.pc
 %{_libdir}/pkgconfig/lib%{name}.pc
 
@@ -1203,7 +1205,7 @@ fi
 /%{_lib}/libudev.so.%{udev_major}*
 
 %files -n %{libudev_devel}
-%{_libdir}/libudev.so
+/{_lib}/libudev.so
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
