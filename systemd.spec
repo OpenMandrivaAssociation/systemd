@@ -24,8 +24,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	231
-Release:	2
+Version:	232
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -55,6 +55,7 @@ Source20:	90-wireless.network
 Source21:	efi-loader.conf
 Source22:	efi-omv.conf
 
+Source23:	systemd-udev-trigger-no-reload.conf
 ### OMV patches###
 # (tpg) add rpm macro to easy installation of user presets
 Patch0:		systemd-230-add-userpreset-rpm-macro.patch
@@ -72,9 +73,6 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
-Patch19:	core-do-not-fail-at-step-SECCOMP-if-there-is-no-kernel-su.patch
-Patch20:	bootctl-fix-error-message-check.patch
-Patch21:	bootctl-minor-coding-style-improvements.patch
 
 # UPSTREAM GIT PATCHES
 BuildRequires:	autoconf
@@ -317,8 +315,9 @@ sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
 ./autogen.sh
 
 %build
-%ifarch %{ix86} %{arm}
-# (tpg) since LLVM/clang-3.8.0 systemd hangs system
+%ifarch %{ix86} x86_64
+# (tpg) since LLVM/clang-3.8.0 systemd hangs system on i586
+# (bero) since 3.9.0, also hangs system on x86_64
 export CC=gcc
 export CXX=g++
 %endif
@@ -551,6 +550,9 @@ mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 # conflicts with file from package initscripts-9.25-10.x86_64
 rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1378974
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
+
 %find_lang %{name}
 
 %triggerin -- glibc
@@ -692,18 +694,7 @@ if [ $1 -eq 2 ] ; then
 fi
 
 # Enable the services we install by default.
-/bin/systemctl --quiet preset \
-	getty@tty1.service \
-	remote-fs.target \
-	shadow.timer \
-	shadow.service \
-	systemd-firstboot.service \
-	systemd-networkd.service \
-	systemd-resolved.service \
-	systemd-timesyncd.service \
-	systemd-timedated.service \
-	systemd-udev-settle.service \
-	2>&1 || :
+/bin/systemctl preset-all &>/dev/null || :
 
 hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
 if [ -z $hostname_new ]; then
@@ -977,6 +968,7 @@ fi
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/system-shutdown
 %dir %{systemd_libdir}/system-sleep
+%dir %{systemd_libdir}/system/systemd-udev-trigger.service.d
 %dir %{systemd_libdir}/system/basic.target.wants
 %dir %{systemd_libdir}/system/bluetooth.target.wants
 %dir %{systemd_libdir}/system/busnames.target.wants
@@ -1113,6 +1105,7 @@ fi
 %{systemd_libdir}/system/*.socket
 %{systemd_libdir}/system/*.target
 %{systemd_libdir}/system/*.timer
+%{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
 %{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
