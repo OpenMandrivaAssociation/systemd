@@ -1123,8 +1123,8 @@ fi
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
-/%{_lib}/systemd/libsystemd-shared-%{version}.so
-/%{_lib}/systemd/libsystemd-shared.so
+%{systemd_libdir}/libsystemd-shared-%{version}.so
+%{systemd_libdir}/libsystemd-shared.so
 
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
@@ -1205,7 +1205,7 @@ fi
 /%{_lib}/libudev.so.%{udev_major}*
 
 %files -n %{libudev_devel}
-/{_lib}/libudev.so
+/%{_lib}/libudev.so
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
