@@ -1,6 +1,6 @@
-diff -Naur systemd-219/units/systemd-timedated.service.in systemd-219.tpg/units/systemd-timedated.service.in
---- systemd-219/units/systemd-timedated.service.in	2015-02-11 17:28:06.000000000 +0000
-+++ systemd-219.tpg/units/systemd-timedated.service.in	2015-02-25 21:38:22.257595004 +0000
+diff -Naur systemd-232/units/systemd-timedated.service.in systemd-232.tpg/units/systemd-timedated.service.in
+--- systemd-232/units/systemd-timedated.service.in	2016-11-03 17:16:42.000000000 +0000
++++ systemd-232.tpg/units/systemd-timedated.service.in	2016-11-04 11:50:42.888823575 +0000
 @@ -11,6 +11,8 @@
  Documentation=http://www.freedesktop.org/wiki/Software/systemd/timedated
  
@@ -9,4 +9,4 @@ diff -Naur systemd-219/units/systemd-timedated.service.in systemd-219.tpg/units/
 +RestartSec=0
  ExecStart=@rootlibexecdir@/systemd-timedated
  BusName=org.freedesktop.timedate1
- CapabilityBoundingSet=CAP_SYS_TIME
+ WatchdogSec=3min
