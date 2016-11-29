@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	232
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -73,6 +73,10 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
+# https://github.com/opencontainers/runc/issues/1175
+# https://github.com/docker/docker/issues/28109
+# https://github.com/lxc/lxc/issues/1280
+Patch19:	0001-Too-many-things-don-t-get-along-with-the-unified-hie.patch
 
 # UPSTREAM GIT PATCHES
 BuildRequires:	autoconf
