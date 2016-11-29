@@ -77,6 +77,7 @@ Patch18:	0516-udev-silence-version-print.patch
 # https://github.com/docker/docker/issues/28109
 # https://github.com/lxc/lxc/issues/1280
 Patch19:	0001-Too-many-things-don-t-get-along-with-the-unified-hie.patch
+Patch20:	liblz4-pkgconfig-proper-version-detection.patch
 
 # UPSTREAM GIT PATCHES
 BuildRequires:	autoconf
