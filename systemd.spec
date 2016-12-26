@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	232
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -60,9 +60,9 @@ Source23:	systemd-udev-trigger-no-reload.conf
 # (tpg) add rpm macro to easy installation of user presets
 Patch0:		systemd-230-add-userpreset-rpm-macro.patch
 # from Mandriva
-# disable coldplug for storage and device pci
+# disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 #po 315
-#Patch2:		udev-199-coldplug.patch
+Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
