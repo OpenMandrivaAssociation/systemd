@@ -73,6 +73,7 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
+Patch19:	systemd-232-lz4.patch
 
 # UPSTREAM GIT PATCHES
 BuildRequires:	autoconf
