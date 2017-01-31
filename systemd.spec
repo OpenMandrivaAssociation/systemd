@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	232
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1076,7 +1076,6 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
 %{_bindir}/timedatectl
-%{_datadir}/bash-completion/completions/*
 %{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
@@ -1236,3 +1235,4 @@ fi
 %files bash-completion
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
+%{_datadir}/bash-completion/completions/*
