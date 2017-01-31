@@ -169,6 +169,10 @@ Provides:	should-restart = system
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
+
+Suggests:	%{name}-bash-completion = %{EVRD}
+Suggests:	%{name}-zsh-completion = %{EVRD}
+
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
 # (tpg) conflict with old sysvinit subpackage
@@ -307,6 +311,20 @@ Group:		Books/Computer books
 
 %description -n	udev-doc
 This package contains documentation of udev.
+
+%package	zsh-completion
+Summary:	zsh completions
+Requires:	zsh
+
+%description	zsh-completion
+This package contains zsh completion
+
+%package	bash-completion
+Summary:	bash completions
+Requires:	bash
+
+%description	bash-completion
+This package contains bash completion
 
 %prep
 %setup -q
@@ -929,8 +947,6 @@ fi
 %doc %{_docdir}/%{name}
 %dir /lib/firmware
 %dir /lib/firmware/updates
-%dir %{_datadir}/bash-completion
-%dir %{_datadir}/bash-completion/completions
 %dir %{_datadir}/factory
 %dir %{_datadir}/factory/etc
 %dir %{_datadir}/factory/etc/pam.d
@@ -1068,7 +1084,6 @@ fi
 %{_datadir}/polkit-1/actions/*.policy
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
-%{_datadir}/zsh/site-functions/*
 %{_initrddir}/README
 %{_logdir}/README
 %{_mandir}/man1/*.*
@@ -1214,3 +1229,10 @@ fi
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
+
+%files zsh-completion
+%{_datadir}/zsh/site-functions/*
+
+%files bash-completion
+%dir %{_datadir}/bash-completion
+%dir %{_datadir}/bash-completion/completions
