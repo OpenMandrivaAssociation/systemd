@@ -73,11 +73,6 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
-# https://github.com/opencontainers/runc/issues/1175
-# https://github.com/docker/docker/issues/28109
-# https://github.com/lxc/lxc/issues/1280
-Patch19:	0001-Too-many-things-don-t-get-along-with-the-unified-hie.patch
-Patch20:	liblz4-pkgconfig-proper-version-detection.patch
 
 # UPSTREAM GIT PATCHES
 Patch100:	0000-build-sys-link-test-seccomp-against-seccomp-libs-456.patch
