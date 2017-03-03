@@ -960,6 +960,7 @@ fi
 %dir %{_prefix}/lib/%{name}/user
 %dir %{_prefix}/lib/%{name}/user-preset
 %dir %{_prefix}/lib/%{name}/user-generators
+%dir %{_prefix}/lib/systemd/user-environment-generators
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_sysconfdir}/binfmt.d
@@ -1036,7 +1037,7 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/*.conf
+%config(noreplace) %{_datadir}/dbus-1/system.d/*.conf
 /%{_lib}/security/pam_systemd.so
 /bin/halt
 /bin/journalctl
@@ -1071,11 +1072,14 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
 %{_bindir}/timedatectl
+%{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/*.policy
+%{_datadir}/polkit-1/rules.d/systemd-networkd.rules
+%{_var}/lib/polkit-1/localauthority/10-vendor.d/systemd-networkd.pkla
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
@@ -1091,16 +1095,17 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
 %endif
+%config(noreplace) %{_prefix}/lib/environment.d/99-environment.conf
 %{_prefix}/lib/%{name}/catalog/*.catalog
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
+%{_prefix}/lib/systemd/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
-%{_sysconfdir}/systemd/system/ctrl-alt-del.target
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/import-pubring.gpg
@@ -1139,7 +1144,7 @@ fi
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 %{systemd_libdir}/libsystemd-shared.so
-
+#
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
