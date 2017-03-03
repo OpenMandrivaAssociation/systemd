@@ -344,7 +344,6 @@ export CXX=g++
 	--with-rootprefix="" \
 	--with-rootlibdir=/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
-	--enable-compat-libs \
 	--enable-bzip2 \
 	--enable-lz4 \
 	--without-kill-user-processes \
@@ -353,16 +352,12 @@ export CXX=g++
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
-	--disable-gudev \
 %ifnarch %armx
 	--enable-gnuefi \
 %endif
 %if %{with bootstrap}
-	--enable-introspection=no \
 	--disable-libcryptsetup \
 	--without-python \
-%else
-	--enable-introspection=no \
 %endif
 	--enable-split-usr \
 	--enable-xkbcommon \
