@@ -24,8 +24,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	232
-Release:	6
+Version:	233
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -73,68 +73,6 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
-
-# UPSTREAM GIT PATCHES
-Patch100:	0000-build-sys-link-test-seccomp-against-seccomp-libs-456.patch
-Patch101:	0001-kernel-install-use-exit-instead-of-return-4565.patch
-Patch102:	0002-nspawn-fix-exit-code-for-help-and-version-4609.patch
-Patch103:	0003-core-don-t-use-the-unified-hierarchy-for-the-systemd.patch
-Patch104:	0004-core-make-RootDirectory-and-ProtectKernelModules-wor.patch
-Patch105:	0005-nspawn-avoid-one-strdup-by-using-free_and_replace.patch
-Patch106:	0006-nspawn-slight-simplification.patch
-Patch107:	0007-core-namespace-count-and-free-failed-paths-inside-ch.patch
-Patch108:	0008-basic-virt-fix-userns-check-on-CONFIG_USER_NS-n-kern.patch
-Patch109:	0009-timesyncd-clear-ADJ_MAXERROR-to-keep-STA_UNSYNC-clea.patch
-Patch110:	0010-link-fix-offload-features-initialization-4639.patch
-Patch111:	0011-sd-event-fix-sd_event_source_get_priority-4712.patch
-Patch112:	0012-build-sys-check-for-lz4-in-the-old-and-new-numbering.patch
-Patch113:	0013-networkd-fix-size-of-MTUBytes-so-that-it-does-not-ov.patch
-Patch114:	0014-core-consider-SIGTERM-as-a-clean-exit-status-for-ini.patch
-Patch115:	0015-core-make-sure-initrd-switch-root-command-survives-P.patch
-Patch116:	0016-fix-journald-startup-problem-when-code-is-compiled-w.patch
-Patch117:	0017-device-Avoid-calling-unit_free-NULL-in-device-setup-.patch
-Patch118:	0018-udevd-check-correct-return-value-of-fcntl-4758.patch
-Patch119:	0019-systemctl-fix-is-enabled-exit-status-on-failure-when.patch
-Patch120:	0020-journal-make-sure-to-initially-populate-the-space-in.patch
-Patch121:	0021-networkd-link_enter_configured-remove-assert-4800.patch
-Patch122:	0022-rules-consider-MMC-device-partitions-with-partition-.patch
-Patch123:	0023-nspawn-add-missing-E-to-getopt_long-4860.patch
-Patch124:	0024-build-sys-define-arm-as-secondary-architecture-for-a.patch
-Patch125:	0025-nspawn-when-getting-SIGCHLD-make-sure-it-s-from-the-.patch
-Patch126:	0026-machinectl-make-machinectl-E-shell-work.patch
-Patch127:	0027-sysv-generator-properly-translate-sysv-facilities.patch
-Patch128:	0028-core-downgrade-Time-has-been-changed-to-debug-4906.patch
-Patch129:	0029-machinectl-handle-EOPNOTSUPP-from-print_addresses-49.patch
-Patch130:	0030-units-fix-condition-for-systemd-journal-catalog-upda.patch
-Patch131:	0031-core-fix-sockaddr-length-calculation-for-sockaddr_pr.patch
-Patch132:	0032-shared-fix-double-free-in-unmask-5005.patch
-Patch133:	0033-shared-fix-double-free-in-link.patch
-Patch134:	0034-shared-check-strdup-NULL.patch
-Patch135:	0035-rpm-triggers-do-nothing-if-systemd-is-not-running-50.patch
-Patch136:	0036-kernel-install-avoid-process-substitution.patch
-Patch137:	0037-shell-completion-redirect-all-errors-from-systemctl-.patch
-Patch138:	0038-cryptsetup-fix-unitialized-variable.patch
-Patch139:	0039-systemctl-uninitalized-variable.patch
-Patch140:	0040-bash_completion-journalctl-add-missing-options.patch
-Patch141:	0041-bash_completion-journalctl-Complete-t-option-values.patch
-Patch142:	0042-Fixi-caching-in-zsh-completion-5122.patch
-Patch143:	0043-bash-completion-add-support-for-now-5155.patch
-Patch144:	0044-core-dbus-fix-two-strv-memleaks.patch
-Patch145:	0045-core-execute-fix-strv-memleak.patch
-Patch146:	0046-resolve-fix-strv-memleak.patch
-Patch147:	0047-nspawn-fix-clobbering-of-selinux-context-arg.patch
-Patch148:	0048-parse_hwdb-fix-to-work-with-pyparsing-2.1.10.patch
-Patch149:	0049-journald-don-t-flush-to-var-log-journal-before-we-ge.patch
-Patch150:	0050-tree-wide-drop-NULL-sentinel-from-strjoin.patch
-Patch151:	0051-core-add-new-RestrictNamespaces-unit-file-setting.patch
-Patch152:	0052-seccomp-rework-seccomp-code-to-improve-compat-with-s.patch
-Patch153:	0053-build-sys-add-check-for-gperf-lookup-function-signat.patch
-Patch154:	0054-journal-gatewayd-actually-recognize-D-as-a-synonym-f.patch
-Patch155:	0055-journal-gatewayd-return-EINVAL-if-ARG_TRUST-and-HAVE.patch
-Patch156:	0056-systemctl-always-avoid-being-killed-when-doing-switc.patch
-Patch157:	0057-systemctl-ignore-SIGTERM-after-switch-root.patch
-Patch158:	0058-units-restore-Before-dependencies-for-systemd-vconso.patch
-Patch159:	0059-coredump-really-extract-container-cmdline-5167.patch
 
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -406,7 +344,6 @@ export CXX=g++
 	--with-rootprefix="" \
 	--with-rootlibdir=/%{_lib} \
 	--libexecdir=%{_prefix}/lib \
-	--enable-compat-libs \
 	--enable-bzip2 \
 	--enable-lz4 \
 	--without-kill-user-processes \
@@ -415,23 +352,25 @@ export CXX=g++
 	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
 	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
 	--disable-selinux \
-	--disable-gudev \
 %ifnarch %armx
 	--enable-gnuefi \
 %endif
 %if %{with bootstrap}
-	--enable-introspection=no \
 	--disable-libcryptsetup \
 	--without-python \
-%else
-	--enable-introspection=no \
 %endif
 	--enable-split-usr \
 	--enable-xkbcommon \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-certificate-root="%{_sysconfdir}/pki" \
-	--disable-kdbus \
+	--with-fallback-hostname=openmandriva \
+	--with-support-url="%{disturl}" \
+%if %mdvver <= 3000000
+	--with-default-hierarchy=hybrid \
+%else
+	--with-default-hierarchy=unified \
+%endif
 	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
 	--with-dns-servers="208.67.222.222 208.67.220.220"
 
@@ -1021,6 +960,7 @@ fi
 %dir %{_prefix}/lib/%{name}/user
 %dir %{_prefix}/lib/%{name}/user-preset
 %dir %{_prefix}/lib/%{name}/user-generators
+%dir %{_prefix}/lib/systemd/user-environment-generators
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_sysconfdir}/binfmt.d
@@ -1097,7 +1037,7 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/*.conf
+%config(noreplace) %{_datadir}/dbus-1/system.d/*.conf
 /%{_lib}/security/pam_systemd.so
 /bin/halt
 /bin/journalctl
@@ -1132,11 +1072,14 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
 %{_bindir}/timedatectl
+%{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/*.policy
+%{_datadir}/polkit-1/rules.d/systemd-networkd.rules
+%{_var}/lib/polkit-1/localauthority/10-vendor.d/systemd-networkd.pkla
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
@@ -1152,16 +1095,17 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
 %endif
+%config(noreplace) %{_prefix}/lib/environment.d/99-environment.conf
 %{_prefix}/lib/%{name}/catalog/*.catalog
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
+%{_prefix}/lib/systemd/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
-%{_sysconfdir}/systemd/system/ctrl-alt-del.target
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/import-pubring.gpg
@@ -1200,7 +1144,7 @@ fi
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 %{systemd_libdir}/libsystemd-shared.so
-
+#
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
