@@ -24,7 +24,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	233
+Version:	234
 Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
