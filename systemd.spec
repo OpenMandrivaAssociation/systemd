@@ -60,7 +60,8 @@ Source23:	systemd-udev-trigger-no-reload.conf
 # (tpg) add rpm macro to easy installation of user presets
 Patch0:		systemd-230-add-userpreset-rpm-macro.patch
 # Without this, build fails on aarch64
-Patch1:		systemd-233-format-nonliteral-warnings.patch
+# (tpg) let's disable it for now
+#Patch1:		systemd-233-format-nonliteral-warnings.patch
 # from Mandriva
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 #po 315
