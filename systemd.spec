@@ -364,6 +364,7 @@ export CXX=g++
 %endif
 	--enable-split-usr \
 	--enable-xkbcommon \
+	--enable-tpm \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-certificate-root="%{_sysconfdir}/pki" \
