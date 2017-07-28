@@ -1086,7 +1086,6 @@ fi
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/*.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
-%{_var}/lib/polkit-1/localauthority/10-vendor.d/systemd-networkd.pkla
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
