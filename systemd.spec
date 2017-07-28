@@ -1008,6 +1008,8 @@ fi
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
+%dir %{systemd_libdir}/system/machines.target.wants
+%dir %{systemd_libdir}/system/remote-fs.target.wants
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
@@ -1076,7 +1078,7 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
 %{_bindir}/timedatectl
-%{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
+%{_sysconfdir}/systemd/system/dbus-org.freedesktop.*.service
 %{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
@@ -1144,6 +1146,8 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.service
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
+%{systemd_libdir}/system/machines.target.wants/*.mount
+%{systemd_libdir}/system/remote-fs.target.wants/*.mount
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
