@@ -24,7 +24,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	233
+Version:	234
 Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
@@ -59,6 +59,9 @@ Source23:	systemd-udev-trigger-no-reload.conf
 ### OMV patches###
 # (tpg) add rpm macro to easy installation of user presets
 Patch0:		systemd-230-add-userpreset-rpm-macro.patch
+# Without this, build fails on aarch64
+# (tpg) let's disable it for now
+#Patch1:		systemd-233-format-nonliteral-warnings.patch
 # from Mandriva
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 #po 315
@@ -119,6 +122,7 @@ BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
+BuildRequires:	pkgconfig(polkit-gobject-1)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
@@ -361,6 +365,7 @@ export CXX=g++
 %endif
 	--enable-split-usr \
 	--enable-xkbcommon \
+	--enable-tpm \
 	--with-kbd-loadkeys=/bin/loadkeys \
 	--with-kbd-setfont=/bin/setfont \
 	--with-certificate-root="%{_sysconfdir}/pki" \
@@ -1004,6 +1009,8 @@ fi
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
+%dir %{systemd_libdir}/system/machines.target.wants
+%dir %{systemd_libdir}/system/remote-fs.target.wants
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
@@ -1072,14 +1079,13 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
 %{_bindir}/timedatectl
-%{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
+%{_sysconfdir}/systemd/system/dbus-org.freedesktop.*.service
 %{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/polkit-1/actions/*.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
-%{_var}/lib/polkit-1/localauthority/10-vendor.d/systemd-networkd.pkla
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
@@ -1140,6 +1146,8 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.service
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
+%{systemd_libdir}/system/machines.target.wants/*.mount
+%{systemd_libdir}/system/remote-fs.target.wants/*.mount
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so

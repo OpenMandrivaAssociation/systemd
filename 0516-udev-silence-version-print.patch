@@ -1,12 +1,12 @@
-diff -Naur systemd-232/src/udev/udevd.c systemd-232.tpg/src/udev/udevd.c
---- systemd-232/src/udev/udevd.c	2016-11-03 17:16:42.000000000 +0000
-+++ systemd-232.tpg/src/udev/udevd.c	2016-11-04 11:52:30.669656097 +0000
-@@ -1719,7 +1719,7 @@
+diff -Naur systemd-234/src/udev/udevd.c systemd-234.tpg/src/udev/udevd.c
+--- systemd-234/src/udev/udevd.c	2017-07-12 14:01:10.010605872 +0000
++++ systemd-234.tpg/src/udev/udevd.c	2017-07-27 22:40:32.207303587 +0000
+@@ -1741,7 +1741,7 @@
          if (arg_daemonize) {
                  pid_t pid;
  
--                log_info("starting version " VERSION);
-+                log_debug("starting version " VERSION);
+-                log_info("starting version " PACKAGE_VERSION);
++                log_debug("starting version " PACKAGE_VERSION);
  
                  /* connect /dev/null to stdin, stdout, stderr */
                  if (log_get_max_level() < LOG_DEBUG) {
