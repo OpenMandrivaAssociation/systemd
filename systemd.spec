@@ -122,6 +122,7 @@ BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn)
+BuildRequires:	pkgconfig(polkit-gobject-1)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:  rpm-build >= 1:5.4.10-79
