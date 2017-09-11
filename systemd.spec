@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	234
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -71,9 +71,6 @@ Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
-# (tpg) https://issues.openmandriva.org/show_bug.cgi?id=1092
-# keep this patch until upstream will fix it
-Patch16:	systemd-219-always-restart-systemd-timedated.service.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 
