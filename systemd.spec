@@ -895,6 +895,18 @@ systemctl reload-or-try-restart systemd-binfmt
 %triggerposttransun -- /lib/udev/hwdb.d/*.hwdb
 /bin/systemd-hwdb update
 
+%triggerposttransin -- %{udev_rules_dir}/*.rules
+udevadm control --reload
+
+%triggerposttransun -- %{udev_rules_dir}/*.rules
+udevadm control --reload
+
+%triggerposttransin -- %{udev_user_rules_dir}/*.rules
+udevadm control --reload
+
+%triggerposttransun -- %{udev_user_rules_dir}/*.rules
+udevadm control --reload
+
 %triggerposttransin -- %{_prefix}/lib/sysusers.d/*.conf
 /bin/systemd-sysusers
 
