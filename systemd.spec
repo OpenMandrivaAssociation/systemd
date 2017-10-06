@@ -24,8 +24,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	234
-Release:	3
+Version:	235
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -96,6 +96,7 @@ BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
+BuildRequires:	pkgconfig(python)
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
@@ -333,7 +334,7 @@ sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
 ./autogen.sh
 
 %build
-%ifarch %{ix86} x86_64
+%ifarch %{ix86}
 # (tpg) since LLVM/clang-3.8.0 systemd hangs system on i586
 # (bero) since 3.9.0, also hangs system on x86_64
 export CC=gcc
@@ -341,45 +342,74 @@ export CXX=g++
 %endif
 
 %serverbuild_hardened
-%configure \
-	--with-rootprefix="" \
-	--with-rootlibdir=/%{_lib} \
-	--libexecdir=%{_prefix}/lib \
-	--enable-bzip2 \
-	--enable-lz4 \
-	--without-kill-user-processes \
-	--disable-static \
-	--with-sysvinit-path=%{_initrddir} \
-	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
-	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
-	--disable-selinux \
+%meson \
+	-Drootprefix="" \
+	-Drootlibdir=/%{_lib} \
+	-Dlibexecdir=%{_prefix}/lib \
+	-Dsysvinit-path=%{_initrddir} \
+	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
+	-Drc-local=/etc/rc.d/rc.local \
 %ifnarch %armx
-	--enable-gnuefi \
+	-Dgnu-efi=true \
 %endif
 %if %{with bootstrap}
-	--disable-libcryptsetup \
-	--without-python \
+	-Dlibcryptsetup=false \
 %endif
-	--enable-split-usr \
-	--enable-xkbcommon \
-	--enable-tpm \
-	--with-kbd-loadkeys=/bin/loadkeys \
-	--with-kbd-setfont=/bin/setfont \
-	--with-certificate-root="%{_sysconfdir}/pki" \
-	--with-fallback-hostname=openmandriva \
-	--with-support-url="%{disturl}" \
+	-Dsplit-usr=true \
+	-Dxkbcommon=true \
+	-Dtpm=true \
+	-Ddev-kvm-mode=0666 \
+	-Dkmod=true \
+	-Dxkbcommon=true \
+	-Dblkid=true \
+	-Dseccomp=true \
+	-Dima=true \
+	-Dselinux=false \
+	-Dapparmor=true \
+	-Dpolkit=true \
+	-Dxz=true \
+	-Dzlib=true \
+	-Dbzip2=true \
+	-Dlz4=true \
+	-Dpam=true \
+	-Dacl=true \
+	-Dsmack=true \
+	-Dgcrypt=true \
+	-Daudit=true \
+	-Delfutils=true \
+	-Delfutils=true \
+	-Dqrencode=true \
+	-Dgnutls=true \
+	-Dmicrohttpd=true \
+	-Dlibidn=true \
+	-Dlibiptc=true \
+	-Dlibcurl=true \
+	-Dtpm=true \
+	-Dhwdb=true \
+	-Dsysusers=true \
+	-Ddefault-kill-user-processes=false \
+	-Dtests=unsafe \
+	-Dinstall-tests=true \
+%ifnarch %{ix86}
+	-Db_lto=true \
+%endif
+	-Dloadkeys-path=/bin/loadkeys \
+	-Dsetfont-path=/bin/setfont \
+	-Dcertificate-root="%{_sysconfdir}/pki" \
+	-Dfallback-hostname=openmandriva \
+	-Dsupport-url="%{disturl}" \
 %if %mdvver <= 3000000
-	--with-default-hierarchy=hybrid \
+	-Ddefault-hierarchy=hybrid \
 %else
-	--with-default-hierarchy=unified \
+	-Ddefault-hierarchy=unified \
 %endif
-	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
-	--with-dns-servers="208.67.222.222 208.67.220.220"
+	-Dntp-servers='0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
+	-Ddns-servers='208.67.222.222 208.67.220.220'
 
-%make
+%meson_build
 
 %install
-%makeinstall_std
+%meson_install
 
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
 
