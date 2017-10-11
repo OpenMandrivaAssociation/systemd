@@ -326,13 +326,6 @@ This package contains bash completion
 %setup -q
 %apply_patches
 
-%ifarch %{ix86}
-# (tpg) remove -flto as on i586 it hangs boot
-sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
-%endif
-
-./autogen.sh
-
 %build
 %ifarch %{ix86}
 # (tpg) since LLVM/clang-3.8.0 systemd hangs system on i586
