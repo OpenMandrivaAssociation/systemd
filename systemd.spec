@@ -57,8 +57,6 @@ Source22:	efi-omv.conf
 
 Source23:	systemd-udev-trigger-no-reload.conf
 ### OMV patches###
-# (tpg) add rpm macro to easy installation of user presets
-Patch0:		systemd-230-add-userpreset-rpm-macro.patch
 # Without this, build fails on aarch64
 # (tpg) let's disable it for now
 #Patch1:		systemd-233-format-nonliteral-warnings.patch
