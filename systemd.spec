@@ -73,6 +73,7 @@ Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 
 BuildRequires:	meson
+BuildRequires:	quota
 BuildRequires:	acl-devel
 BuildRequires:	audit-devel
 BuildRequires:	docbook-style-xsl
