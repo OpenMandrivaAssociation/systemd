@@ -72,10 +72,7 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 
-BuildRequires:	autoconf
-BuildRequires:	automake
-BuildRequires:	m4
-BuildRequires:	libtool
+BuildRequires:	meson
 BuildRequires:	acl-devel
 BuildRequires:	audit-devel
 BuildRequires:	docbook-style-xsl
