@@ -1052,7 +1052,6 @@ fi
 %exclude %{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
 %exclude %{_mandir}/man8/%{name}-journal-remote.8.*
 %exclude %{_mandir}/man8/%{name}-journal-upload.8.*
-%exclude %{_prefix}/lib/tmpfiles.d/%{name}-remote.conf
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.service
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.socket
 %exclude %{systemd_libdir}/system/%{name}-journal-remote.service
@@ -1179,7 +1178,6 @@ fi
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
-%{systemd_libdir}/libsystemd-shared.so
 #
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
@@ -1219,7 +1217,6 @@ fi
 %{systemd_libdir}/system/%{name}-journal-remote.service
 %{systemd_libdir}/system/%{name}-journal-remote.socket
 %{systemd_libdir}/system/%{name}-journal-upload.service
-%{_prefix}/lib/tmpfiles.d/%{name}-remote.conf
 %{_mandir}/man8/%{name}-journal-gatewayd.8.*
 %{_mandir}/man8/%{name}-journal-upload.8.*
 %{_mandir}/man8/%{name}-journal-remote.8.*
