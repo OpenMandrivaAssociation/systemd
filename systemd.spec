@@ -377,7 +377,7 @@ export CXX=g++
 	-Dsysusers=true \
 	-Ddefault-kill-user-processes=false \
 	-Dtests=unsafe \
-	-Dinstall-tests=true \
+	-Dinstall-tests=false \
 %ifnarch %{ix86}
 	-Db_lto=true \
 %endif
@@ -997,6 +997,7 @@ fi
 %dir %{_prefix}/lib/systemd/user-environment-generators
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
+%dir %{_prefix}/lib/modprobe.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/sysctl.d
@@ -1022,7 +1023,6 @@ fi
 %dir %{systemd_libdir}/system/systemd-udev-trigger.service.d
 %dir %{systemd_libdir}/system/basic.target.wants
 %dir %{systemd_libdir}/system/bluetooth.target.wants
-%dir %{systemd_libdir}/system/busnames.target.wants
 %dir %{systemd_libdir}/system/dbus.target.wants
 %dir %{systemd_libdir}/system/default.target.wants
 %dir %{systemd_libdir}/system/graphical.target.wants
@@ -1130,7 +1130,8 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
 %endif
-%config(noreplace) %{_prefix}/lib/environment.d/99-environment.conf
+%{_prefix}/lib/environment.d/99-environment.conf
+%{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/%{name}/catalog/*.catalog
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
@@ -1152,7 +1153,6 @@ fi
 %{systemd_libdir}/network/99-default.link
 %{systemd_libdir}/system-preset/*.preset
 %{systemd_libdir}/system/*.automount
-%{systemd_libdir}/system/*.busname
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/*.service
@@ -1161,7 +1161,6 @@ fi
 %{systemd_libdir}/system/*.target
 %{systemd_libdir}/system/*.timer
 %{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
-%{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/local-fs.target.wants/*.service
