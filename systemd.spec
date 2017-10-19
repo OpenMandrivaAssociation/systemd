@@ -309,14 +309,14 @@ Summary:	zsh completions
 Requires:	zsh
 
 %description	zsh-completion
-This package contains zsh completion
+This package contains zsh completion.
 
 %package	bash-completion
 Summary:	bash completions
 Requires:	bash
 
 %description	bash-completion
-This package contains bash completion
+This package contains bash completion.
 
 %prep
 %setup -q
@@ -354,7 +354,7 @@ export CXX=g++
 	-Dseccomp=true \
 	-Dima=true \
 	-Dselinux=false \
-	-Dapparmor=true \
+	-Dapparmor=false \
 	-Dpolkit=true \
 	-Dxz=true \
 	-Dzlib=true \
