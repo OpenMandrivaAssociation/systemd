@@ -331,7 +331,7 @@ export CXX=g++
 %endif
 
 # (tpg) fix path to login.defs
-sed -i -e 's#/etc/login.defs#%{_buildroot}%{_sysconfdir}/login.defs#g' meson_options.txt
+sed -i -e 's#/etc/login.defs#%{_buildroot}%{_sysconfdir}/login.defs#g' meson.build
 
 %serverbuild_hardened
 %meson \
