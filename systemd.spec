@@ -396,7 +396,7 @@ sed -i -e 's#/etc/login.defs#%{_buildroot}%{_sysconfdir}/login.defs#g' meson_opt
 	-Ddefault-hierarchy=unified \
 %endif
 	-Dntp-servers='0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
-	-Ddns-servers='208.67.222.222 208.67.220.220'
+	-Ddns-servers='208.67.222.222 208.67.220.220' ||:
 
 cat /builddir/build/BUILD/systemd-235/build/meson-logs/meson-log.txt
 exit 1
