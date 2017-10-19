@@ -330,9 +330,6 @@ export CC=gcc
 export CXX=g++
 %endif
 
-# (tpg) fix path to login.defs
-sed -i -e 's#/etc/login.defs#%{buildroot}%{_sysconfdir}/login.defs#g' meson.build
-
 %serverbuild_hardened
 %meson \
 	-Drootprefix="" \
@@ -369,7 +366,6 @@ sed -i -e 's#/etc/login.defs#%{buildroot}%{_sysconfdir}/login.defs#g' meson.buil
 	-Dgcrypt=true \
 	-Daudit=true \
 	-Delfutils=true \
-	-Delfutils=true \
 	-Dqrencode=true \
 	-Dgnutls=true \
 	-Dmicrohttpd=true \
@@ -395,11 +391,11 @@ sed -i -e 's#/etc/login.defs#%{buildroot}%{_sysconfdir}/login.defs#g' meson.buil
 %else
 	-Ddefault-hierarchy=unified \
 %endif
+	-Dsystem-uid-max='999' \
+	-Dsystem-gid-max='999' \
 	-Dntp-servers='0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
-	-Ddns-servers='208.67.222.222 208.67.220.220' ||:
+	-Ddns-servers='208.67.222.222 208.67.220.220'
 
-cat /builddir/build/BUILD/systemd-235/build/meson-logs/meson-log.txt
-exit 1
 %meson_build
 
 %install
