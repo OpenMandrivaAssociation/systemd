@@ -74,7 +74,7 @@ Patch18:	0516-udev-silence-version-print.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
-Patch101:	0002-journal-clearout-drop-kmsg.patch
+#Patch101:	0002-journal-clearout-drop-kmsg.patch
 Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch103:	0024-more-udev-children-workers.patch
 Patch104:	0031-DHCP-retry-faster.patch
