@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -71,6 +71,15 @@ Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
+
+# (tpg) ClearLinux patches
+Patch100:	0001-journal-raise-compression-threshold.patch
+Patch101:	0002-journal-clearout-drop-kmsg.patch
+Patch102:	0003-core-use-mmap-to-load-files.patch
+Patch103:	0024-more-udev-children-workers.patch
+Patch104:	0031-DHCP-retry-faster.patch
+Patch105:	0033-Remove-libm-memory-overhead.patch
+Patch106:	0038-Compile-udev-with-O3.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
