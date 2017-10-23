@@ -1,35 +1,32 @@
-From f480e8848f72ea0ef6bb2ea7be47faaf4bc8d16f Mon Sep 17 00:00:00 2001
-From: Auke Kok <auke-jan.h.kok@intel.com>
-Date: Fri, 14 Jul 2017 11:35:13 -0700
-Subject: [PATCH 38/39] Compile udev with -O3
-
-udevd benefits from -O3 as it heavily affects boot time.
----
- Makefile.am | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/Makefile.am b/Makefile.am
-index f29a7b875..ad4759f19 100644
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -3999,6 +3999,8 @@ endif
- 
- systemd_udevd_SOURCES = \
- 	src/udev/udevd.c
-+	
-+systemd_udevd_CFLAGS = -O3
- 
- systemd_udevd_CFLAGS = \
- 	$(AM_CFLAGS) \
-@@ -4024,6 +4026,8 @@ udevadm_SOURCES = \
- udevadm_LDADD = \
- 	libudev-core.la \
- 	libbasic.la
-+	
-+udevadm_CFLAGS = -O3
- 
- # ------------------------------------------------------------------------------
- if ENABLE_HWDB
--- 
-2.13.3
-
+diff -Naur systemd-235/meson.build systemd-235.tpg/meson.build
+--- systemd-235/meson.build	2017-10-23 16:15:00.440716248 +0000
++++ systemd-235.tpg/meson.build	2017-10-06 08:18:04.000000000 +0000
+@@ -2137,7 +2137,7 @@
+ exe = executable('systemd-udevd',
+                  systemd_udevd_sources,
+                  include_directories : includes,
+-                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
++                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
+                  link_with : [libudev_core,
+                               libsystemd_network,
+                               libudev_internal],
+@@ -2154,7 +2154,6 @@
+ exe = executable('udevadm',
+                  udevadm_sources,
+                  include_directories : includes,
+-                 c_args : ['-O3'],
+                  link_with : [libudev_core,
+                               libsystemd_network,
+                               libudev_internal],
+diff -Naur systemd-235/src/udev/meson.build systemd-235.tpg/src/udev/meson.build
+--- systemd-235/src/udev/meson.build	2017-10-06 08:18:04.000000000 +0000
++++ systemd-235.tpg/src/udev/meson.build	2017-10-23 16:16:35.123658915 +0000
+@@ -131,7 +131,7 @@
+         executable(prog[0].split('/')[0],
+                    prog,
+                    include_directories : includes,
+-                   c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
++                   c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
+                    link_with : [libudev_internal],
+                    install_rpath : udev_rpath,
+                    install : true,
