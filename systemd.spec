@@ -1021,7 +1021,7 @@ udevadm control --reload
 %triggerposttransun -- %{_prefix}/lib/systemd/catalog/*.catalog
 /bin/journalctl --update-catalog
 
-%post -n %{libnss_myhostnames}
+%post -n %{libnss_myhostname}
 if [ -f /etc/nsswitch.conf ]; then
 # sed-fu to add myhostanme to hosts line
 	grep -v -E -q '^hosts:.* myhostname' /etc/nsswitch.conf &&
