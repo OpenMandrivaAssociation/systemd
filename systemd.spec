@@ -25,7 +25,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	3
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -893,8 +893,8 @@ shift
 
 units=${*#%{_unitdir}/}
 if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
-    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 fi
 
 %triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
