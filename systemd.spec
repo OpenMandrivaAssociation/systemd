@@ -12,9 +12,9 @@
 %define libsystemd_devel %mklibname %{name} -d
 
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
-%define libnss_myhostname %mklibname nss_mymachines %{libnss_major}
-%define libnss_myhostname %mklibname nss_resolve %{libnss_major}
-%define libnss_myhostname %mklibname nss_systemd %{libnss_major}
+%define libnss_mymachines %mklibname nss_mymachines %{libnss_major}
+%define libnss_resolve %mklibname nss_resolve %{libnss_major}
+%define libnss_systemd %mklibname nss_systemd %{libnss_major}
 
 %define udev_major 1
 %define libudev %mklibname udev %{udev_major}
@@ -225,12 +225,13 @@ work as a drop-in replacement for sysvinit.
 
 %package container
 Summary:		Tools for containers and VMs
+Group:		System/Base
 Requires:		%{name} = %{EVRD}
 Requires(post):	systemd
 Requires(preun):	systemd
 Requires(postun):	systemd
+Requires:		%{libnss_mymachines} = %{EVRD}
 Conflicts:		%{name} < 235-1
-License:		LGPLv2+
 
 %description container
 Systemd tools to spawn and manage containers and virtual machines.
@@ -239,6 +240,7 @@ and systemd-importd.
 
 %package journal-gateway
 Summary:	Gateway for serving journal events over the network using HTTP
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{EVRD}
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
@@ -388,6 +390,7 @@ This package contains documentation of udev.
 
 %package	zsh-completion
 Summary:	zsh completions
+Group:	Shells
 Requires:	zsh
 
 %description	zsh-completion
@@ -395,6 +398,7 @@ This package contains zsh completion.
 
 %package	bash-completion
 Summary:	bash completions
+Group:	Shells
 Requires:	bash
 
 %description	bash-completion
