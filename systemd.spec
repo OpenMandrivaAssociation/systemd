@@ -224,14 +224,16 @@ elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
 %package container
-Summary:		Tools for containers and VMs
-Group:		System/Base
-Requires:		%{name} = %{EVRD}
+Summary:	Tools for containers and VMs
+Group:	System/Base
+Requires:	%{name} = %{EVRD}
 Requires(post):	systemd
 Requires(preun):	systemd
 Requires(postun):	systemd
-Requires:		%{libnss_mymachines} = %{EVRD}
-Conflicts:		%{name} < 235-1
+Requires:	%{libnss_mymachines} = %{EVRD}
+Conflicts:	%{name} < 235-1
+Suggests:	%{name}-bash-completion = %{EVRD}
+Suggests:	%{name}-zsh-completion = %{EVRD}
 
 %description container
 Systemd tools to spawn and manage containers and virtual machines.
@@ -1212,24 +1214,32 @@ fi
 %{_bindir}/kernel-install
 %{_bindir}/localectl
 %{_bindir}/systemctl
+%if 0
 %{_bindir}/%{name}-*
+%endif
 %{_bindir}/timedatectl
+%if 0
 %{_sysconfdir}/systemd/system/dbus-org.freedesktop.*.service
 %{_datadir}/dbus-1/*services/*.service
+%endif
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
+%if 0
 %{_datadir}/polkit-1/actions/*.policy
+%endif
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
+%if 0
 %{_mandir}/man1/*.*
 %{_mandir}/man3/*.*
 %{_mandir}/man5/*.*
 %{_mandir}/man7/*.*
 %{_mandir}/man8/*.*
+%endif
 %{_prefix}/lib/kernel/install.d/*.install
 %ifnarch %armx
 %{_prefix}/lib/%{name}/boot/efi/*.efi
@@ -1243,7 +1253,9 @@ fi
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
 %{_prefix}/lib/systemd/user-environment-generators/*
+%if 0
 %{_prefix}/lib/tmpfiles.d/*.conf
+%endif
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
@@ -1256,13 +1268,17 @@ fi
 %{systemd_libdir}/network/99-default.link
 %{systemd_libdir}/system-preset/*.preset
 %{systemd_libdir}/system/*.automount
+%if 0
 %{systemd_libdir}/system/*.mount
+%endif
 %{systemd_libdir}/system/*.path
+%if 0
 %{systemd_libdir}/system/*.service
 %{systemd_libdir}/system/*.slice
 %{systemd_libdir}/system/*.socket
 %{systemd_libdir}/system/*.target
 %{systemd_libdir}/system/*.timer
+%endif
 %{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
@@ -1277,8 +1293,10 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.service
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
+%if 0
 %{systemd_libdir}/system/machines.target.wants/*.mount
 %{systemd_libdir}/system/remote-fs.target.wants/*.mount
+%endif
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
@@ -1329,39 +1347,34 @@ fi
 %{_datadir}/%{name}/gatewayd/browse.html
 
 %files container
-/bin/machinectl
-%{_bindir}/systemd-nspawn
-%{systemd_libdir}/import-pubring.gpg
-%{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
-%{systemd_libdir}/system/*.machine1.*
-%{systemd_libdir}/system/*.import1.*
-%{systemd_libdir}/system/systemd-machined.service
-%{systemd_libdir}/system/systemd-importd.service
+%{systemd_libdir}/system/dbus-org.freedesktop.import1.service
+%{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
 %{systemd_libdir}/system/machine.slice
 %{systemd_libdir}/system/machines.target
-%{systemd_libdir}/system/var-lib-machines.mount
-%{systemd_libdir}/system/*/var-lib-machines.mount
+%{systemd_libdir}/system/machines.target.wants/var-lib-machines.mount
+%{systemd_libdir}/system/remote-fs.target.wants/var-lib-machines.mount
+%{systemd_libdir}/system/systemd-importd.service
+%{systemd_libdir}/system/systemd-machined.service
 %{systemd_libdir}/system/systemd-nspawn@.service
-%{systemd_libdir}/systemd-machined
+%{systemd_libdir}/system/var-lib-machines.mount
 %{systemd_libdir}/systemd-import
 %{systemd_libdir}/systemd-importd
+%{systemd_libdir}/systemd-machined
 %{systemd_libdir}/systemd-pull
-%{systemd_libdir}/network/80-container-ve.network
-%{systemd_libdir}/network/80-container-vz.network
-%{_datadir}/dbus-1/system.d/org.freedesktop.import1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
+%{systemd_libdir}/import-pubring.gpg
+/bin/machinectl
+%{_bindir}/systemd-nspawn
+%{_prefix}/tmpfiles.d/systemd-nspawn.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
+%{_datadir}/dbus-1/system.d/org.freedesktop.import1.conf
+%{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-%{_datadir}/bash-completion/completions/machinectl
-%{_datadir}/bash-completion/completions/systemd-nspawn
-%{_datadir}/zsh/site-functions/_machinectl
-%{_datadir}/zsh/site-functions/_systemd-nspawn
-%{_mandir}/man1/machinectl.*
-%{_mandir}/man8/systemd-machined.*
-%{_mandir}/man8/*mymachines.*
-%{_mandir}/man[1578]/systemd-nspawn.*
+%{_mandir}/man1/machinectl.1.*
+%{_mandir}/man1/systemd-nspawn.1.*
+%{_mandir}/man8/systemd-machined.8.*
+%{_mandir}/man8/systemd-machined.service.8.*
 
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
