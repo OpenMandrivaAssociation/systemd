@@ -1300,9 +1300,7 @@ fi
 %{systemd_libdir}/network/90-wireless.network
 %{systemd_libdir}/network/99-default.link
 %{systemd_libdir}/system-preset/*.preset
-%{systemd_libdir}/system-preset/*.preset
 %{systemd_libdir}/system/*.automount
-%{systemd_libdir}/system/*.busname
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/*.service
@@ -1311,7 +1309,6 @@ fi
 %{systemd_libdir}/system/*.target
 %{systemd_libdir}/system/*.timer
 %{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
-%{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/local-fs.target.wants/*.service
