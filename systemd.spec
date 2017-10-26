@@ -1220,7 +1220,6 @@ fi
 %{_bindir}/kernel-install
 %{_bindir}/localectl
 %{_bindir}/systemctl
-%{_bindir}/%{name}-*
 %{_bindir}/systemd-analyze
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-cgls
@@ -1249,7 +1248,6 @@ fi
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
-%{_datadir}/polkit-1/actions/*.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
@@ -1289,6 +1287,8 @@ fi
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/network/80-container-host0.network
+%{systemd_libdir}/network/80-container-ve.network
+%{systemd_libdir}/network/80-container-vz.network
 %{systemd_libdir}/network/90-enable.network
 %{systemd_libdir}/network/90-wireless.network
 %{systemd_libdir}/network/99-default.link
@@ -1454,8 +1454,6 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.service
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %{systemd_libdir}/system/timers.target.wants/*.timer
-%{systemd_libdir}/system-shutdown
-%{systemd_libdir}/system-sleep
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-ac-power
 %{systemd_libdir}/systemd-backlight
@@ -1522,7 +1520,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/%{name}/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
-%{_mandir}/man/man1/bootctl.1.xz
+%{_mandir}/man1/bootctl.1.xz
 %{_mandir}/man1/busctl.1.*
 %{_mandir}/man1/coredumpctl.1.*
 %{_mandir}/man1/hostnamectl.1.*
@@ -1560,12 +1558,10 @@ fi
 %{_mandir}/man8/30-systemd-environment-d-generator.8.*
 %{_mandir}/man8/halt.8.*
 %{_mandir}/man8/kernel-install.8.*
-%{_mandir}/man8/libnss_myhostname.so.2.8.*
-%{_mandir}/man8/libnss_mymachines.so.2.8.*
-%{_mandir}/man8/libnss_resolve.so.2.8.*
-%{_mandir}/man8/libnss_systemd.so.2.8.*
+%{_mandir}/man8/libnss_myhostname.so.*.8.*
+%{_mandir}/man8/libnss_resolve.so.*.8.*
+%{_mandir}/man8/libnss_systemd.so.*.8.*
 %{_mandir}/man8/nss-myhostname.8.*
-%{_mandir}/man8/nss-mymachines.8.*
 %{_mandir}/man8/nss-resolve.8.*
 %{_mandir}/man8/nss-systemd.8.*
 %{_mandir}/man8/pam_systemd.8.*
@@ -1728,7 +1724,9 @@ fi
 %{_mandir}/man1/systemd-nspawn.1.*
 %{_mandir}/man8/systemd-machined.8.*
 %{_mandir}/man8/systemd-machined.service.8.*
-
+%{_mandir}/man8/libnss_mymachines.so.*.8.*
+%{_mandir}/man8/nss-mymachines.8.*
+	
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
 
