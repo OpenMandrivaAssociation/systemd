@@ -347,7 +347,7 @@ It replaces the nss-dns plug-in module that traditionally resolves
 hostnames via DNS.
 
 %package -n %{libnss_systemd}
-Summary:	Provide UNIX user and group name resolution for dynamic users and groups.
+Summary:	Provide UNIX user and group name resolution for dynamic users and groups
 Group:		System/Libraries
 Provides:	libnss_systemd = %{EVRD}
 Provides:	nss_systemd = %{EVRD}
