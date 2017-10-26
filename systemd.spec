@@ -317,6 +317,7 @@ Group:		System/Libraries
 Provides:	libnss_mymachines = %{EVRD}
 Provides:	nss_mymachines= %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
+Requires:	systemd-container = %{EVRD}
 Requires(post,preun):	/bin/sh
 Requires(post,preun):	sed
 Requires(post,preun):	glibc
