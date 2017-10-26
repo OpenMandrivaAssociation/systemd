@@ -12,9 +12,6 @@
 %define libsystemd_devel %mklibname %{name} -d
 
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
-%define libnss_mymachines %mklibname nss_mymachines %{libnss_major}
-%define libnss_resolve %mklibname nss_resolve %{libnss_major}
-%define libnss_systemd %mklibname nss_systemd %{libnss_major}
 
 %define udev_major 1
 %define libudev %mklibname udev %{udev_major}
@@ -27,8 +24,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	235
-Release:	4
+Version:	234
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -167,8 +164,6 @@ Provides:	should-restart = system
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
-Requires:	%{libnss_resolve} = %{EVRD}
-Requires:	%{libnss_systemd} = %{EVRD}
 
 Suggests:	%{name}-bash-completion = %{EVRD}
 Suggests:	%{name}-zsh-completion = %{EVRD}
@@ -215,26 +210,8 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
-%package container
-Summary:	Tools for containers and VMs
-Group:	System/Base
-Requires:	%{name} = %{EVRD}
-Requires(post):	systemd
-Requires(preun):	systemd
-Requires(postun):	systemd
-Requires:	%{libnss_mymachines} = %{EVRD}
-Conflicts:	%{name} < 235-1
-Suggests:	%{name}-bash-completion = %{EVRD}
-Suggests:	%{name}-zsh-completion = %{EVRD}
-
-%description container
-Systemd tools to spawn and manage containers and virtual machines.
-This package contains systemd-nspawn, machinectl, systemd-machined,
-and systemd-importd.
-
 %package journal-gateway
 Summary:	Gateway for serving journal events over the network using HTTP
-Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{EVRD}
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
@@ -303,59 +280,6 @@ functionality of the GNU C Library (glibc) providing host name
 resolution for the locally configured system hostname as returned by
 gethostname(2).
 
-%package -n %{libnss_mymachines}
-Summary:	Provide hostname resolution for local container instances
-Group:		System/Libraries
-Provides:	libnss_mymachines = %{EVRD}
-Provides:	nss_mymachines= %{EVRD}
-Conflicts:	%{libnss_myhostname} < 235
-Requires:	systemd-container = %{EVRD}
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	glibc
-
-%description -n %{libnss_mymachines}
-nss-mymachines is a plug-in module for the GNU Name Service Switch (NSS)
-functionality of the GNU C Library (glibc), providing hostname resolution
-for the names of containers running locally that are registered with 
-systemd-machined.service(8). The container names are resolved to the IP 
-addresses of the specific container, ordered by their scope. 
-This functionality only applies to containers using network namespacing.
-
-%package -n %{libnss_resolve}
-Summary:	Provide hostname resolution via systemd-resolved.service
-Group:		System/Libraries
-Provides:	libnss_resolve = %{EVRD}
-Provides:	nss_resolve= %{EVRD}
-Conflicts:	%{libnss_myhostname} < 235
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	glibc
-
-%description -n %{libnss_resolve}
-nss-resolve is a plug-in module for the GNU Name Service Switch (NSS) 
-functionality of the GNU C Library (glibc) enabling it to resolve host 
-names via the systemd-resolved(8) local network name resolution service. 
-It replaces the nss-dns plug-in module that traditionally resolves 
-hostnames via DNS.
-
-%package -n %{libnss_systemd}
-Summary:	Provide UNIX user and group name resolution for dynamic users and groups
-Group:		System/Libraries
-Provides:	libnss_systemd = %{EVRD}
-Provides:	nss_systemd = %{EVRD}
-Conflicts:	%{libnss_myhostname} < 235
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	glibc
-
-%description -n %{libnss_resolve}
-nss-systemd is a plug-in module for the GNU Name Service Switch (NSS) 
-functionality of the GNU C Library (glibc), providing UNIX user and 
-group name resolution for dynamic users and groups allocated through 
-the DynamicUser= option in systemd unit files. See systemd.exec(5) 
-for details on this option.
-
 %package -n %{libudev}
 Summary:	Library for udev
 Group:		System/Libraries
@@ -385,7 +309,6 @@ This package contains documentation of udev.
 
 %package	zsh-completion
 Summary:	zsh completions
-Group:	Shells
 Requires:	zsh
 
 %description	zsh-completion
@@ -393,7 +316,6 @@ This package contains zsh completion
 
 %package	bash-completion
 Summary:	bash completions
-Group:	Shells
 Requires:	bash
 
 %description	bash-completion
@@ -986,52 +908,30 @@ systemctl reload-or-try-restart systemd-binfmt
 /bin/journalctl --update-catalog
 
 %post -n %{libnss_myhostname}
-if [ -f /etc/nsswitch.conf ]; then
-# sed-fu to add myhostanme to hosts line
-	grep -v -E -q '^hosts:.* myhostname' /etc/nsswitch.conf &&
-	sed -i.bak -e '
-		/^hosts:/ !b
-		/\<myhostname\>/ b
-		s/[[:blank:]]*$/ myhostname/
-		' /etc/nsswitch.conf &>/dev/null || :
-fi
-
-%post -n %{libnss_mymachines}
-if [ -f /etc/nsswitch.conf ]; then
-	grep -E -q '^(passwd|group):.* mymachines' /etc/nsswitch.conf ||
-	sed -i.bak -r -e '
-		s/^(passwd|group):(.*)/\1: \2 mymachines/
-		' /etc/nsswitch.conf &>/dev/null || :
-fi
-		
-%postun -n %{libnss_mymachines}
 # sed-fu to remove mymachines from passwd and group lines of /etc/nsswitch.conf
 # https://bugzilla.redhat.com/show_bug.cgi?id=1284325
 # To avoid the removal, e.g. add a space at the end of the line.
-if [ -f /etc/nsswitch.conf ]; then
-	grep -E -q '^(passwd|group):.* mymachines$' /etc/nsswitch.conf &&
-	sed -i.bak -r -e '
-		s/^(passwd:.*) mymachines$/\1/;
-		s/^(group:.*) mymachines$/\1/;
-		' /etc/nsswitch.conf &>/dev/null || :
+if [ -f /etc/nsswitch.conf ] ; then
+    grep -E -q '^(passwd|group):.* mymachines$' /etc/nsswitch.conf &&
+    sed -i.bak -r -e '
+	s/^(passwd:.*) mymachines$/\1/;
+	s/^(group:.*) mymachines$/\1/;
+	' /etc/nsswitch.conf >/dev/null 2>&1 || :
 fi
 
-%post -n %{libnss_resolve}
-if [ -f /etc/nsswitch.conf ]; then
-	grep -E -q '^hosts:.*resolve[[:space:]]*($|[[:alpha:]])' /etc/nsswitch.conf &&
-	sed -i.bak -e '
-		/^hosts:/ { s/resolve/& [!UNAVAIL=return]/}
-		' /etc/nsswitch.conf &>/dev/null || :
+%preun -n %{libnss_myhostname}
+if [ -f /etc/nsswitch.conf ] ; then
+    sed -i.bak -e '
+	/^hosts:/ !b
+	s/[[:blank:]]\+myhostname\>//
+	' /etc/nsswitch.conf >/dev/null 2>&1 || :
+
+    sed -i.bak -e '
+	/^hosts:/ !b
+	s/[[:blank:]]\+mymachines\>//
+	' /etc/nsswitch.conf >/dev/null 2>&1 || :
 fi
 
-%post -n %{libnss_systemd}
-if [ -f /etc/nsswitch.conf ]; then
-	grep -E -q '^(passwd|group):.* systemd' /etc/nsswitch.conf ||
-	sed -i.bak -r -e '
-		s/^(passwd|group):(.*)/\1: \2 systemd/
-		' /etc/nsswitch.conf &>/dev/null || :
-fi
-		
 %pre journal-gateway
 %_pre_groupadd systemd-journal-gateway systemd-journal-gateway
 %_pre_useradd systemd-journal-gateway %{_var}/log/journal /sbin/nologin
@@ -1111,37 +1011,10 @@ fi
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
-### container excludes
-%exclude %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
-%exclude %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
-%exclude %{systemd_libdir}/system/machine.slice
-%exclude %{systemd_libdir}/system/machines.target
-%exclude %{systemd_libdir}/system/machines.target.wants/var-lib-machines.mount
-%exclude %{systemd_libdir}/system/remote-fs.target.wants/var-lib-machines.mount
-%exclude %{systemd_libdir}/system/systemd-importd.service
-%exclude %{systemd_libdir}/system/systemd-machined.service
-%exclude %{systemd_libdir}/system/systemd-nspawn@.service
-%exclude %{systemd_libdir}/system/var-lib-machines.mount
-%exclude %{systemd_libdir}/systemd-import
-%exclude %{systemd_libdir}/systemd-importd
-%exclude %{systemd_libdir}/systemd-machined
-%exclude %{systemd_libdir}/systemd-pull
-%exclude %{systemd_libdir}/import-pubring.gpg
-%exclude %{systemd_libdir}/systemd-import
-%exclude %{systemd_libdir}/systemd-importd
-%exclude %{systemd_libdir}/systemd-machined
-%exclude %{systemd_libdir}/systemd-pull
-%exclude %{systemd_libdir}/import-pubring.gpg
-%exclude /bin/machinectl
-%exclude %{_bindir}/systemd-nspawn
-%exclude %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
-%exclude %{_mandir}/man1/machinectl.1.*
-%exclude %{_mandir}/man1/systemd-nspawn.1.*
-%exclude %{_mandir}/man8/systemd-machined.8.*
-%exclude %{_mandir}/man8/systemd-machined.service.8.*
-%exclude %{_mandir}/man8/libnss_mymachines.so.*.8.*
+%exclude %{_mandir}/man8/libnss_myhostname.so.2.8.*
+%exclude %{_mandir}/man8/libnss_mymachines.so.2.8.*
+%exclude %{_mandir}/man8/nss-myhostname.8.*
 %exclude %{_mandir}/man8/nss-mymachines.8.*
-### gateway excludes
 %exclude %{_mandir}/man8/%{name}-journal-gatewayd.8.*
 %exclude %{_mandir}/man8/%{name}-journal-gatewayd.service.8.*
 %exclude %{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
@@ -1159,7 +1032,6 @@ fi
 %exclude %config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
 %exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
 %exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
-###
 %ghost %{_sysconfdir}/udev/hwdb.bin
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
@@ -1169,17 +1041,12 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
+%config(noreplace) %{_datadir}/dbus-1/system.d/*.conf
 /%{_lib}/security/pam_systemd.so
 /bin/halt
 /bin/journalctl
 /bin/loginctl
+/bin/machinectl
 /bin/networkctl
 /bin/poweroff
 /bin/reboot
@@ -1209,29 +1076,22 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
 %{_bindir}/timedatectl
-%{_sysconfdir}/systemd/system/dbus-org.freedesktop.network1.service
-%{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
-%{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
+%{_sysconfdir}/systemd/system/dbus-org.freedesktop.*.service
+%{_datadir}/dbus-1/*services/*.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
-%{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
+%{_datadir}/polkit-1/actions/*.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
+%{_mandir}/man1/*.*
+%{_mandir}/man3/*.*
+%{_mandir}/man5/*.*
+%{_mandir}/man7/*.*
+%{_mandir}/man8/*.*
 %{_prefix}/lib/kernel/install.d/*.install
 %ifnarch %armx
 %{_prefix}/lib/%{name}/boot/efi/*.efi
@@ -1251,6 +1111,7 @@ fi
 %{_sysconfdir}/xdg/%{name}
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
+%{systemd_libdir}/import-pubring.gpg
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/80-container-vz.network
@@ -1313,11 +1174,6 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/%{name}/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
-%{_mandir}/man1/*.1*
-%{_mandir}/man3/*.3*
-%{_mandir}/man5/*.5*
-%{_mandir}/man7/*.7*
-%{_mandir}/man8/*.8.*
 
 %files journal-gateway
 %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
@@ -1340,49 +1196,15 @@ fi
 %{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
 %{_datadir}/%{name}/gatewayd/browse.html
 
-%files container
-%{systemd_libdir}/system/dbus-org.freedesktop.import1.service
-%{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
-%{systemd_libdir}/system/machine.slice
-%{systemd_libdir}/system/machines.target
-%{systemd_libdir}/system/machines.target.wants/var-lib-machines.mount
-%{systemd_libdir}/system/remote-fs.target.wants/var-lib-machines.mount
-%{systemd_libdir}/system/systemd-importd.service
-%{systemd_libdir}/system/systemd-machined.service
-%{systemd_libdir}/system/systemd-nspawn@.service
-%{systemd_libdir}/system/var-lib-machines.mount
-%{systemd_libdir}/systemd-import
-%{systemd_libdir}/systemd-importd
-%{systemd_libdir}/systemd-machined
-%{systemd_libdir}/systemd-pull
-%{systemd_libdir}/import-pubring.gpg
-/bin/machinectl
-%{_bindir}/systemd-nspawn
-%{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
-%{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
-%{_datadir}/dbus-1/system.d/org.freedesktop.import1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
-%{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-%{_mandir}/man1/machinectl.1.*
-%{_mandir}/man1/systemd-nspawn.1.*
-%{_mandir}/man8/systemd-machined.8.*
-%{_mandir}/man8/systemd-machined.service.8.*
-%{_mandir}/man8/libnss_mymachines.so.*.8.*
-%{_mandir}/man8/nss-mymachines.8.*
-	
-%files -n %{libnss_mymachines}
-/%{_lib}/libnss_mymachines.so.%{libnss_major}
-
 %files -n %{libnss_myhostname}
 /%{_lib}/libnss_myhostname.so.%{libnss_major}*
-
-%files -n %{libnss_resolve}
+/%{_lib}/libnss_mymachines.so.%{libnss_major}
 /%{_lib}/libnss_resolve.so.%{libnss_major}
-
-%files -n %{libnss_systemd}
 /%{_lib}/libnss_systemd.so.%{libnss_major}
+%{_mandir}/man8/libnss_myhostname.so*.8*
+%{_mandir}/man8/libnss_mymachines.so*.8*
+%{_mandir}/man8/nss-myhostname.8*
+%{_mandir}/man8/nss-mymachines.8*
 
 %files -n %{libsystemd}
 /%{_lib}/libsystemd.so.%{libsystemd_major}*
