@@ -60,6 +60,8 @@ Source22:	efi-omv.conf
 
 Source23:	systemd-udev-trigger-no-reload.conf
 ### OMV patches###
+# (tpg) add rpm macro to easy installation of user presets
+Patch0:		systemd-230-add-userpreset-rpm-macro.patch
 # Without this, build fails on aarch64
 # (tpg) let's disable it for now
 #Patch1:		systemd-233-format-nonliteral-warnings.patch
@@ -75,19 +77,10 @@ Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 
-# (tpg) ClearLinux patches
-Patch100:	0001-journal-raise-compression-threshold.patch
-Patch101:	0002-journal-clearout-drop-kmsg.patch
-Patch102:	0003-core-use-mmap-to-load-files.patch
-Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
-Patch104:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
-Patch105:	0024-more-udev-children-workers.patch
-Patch106:	0031-DHCP-retry-faster.patch
-Patch107:	0033-Remove-libm-memory-overhead.patch
-Patch108:	0038-Compile-udev-with-O3.patch
-
-BuildRequires:	meson
-BuildRequires:	quota
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	m4
+BuildRequires:	libtool
 BuildRequires:	acl-devel
 BuildRequires:	audit-devel
 BuildRequires:	docbook-style-xsl
@@ -106,7 +99,6 @@ BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
-BuildRequires:	pkgconfig(python)
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
@@ -397,7 +389,7 @@ Group:	Shells
 Requires:	zsh
 
 %description	zsh-completion
-This package contains zsh completion.
+This package contains zsh completion
 
 %package	bash-completion
 Summary:	bash completions
@@ -405,14 +397,21 @@ Group:	Shells
 Requires:	bash
 
 %description	bash-completion
-This package contains bash completion.
+This package contains bash completion
 
 %prep
 %setup -q
 %apply_patches
 
-%build
 %ifarch %{ix86}
+# (tpg) remove -flto as on i586 it hangs boot
+sed -i -e "s/-flto\]/-fno-lto\]/g" configure*
+%endif
+
+./autogen.sh
+
+%build
+%ifarch %{ix86} x86_64
 # (tpg) since LLVM/clang-3.8.0 systemd hangs system on i586
 # (bero) since 3.9.0, also hangs system on x86_64
 export CC=gcc
@@ -420,75 +419,45 @@ export CXX=g++
 %endif
 
 %serverbuild_hardened
-%meson \
-	-Drootprefix="" \
-	-Drootlibdir=/%{_lib} \
-	-Dlibexecdir=%{_prefix}/lib \
-	-Dsysvinit-path=%{_initrddir} \
-	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
-	-Drc-local=/etc/rc.d/rc.local \
+%configure \
+	--with-rootprefix="" \
+	--with-rootlibdir=/%{_lib} \
+	--libexecdir=%{_prefix}/lib \
+	--enable-bzip2 \
+	--enable-lz4 \
+	--without-kill-user-processes \
+	--disable-static \
+	--with-sysvinit-path=%{_initrddir} \
+	--with-sysvrcnd-path=%{_sysconfdir}/rc.d \
+	--with-rc-local-script-path-start=/etc/rc.d/rc.local \
+	--disable-selinux \
 %ifnarch %armx
-	-Dgnu-efi=true \
+	--enable-gnuefi \
 %endif
 %if %{with bootstrap}
-	-Dlibcryptsetup=false \
+	--disable-libcryptsetup \
+	--without-python \
 %endif
-	-Dsplit-usr=true \
-	-Dxkbcommon=true \
-	-Dtpm=true \
-	-Ddev-kvm-mode=0666 \
-	-Dkmod=true \
-	-Dxkbcommon=true \
-	-Dblkid=true \
-	-Dseccomp=true \
-	-Dima=true \
-	-Dselinux=false \
-	-Dapparmor=false \
-	-Dpolkit=true \
-	-Dxz=true \
-	-Dzlib=true \
-	-Dbzip2=true \
-	-Dlz4=true \
-	-Dpam=true \
-	-Dacl=true \
-	-Dsmack=true \
-	-Dgcrypt=true \
-	-Daudit=true \
-	-Delfutils=true \
-	-Dqrencode=true \
-	-Dgnutls=true \
-	-Dmicrohttpd=true \
-	-Dlibidn=true \
-	-Dlibiptc=true \
-	-Dlibcurl=true \
-	-Dtpm=true \
-	-Dhwdb=true \
-	-Dsysusers=true \
-	-Ddefault-kill-user-processes=false \
-	-Dtests=unsafe \
-	-Dinstall-tests=false \
-%ifnarch %{ix86}
-	-Db_lto=true \
-%endif
-	-Dloadkeys-path=/bin/loadkeys \
-	-Dsetfont-path=/bin/setfont \
-	-Dcertificate-root="%{_sysconfdir}/pki" \
-	-Dfallback-hostname=openmandriva \
-	-Dsupport-url="%{disturl}" \
+	--enable-split-usr \
+	--enable-xkbcommon \
+	--enable-tpm \
+	--with-kbd-loadkeys=/bin/loadkeys \
+	--with-kbd-setfont=/bin/setfont \
+	--with-certificate-root="%{_sysconfdir}/pki" \
+	--with-fallback-hostname=openmandriva \
+	--with-support-url="%{disturl}" \
 %if %mdvver <= 3000000
-	-Ddefault-hierarchy=hybrid \
+	--with-default-hierarchy=hybrid \
 %else
-	-Ddefault-hierarchy=unified \
+	--with-default-hierarchy=unified \
 %endif
-	-Dsystem-uid-max='999' \
-	-Dsystem-gid-max='999' \
-	-Dntp-servers='0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
-	-Ddns-servers='208.67.222.222 208.67.220.220'
+	--with-ntp-servers="0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org" \
+	--with-dns-servers="208.67.222.222 208.67.220.220"
 
-%meson_build
+%make
 
 %install
-%meson_install
+%makeinstall_std
 
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
 
@@ -887,7 +856,7 @@ fi
 
 %postun
 if [ $1 -ge 1 ] ; then
-    /bin/systemctl daemon-reload > /dev/null 2>&1 || :
+    systemctl daemon-reload > /dev/null 2>&1 || :
 fi
 
 %triggerun -- %{name} < 196
@@ -1004,18 +973,6 @@ systemctl reload-or-try-restart systemd-binfmt
 %triggerposttransun -- /lib/udev/hwdb.d/*.hwdb
 /bin/systemd-hwdb update
 
-%triggerposttransin -- %{udev_rules_dir}/*.rules
-udevadm control --reload
-
-%triggerposttransun -- %{udev_rules_dir}/*.rules
-udevadm control --reload
-
-%triggerposttransin -- %{udev_user_rules_dir}/*.rules
-udevadm control --reload
-
-%triggerposttransun -- %{udev_user_rules_dir}/*.rules
-udevadm control --reload
-
 %triggerposttransin -- %{_prefix}/lib/sysusers.d/*.conf
 /bin/systemd-sysusers
 
@@ -1108,7 +1065,6 @@ fi
 %dir %{_prefix}/lib/systemd/user-environment-generators
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
-%dir %{_prefix}/lib/modprobe.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/sysctl.d
@@ -1134,6 +1090,7 @@ fi
 %dir %{systemd_libdir}/system/systemd-udev-trigger.service.d
 %dir %{systemd_libdir}/system/basic.target.wants
 %dir %{systemd_libdir}/system/bluetooth.target.wants
+%dir %{systemd_libdir}/system/busnames.target.wants
 %dir %{systemd_libdir}/system/dbus.target.wants
 %dir %{systemd_libdir}/system/default.target.wants
 %dir %{systemd_libdir}/system/graphical.target.wants
@@ -1190,6 +1147,7 @@ fi
 %exclude %{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
 %exclude %{_mandir}/man8/%{name}-journal-remote.8.*
 %exclude %{_mandir}/man8/%{name}-journal-upload.8.*
+%exclude %{_prefix}/lib/tmpfiles.d/%{name}-remote.conf
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.service
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.socket
 %exclude %{systemd_libdir}/system/%{name}-journal-remote.service
@@ -1280,8 +1238,7 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
 %endif
-%{_prefix}/lib/environment.d/99-environment.conf
-%{_prefix}/lib/modprobe.d/systemd.conf
+%config(noreplace) %{_prefix}/lib/environment.d/99-environment.conf
 %{_prefix}/lib/%{name}/catalog/*.catalog
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
@@ -1302,6 +1259,7 @@ fi
 %{systemd_libdir}/network/99-default.link
 %{systemd_libdir}/system-preset/*.preset
 %{systemd_libdir}/system/*.automount
+%{systemd_libdir}/system/*.busname
 %{systemd_libdir}/system/*.mount
 %{systemd_libdir}/system/*.path
 %{systemd_libdir}/system/*.service
@@ -1310,6 +1268,7 @@ fi
 %{systemd_libdir}/system/*.target
 %{systemd_libdir}/system/*.timer
 %{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
+%{systemd_libdir}/system/busnames.target.wants/*.busname
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
 %{systemd_libdir}/system/local-fs.target.wants/*.service
@@ -1328,6 +1287,7 @@ fi
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
+%{systemd_libdir}/libsystemd-shared.so
 #
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
@@ -1372,6 +1332,7 @@ fi
 %{systemd_libdir}/system/%{name}-journal-remote.service
 %{systemd_libdir}/system/%{name}-journal-remote.socket
 %{systemd_libdir}/system/%{name}-journal-upload.service
+%{_prefix}/lib/tmpfiles.d/%{name}-remote.conf
 %{_mandir}/man8/%{name}-journal-gatewayd.8.*
 %{_mandir}/man8/%{name}-journal-upload.8.*
 %{_mandir}/man8/%{name}-journal-remote.8.*
