@@ -28,7 +28,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -681,6 +681,12 @@ rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1378974
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
+
+# Pre-generate and pre-ship hwdb, to speed up first boot
+./systemd-hwdb --root %{buildroot} --usr || ./udevadm hwdb --root %{buildroot} --update --usr
+
+# Compute catalog
+./journalctl --root %{buildroot} --update-catalog
 
 %find_lang %{name}
 
