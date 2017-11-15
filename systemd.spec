@@ -100,7 +100,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	elfutils-devel
-BuildRequires:	pkgconfig(dbus-1) >= 1.10.0
+BuildRequires:	pkgconfig(dbus-1) >= 1.12.0
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
@@ -116,7 +116,7 @@ BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
 BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
-BuildRequires:	pkgconfig(blkid) >= 2.27
+BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
@@ -142,17 +142,17 @@ BuildRequires:	distro-release-common >= 2012.0-0.4
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 Requires:	acl
-Requires:	dbus >= 1.10.0
-Requires(pre,post):	coreutils >= 8.23
+Requires:	dbus >= 1.12.0
+Requires(pre,post):	coreutils >= 8.28
 Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
 Requires(pre):	basesystem-minimal >= 1:3-0.1
 Requires(pre):	util-linux >= 2.27
-Requires(pre):	shadow >= 4.2.1-11
+Requires(pre):	shadow >= 4.5.1
 Requires(pre,post,postun):	setup >= 2.8.9
-Requires:	kmod >= 20
+Requires:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
 %if "%{distepoch}" >= "2013.0"
