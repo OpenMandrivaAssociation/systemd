@@ -683,7 +683,7 @@ rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
 
 # Pre-generate and pre-ship hwdb, to speed up first boot
-./build/systemd-hwdb --root %{buildroot} --usr || ./build/udevadm hwdb --root %{buildroot} --update --usr
+./build/systemd-hwdb --root %{buildroot} --usr update || ./build/udevadm hwdb --root %{buildroot} --update --usr
 
 # Compute catalog
 ./build/journalctl --root %{buildroot} --update-catalog
@@ -1160,6 +1160,8 @@ fi
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
+%dir %{_localstatedir}/lib/systemd
+%dir %{_localstatedir}/lib/systemd/catalog
 ### container excludes
 %exclude %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
 %exclude %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
@@ -1335,6 +1337,7 @@ fi
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 #
+%{udev_libdir}/*.bin
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
@@ -1359,6 +1362,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/%{name}/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
+%{_localstatedir}/lib/systemd/catalog/database
 %{_mandir}/man1/*.1*
 %{_mandir}/man3/*.3*
 %{_mandir}/man5/*.5*
