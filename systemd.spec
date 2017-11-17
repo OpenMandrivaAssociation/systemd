@@ -100,7 +100,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	elfutils-devel
-BuildRequires:	pkgconfig(dbus-1) >= 1.12.0
+BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
@@ -142,7 +142,7 @@ BuildRequires:	distro-release-common >= 2012.0-0.4
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 Requires:	acl
-Requires:	dbus >= 1.12.0
+Requires:	dbus >= 1.12.2
 Requires(pre,post):	coreutils >= 8.28
 Requires(post):	gawk
 Requires(post):	awk
