@@ -683,10 +683,10 @@ rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
 
 # Pre-generate and pre-ship hwdb, to speed up first boot
-./systemd-hwdb --root %{buildroot} --usr || ./udevadm hwdb --root %{buildroot} --update --usr
+./build/systemd-hwdb --root %{buildroot} --usr || ./build/udevadm hwdb --root %{buildroot} --update --usr
 
 # Compute catalog
-./journalctl --root %{buildroot} --update-catalog
+./build/journalctl --root %{buildroot} --update-catalog
 
 %find_lang %{name}
 
