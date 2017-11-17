@@ -28,7 +28,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -100,7 +100,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	elfutils-devel
-BuildRequires:	pkgconfig(dbus-1) >= 1.10.0
+BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	gtk-doc
@@ -116,7 +116,7 @@ BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
 BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
-BuildRequires:	pkgconfig(blkid) >= 2.27
+BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
@@ -142,17 +142,17 @@ BuildRequires:	distro-release-common >= 2012.0-0.4
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 Requires:	acl
-Requires:	dbus >= 1.10.0
-Requires(pre,post):	coreutils >= 8.23
+Requires:	dbus >= 1.12.2
+Requires(pre,post):	coreutils >= 8.28
 Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
 Requires(pre):	basesystem-minimal >= 1:3-0.1
 Requires(pre):	util-linux >= 2.27
-Requires(pre):	shadow >= 4.2.1-11
+Requires(pre):	shadow >= 4.5.1
 Requires(pre,post,postun):	setup >= 2.8.9
-Requires:	kmod >= 20
+Requires:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
 %if "%{distepoch}" >= "2013.0"
@@ -681,6 +681,12 @@ rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1378974
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
+
+# Pre-generate and pre-ship hwdb, to speed up first boot
+./systemd-hwdb --root %{buildroot} --usr || ./udevadm hwdb --root %{buildroot} --update --usr
+
+# Compute catalog
+./journalctl --root %{buildroot} --update-catalog
 
 %find_lang %{name}
 
