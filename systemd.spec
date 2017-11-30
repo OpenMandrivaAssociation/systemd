@@ -28,7 +28,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -704,105 +704,14 @@ if [ $1 -ge 2 ]; then
 fi
 
 %post
-/bin/systemd-firstboot --setup-machine-id
-/bin/systemd-sysusers
+/bin/systemd-firstboot --setup-machine-id  >/dev/null 2>&1 ||:
+/bin/systemd-sysusers >/dev/null 2>&1 ||:
 /bin/systemd-machine-id-setup >/dev/null 2>&1 ||:
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /bin/systemd-hwdb update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
-
-%if %mdvver < 201500
-if [ $1 -ge 2 ]; then
-#(tpg) BIG migration
-# Migrate /etc/sysconfig/clock
-    if [ ! -L /etc/localtime -a -e /etc/sysconfig/clock ] ; then
-	. /etc/sysconfig/clock 2>&1 || :
-	if [ -n "$ZONE" -a -e "/usr/share/zoneinfo/$ZONE" ] ; then
-	    /usr/bin/ln -sf "../usr/share/zoneinfo/$ZONE" /etc/localtime >/dev/null 2>&1 || :
-	fi
-    fi
-
-# Migrate /etc/sysconfig/i18n
-    if [ -e /etc/sysconfig/i18n -a ! -e /etc/locale.conf ]; then
-	unset LANGUAGE
-	unset LANG
-	unset LC_CTYPE
-	unset LC_NUMERIC
-	unset LC_TIME
-	unset LC_COLLATE
-	unset LC_MONETARY
-	unset LC_MESSAGES
-	unset LC_PAPER
-	unset LC_NAME
-	unset LC_ADDRESS
-	unset LC_TELEPHONE
-	unset LC_MEASUREMENT
-	unset LC_IDENTIFICATION
-	. /etc/sysconfig/i18n >/dev/null 2>&1 || :
-	[ -n "$LANGUAGE" ] && echo LANG=$LANGUAGE > /etc/locale.conf 2>&1 || :
-	[ -n "$LANG" ] && echo LANG=$LANG >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_CTYPE" ] && echo LC_CTYPE=$LC_CTYPE >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_NUMERIC" ] && echo LC_NUMERIC=$LC_NUMERIC >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_TIME" ] && echo LC_TIME=$LC_TIME >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_COLLATE" ] && echo LC_COLLATE=$LC_COLLATE >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_MONETARY" ] && echo LC_MONETARY=$LC_MONETARY >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_MESSAGES" ] && echo LC_MESSAGES=$LC_MESSAGES >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_PAPER" ] && echo LC_PAPER=$LC_PAPER >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_NAME" ] && echo LC_NAME=$LC_NAME >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_ADDRESS" ] && echo LC_ADDRESS=$LC_ADDRESS >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_TELEPHONE" ] && echo LC_TELEPHONE=$LC_TELEPHONE >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_MEASUREMENT" ] && echo LC_MEASUREMENT=$LC_MEASUREMENT >> /etc/locale.conf 2>&1 || :
-	[ -n "$LC_IDENTIFICATION" ] && echo LC_IDENTIFICATION=$LC_IDENTIFICATION >> /etc/locale.conf 2>&1 || :
-    fi
-
-# Migrate /etc/sysconfig/keyboard to the vconsole configuration
-    if [ -e /etc/sysconfig/keyboard -a ! -e /etc/vconsole.conf ]; then
-	unset SYSFONT
-	unset SYSFONTACM
-	unset UNIMAP
-	unset KEYMAP
-	[ -e /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n >/dev/null 2>&1 || :
-	. /etc/sysconfig/keyboard >/dev/null 2>&1 || :
-	[ -n "$SYSFONT" ] && echo FONT=$SYSFONT > /etc/vconsole.conf 2>&1 || :
-	[ -n "$SYSFONTACM" ] && echo FONT_MAP=$SYSFONTACM >> /etc/vconsole.conf 2>&1 || :
-	[ -n "$UNIMAP" ] && echo FONT_UNIMAP=$UNIMAP >> /etc/vconsole.conf 2>&1 || :
-	[ -n "$KEYTABLE" ] && echo KEYMAP=$KEYTABLE >> /etc/vconsole.conf 2>&1 || :
-    fi
-
-# Migrate /etc/sysconfig/keyboard to the X11 keyboard configuration
-    if [ -e /etc/sysconfig/keyboard -a ! -e %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf ]; then
-	unset XkbLayout
-	unset XkbModel
-	unset XkbVariant
-	unset XkbOptions
-	. /etc/sysconfig/keyboard >/dev/null 2>&1 || :
-
-	echo "Section \"InputClass\"" > %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	echo "        Identifier \"system-keyboard\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	echo "        MatchIsKeyboard \"on\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	[ -n "$XkbLayout" ]  && echo "        Option \"XkbLayout\" \"$XkbLayout\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	[ -n "$XkbModel" ]   && echo "        Option \"XkbModel\" \"$XkbModel\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	[ -n "$XkbVariant" ] && echo "        Option \"XkbVariant\" \"$XkbVariant\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	[ -n "$XkbOptions" ] && echo "        Option \"XkbOptions\" \"$XkbOptions\"" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-	echo "EndSection" >> %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null || :
-    fi
-
-    rm -f /etc/sysconfig/i18n >/dev/null 2>&1 || :
-    rm -f /etc/sysconfig/keyboard >/dev/null 2>&1 || :
-
-# Migrate HOSTNAME= from /etc/sysconfig/network
-    if [ -e /etc/sysconfig/network -a ! -e /etc/hostname ]; then
-	unset HOSTNAME
-	. /etc/sysconfig/network >/dev/null 2>&1 || :
-	[ -n "$HOSTNAME" ] && echo $HOSTNAME > /etc/hostname 2>&1 || :
-    fi
-
-    /usr/bin/sed -i '/^HOSTNAME=/d' /etc/sysconfig/network >/dev/null 2>&1 || :
-fi
-%endif
-# End BIG migration
 
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
 if [ $1 -ge 2 ]; then
@@ -821,11 +730,8 @@ if [ $1 -eq 2 ] ; then
     else
 	target="/lib/systemd/system/runlevel$runlevel.target"
     fi
-
 # And symlink what we found to the new-style default.target
     /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-# (tpg) need to restart it to catch new auth
-    /bin/systemctl try-restart systemd-logind.service 2>&1 || :
 fi
 
 # Enable the services we install by default.
@@ -895,9 +801,6 @@ fi
 if [ $1 -ge 1 ] ; then
     /bin/systemctl daemon-reload > /dev/null 2>&1 || :
 fi
-
-%triggerun -- %{name} < 196
-%{_bindir}/systemctl restart systemd-logind.service
 
 %triggerun -- %{name} < 208-2
 chgrp -R systemd-journal /var/log/journal || :
