@@ -1,4 +1,4 @@
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -124,7 +124,9 @@ BuildRequires:	pkgconfig(liblz4)
 %ifnarch %armx
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
+%if !%{with bootstrap}
 BuildRequires:	qemu
+%endif
 %endif
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
