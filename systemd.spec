@@ -1,3 +1,7 @@
+%ifarch %{ix86}
+%define _disable_lto 1
+%endif
+
 %bcond_without bootstrap
 
 # macros for sysvinit transition - should be equal to
@@ -471,6 +475,8 @@ export CXX=g++
 	-Dinstall-tests=false \
 %ifnarch %{ix86}
 	-Db_lto=true \
+%else
+	-Db_lto=false \
 %endif
 	-Dloadkeys-path=/bin/loadkeys \
 	-Dsetfont-path=/bin/setfont \
