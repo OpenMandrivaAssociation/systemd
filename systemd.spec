@@ -1240,7 +1240,9 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.*mount
 %{systemd_libdir}/system/sysinit.target.wants/*.path
 %{systemd_libdir}/system/sysinit.target.wants/*.service
+%if !%{with bootstrap}
 %{systemd_libdir}/system/sysinit.target.wants/*.target
+%endif
 %{systemd_libdir}/system/timers.target.wants/*.timer
 %{systemd_libdir}/system/machines.target.wants/*.mount
 %{systemd_libdir}/system/remote-fs.target.wants/*.mount
