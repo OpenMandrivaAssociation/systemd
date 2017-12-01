@@ -28,7 +28,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -704,7 +704,7 @@ if [ $1 -ge 2 ]; then
 fi
 
 %post
-/bin/systemd-firstboot --setup-machine-id  >/dev/null 2>&1 ||:
+/bin/systemd-firstboot --setup-machine-id >/dev/null 2>&1 ||:
 /bin/systemd-sysusers >/dev/null 2>&1 ||:
 /bin/systemd-machine-id-setup >/dev/null 2>&1 ||:
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
@@ -902,40 +902,40 @@ fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
 %triggerposttransin -- %{_binfmtdir}/*.conf
-systemctl reload-or-try-restart systemd-binfmt
+/bin/systemctl reload-or-try-restart systemd-binfmt >/dev/null 2>&1 ||:
 
 %triggerposttransun -- %{_binfmtdir}/*.conf
-systemctl reload-or-try-restart systemd-binfmt
+/bin/systemctl reload-or-try-restart systemd-binfmt >/dev/null 2>&1 ||:
 
 %triggerposttransin -- /lib/udev/hwdb.d/*.hwdb
-/bin/systemd-hwdb update
+/bin/systemd-hwdb update >/dev/null 2>&1 ||:
 
 %triggerposttransun -- /lib/udev/hwdb.d/*.hwdb
-/bin/systemd-hwdb update
+/bin/systemd-hwdb update >/dev/null 2>&1 ||:
 
 %triggerposttransin -- %{udev_rules_dir}/*.rules
-udevadm control --reload
+/sbin/udevadm control --reload >/dev/null 2>&1 ||:
 
 %triggerposttransun -- %{udev_rules_dir}/*.rules
-udevadm control --reload
+/sbin/udevadm control --reload >/dev/null 2>&1 ||:
 
 %triggerposttransin -- %{udev_user_rules_dir}/*.rules
-udevadm control --reload
+/sbin/udevadm control --reload >/dev/null 2>&1 ||:
 
 %triggerposttransun -- %{udev_user_rules_dir}/*.rules
-udevadm control --reload
+/sbin/udevadm control --reload >/dev/null 2>&1 ||:
 
 %triggerposttransin -- %{_prefix}/lib/sysusers.d/*.conf
-/bin/systemd-sysusers
+/bin/systemd-sysusers >/dev/null 2>&1 ||:
 
 %triggerposttransun -- %{_prefix}/lib/sysusers.d/*.conf
-/bin/systemd-sysusers
+/bin/systemd-sysusers >/dev/null 2>&1 ||:
 
 %triggerposttransin -- %{_prefix}/lib/systemd/catalog/*.catalog
-/bin/journalctl --update-catalog
+/bin/journalctl --update-catalog >/dev/null 2>&1 ||:
 
 %triggerposttransun -- %{_prefix}/lib/systemd/catalog/*.catalog
-/bin/journalctl --update-catalog
+/bin/journalctl --update-catalog >/dev/null 2>&1 ||:
 
 %post -n %{libnss_myhostname}
 if [ -f /etc/nsswitch.conf ]; then
