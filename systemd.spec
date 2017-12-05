@@ -149,15 +149,15 @@ BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
 Requires:	acl
 Requires:	dbus >= 1.12.2
-Requires(pre,post):	coreutils >= 8.28
+Requires(post):	coreutils >= 8.28
 Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
-Requires(pre):	basesystem-minimal >= 1:3-0.1
-Requires(pre):	util-linux >= 2.27
-Requires(pre):	shadow >= 4.5.1
-Requires(pre,post,postun):	setup >= 2.8.9
+Requires:	basesystem-minimal >= 1:3-0.1
+Requires:	util-linux >= 2.27
+Requires:	shadow >= 4.5.1
+Requires(post,postun):	setup >= 2.8.9
 Requires:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
@@ -183,7 +183,6 @@ Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
 Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
-
 Suggests:	%{name}-bash-completion = %{EVRD}
 Suggests:	%{name}-zsh-completion = %{EVRD}
 
@@ -231,11 +230,8 @@ work as a drop-in replacement for sysvinit.
 
 %package container
 Summary:	Tools for containers and VMs
-Group:	System/Base
+Group:		System/Base
 Requires:	%{name} = %{EVRD}
-Requires(post):	systemd
-Requires(preun):	systemd
-Requires(postun):	systemd
 Requires:	%{libnss_mymachines} = %{EVRD}
 Conflicts:	%{name} < 235-1
 Suggests:	%{name}-bash-completion = %{EVRD}
