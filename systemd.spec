@@ -235,12 +235,89 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
+%package boot
+Summary:	EFI boot component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+
+%description boot
+Systemd boot tools to manage EFI boot.
+
+%package console
+Summary:	Console support for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+
+%description console
+Some systemd units and udev rules are useful only when
+you have an actual console, this subpackage contains
+these units.
+
+%package coredump
+Summary:	Coredump component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+Suggests:	gdb
+
+%description coredump
+Systemd coredump tools to manage coredumps and backtraces.
+
+%package doc
+Summary:	Man pages and documentation for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-locale = %{EVRD}
+
+%description doc
+Man pages and documentation for %{name}.
+
+%package hwdb
+Summary:	hwdb component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-polkit = %{EVRD}
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+
+%description hwdb
+Hardware database management tool for %{name}.
+
+%package locale
+Summary:	Translations component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+
+%description locale
+Translations for %{name}.
+
+%package polkit
+Summary:	PolKit component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+
+%description polkit
+PolKit support for %{name}.
+
 %package container
 Summary:	Tools for containers and VMs
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Requires:	%{libnss_mymachines} = %{EVRD}
 Conflicts:	%{name} < 235-1
+Suggests:	%{name}-polkit = %{EVRD}
 Suggests:	%{name}-bash-completion = %{EVRD}
 Suggests:	%{name}-zsh-completion = %{EVRD}
 
@@ -1106,8 +1183,35 @@ fi
 %exclude %config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
 %exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
 %exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
+### console excludes
+%exclude %{systemd_libdir}/systemd-vconsole-setup
+%exclude %{systemd_libdir}/system/serial-getty@.service
+%exclude %{systemd_libdir}/system/getty.target.wants/getty@tty1.service
+%exclude %{udev_rules_dir}/90-vconsole.rules
+%exclude %{udev_rules_dir}/70-mouse.rules
+%exclude %{udev_rules_dir}/60-drm.rules
+%exclude %{udev_rules_dir}/60-persistent-input.rules
+%exclude %{udev_rules_dir}/70-touchpad.rules
+%exclude %{udev_rules_dir}/60-evdev.rules
+%exclude %{udev_rules_dir}/60-input-id.rules
+### coredump excludes
+%exclude %config(noreplace) %{_sysconfdir}/%{name}/coredump.conf
+%exclude %{_prefix}/lib/sysctl.d/50-coredump.conf
+%exclude %{systemd_libdir}/systemd-coredump
+%exclude %{systemd_libdir}/system/systemd-coredump.socket
+%exclude %{systemd_libdir}/system/systemd-coredump@.service
+%exclude %{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
+### hwdb excludes
+%exclude %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
+%exclude %{systemd_libdir}/system/systemd-hwdb-update.service
+%exclude %{udev_rules_dir}/60-cdrom_id.rules
+%exclude %{udev_rules_dir}/60-persistent-alsa.rules
+%exclude %{udev_rules_dir}/60-persistent-storage-tape.rules
+%exclude %{udev_rules_dir}/60-persistent-v4l.rules
+%exclude %{udev_rules_dir}/70-joystick.rules
+%exclude %{udev_rules_dir}/75-probe_mtd.rules
+%exclude %{udev_rules_dir}/78-sound-card.rules
 ###
-%ghost %{_sysconfdir}/udev/hwdb.bin
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1135,7 +1239,6 @@ fi
 /bin/%{name}-ask-password
 /bin/%{name}-escape
 /bin/%{name}-firstboot
-/bin/%{name}-hwdb
 /bin/%{name}-inhibit
 /bin/%{name}-machine-id-setup
 /bin/%{name}-notify
@@ -1223,7 +1326,6 @@ fi
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 #
 %{udev_libdir}/*.bin
-%{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %attr(0755,root,root) /sbin/udevadm
@@ -1231,14 +1333,10 @@ fi
 %attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) %{_sbindir}/udevadm
 %attr(0755,root,root) %{udev_libdir}/ata_id
-%attr(0755,root,root) %{udev_libdir}/cdrom_id
-%attr(0755,root,root) %{udev_libdir}/collect
-%attr(0755,root,root) %{udev_libdir}/mtd_probe
 %attr(0755,root,root) %{udev_libdir}/net_action
 %attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %attr(0755,root,root) %{udev_libdir}/udevd
-%attr(0755,root,root) %{udev_libdir}/v4l_id
 %config(noreplace) %{_prefix}/lib/sysctl.d/*.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/*.conf
 %config(noreplace) %{_sysconfdir}/pam.d/%{name}-user
@@ -1330,8 +1428,6 @@ fi
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
 
-# split these
-
 %files boot
 %{_bindir}/bootctl
 %ifnarch %armx
@@ -1344,9 +1440,25 @@ fi
 %endif
 
 %files console
+%{systemd_libdir}/systemd-vconsole-setup
+%{systemd_libdir}/system/serial-getty@.service
+%{systemd_libdir}/system/getty.target.wants/getty@tty1.service
+%{udev_rules_dir}/90-vconsole.rules
+%{udev_rules_dir}/70-mouse.rules
+%{udev_rules_dir}/60-drm.rules
+%{udev_rules_dir}/60-persistent-input.rules
+%{udev_rules_dir}/70-touchpad.rules
+%{udev_rules_dir}/60-evdev.rules
+%{udev_rules_dir}/60-input-id.rules
 
 %files coredump
+%config(noreplace) %{_sysconfdir}/%{name}/coredump.conf
 %{_bindir}/coredumpctl
+%{_prefix}/lib/sysctl.d/50-coredump.conf
+%{systemd_libdir}/systemd-coredump
+%{systemd_libdir}/system/systemd-coredump.socket
+%{systemd_libdir}/system/systemd-coredump@.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
 
 %files doc
 %doc %{_docdir}/%{name}
@@ -1357,6 +1469,22 @@ fi
 %{_mandir}/man8/*.8.*
 
 %files hwdb
+%ghost %{_sysconfdir}/udev/hwdb.bin
+%{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
+%{systemd_libdir}/system/systemd-hwdb-update.service
+/bin/systemd-hwdb
+%{udev_libdir}/hwdb.d/*.hwdb
+%{udev_rules_dir}/60-cdrom_id.rules
+%{udev_rules_dir}/60-persistent-alsa.rules
+%{udev_rules_dir}/60-persistent-storage-tape.rules
+%{udev_rules_dir}/60-persistent-v4l.rules
+%{udev_rules_dir}/70-joystick.rules
+%{udev_rules_dir}/75-probe_mtd.rules
+%{udev_rules_dir}/78-sound-card.rules
+%{udev_libdir}/cdrom_id
+%{udev_libdir}/collect
+%{udev_libdir}/mtd_probe
+%{udev_libdir}/v4l_id
 
 %files locale -f %{name}.lang
 %{_prefix}/lib/%{name}/catalog/*.catalog
