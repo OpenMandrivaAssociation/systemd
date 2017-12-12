@@ -1186,7 +1186,6 @@ fi
 ### console excludes
 %exclude %{systemd_libdir}/systemd-vconsole-setup
 %exclude %{systemd_libdir}/system/serial-getty@.service
-%exclude %{systemd_libdir}/system/getty.target.wants/getty@tty1.service
 %exclude %{udev_rules_dir}/90-vconsole.rules
 %exclude %{udev_rules_dir}/70-mouse.rules
 %exclude %{udev_rules_dir}/60-drm.rules
@@ -1442,7 +1441,6 @@ fi
 %files console
 %{systemd_libdir}/systemd-vconsole-setup
 %{systemd_libdir}/system/serial-getty@.service
-%{systemd_libdir}/system/getty.target.wants/getty@tty1.service
 %{udev_rules_dir}/90-vconsole.rules
 %{udev_rules_dir}/70-mouse.rules
 %{udev_rules_dir}/60-drm.rules
