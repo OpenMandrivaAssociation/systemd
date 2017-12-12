@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	235
-Release:	8
+Release:	9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -154,7 +154,7 @@ Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	basesystem-minimal >= 1:3-0.1
+Requires:	basesystem-minimal >= 1:3-1
 Requires:	util-linux >= 2.27
 Requires:	shadow >= 4.5.1
 Requires(post,postun):	setup >= 2.8.9
@@ -183,6 +183,13 @@ Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
 Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
+Suggests:	%{name}-boot
+Suggests:	%{name}-console
+Suggests:	%{name}-coredump
+Suggests:	%{name}-doc
+Suggests:	%{name}-hwdb
+Suggests:	%{name}-locale
+Suggests:	%{name}-polkit
 Suggests:	%{name}-bash-completion = %{EVRD}
 Suggests:	%{name}-zsh-completion = %{EVRD}
 
@@ -228,12 +235,89 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
+%package boot
+Summary:	EFI boot component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+
+%description boot
+Systemd boot tools to manage EFI boot.
+
+%package console
+Summary:	Console support for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+
+%description console
+Some systemd units and udev rules are useful only when
+you have an actual console, this subpackage contains
+these units.
+
+%package coredump
+Summary:	Coredump component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+Suggests:	gdb
+
+%description coredump
+Systemd coredump tools to manage coredumps and backtraces.
+
+%package doc
+Summary:	Man pages and documentation for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-locale = %{EVRD}
+
+%description doc
+Man pages and documentation for %{name}.
+
+%package hwdb
+Summary:	hwdb component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+Suggests:	%{name}-polkit = %{EVRD}
+Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-locale = %{EVRD}
+
+%description hwdb
+Hardware database management tool for %{name}.
+
+%package locale
+Summary:	Translations component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+
+%description locale
+Translations for %{name}.
+
+%package polkit
+Summary:	PolKit component for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 235-9
+
+%description polkit
+PolKit support for %{name}.
+
 %package container
 Summary:	Tools for containers and VMs
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Requires:	%{libnss_mymachines} = %{EVRD}
 Conflicts:	%{name} < 235-1
+Suggests:	%{name}-polkit = %{EVRD}
 Suggests:	%{name}-bash-completion = %{EVRD}
 Suggests:	%{name}-zsh-completion = %{EVRD}
 
@@ -996,8 +1080,7 @@ fi
 %_pre_groupadd systemd-journal-upload systemd-journal-upload
 %_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
 
-%files -f %{name}.lang
-%doc %{_docdir}/%{name}
+%files
 %dir /lib/firmware
 %dir /lib/firmware/updates
 %dir %{_datadir}/factory
@@ -1008,11 +1091,6 @@ fi
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/%{name}
-%ifnarch %armx
-%dir %{_prefix}/lib/%{name}/boot
-%dir %{_prefix}/lib/%{name}/boot/efi
-%dir %{_datadir}/%{name}/bootctl
-%endif
 %dir %{_prefix}/lib/%{name}/catalog
 %dir %{_prefix}/lib/%{name}/system-generators
 %dir %{_prefix}/lib/%{name}/user
@@ -1093,18 +1171,7 @@ fi
 %exclude /bin/machinectl
 %exclude %{_bindir}/systemd-nspawn
 %exclude %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
-%exclude %{_mandir}/man1/machinectl.1.*
-%exclude %{_mandir}/man1/systemd-nspawn.1.*
-%exclude %{_mandir}/man8/systemd-machined.8.*
-%exclude %{_mandir}/man8/systemd-machined.service.8.*
-%exclude %{_mandir}/man8/libnss_mymachines.so.*.8.*
-%exclude %{_mandir}/man8/nss-mymachines.8.*
 ### gateway excludes
-%exclude %{_mandir}/man8/%{name}-journal-gatewayd.8.*
-%exclude %{_mandir}/man8/%{name}-journal-gatewayd.service.8.*
-%exclude %{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
-%exclude %{_mandir}/man8/%{name}-journal-remote.8.*
-%exclude %{_mandir}/man8/%{name}-journal-upload.8.*
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.service
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.socket
 %exclude %{systemd_libdir}/system/%{name}-journal-remote.service
@@ -1116,8 +1183,34 @@ fi
 %exclude %config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
 %exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
 %exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
+### console excludes
+%exclude %{systemd_libdir}/systemd-vconsole-setup
+%exclude %{systemd_libdir}/system/serial-getty@.service
+%exclude %{udev_rules_dir}/90-vconsole.rules
+%exclude %{udev_rules_dir}/70-mouse.rules
+%exclude %{udev_rules_dir}/60-drm.rules
+%exclude %{udev_rules_dir}/60-persistent-input.rules
+%exclude %{udev_rules_dir}/70-touchpad.rules
+%exclude %{udev_rules_dir}/60-evdev.rules
+%exclude %{udev_rules_dir}/60-input-id.rules
+### coredump excludes
+%exclude %config(noreplace) %{_sysconfdir}/%{name}/coredump.conf
+%exclude %{_prefix}/lib/sysctl.d/50-coredump.conf
+%exclude %{systemd_libdir}/systemd-coredump
+%exclude %{systemd_libdir}/system/systemd-coredump.socket
+%exclude %{systemd_libdir}/system/systemd-coredump@.service
+%exclude %{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
+### hwdb excludes
+%exclude %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
+%exclude %{systemd_libdir}/system/systemd-hwdb-update.service
+%exclude %{udev_rules_dir}/60-cdrom_id.rules
+%exclude %{udev_rules_dir}/60-persistent-alsa.rules
+%exclude %{udev_rules_dir}/60-persistent-storage-tape.rules
+%exclude %{udev_rules_dir}/60-persistent-v4l.rules
+%exclude %{udev_rules_dir}/70-joystick.rules
+%exclude %{udev_rules_dir}/75-probe_mtd.rules
+%exclude %{udev_rules_dir}/78-sound-card.rules
 ###
-%ghost %{_sysconfdir}/udev/hwdb.bin
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1145,7 +1238,6 @@ fi
 /bin/%{name}-ask-password
 /bin/%{name}-escape
 /bin/%{name}-firstboot
-/bin/%{name}-hwdb
 /bin/%{name}-inhibit
 /bin/%{name}-machine-id-setup
 /bin/%{name}-notify
@@ -1157,9 +1249,7 @@ fi
 /sbin/runlevel
 /sbin/shutdown
 /sbin/telinit
-%{_bindir}/bootctl
 %{_bindir}/busctl
-%{_bindir}/coredumpctl
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
 %{_bindir}/localectl
@@ -1179,25 +1269,13 @@ fi
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
-%{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
-%{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
 %{_prefix}/lib/kernel/install.d/*.install
-%ifnarch %armx
-%{_prefix}/lib/%{name}/boot/efi/*.efi
-%{_prefix}/lib/%{name}/boot/efi/*.stub
-%{_datadir}/%{name}/bootctl/*.conf
-%endif
 %{_prefix}/lib/environment.d/99-environment.conf
 %{_prefix}/lib/modprobe.d/systemd.conf
-%{_prefix}/lib/%{name}/catalog/*.catalog
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
@@ -1247,7 +1325,6 @@ fi
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 #
 %{udev_libdir}/*.bin
-%{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %attr(0755,root,root) /sbin/udevadm
@@ -1255,14 +1332,10 @@ fi
 %attr(0755,root,root) %{_bindir}/udevadm
 %attr(0755,root,root) %{_sbindir}/udevadm
 %attr(0755,root,root) %{udev_libdir}/ata_id
-%attr(0755,root,root) %{udev_libdir}/cdrom_id
-%attr(0755,root,root) %{udev_libdir}/collect
-%attr(0755,root,root) %{udev_libdir}/mtd_probe
 %attr(0755,root,root) %{udev_libdir}/net_action
 %attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %attr(0755,root,root) %{udev_libdir}/udevd
-%attr(0755,root,root) %{udev_libdir}/v4l_id
 %config(noreplace) %{_prefix}/lib/sysctl.d/*.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/*.conf
 %config(noreplace) %{_sysconfdir}/pam.d/%{name}-user
@@ -1272,11 +1345,6 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
 %{_localstatedir}/lib/systemd/catalog/database
-%{_mandir}/man1/*.1*
-%{_mandir}/man3/*.3*
-%{_mandir}/man5/*.5*
-%{_mandir}/man7/*.7*
-%{_mandir}/man8/*.8.*
 
 %files journal-gateway
 %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
@@ -1291,11 +1359,6 @@ fi
 %{systemd_libdir}/system/%{name}-journal-remote.service
 %{systemd_libdir}/system/%{name}-journal-remote.socket
 %{systemd_libdir}/system/%{name}-journal-upload.service
-%{_mandir}/man8/%{name}-journal-gatewayd.8.*
-%{_mandir}/man8/%{name}-journal-upload.8.*
-%{_mandir}/man8/%{name}-journal-remote.8.*
-%{_mandir}/man8/%{name}-journal-gatewayd.service.8.*
-%{_mandir}/man8/%{name}-journal-gatewayd.socket.8.*
 %{_datadir}/%{name}/gatewayd/browse.html
 
 %files container
@@ -1323,12 +1386,6 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-%{_mandir}/man1/machinectl.1.*
-%{_mandir}/man1/systemd-nspawn.1.*
-%{_mandir}/man8/systemd-machined.8.*
-%{_mandir}/man8/systemd-machined.service.8.*
-%{_mandir}/man8/libnss_mymachines.so.*.8.*
-%{_mandir}/man8/nss-mymachines.8.*
 	
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
@@ -1369,6 +1426,74 @@ fi
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
+
+%files boot
+%{_bindir}/bootctl
+%ifnarch %armx
+%dir %{_prefix}/lib/%{name}/boot
+%dir %{_prefix}/lib/%{name}/boot/efi
+%dir %{_datadir}/%{name}/bootctl
+%{_prefix}/lib/%{name}/boot/efi/*.efi
+%{_prefix}/lib/%{name}/boot/efi/*.stub
+%{_datadir}/%{name}/bootctl/*.conf
+%endif
+
+%files console
+%{systemd_libdir}/systemd-vconsole-setup
+%{systemd_libdir}/system/serial-getty@.service
+%{udev_rules_dir}/90-vconsole.rules
+%{udev_rules_dir}/70-mouse.rules
+%{udev_rules_dir}/60-drm.rules
+%{udev_rules_dir}/60-persistent-input.rules
+%{udev_rules_dir}/70-touchpad.rules
+%{udev_rules_dir}/60-evdev.rules
+%{udev_rules_dir}/60-input-id.rules
+
+%files coredump
+%config(noreplace) %{_sysconfdir}/%{name}/coredump.conf
+%{_bindir}/coredumpctl
+%{_prefix}/lib/sysctl.d/50-coredump.conf
+%{systemd_libdir}/systemd-coredump
+%{systemd_libdir}/system/systemd-coredump.socket
+%{systemd_libdir}/system/systemd-coredump@.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
+
+%files doc
+%doc %{_docdir}/%{name}
+%{_mandir}/man1/*.1*
+%{_mandir}/man3/*.3*
+%{_mandir}/man5/*.5*
+%{_mandir}/man7/*.7*
+%{_mandir}/man8/*.8.*
+
+%files hwdb
+%ghost %{_sysconfdir}/udev/hwdb.bin
+%{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
+%{systemd_libdir}/system/systemd-hwdb-update.service
+/bin/systemd-hwdb
+%{udev_libdir}/hwdb.d/*.hwdb
+%{udev_rules_dir}/60-cdrom_id.rules
+%{udev_rules_dir}/60-persistent-alsa.rules
+%{udev_rules_dir}/60-persistent-storage-tape.rules
+%{udev_rules_dir}/60-persistent-v4l.rules
+%{udev_rules_dir}/70-joystick.rules
+%{udev_rules_dir}/75-probe_mtd.rules
+%{udev_rules_dir}/78-sound-card.rules
+%{udev_libdir}/cdrom_id
+%{udev_libdir}/collect
+%{udev_libdir}/mtd_probe
+%{udev_libdir}/v4l_id
+
+%files locale -f %{name}.lang
+%{_prefix}/lib/%{name}/catalog/*.catalog
+
+%files polkit
+%{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
+%{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
 %files zsh-completion
 %{_datadir}/zsh/site-functions/*
