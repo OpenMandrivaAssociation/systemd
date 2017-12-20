@@ -1,7 +1,7 @@
 diff -Naur systemd-236/src/basic/macro.h systemd-236.tpg/src/basic/macro.h
---- systemd-236/src/basic/macro.h	2017-12-14 22:09:57.000000000 +0000
-+++ systemd-236.tpg/src/basic/macro.h	2017-12-20 23:10:31.434782851 +0000
-@@ -48,7 +48,7 @@
+--- systemd-236/src/basic/macro.h	2017-12-14 22:09:57.037151344 +0000
++++ systemd-236.tpg/src/basic/macro.h	2017-12-20 23:37:29.334970955 +0000
+@@ -48,10 +48,10 @@
  #define _weakref_(x) __attribute__((weakref(#x)))
  #define _alignas_(x) __attribute__((aligned(__alignof(x))))
  #define _cleanup_(x) __attribute__((cleanup(x)))
@@ -9,4 +9,8 @@ diff -Naur systemd-236/src/basic/macro.h systemd-236.tpg/src/basic/macro.h
 +#if __GNUC__ >= 7 && !__has_attribute(__fallthrough__)
  #define _fallthrough_ __attribute__((fallthrough))
  #else
- #define _fallthrough_
+-#define _fallthrough_
++#define _fallthrough_ ((void) 0)
+ #endif
+ 
+ /* Temporarily disable some warnings */
