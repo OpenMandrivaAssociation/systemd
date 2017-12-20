@@ -7,10 +7,10 @@ Subject: [PATCH 05/39] journal: flush var/kmsg after starting.
  src/journal/journald.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff -Naur systemd-235/src/journal/journald.c systemd-235.tpg/src/journal/journald.c
---- systemd-235/src/journal/journald.c	2017-10-06 08:18:04.000000000 +0000
-+++ systemd-235.tpg/src/journal/journald.c	2017-10-23 16:10:17.643695795 +0000
-@@ -52,8 +52,6 @@
+diff -Naur systemd-236/src/journal/journald.c systemd-236.tpg/src/journal/journald.c
+--- systemd-236/src/journal/journald.c	2017-12-14 22:09:57.000000000 +0000
++++ systemd-236.tpg/src/journal/journald.c	2017-12-20 21:58:06.517597120 +0000
+@@ -53,8 +53,6 @@
                  goto finish;
  
          server_vacuum(&server, false);
@@ -18,8 +18,8 @@ diff -Naur systemd-235/src/journal/journald.c systemd-235.tpg/src/journal/journa
 -        server_flush_dev_kmsg(&server);
  
          log_debug("systemd-journald running as pid "PID_FMT, getpid_cached());
-         server_driver_message(&server,
-@@ -61,6 +59,9 @@
+         server_driver_message(&server, 0,
+@@ -62,6 +60,9 @@
                                LOG_MESSAGE("Journal started"),
                                NULL);
  
