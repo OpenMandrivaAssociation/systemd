@@ -2,7 +2,7 @@
 %define _disable_lto 1
 %endif
 
-%bcond_without bootstrap
+%bcond_with bootstrap
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
@@ -78,6 +78,7 @@ Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
+Patch20:	systemd-236-fix-build-with-LLVM.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
