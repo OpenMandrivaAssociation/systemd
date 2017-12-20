@@ -2,7 +2,7 @@
 %define _disable_lto 1
 %endif
 
-%bcond_with bootstrap
+%bcond_without bootstrap
 
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
