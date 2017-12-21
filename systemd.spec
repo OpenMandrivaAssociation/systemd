@@ -1090,6 +1090,7 @@ fi
 %files
 %dir /lib/firmware
 %dir /lib/firmware/updates
+%dir /lib/modprobe.d
 %dir %{_datadir}/factory
 %dir %{_datadir}/factory/etc
 %dir %{_datadir}/factory/etc/pam.d
@@ -1106,7 +1107,6 @@ fi
 %dir %{_prefix}/lib/systemd/user-environment-generators
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
-%dir %{_prefix}/lib/modprobe.d
 %dir %{_sysconfdir}/binfmt.d
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/sysctl.d
@@ -1280,12 +1280,13 @@ fi
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
+/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
-%{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
+%{_prefix}/lib/%{name}/user/*.timer
 %{_prefix}/lib/systemd/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
@@ -1500,6 +1501,7 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
 %files zsh-completion
