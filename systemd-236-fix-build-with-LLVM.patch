@@ -6,7 +6,7 @@ diff -Naur systemd-236/src/basic/macro.h systemd-236.tpg/src/basic/macro.h
  #define _alignas_(x) __attribute__((aligned(__alignof(x))))
  #define _cleanup_(x) __attribute__((cleanup(x)))
 -#if __GNUC__ >= 7
-+#if __GNUC__ >= 7 && !__has_attribute(__fallthrough__)
++#if __GNUC__ >= 7 && __has_attribute(__fallthrough__)
  #define _fallthrough_ __attribute__((fallthrough))
  #else
 -#define _fallthrough_
