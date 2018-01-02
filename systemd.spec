@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -805,7 +805,6 @@ fi
 %{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/bin/systemd-hwdb update >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
 
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
@@ -903,6 +902,9 @@ chmod 02755 /var/log/journal || :
 if [ -f /etc/machine-id ]; then
     chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
 fi
+
+%post hwdb
+/bin/systemd-hwdb update >/dev/null 2>&1 || :
 
 %triggerposttransun -- resolvconf < 1.75-4
 if [ -f /etc/resolv.conf ]; then
@@ -1078,7 +1080,7 @@ if [ -f /etc/nsswitch.conf ]; then
 		s/^(passwd|group):(.*)/\1: \2 systemd/
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
-		
+
 %pre journal-gateway
 %_pre_groupadd systemd-journal-gateway systemd-journal-gateway
 %_pre_useradd systemd-journal-gateway %{_var}/log/journal /sbin/nologin
