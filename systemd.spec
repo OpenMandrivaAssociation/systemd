@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -273,7 +273,6 @@ Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-doc = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
-Suggests:	gdb
 
 %description coredump
 Systemd coredump tools to manage coredumps and backtraces.
