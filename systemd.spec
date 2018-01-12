@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	2
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -273,7 +273,6 @@ Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-doc = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
-Suggests:	gdb
 
 %description coredump
 Systemd coredump tools to manage coredumps and backtraces.
@@ -394,9 +393,10 @@ Provides:	nss_myhostname = %{EVRD}
 # (tpg) fix update from 2014.0
 Provides:	nss_myhostname = 208-20
 Obsoletes:	nss_myhostname < 208-20
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	glibc
+Requires(post):	/bin/sh
+Requires(post):	sed
+Requires(post):	grep
+Requires(post):	glibc
 
 %description -n %{libnss_myhostname}
 nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
@@ -413,6 +413,7 @@ Conflicts:	%{libnss_myhostname} < 235
 Requires:	systemd-container = %{EVRD}
 Requires(post,preun):	/bin/sh
 Requires(post,preun):	sed
+Requires(post,preun):	grep
 Requires(post,preun):	glibc
 
 %description -n %{libnss_mymachines}
@@ -429,9 +430,10 @@ Group:		System/Libraries
 Provides:	libnss_resolve = %{EVRD}
 Provides:	nss_resolve= %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	glibc
+Requires(post):	/bin/sh
+Requires(post):	sed
+Requires(post):	grep
+Requires(post):	glibc
 
 %description -n %{libnss_resolve}
 nss-resolve is a plug-in module for the GNU Name Service Switch (NSS) 
@@ -446,9 +448,10 @@ Group:		System/Libraries
 Provides:	libnss_systemd = %{EVRD}
 Provides:	nss_systemd = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	glibc
+Requires(post):	/bin/sh
+Requires(post):	sed
+Requires(post):	grep
+Requires(post):	glibc
 
 %description -n %{libnss_resolve}
 nss-systemd is a plug-in module for the GNU Name Service Switch (NSS) 
@@ -472,7 +475,6 @@ License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel
-Obsoletes:	%{name}-doc
 
 %description -n	%{libudev_devel}
 Devel library for udev.
