@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -474,7 +474,8 @@ Group:		Development/C
 License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
-Obsoletes:	%{_lib}udev0-devel
+Obsoletes:	%{_lib}udev0-devel < 236
+Conflicts:	%{_lib}udev-devel < 236
 
 %description -n	%{libudev_devel}
 Devel library for udev.
