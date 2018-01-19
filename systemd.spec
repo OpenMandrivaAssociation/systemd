@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -283,6 +283,7 @@ Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-locale = %{EVRD}
+Conflicts:	%{_lib}udev-devel <= 231-2
 
 %description doc
 Man pages and documentation for %{name}.
@@ -476,6 +477,7 @@ Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel < 236
 Conflicts:	%{_lib}udev-devel < 236
+Obsoletes:	%{_lib}udev-devel <= 231-1
 
 %description -n	%{libudev_devel}
 Devel library for udev.
