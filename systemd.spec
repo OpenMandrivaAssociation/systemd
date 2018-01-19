@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -198,7 +198,7 @@ Suggests:	%{name}-hwdb
 Suggests:	%{name}-locale
 Suggests:	%{name}-polkit
 Suggests:	%{name}-bash-completion = %{EVRD}
-Suggests:	%{name}-zsh-completion = %{EVRD}
+#Suggests:	%{name}-zsh-completion = %{EVRD}
 
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
@@ -283,7 +283,7 @@ Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-locale = %{EVRD}
-Conflicts:	%{_lib}udev-devel <= 231-2
+Conflicts:	%{_lib}udev-devel < 236-8
 
 %description doc
 Man pages and documentation for %{name}.
@@ -476,8 +476,8 @@ License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel < 236
-Conflicts:	%{_lib}udev-devel < 236
-Obsoletes:	%{_lib}udev-devel <= 231-1
+Conflicts:	%{_lib}udev-devel < 236-8
+Obsoletes:	%{_lib}udev-devel < 236-8
 
 %description -n	%{libudev_devel}
 Devel library for udev.
@@ -491,7 +491,7 @@ This package contains documentation of udev.
 
 %package	zsh-completion
 Summary:	zsh completions
-Group:	Shells
+Group:		Shells
 Requires:	zsh
 
 %description	zsh-completion
@@ -499,7 +499,7 @@ This package contains zsh completion.
 
 %package	bash-completion
 Summary:	bash completions
-Group:	Shells
+Group:		Shells
 Requires:	bash
 
 %description	bash-completion
