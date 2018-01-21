@@ -161,7 +161,7 @@ Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	basesystem-minimal >= 1:3-1
+Requires:	basesystem-minimal >= 1:3-4
 Requires:	util-linux >= 2.27
 Requires:	shadow >= 4.5.1
 Requires(post,postun):	setup >= 2.8.9
