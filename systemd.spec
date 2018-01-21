@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	9
+Release:	10
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -161,7 +161,7 @@ Requires(post):	gawk
 Requires(post):	awk
 Requires(post):	grep
 Requires(post):	awk
-Requires:	basesystem-minimal >= 1:3-1
+Requires:	basesystem-minimal >= 1:3-4
 Requires:	util-linux >= 2.27
 Requires:	shadow >= 4.5.1
 Requires(post,postun):	setup >= 2.8.9
@@ -193,7 +193,7 @@ Requires:	%{libnss_systemd} = %{EVRD}
 Suggests:	%{name}-boot
 Suggests:	%{name}-console
 Suggests:	%{name}-coredump
-Suggests:	%{name}-doc >= 236
+Suggests:	%{name}-documentation >= 236
 Suggests:	%{name}-hwdb
 Suggests:	%{name}-locale
 Suggests:	%{name}-polkit
@@ -247,7 +247,7 @@ Summary:	EFI boot component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
-Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
 
 %description boot
@@ -258,7 +258,7 @@ Summary:	Console support for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
-Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
 
 %description console
@@ -271,23 +271,23 @@ Summary:	Coredump component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
-Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
 
 %description coredump
 Systemd coredump tools to manage coredumps and backtraces.
 
-%package doc
+%package documentation
 Summary:	Man pages and documentation for %{name}
 Group:		Books/Computer books
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-locale = %{EVRD}
-Conflicts:	%{_lib}udev-devel < 236-8
-Obsoletes:	%{_lib}udev-devel <= 231-1
+Obsoletes:	systemd-doc < 236-10
+Conflicts:	systemd-doc < 236-10
 %rename		udev-doc
 
-%description doc
+%description documentation
 Man pages and documentation for %{name}.
 
 %package hwdb
@@ -296,7 +296,7 @@ Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-polkit = %{EVRD}
-Suggests:	%{name}-doc = %{EVRD}
+Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
 
 %description hwdb
@@ -1468,7 +1468,7 @@ fi
 %{systemd_libdir}/system/systemd-coredump@.service
 %{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
 
-%files doc
+%files documentation
 %doc %{_docdir}/%{name}
 %{_mandir}/man1/*.1*
 %{_mandir}/man3/*.3*
