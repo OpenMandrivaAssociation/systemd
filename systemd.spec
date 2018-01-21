@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	8
+Release:	9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -193,7 +193,7 @@ Requires:	%{libnss_systemd} = %{EVRD}
 Suggests:	%{name}-boot
 Suggests:	%{name}-console
 Suggests:	%{name}-coredump
-Suggests:	%{name}-doc
+Suggests:	%{name}-doc >= 236
 Suggests:	%{name}-hwdb
 Suggests:	%{name}-locale
 Suggests:	%{name}-polkit
@@ -279,11 +279,13 @@ Systemd coredump tools to manage coredumps and backtraces.
 
 %package doc
 Summary:	Man pages and documentation for %{name}
-Group:		System/Base
+Group:		Books/Computer books
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-locale = %{EVRD}
 Conflicts:	%{_lib}udev-devel < 236-8
+Obsoletes:	%{_lib}udev-devel <= 231-1
+%rename		udev-doc
 
 %description doc
 Man pages and documentation for %{name}.
@@ -481,13 +483,6 @@ Obsoletes:	%{_lib}udev-devel < 236-8
 
 %description -n	%{libudev_devel}
 Devel library for udev.
-
-%package -n udev-doc
-Summary:	Udev documentation
-Group:		Books/Computer books
-
-%description -n	udev-doc
-This package contains documentation of udev.
 
 %package	zsh-completion
 Summary:	zsh completions
