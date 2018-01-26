@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	236
-Release:	10
+Release:	11
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -163,7 +163,7 @@ Requires(post):	grep
 Requires(post):	awk
 Requires:	basesystem-minimal >= 1:3-4
 Requires:	util-linux >= 2.27
-Requires:	shadow >= 4.5.1
+Requires:	shadow >= 2:4.5
 Requires(post,postun):	setup >= 2.8.9
 Requires:	kmod >= 24
 Conflicts:	initscripts < 9.24
