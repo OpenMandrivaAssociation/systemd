@@ -1,7 +1,7 @@
-diff -Naur systemd-235/meson.build systemd-235.tpg/meson.build
---- systemd-235/meson.build	2017-10-06 08:18:04.028244528 +0000
-+++ systemd-235.tpg/meson.build	2017-10-23 16:28:06.159547684 +0000
-@@ -2137,7 +2137,7 @@
+diff -Naur systemd-237/meson.build systemd-237.tpg/meson.build
+--- systemd-237/meson.build	2018-01-28 15:58:17.000000000 +0000
++++ systemd-237.tpg/meson.build	2018-02-08 15:45:24.261941558 +0000
+@@ -2316,7 +2316,7 @@
  exe = executable('systemd-udevd',
                   systemd_udevd_sources,
                   include_directories : includes,
@@ -9,24 +9,25 @@ diff -Naur systemd-235/meson.build systemd-235.tpg/meson.build
 +                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
                   link_with : [libudev_core,
                                libsystemd_network,
-                               libudev_internal],
-@@ -2154,6 +2154,7 @@
+                               libudev_static],
+@@ -2332,7 +2332,7 @@
+ 
  exe = executable('udevadm',
                   udevadm_sources,
+-                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
++                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
                   include_directories : includes,
-+                 c_args : ['-O3'],
                   link_with : [libudev_core,
                                libsystemd_network,
-                               libudev_internal],
-diff -Naur systemd-235/src/udev/meson.build systemd-235.tpg/src/udev/meson.build
---- systemd-235/src/udev/meson.build	2017-10-06 08:18:04.028244528 +0000
-+++ systemd-235.tpg/src/udev/meson.build	2017-10-23 16:29:03.765552545 +0000
-@@ -131,7 +131,7 @@
+diff -Naur systemd-237/src/udev/meson.build systemd-237.tpg/src/udev/meson.build
+--- systemd-237/src/udev/meson.build	2018-01-28 15:58:17.000000000 +0000
++++ systemd-237.tpg/src/udev/meson.build	2018-02-08 15:44:07.975654245 +0000
+@@ -170,7 +170,7 @@
          executable(prog[0].split('/')[0],
                     prog,
                     include_directories : includes,
 -                   c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
 +                   c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
-                    link_with : [libudev_internal],
+                    link_with : [libudev_static],
                     install_rpath : udev_rpath,
                     install : true,

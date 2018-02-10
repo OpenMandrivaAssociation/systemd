@@ -31,8 +31,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	236
-Release:	11
+Version:	237
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -396,10 +396,6 @@ Provides:	nss_myhostname = %{EVRD}
 # (tpg) fix update from 2014.0
 Provides:	nss_myhostname = 208-20
 Obsoletes:	nss_myhostname < 208-20
-Requires(post):	/bin/sh
-Requires(post):	sed
-Requires(post):	grep
-Requires(post):	glibc
 
 %description -n %{libnss_myhostname}
 nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
@@ -414,10 +410,6 @@ Provides:	libnss_mymachines = %{EVRD}
 Provides:	nss_mymachines = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
 Requires:	systemd-container = %{EVRD}
-Requires(post,preun):	/bin/sh
-Requires(post,preun):	sed
-Requires(post,preun):	grep
-Requires(post,preun):	glibc
 
 %description -n %{libnss_mymachines}
 nss-mymachines is a plug-in module for the GNU Name Service Switch (NSS)
@@ -433,10 +425,6 @@ Group:		System/Libraries
 Provides:	libnss_resolve = %{EVRD}
 Provides:	nss_resolve= %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
-Requires(post):	/bin/sh
-Requires(post):	sed
-Requires(post):	grep
-Requires(post):	glibc
 
 %description -n %{libnss_resolve}
 nss-resolve is a plug-in module for the GNU Name Service Switch (NSS) 
@@ -451,12 +439,8 @@ Group:		System/Libraries
 Provides:	libnss_systemd = %{EVRD}
 Provides:	nss_systemd = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
-Requires(post):	/bin/sh
-Requires(post):	sed
-Requires(post):	grep
-Requires(post):	glibc
 
-%description -n %{libnss_resolve}
+%description -n %{libnss_systemd}
 nss-systemd is a plug-in module for the GNU Name Service Switch (NSS) 
 functionality of the GNU C Library (glibc), providing UNIX user and 
 group name resolution for dynamic users and groups allocated through 
@@ -484,20 +468,20 @@ Obsoletes:	%{_lib}udev-devel < 236-8
 %description -n	%{libudev_devel}
 Devel library for udev.
 
-%package	zsh-completion
+%package zsh-completion
 Summary:	zsh completions
 Group:		Shells
 Requires:	zsh
 
-%description	zsh-completion
+%description zsh-completion
 This package contains zsh completion.
 
-%package	bash-completion
+%package bash-completion
 Summary:	bash completions
 Group:		Shells
 Requires:	bash
 
-%description	bash-completion
+%description bash-completion
 This package contains bash completion.
 
 %prep
@@ -520,7 +504,8 @@ export CXX=g++
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
-%ifnarch %armx
+	-Defi=true \
+%ifnarch %{armx}
 	-Dgnu-efi=true \
 %endif
 %if %{with bootstrap}
@@ -575,6 +560,10 @@ export CXX=g++
 %else
 	-Ddefault-hierarchy=unified \
 %endif
+	-Dtty-gid=5 \
+	-Dusers-gid=100 \
+	-Dnobody-user=nobody \
+	-Dnobody-group=nogroup \
 	-Dsystem-uid-max='999' \
 	-Dsystem-gid-max='999' \
 	-Dntp-servers='0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
@@ -789,13 +778,8 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.ser
 # reexec daemon on self or glibc update to avoid busy / on shutdown
 # trigger is executed on both self and target install so no need to have
 # extra own post
-if [ $1 -ge 2 -o $2 -ge 2 ] ; then
+if [ $1 -ge 2 -o $2 -ge 2 ]; then
     /bin/systemctl daemon-reexec 2>&1 || :
-fi
-
-%pre
-if [ $1 -ge 2 ]; then
-    systemctl stop systemd-udevd-control.socket systemd-udevd-kernel.socket systemd-udevd.service >/dev/null 2>&1 || :
 fi
 
 %post
@@ -806,27 +790,6 @@ fi
 /bin/systemctl daemon-reexec >/dev/null 2>&1 || :
 /bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
 /bin/journalctl --update-catalog >/dev/null 2>&1 || :
-
-# (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
-if [ $1 -ge 2 ]; then
-    if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
-	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
-	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
-    fi
-fi
-
-# (tpg) from old units package
-if [ $1 -eq 2 ] ; then
-    # Try to read default runlevel from the old inittab if it exists
-    runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
-    if [ -z "$runlevel" ] ; then
-	target="/lib/systemd/system/graphical.target"
-    else
-	target="/lib/systemd/system/runlevel$runlevel.target"
-    fi
-# And symlink what we found to the new-style default.target
-    /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-fi
 
 # Enable the services we install by default.
 /bin/systemctl preset-all &>/dev/null || :
@@ -841,11 +804,6 @@ if [ -z $hostname_new ]; then
     fi
 fi
 
-# Remove spurious /etc/fstab entries from very old installations
-if [ -e /etc/fstab ]; then
-    grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
-	sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
-fi
 
 # (tpg) create resolv.conf based on systemd
 if [ $1 -ge 1 ]; then
@@ -863,8 +821,31 @@ if [ $1 -eq 1 ]; then
     ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
 fi
 
-# (tpg) on update always set to systemd resolv.conf
 if [ $1 -ge 2 ]; then
+# (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
+    if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
+	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
+	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
+    fi
+
+# Remove spurious /etc/fstab entries from very old installations
+    if [ -e /etc/fstab ]; then
+	grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
+	    sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+    fi
+
+# Try to read default runlevel from the old inittab if it exists
+    runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
+    if [ -z "$runlevel" ] ; then
+	target="/lib/systemd/system/graphical.target"
+    else
+	target="/lib/systemd/system/runlevel$runlevel.target"
+    fi
+
+# And symlink what we found to the new-style default.target
+    /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+
+# (tpg) on update always set to systemd resolv.conf
     if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" != "../run/systemd/resolve/resolv.conf" ]; then
 	rm -f /etc/resolv.conf
 	ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
@@ -928,8 +909,8 @@ if [ $1 -eq 1 -o $2 -eq 1 ]; then
     while [ -n "$3" ]; do
 	if [ -f "$3" ]; then
 	    /bin/systemd-tmpfiles --create "$3"
-        fi
-        shift
+	fi
+	shift
     done
 fi
 
@@ -937,9 +918,9 @@ fi
 if [ $2 -eq 0 ]; then
     while [ -n "$3" ]; do
 	if [ -f "$3" ]; then
-            /bin/systemd-tmpfiles --remove "$3"
-        fi
-        shift
+	    /bin/systemd-tmpfiles --remove "$3"
+	fi
+	shift
     done
 fi
 
@@ -1034,7 +1015,7 @@ fi
 %triggerposttransun -- %{_prefix}/lib/systemd/catalog/*.catalog
 /bin/journalctl --update-catalog >/dev/null 2>&1 ||:
 
-%post -n %{libnss_myhostname}
+%triggerin -- %{libnss_myhostname} < 237
 if [ -f /etc/nsswitch.conf ]; then
 # sed-fu to add myhostanme to hosts line
 	grep -v -E -q '^hosts:.* myhostname' /etc/nsswitch.conf &&
@@ -1045,15 +1026,15 @@ if [ -f /etc/nsswitch.conf ]; then
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
 
-%post -n %{libnss_mymachines}
+%triggerin -- %{libnss_mymachines} < 237
 if [ -f /etc/nsswitch.conf ]; then
 	grep -E -q '^(passwd|group):.* mymachines' /etc/nsswitch.conf ||
 	sed -i.bak -r -e '
 		s/^(passwd|group):(.*)/\1: \2 mymachines/
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
-		
-%postun -n %{libnss_mymachines}
+
+%triggerun -- %{libnss_mymachines} < 237
 # sed-fu to remove mymachines from passwd and group lines of /etc/nsswitch.conf
 # https://bugzilla.redhat.com/show_bug.cgi?id=1284325
 # To avoid the removal, e.g. add a space at the end of the line.
@@ -1065,7 +1046,7 @@ if [ -f /etc/nsswitch.conf ]; then
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
 
-%post -n %{libnss_resolve}
+%triggerin -- %{libnss_resolve} < 237
 if [ -f /etc/nsswitch.conf ]; then
 	grep -E -q '^hosts:.*resolve[[:space:]]*($|[[:alpha:]])' /etc/nsswitch.conf &&
 	sed -i.bak -e '
@@ -1073,7 +1054,7 @@ if [ -f /etc/nsswitch.conf ]; then
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
 
-%post -n %{libnss_systemd}
+%triggerin -- %{libnss_systemd} < 237
 if [ -f /etc/nsswitch.conf ]; then
 	grep -E -q '^(passwd|group):.* systemd' /etc/nsswitch.conf ||
 	sed -i.bak -r -e '
