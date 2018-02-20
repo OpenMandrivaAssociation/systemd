@@ -149,7 +149,7 @@ BuildRequires:  rpm-build >= 1:5.4.10-79
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount) >= 2.27
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common >= 2012.0-0.4
+BuildRequires:	distro-release-common
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
