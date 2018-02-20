@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	237
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -88,7 +88,6 @@ Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
 Patch104:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch105:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch106:	0024-more-udev-children-workers.patch
-Patch107:	0029-Enable-BBR-Bottleneck-Bandwidth-and-RTT.patch
 Patch108:	0030-network-online-complete-once-one-link-is-online-not-.patch
 Patch109:	0031-DHCP-retry-faster.patch
 Patch110:	0033-Remove-libm-memory-overhead.patch
@@ -794,11 +793,11 @@ fi
 # Enable the services we install by default.
 /bin/systemctl preset-all &>/dev/null || :
 
-hostname_new=`cat %{_sysconfdir}/hostname 2>/dev/null`
-if [ -z $hostname_new ]; then
-    hostname_old=`cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2`
-    if [ ! -z $hostname_old ]; then
-	echo $hostname_old >> %{_sysconfdir}/hostname
+hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
+if [ -z "$hostname_new" ]; then
+    hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
+    if [ ! -z "$hostname_old" ]; then
+	echo "$hostname_old" >> %{_sysconfdir}/hostname
     else
 	echo "localhost" >> %{_sysconfdir}/hostname
     fi
