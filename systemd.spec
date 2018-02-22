@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	237
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -949,7 +949,7 @@ if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
     rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
 fi
 
-%triggerin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerposttransin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
@@ -961,7 +961,7 @@ if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 fi
 
-%triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerposttransun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
