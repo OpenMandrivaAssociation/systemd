@@ -803,7 +803,6 @@ if [ -z "$hostname_new" ]; then
     fi
 fi
 
-
 # (tpg) create resolv.conf based on systemd
 if [ $1 -ge 1 ]; then
     if [ ! -e /run/systemd/resolve/resolv.conf ]; then
@@ -949,7 +948,7 @@ if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
     rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
 fi
 
-%triggerposttransin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
@@ -961,7 +960,7 @@ if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
     /bin/systemctl preset ${units} >/dev/null 2>&1 || :
 fi
 
-%triggerposttransun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+%triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
 ARG1=$1
 ARG2=$2
 shift
