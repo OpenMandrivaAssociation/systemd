@@ -31,8 +31,8 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	237
-Release:	3
+Version:	238
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -141,7 +141,7 @@ BuildRequires:	qemu
 BuildRequires:	chkconfig
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(libcurl)
-BuildRequires:	pkgconfig(libidn)
+BuildRequires:	pkgconfig(libidn2)
 BuildRequires:	pkgconfig(polkit-gobject-1)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
@@ -535,7 +535,7 @@ export CXX=g++
 	-Dqrencode=true \
 	-Dgnutls=true \
 	-Dmicrohttpd=true \
-	-Dlibidn=true \
+	-Dlibidn2=true \
 	-Dlibiptc=true \
 	-Dlibcurl=true \
 	-Dtpm=true \

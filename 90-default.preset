@@ -61,9 +61,6 @@ enable systemd-timesyncd.service
 enable systemd-rfkill.socket
 enable firewalld.service
 enable iptables.service
-enable nmb.service
-enable smb.service
-enable winbind.service
 enable realmd.service
 enable xinetd.service
 
