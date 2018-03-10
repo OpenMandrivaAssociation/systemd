@@ -1216,6 +1216,10 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 /%{_lib}/security/pam_systemd.so
+/bin/init
+/bin/runlevel
+/bin/shutdown
+/bin/telinit
 /bin/halt
 /bin/journalctl
 /bin/loginctl
