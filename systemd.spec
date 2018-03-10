@@ -511,7 +511,7 @@ export CXX=g++
 	-Dlibcryptsetup=false \
 %endif
 	-Dsplit-usr=true \
-	-Dsplit-bin=true \
+	-Dsplit-bin=false \
 	-Dxkbcommon=true \
 	-Dtpm=true \
 	-Ddev-kvm-mode=0666 \
@@ -583,11 +583,16 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
 mkdir -p %{buildroot}/sbin
+ln -s ..%{systemd_libdir}/%{name} %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/%{name} %{buildroot}/bin/%{name}
 
 # (tpg) install compat symlinks
 for i in halt poweroff reboot; do
     ln -s /bin/systemctl %{buildroot}/bin/$i
+done
+
+for i in runlevel shutdown telinit; do
+    ln -s ../bin/systemctl %{buildroot}/sbin/$i
 done
 
 ln -s /bin/loginctl %{buildroot}%{_bindir}/%{name}-loginctl
