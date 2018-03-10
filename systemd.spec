@@ -590,10 +590,6 @@ for i in halt poweroff reboot; do
     ln -s /bin/systemctl %{buildroot}/bin/$i
 done
 
-for i in telinit; do
-    ln -s ../bin/systemctl %{buildroot}/sbin/$i
-done
-
 ln -s /bin/loginctl %{buildroot}%{_bindir}/%{name}-loginctl
 
 # (tpg) dracut needs this
