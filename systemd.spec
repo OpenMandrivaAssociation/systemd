@@ -132,6 +132,7 @@ BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
+BuildRequires:	pkgconfig(bash-completion)
 %ifnarch %armx
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
