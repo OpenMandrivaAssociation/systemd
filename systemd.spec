@@ -511,6 +511,7 @@ export CXX=g++
 	-Dlibcryptsetup=false \
 %endif
 	-Dsplit-usr=true \
+	-Dsplit-bin=true \
 	-Dxkbcommon=true \
 	-Dtpm=true \
 	-Ddev-kvm-mode=0666 \
