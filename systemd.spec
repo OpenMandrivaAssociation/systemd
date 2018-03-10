@@ -590,7 +590,7 @@ for i in halt poweroff reboot; do
     ln -s /bin/systemctl %{buildroot}/bin/$i
 done
 
-for i in runlevel shutdown telinit; do
+for i in shutdown telinit; do
     ln -s ../bin/systemctl %{buildroot}/sbin/$i
 done
 
