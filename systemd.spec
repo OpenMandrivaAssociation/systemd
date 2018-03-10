@@ -582,7 +582,6 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
 mkdir -p %{buildroot}/sbin
-ln -s ..%{systemd_libdir}/%{name} %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/%{name} %{buildroot}/bin/%{name}
 
 # (tpg) install compat symlinks
