@@ -131,6 +131,7 @@ BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
 BuildRequires:	bzip2-devel
 BuildRequires:	pkgconfig(liblz4)
+BuildRequires:	pkgconfig(libpcre2-8)
 %ifnarch %armx
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
