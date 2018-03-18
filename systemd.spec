@@ -32,11 +32,14 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	238
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
 Source0:	http://www.freedesktop.org/software/%{name}/%{name}-%{version}.tar.gz
+# This file must be available before %%prep.
+# It is generated during systemd build and can be found in src/core/.
+Source1:	triggers.systemd
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
@@ -776,6 +779,8 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.ser
 
 %find_lang %{name}
 
+%include %{SOURCE1}
+
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown
 # trigger is executed on both self and target install so no need to have
@@ -878,143 +883,33 @@ if [ $1 -ge 1 ] ; then
     /bin/systemctl daemon-reload > /dev/null 2>&1 || :
 fi
 
-%triggerun -- %{name} < 208-2
-chgrp -R systemd-journal /var/log/journal || :
-chmod 02755 /var/log/journal || :
-if [ -f /etc/machine-id ]; then
-    chmod 02755 /var/log/journal/$(cat /etc/machine-id) || :
-fi
-
 %post hwdb
 /bin/systemd-hwdb update >/dev/null 2>&1 || :
 
-%triggerposttransun -- resolvconf < 1.75-4
-if [ -f /etc/resolv.conf ]; then
-    rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ ! -e /etc/resolv.conf ]; then
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/resolvconf/resolv.conf" ]; then
-    rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-elif [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" = "/run/NetworkManager/resolv.conf" ]; then
-    rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-fi
+#triggerin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+#ARG1=$1
+#ARG2=$2
+#shift
+#shift
+#
+#units=${*#%{_unitdir}/}
+#if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
+#    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+#    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
+#fi
+#triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
+#ARG1=$1
+#ARG2=$2
+#shift
+#shift
 
-/bin/systemctl enable systemd-resolved.service 2>&1 || :
-/bin/systemctl restart systemd-resolved.service 2>&1 || :
-
-%triggerposttransin -- %{_tmpfilesdir}/*.conf
-if [ $1 -eq 1 -o $2 -eq 1 ]; then
-    while [ -n "$3" ]; do
-	if [ -f "$3" ]; then
-	    /bin/systemd-tmpfiles --create "$3"
-	fi
-	shift
-    done
-fi
-
-%triggerposttransun -- %{_tmpfilesdir}/*.conf
-if [ $2 -eq 0 ]; then
-    while [ -n "$3" ]; do
-	if [ -f "$3" ]; then
-	    /bin/systemd-tmpfiles --remove "$3"
-	fi
-	shift
-    done
-fi
-
-%triggerin -- %{name}-units < 217-10
-# make sure we use preset here
-/bin/systemctl --quiet preset \
-	getty@getty.service \
-	remote-fs.target \
-	systemd-readahead-replay.service \
-	systemd-readahead-collect.service \
-	console-getty.service \
-	console-shell.service \
-	debug-shell.service \
-	2>&1 || :
-
-/bin/systemctl --quiet stop getty@getty.service 2>&1 || :
-/bin/systemctl --quiet disable getty@getty.service 2>&1 || :
-/bin/systemctl --quiet stop systemd-readahead-replay.service 2>&1 || :
-/bin/systemctl --quiet stop systemd-readahead-collect.service 2>&1 || :
-/bin/systemctl --quiet disable systemd-readahead-replay.service 2>&1 || :
-/bin/systemctl --quiet disable systemd-readahead-collect.service 2>&1 || :
-
-%triggerpostun -- %{name}-units < 217-10
-# remove wrong getty target
-if [ -d %{_sysconfdir}/systemd/system/getty.target.wants/getty@getty.service ]
-    /bin/systemctl --quiet disable getty@getty.service  2>&1 || :
-    rm -rf %{_sysconfdir}/systemd/system/getty.target.wants ||:
-fi
-
-%triggerin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
-ARG1=$1
-ARG2=$2
-shift
-shift
-
-units=${*#%{_unitdir}/}
-if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
-fi
-
-%triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
-ARG1=$1
-ARG2=$2
-shift
-shift
-
-skip="$(grep -l 'Alias=display-manager.service' $*)"
-units=${*#%{_unitdir}/}
-units=${units#${skip##*/}}
-if [ $ARG2 -eq 0 ]; then
-    /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
-    /bin/systemctl stop ${units} >/dev/null 2>&1 || :
-fi
-
-%triggerpostun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-
-%triggerposttransin -- %{_binfmtdir}/*.conf
-/bin/systemctl reload-or-try-restart systemd-binfmt >/dev/null 2>&1 ||:
-
-%triggerposttransun -- %{_binfmtdir}/*.conf
-/bin/systemctl reload-or-try-restart systemd-binfmt >/dev/null 2>&1 ||:
-
-%triggerposttransin -- /lib/udev/hwdb.d/*.hwdb
-/bin/systemd-hwdb update >/dev/null 2>&1 ||:
-
-%triggerposttransun -- /lib/udev/hwdb.d/*.hwdb
-/bin/systemd-hwdb update >/dev/null 2>&1 ||:
-
-%triggerposttransin -- %{udev_rules_dir}/*.rules
-/sbin/udevadm control --reload >/dev/null 2>&1 ||:
-
-%triggerposttransun -- %{udev_rules_dir}/*.rules
-/sbin/udevadm control --reload >/dev/null 2>&1 ||:
-
-%triggerposttransin -- %{udev_user_rules_dir}/*.rules
-/sbin/udevadm control --reload >/dev/null 2>&1 ||:
-
-%triggerposttransun -- %{udev_user_rules_dir}/*.rules
-/sbin/udevadm control --reload >/dev/null 2>&1 ||:
-
-%triggerposttransin -- %{_prefix}/lib/sysusers.d/*.conf
-/bin/systemd-sysusers >/dev/null 2>&1 ||:
-
-%triggerposttransun -- %{_prefix}/lib/sysusers.d/*.conf
-/bin/systemd-sysusers >/dev/null 2>&1 ||:
-
-%triggerposttransin -- %{_prefix}/lib/systemd/catalog/*.catalog
-/bin/journalctl --update-catalog >/dev/null 2>&1 ||:
-
-%triggerposttransun -- %{_prefix}/lib/systemd/catalog/*.catalog
-/bin/journalctl --update-catalog >/dev/null 2>&1 ||:
+#skip="$(grep -l 'Alias=display-manager.service' $*)"
+#units=${*#%{_unitdir}/}
+#units=${units#${skip##*/}}
+#if [ $ARG2 -eq 0 ]; then
+#    /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
+#    /bin/systemctl stop ${units} >/dev/null 2>&1 || :
+#fi
 
 %triggerin -- %{libnss_myhostname} < 237
 if [ -f /etc/nsswitch.conf ]; then

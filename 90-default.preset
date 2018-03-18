@@ -4,6 +4,8 @@
 
 # systemd stuff
 enable remote-fs.target
+enable remote-cryptsetup.target
+enable machines.target
 enable getty@tty1.service
 
 # Enable ACPI daemon
