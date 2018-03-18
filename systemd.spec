@@ -101,8 +101,8 @@ Patch114:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
-BuildRequires:	acl-devel
 BuildRequires:	audit-devel
+BuildRequires:	acl-devel
 BuildRequires:	docbook-style-xsl
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-dtd45-xml
@@ -132,7 +132,7 @@ BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
-BuildRequires:	bzip2-devel
+BuildRequires:	pkgconfig(bz2)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
@@ -150,7 +150,7 @@ BuildRequires:	pkgconfig(libidn2)
 BuildRequires:	pkgconfig(polkit-gobject-1)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
-BuildRequires:  rpm-build >= 1:5.4.10-79
+BuildRequires:	rpm-build >= 2:4.14.0
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount) >= 2.27
 # make sure we have /etc/os-release available, required by --with-distro
