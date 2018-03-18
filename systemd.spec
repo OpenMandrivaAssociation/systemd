@@ -132,7 +132,7 @@ BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pciutils-devel
-BuildRequires:	pkgconfig(bz2)
+BuildRequires:	pkgconfig(bzip2)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
