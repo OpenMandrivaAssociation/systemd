@@ -665,10 +665,6 @@ export SYSTEMD_PAGER="/usr/bin/less -FR"
 EOF
 chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
-# (tpg) move to etc
-mkdir -p %{buildroot}%{_sysconfdir}/rpm/macros.d
-mv -f %{buildroot}%{_prefix}/lib/rpm/macros.d/macros.systemd %{buildroot}%{_sysconfdir}/rpm/macros.d/systemd.macros
-
 # Install logdir for journald
 install -m 0755 -d %{buildroot}%{_logdir}/journal
 
@@ -1173,9 +1169,9 @@ fi
 %{_prefix}/lib/systemd/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
-%{_sysconfdir}/rpm/macros.d/systemd.macros
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
+%{_rpmmacrodir}/macros.systemd
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/network/80-container-host0.network
