@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	238
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -513,7 +513,7 @@ export CXX=g++
 	-Dlibcryptsetup=false \
 %endif
 	-Dsplit-usr=true \
-	-Dsplit-bin=false \
+	-Dsplit-bin=true \
 	-Dxkbcommon=true \
 	-Dtpm=true \
 	-Ddev-kvm-mode=0666 \
