@@ -120,7 +120,6 @@ BuildRequires:	pkgconfig(python)
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
-BuildRequires:	pkgconfig(libnotify)
 BuildRequires:	pkgconfig(libxslt)
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
