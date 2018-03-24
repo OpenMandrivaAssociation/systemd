@@ -1127,6 +1127,9 @@ fi
 /sbin/runlevel
 /sbin/shutdown
 /sbin/telinit
+/sbin/halt
+/sbin/poweroff
+/sbin/reboot
 %{_bindir}/busctl
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
