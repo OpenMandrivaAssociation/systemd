@@ -36,7 +36,7 @@ Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
-Source0:	http://www.freedesktop.org/software/%{name}/%{name}-%{version}.tar.gz
+Source0:	https://github.com/systemd/systemd/archive/%{name}-%{version}.tar.gz
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
