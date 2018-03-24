@@ -585,16 +585,11 @@ mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 # Create SysV compatibility symlinks. systemctl/systemd are smart
 # enough to detect in which way they are called.
 mkdir -p %{buildroot}/sbin
-ln -s ..%{systemd_libdir}/%{name} %{buildroot}/sbin/init
 ln -s ..%{systemd_libdir}/%{name} %{buildroot}/bin/%{name}
 
 # (tpg) install compat symlinks - enable when split-bin=true
-#for i in halt poweroff reboot; do
-#    ln -s /bin/systemctl %{buildroot}/bin/$i
-#done
-
-for i in runlevel shutdown telinit; do
-    ln -s ../bin/systemctl %{buildroot}/sbin/$i
+for i in halt poweroff reboot; do
+    ln -s /bin/systemctl %{buildroot}/bin/$i
 done
 
 ln -s /bin/loginctl %{buildroot}%{_bindir}/%{name}-loginctl
@@ -1218,10 +1213,6 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 /%{_lib}/security/pam_systemd.so
-/bin/init
-/bin/runlevel
-/bin/shutdown
-/bin/telinit
 /bin/halt
 /bin/journalctl
 /bin/loginctl
