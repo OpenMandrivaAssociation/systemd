@@ -354,7 +354,7 @@ Offers journal events over the network using HTTP.
 Summary:        Cryptsetup generators for %{name}
 Group:          System/Base
 Requires:	%{name} = %{EVRD}
-Conflicts:	%{name} < 238-4
+Conflicts:	%{name} < 238-3
 
 %description cryptsetup
 Systemd generators for cryptsetup (Luks encryption and verity).
