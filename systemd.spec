@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	238
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -197,6 +197,7 @@ Suggests:	%{name}-documentation >= 236
 Suggests:	%{name}-hwdb
 Suggests:	%{name}-locale
 Suggests:	%{name}-polkit
+Suggests:	%{name}-cryptsetup
 Suggests:	%{name}-bash-completion = %{EVRD}
 #Suggests:	%{name}-zsh-completion = %{EVRD}
 
@@ -347,6 +348,17 @@ Obsoletes:	systemd < 206-7
 
 %description journal-gateway
 Offers journal events over the network using HTTP.
+
+%if !%{with bootstrap}
+%package cryptsetup
+Summary:        Cryptsetup generators for %{name}
+Group:          System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 238-4
+
+%description cryptsetup
+Systemd generators for cryptsetup (Luks encryption and verity).
+%endif
 
 %package -n %{libsystemd}
 Summary:	Systemdlibrary package
@@ -510,6 +522,8 @@ export CXX=g++
 %endif
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
+%else
+	-Dlibcryptsetup=true \
 %endif
 	-Dsplit-usr=true \
 	-Dsplit-bin=true \
@@ -1196,6 +1210,17 @@ fi
 %exclude %{udev_rules_dir}/75-probe_mtd.rules
 %exclude %{udev_rules_dir}/78-sound-card.rules
 ###
+%if !%{with bootstrap}
+### cryptsetup excludes
+%exclude %{systemd_libdir}/system-generators/systemd-cryptsetup-generator
+%exclude %{systemd_libdir}/system-generators/systemd-veritysetup-generator
+%exclude %{systemd_libdir}//system/sysinit.target.wants/cryptsetup.target
+%exclude %{systemd_libdir}/system/remote-cryptsetup.target
+%exclude %{systemd_libdir}/system/cryptsetup-pre.target
+%exclude %{systemd_libdir}/system/cryptsetup.target
+%exclude %{systemd_libdir}/systemd-cryptsetup
+###
+%endif
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1484,6 +1509,17 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
+
+%if !%{with bootstrap}
+%files cryptsetup
+%{systemd_libdir}/systemd-cryptsetup
+%{systemd_libdir}/system-generators/systemd-cryptsetup-generator
+%{systemd_libdir}/system-generators/systemd-veritysetup-generator
+%{systemd_libdir}//system/sysinit.target.wants/cryptsetup.target
+%{systemd_libdir}/system/remote-cryptsetup.target
+%{systemd_libdir}/system/cryptsetup-pre.target
+%{systemd_libdir}/system/cryptsetup.target
+%endif
 
 %files zsh-completion
 %{_datadir}/zsh/site-functions/*
