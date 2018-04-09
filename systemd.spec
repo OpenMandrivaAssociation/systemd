@@ -301,6 +301,7 @@ Summary:	hwdb component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
+Conflicts:	%{name} < 238-4
 Suggests:	%{name}-polkit = %{EVRD}
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
@@ -1231,7 +1232,6 @@ fi
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 #
-%{udev_libdir}/*.bin
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %attr(0755,root,root) /sbin/udevadm
@@ -1378,6 +1378,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
 %{systemd_libdir}/system/systemd-hwdb-update.service
 /bin/systemd-hwdb
+%{udev_libdir}/*.bin
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/60-cdrom_id.rules
 %{udev_rules_dir}/60-persistent-alsa.rules
