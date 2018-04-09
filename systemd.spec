@@ -195,6 +195,7 @@ Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
 Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
+Suggests:	%{name}-analyze
 Suggests:	%{name}-boot
 Suggests:	%{name}-console
 Suggests:	%{name}-coredump
@@ -341,6 +342,19 @@ Suggests:	%{name}-zsh-completion = %{EVRD}
 Systemd tools to spawn and manage containers and virtual machines.
 This package contains systemd-nspawn, machinectl, systemd-machined,
 and systemd-importd.
+
+%package analyze
+Summary:	Tools for containers and VMs
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 238-4
+
+%description analyze
+Systemd tools to analyze and debug a running system:
+systemd-analyze
+systemd-cgls
+systemd-cgtop
+systemd-delta
 
 %package journal-gateway
 Summary:	Gateway for serving journal events over the network using HTTP
@@ -1162,6 +1176,10 @@ fi
 %{_bindir}/localectl
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
+%exclude %{_bindir}/%{name}-analyze
+%exclude %{_bindir}/%{name}-cgls
+%exclude %{_bindir}/%{name}-cgtop
+%exclude %{_bindir}/%{name}-delta
 %{_bindir}/timedatectl
 %{_sysconfdir}/systemd/system/dbus-org.freedesktop.network1.service
 %{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
@@ -1333,6 +1351,13 @@ fi
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
+
+
+%files analyze
+%{_bindir}/%{name}-analyze
+%{_bindir}/%{name}-cgls
+%{_bindir}/%{name}-cgtop
+%{_bindir}/%{name}-delta
 
 %files boot
 %{_bindir}/bootctl
