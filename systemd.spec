@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	238
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -78,7 +78,7 @@ Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	1005-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
-Patch20:	systemd-236-fix-build-with-LLVM.patch
+#Patch20:	systemd-236-fix-build-with-LLVM.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
@@ -95,6 +95,84 @@ Patch111:	0035-skip-not-present-ACPI-devices.patch
 Patch112:	0038-Compile-udev-with-O3.patch
 Patch113:	0039-Don-t-wait-for-utmp-at-shutdown.patch
 Patch114:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
+# (tpg) patches from upstream git
+Patch600:	0600-rpm-add-missing-p-lua-in-trigger-script-8367.patch
+Patch601:	0601-NEWS-fix-typos-in-v238-section-8369.patch
+Patch602:	0602-tests-stop-using-freopen-in-test-fileio.patch
+Patch603:	0603-tests-close-a-leftover-file-descriptor-in-test-filei.patch
+Patch604:	0604-test-cgroup-util-bail-out-when-running-under-mock-83.patch
+Patch605:	0605-hwdb-add-Dell-Inspiron-3537-axis-overrides-8388.patch
+Patch606:	0606-hwdb-add-accelerometer-mount-matrix-for-Eve-V-8382.patch
+Patch607:	0607-sd-bus-do-not-try-to-close-already-closed-fd-8392.patch
+Patch608:	0608-core-do-not-free-heap-allocated-strings-8391.patch
+Patch609:	0609-basic-cgroup-util-remove-unused-variable.patch
+Patch610:	0610-hwdb-add-axis-overrides-for-HP-Pavilion-15-8404.patch
+Patch611:	0611-meson-use-triple-quote-delimition-in-one-more-place.patch
+Patch612:	0612-meson-avoid-warning-about-comparison-of-bool-and-str.patch
+Patch613:	0613-core-ignore-errors-from-cg_create_and_attach-in-test.patch
+Patch614:	0614-tests-skip-the-rest-of-test_mnt_id-after-getting-any.patch
+Patch615:	0615-tests-make-private-after-creating-a-mount-namespace.patch
+Patch616:	0616-zsh-completion-add-calendar-to-systemd-analyze-8438.patch
+Patch617:	0617-umount-Fix-memory-leak.patch
+Patch618:	0618-hwdb-add-axis-override-for-the-Razer-Blade-Stealth-8.patch
+Patch619:	0619-basic-macros-rename-noreturn-into-_noreturn_-8456.patch
+Patch620:	0620-udev-net-id-Fix-check-for-address-to-keep-interface-.patch
+Patch621:	0621-hwdb-fix-comment-suggested-udevadm-trigger-command-8.patch
+Patch622:	0622-core-when-reloading-delay-any-actions-on-journal-and.patch
+Patch623:	0623-units-Fix-SuccessAction-that-belongs-to-Unit-section.patch
+Patch624:	0624-sysusers-do-not-append-entries-after-the-NIS-ones.patch
+Patch625:	0625-hwdb-Split-touchpad-rules-for-X550CC-and-S550C.patch
+Patch626:	0626-hwdb-Correct-touchpad-resolution-for-Asus-N550JV.patch
+Patch627:	0627-macros-use-here-docs-instead-of-echo-8480.patch
+Patch628:	0628-hwdb-fix-accelerometer-mount-matrix-for-Asus-TP300LD.patch
+Patch629:	0629-meson-add-note-about-coreutils-version-with-ln-relat.patch
+Patch630:	0630-systemctl-raise-level-of-log-line-about-kernel-loadi.patch
+Patch631:	0631-systemctl-propagate-the-error-from-kexec.patch
+Patch632:	0632-systemctl-if-kexec-is-missing-do-not-try-to-kexec.patch
+Patch633:	0633-systemctl-if-kexec-fails-with-force-continue-to-rebo.patch
+Patch634:	0634-systemctl-honour-dry-run-also-on-logind-calls.patch
+Patch635:	0635-hwdb-ThinkPad-T450s-doesn-t-have-a-caps-lock-led-843.patch
+Patch636:	0636-busctl-add-missing-oom-check.patch
+Patch637:	0637-busctl-drop-redundant-pager_open.patch
+Patch638:	0638-man-mention-that-status-is-the-default-command-for-h.patch
+Patch639:	0639-man-mention-status-is-the-default-command-for-locale.patch
+Patch640:	0640-man-mention-status-is-the-default-command-for-timeda.patch
+Patch641:	0641-macros-fix-sysusers_create_inline-8489.patch
+Patch642:	0642-hwdb-ThinkPad-T560-doesn-t-have-a-caps-lock-led-8490.patch
+Patch643:	0643-hwdb-ThinkPad-4x0s-and-X1-Carbon-3rd-gen-LEDs-8492.patch
+Patch644:	0644-core-umount-fix-unitialized-fields-in-MountPoint-in-.patch
+Patch645:	0645-v4l_id-check-mplane-video-capture-and-output-capaili.patch
+Patch646:	0646-sysusers-also-add-support-for-NIS-entries-in-etc-sha.patch
+Patch647:	0647-sysusers-make-sure-to-reset-errno-before-calling-fge.patch
+Patch648:	0648-nspawn-move-network-namespace-creation-to-a-separate.patch
+Patch649:	0649-sd-bus-drop-fd_nonblock-calls-that-are-implied-by-re.patch
+Patch650:	0650-journal-don-t-insist-that-the-journal-file-header-s-.patch
+Patch651:	0651-basic-calendarspec-add-check-for-repeat-values-that-.patch
+Patch652:	0652-core-load-fragment-reject-overly-long-paths-early.patch
+Patch653:	0653-udev-don-t-label-high-button-mice-as-joysticks-8493.patch
+Patch654:	0654-stat-util-fix-fd_is_network_ns.patch
+Patch655:	0655-resolve-actually-shows-information-about-all-specifi.patch
+Patch656:	0656-man-add-a-note-that-nspawn-gives-access-to-network-b.patch
+Patch657:	0657-core-don-t-include-libmount.h-in-a-header-file-8580.patch
+Patch658:	0658-journal-file-we-can-t-use-a-chain-cache-entry-if-we-.patch
+Patch659:	0659-README-mention-systemd-stable.patch
+Patch660:	0660-nspawn-do-not-insist-on-locking-read-only-container-.patch
+Patch661:	0661-shared-specifier-be-less-extravagant-with-memory-all.patch
+Patch662:	0662-shared-specifier-use-realloc-to-free-some-memory-aft.patch
+Patch663:	0663-systemd-inhibit-ignore-signal-interrupt-from-keyboar.patch
+Patch664:	0664-timesync-on-network-event-do-not-establish-connectio.patch
+Patch665:	0665-generate-af-list.sh-slightly-generalize-pattern-fix-.patch
+Patch666:	0666-man-machinectl-update-fedora-exmple-URL-8642.patch
+Patch667:	0667-core-skip-the-removal-of-cgroups-in-the-TEST_RUN_MIN.patch
+Patch668:	0668-tmpfiles-fix-directory-removal-with-force-symlink-86.patch
+Patch669:	0669-bash-completion-busctl-suggests-only-writable-proper.patch
+Patch670:	0670-bash-completion-busctl-do-not-suggest-for-signature.patch
+Patch671:	0671-bash-completion-busctl-make-variables-local.patch
+Patch672:	0672-network-fix-typo-in-log-message.patch
+Patch673:	0673-tmpfiles-add-a-new-return-code-for-operational-failu.patch
+Patch674:	0674-tmpfiles-ignore-operational-errors-during-setup.patch
+Patch675:	0675-systemd-udevd-limit-children-max-by-available-memory.patch
+Patch1000:	systemd-236-fix-build-with-LLVM.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
@@ -190,6 +268,7 @@ Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
 Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
+Suggests:	%{name}-analyze
 Suggests:	%{name}-boot
 Suggests:	%{name}-console
 Suggests:	%{name}-coredump
@@ -296,6 +375,7 @@ Summary:	hwdb component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
+Conflicts:	%{name} < 238-4
 Suggests:	%{name}-polkit = %{EVRD}
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
@@ -335,6 +415,19 @@ Suggests:	%{name}-zsh-completion = %{EVRD}
 Systemd tools to spawn and manage containers and virtual machines.
 This package contains systemd-nspawn, machinectl, systemd-machined,
 and systemd-importd.
+
+%package analyze
+Summary:	Tools for containers and VMs
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	%{name} < 238-4
+
+%description analyze
+Systemd tools to analyze and debug a running system:
+systemd-analyze
+systemd-cgls
+systemd-cgtop
+systemd-delta
 
 %package journal-gateway
 Summary:	Gateway for serving journal events over the network using HTTP
@@ -1268,6 +1361,10 @@ fi
 %{_bindir}/localectl
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
+%exclude %{_bindir}/%{name}-analyze
+%exclude %{_bindir}/%{name}-cgls
+%exclude %{_bindir}/%{name}-cgtop
+%exclude %{_bindir}/%{name}-delta
 %{_bindir}/timedatectl
 %{_sysconfdir}/systemd/system/dbus-org.freedesktop.network1.service
 %{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
@@ -1338,7 +1435,6 @@ fi
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{version}.so
 #
-%{udev_libdir}/*.bin
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %attr(0755,root,root) /sbin/udevadm
@@ -1400,7 +1496,7 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-	
+
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
 
@@ -1440,6 +1536,12 @@ fi
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
+
+%files analyze
+%{_bindir}/%{name}-analyze
+%{_bindir}/%{name}-cgls
+%{_bindir}/%{name}-cgtop
+%{_bindir}/%{name}-delta
 
 %files boot
 %{_bindir}/bootctl
@@ -1485,6 +1587,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
 %{systemd_libdir}/system/systemd-hwdb-update.service
 /bin/systemd-hwdb
+%{udev_libdir}/*.bin
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/60-cdrom_id.rules
 %{udev_rules_dir}/60-persistent-alsa.rules

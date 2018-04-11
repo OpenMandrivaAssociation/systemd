@@ -1,6 +1,6 @@
-diff -Naur systemd-236/src/basic/macro.h systemd-236.tpg/src/basic/macro.h
---- systemd-236/src/basic/macro.h	2017-12-14 22:09:57.037151344 +0000
-+++ systemd-236.tpg/src/basic/macro.h	2017-12-20 23:37:29.334970955 +0000
+diff -Naur systemd-238/src/basic/macro.h systemd-238.tpg/src/basic/macro.h
+--- systemd-238/src/basic/macro.h	2018-04-11 16:07:49.531228000 +0000
++++ systemd-238.tpg/src/basic/macro.h	2018-04-11 16:09:45.745467487 +0000
 @@ -48,10 +48,10 @@
  #define _weakref_(x) __attribute__((weakref(#x)))
  #define _alignas_(x) __attribute__((aligned(__alignof(x))))
@@ -12,5 +12,5 @@ diff -Naur systemd-236/src/basic/macro.h systemd-236.tpg/src/basic/macro.h
 -#define _fallthrough_
 +#define _fallthrough_ ((void) 0)
  #endif
- 
- /* Temporarily disable some warnings */
+ /* Define C11 noreturn without <stdnoreturn.h> and even on older gcc
+  * compiler versions */
