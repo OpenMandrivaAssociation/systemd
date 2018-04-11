@@ -67,12 +67,8 @@ Source22:	efi-omv.conf
 
 Source23:	systemd-udev-trigger-no-reload.conf
 ### OMV patches###
-# Without this, build fails on aarch64
-# (tpg) let's disable it for now
-#Patch1:		systemd-233-format-nonliteral-warnings.patch
 # from Mandriva
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
-#po 315
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
@@ -81,7 +77,7 @@ Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
-Patch20:	systemd-236-fix-build-with-LLVM.patch
+#Patch20:	systemd-236-fix-build-with-LLVM.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
