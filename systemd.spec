@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	238
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -859,7 +859,7 @@ mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 #################
 
 # (tpg) just delete this for now
-# file /usr/share/man/man5/crypttab.5.xz 
+# file /usr/share/man/man5/crypttab.5.xz
 # from install of systemd-186-2.x86_64
 # conflicts with file from package initscripts-9.25-10.x86_64
 rm -rf %{buildroot}%{_mandir}/man5/crypttab*
@@ -1386,7 +1386,7 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-	
+
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
 
