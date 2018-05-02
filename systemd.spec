@@ -446,8 +446,8 @@ Offers journal events over the network using HTTP.
 
 %if !%{with bootstrap}
 %package cryptsetup
-Summary:        Cryptsetup generators for %{name}
-Group:          System/Base
+Summary:	Cryptsetup generators for %{name}
+Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 238-4
 
@@ -475,12 +475,13 @@ Obsoletes:	libsystemd-id1280 < 208-20
 Provides:	libsystemd-id1280 = 208-20
 %rename		%{_lib}systemd-id128_0
 
-%description -n	%{libsystemd}
+%description -n %{libsystemd}
 This package provides the systemd shared library.
 
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
+Requires:	%{name} = %{EVRD}
 Requires:	%{libsystemd} = %{EVRD}
 # (tpg) old, pre 230 stuff - keep for smooth update from old relases
 %rename		%{_lib}systemd-daemon0-devel
@@ -559,7 +560,7 @@ Summary:	Library for udev
 Group:		System/Libraries
 Obsoletes:	%{mklibname hal 1} <= 0.5.14-6
 
-%description -n	%{libudev}
+%description -n %{libudev}
 Library for udev.
 
 %package -n %{libudev_devel}
@@ -568,11 +569,12 @@ Group:		Development/C
 License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
+Requires:	%{name} = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel < 236
 Conflicts:	%{_lib}udev-devel < 236-8
 Obsoletes:	%{_lib}udev-devel < 236-8
 
-%description -n	%{libudev_devel}
+%description -n %{libudev_devel}
 Devel library for udev.
 
 %package zsh-completion
@@ -1426,7 +1428,6 @@ fi
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
-
 
 %files analyze
 %{_bindir}/%{name}-analyze
