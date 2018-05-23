@@ -609,7 +609,6 @@ export CXX=g++
 %meson \
 	-Drootprefix="" \
 	-Drootlibdir=/%{_lib} \
-	-Dlibexecdir=%{_prefix}/lib \
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
