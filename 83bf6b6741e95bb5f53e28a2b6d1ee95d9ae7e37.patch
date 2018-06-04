@@ -1,0 +1,62 @@
+From 83bf6b6741e95bb5f53e28a2b6d1ee95d9ae7e37 Mon Sep 17 00:00:00 2001
+From: Vito Caputo <vcaputo@pengaru.com>
+Date: Mon, 28 May 2018 15:09:55 -0700
+Subject: [PATCH] journal-file: avoid joining offline thread
+
+In journal_file_set_online() the offline thread doesn't need to be
+joined if it's been canceled before actually reaching the phase of
+writing the offline state.
+---
+ src/journal/journal-file.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/src/journal/journal-file.c b/src/journal/journal-file.c
+index 036594c7350..606ca604acf 100644
+--- a/src/journal/journal-file.c
++++ b/src/journal/journal-file.c
+@@ -262,7 +262,7 @@ int journal_file_set_offline(JournalFile *f, bool wait) {
+ }
+ 
+ static int journal_file_set_online(JournalFile *f) {
+-        bool joined = false;
++        bool wait = true;
+ 
+         assert(f);
+ 
+@@ -272,23 +272,25 @@ static int journal_file_set_online(JournalFile *f) {
+         if (!(f->fd >= 0 && f->header))
+                 return -EINVAL;
+ 
+-        while (!joined) {
++        while (wait) {
+                 switch (f->offline_state) {
+                 case OFFLINE_JOINED:
+                         /* No offline thread, no need to wait. */
+-                        joined = true;
++                        wait = false;
+                         break;
+ 
+                 case OFFLINE_SYNCING:
+                         if (!__sync_bool_compare_and_swap(&f->offline_state, OFFLINE_SYNCING, OFFLINE_CANCEL))
+                                 continue;
+                         /* Canceled syncing prior to offlining, no need to wait. */
++                        wait = false;
+                         break;
+ 
+                 case OFFLINE_AGAIN_FROM_SYNCING:
+                         if (!__sync_bool_compare_and_swap(&f->offline_state, OFFLINE_AGAIN_FROM_SYNCING, OFFLINE_CANCEL))
+                                 continue;
+                         /* Canceled restart from syncing, no need to wait. */
++                        wait = false;
+                         break;
+ 
+                 case OFFLINE_AGAIN_FROM_OFFLINING:
+@@ -303,7 +305,7 @@ static int journal_file_set_online(JournalFile *f) {
+                         if (r < 0)
+                                 return r;
+ 
+-                        joined = true;
++                        wait = false;
+                         break;
+                 }
+                 }

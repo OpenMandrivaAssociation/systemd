@@ -32,7 +32,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	238
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -172,6 +172,8 @@ Patch672:	0672-network-fix-typo-in-log-message.patch
 Patch673:	0673-tmpfiles-add-a-new-return-code-for-operational-failu.patch
 Patch674:	0674-tmpfiles-ignore-operational-errors-during-setup.patch
 Patch675:	0675-systemd-udevd-limit-children-max-by-available-memory.patch
+# https://github.com/systemd/systemd/issues/9079
+Patch676:	83bf6b6741e95bb5f53e28a2b6d1ee95d9ae7e37.patch
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
 
 BuildRequires:	meson
