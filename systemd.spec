@@ -1259,6 +1259,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/*.*mount
 %{systemd_libdir}/system/sysinit.target.wants/*.path
 %{systemd_libdir}/system/sysinit.target.wants/*.service
+%{systemd_libdir}/system/user-.slice.d/*.conf
 %if !%{with bootstrap}
 %{systemd_libdir}/system/sysinit.target.wants/*.target
 %endif
