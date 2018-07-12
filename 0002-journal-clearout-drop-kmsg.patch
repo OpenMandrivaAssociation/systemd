@@ -6,10 +6,10 @@ Subject: [PATCH 02/39] journal: clearout & drop kmsg.
 ---
  src/journal/journald-kmsg.c | 10 ++++++++++
  1 file changed, 10 insertions(+)
-diff -Naur systemd-235/src/journal/journald-kmsg.c systemd-235.tpg/src/journal/journald-kmsg.c
---- systemd-235/src/journal/journald-kmsg.c	2017-10-06 08:18:04.000000000 +0000
-+++ systemd-235.tpg/src/journal/journald-kmsg.c	2017-10-23 16:06:34.231634116 +0000
-@@ -389,6 +389,7 @@
+diff -Naur systemd-239/src/journal/journald-kmsg.c systemd-239.tpg/src/journal/journald-kmsg.c
+--- systemd-239/src/journal/journald-kmsg.c	2018-06-22 11:11:49.000000000 +0000
++++ systemd-239.tpg/src/journal/journald-kmsg.c	2018-07-12 14:16:36.215528520 +0000
+@@ -375,6 +375,7 @@
  int server_open_dev_kmsg(Server *s) {
          mode_t mode;
          int r;
@@ -17,7 +17,7 @@ diff -Naur systemd-235/src/journal/journald-kmsg.c systemd-235.tpg/src/journal/j
  
          assert(s);
  
-@@ -407,6 +408,14 @@
+@@ -393,6 +394,14 @@
          if (!s->read_kmsg)
                  return 0;
  
