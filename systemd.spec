@@ -265,6 +265,7 @@ Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
 %endif
 Provides:	should-restart = system
+Requires:	%{name}-macros = %{EVRD}
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
@@ -481,7 +482,7 @@ This package provides the systemd shared library.
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
-Requires:	%{name} = %{EVRD}
+Requires:	%{name}-macros = %{EVRD}
 Requires:	%{libsystemd} = %{EVRD}
 # (tpg) old, pre 230 stuff - keep for smooth update from old relases
 %rename		%{_lib}systemd-daemon0-devel
@@ -569,7 +570,7 @@ Group:		Development/C
 License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
-Requires:	%{name} = %{EVRD}
+Requires:	%{name}-macros = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel < 236
 Conflicts:	%{_lib}udev-devel < 236-8
 Obsoletes:	%{_lib}udev-devel < 236-8
@@ -592,6 +593,14 @@ Requires:	bash
 
 %description bash-completion
 This package contains bash completion.
+
+%package macros
+Summary:	A RPM macros
+Group:		Development/Other
+
+%description macros
+For building RPM packages to utilize standard systemd runtime macros.
+
 
 %prep
 %setup -q
@@ -1286,7 +1295,7 @@ fi
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
-%{_rpmmacrodir}/macros.systemd
+
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/network/80-container-host0.network
@@ -1522,3 +1531,6 @@ fi
 %dir %{_datadir}/bash-completion
 %dir %{_datadir}/bash-completion/completions
 %{_datadir}/bash-completion/completions/*
+
+%files macros
+%{_rpmmacrodir}/macros.systemd
