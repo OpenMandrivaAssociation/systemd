@@ -111,6 +111,7 @@ BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
 BuildRequires:	elfutils-devel
+BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
@@ -1033,6 +1034,8 @@ fi
 %dir %{systemd_libdir}/*-generators
 %dir %{systemd_libdir}/network
 %dir %{systemd_libdir}/system
+%dir %{systemd_libdir}/portable
+%dir %{systemd_libdir}/portable
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/system-shutdown
 %dir %{systemd_libdir}/system-sleep
@@ -1056,6 +1059,7 @@ fi
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{systemd_libdir}/system/machines.target.wants
 %dir %{systemd_libdir}/system/remote-fs.target.wants
+%dir %{systemd_libdir}/system/user-.slice.d
 %dir %{udev_libdir}
 %dir %{udev_libdir}/hwdb.d
 %dir %{udev_rules_dir}
@@ -1148,9 +1152,11 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
+%{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
+%{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
 /%{_lib}/security/pam_systemd.so
 /bin/halt
 /bin/journalctl
@@ -1177,12 +1183,14 @@ fi
 /sbin/halt
 /sbin/poweroff
 /sbin/reboot
+/sbin/resolvconf
 %{_bindir}/busctl
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
 %{_bindir}/localectl
 %{_bindir}/systemctl
 %{_bindir}/%{name}-*
+%{_bindir}/resolvectl
 %exclude %{_bindir}/%{name}-analyze
 %exclude %{_bindir}/%{name}-cgls
 %exclude %{_bindir}/%{name}-cgtop
@@ -1195,9 +1203,11 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
@@ -1218,6 +1228,8 @@ fi
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
 
+%{systemd_libdir}/portable/*
+%{systemd_libdir}/portablectl
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/network/80-container-host0.network
@@ -1318,6 +1330,7 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.portable1.policy
 
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
