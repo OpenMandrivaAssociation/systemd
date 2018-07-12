@@ -1,6 +1,6 @@
-diff -Naur systemd-230/src/journal/journald.conf systemd-230.tpg/src/journal/journald.conf
---- systemd-230/src/journal/journald.conf	2016-05-21 22:31:29.000000000 +0000
-+++ systemd-230.tpg/src/journal/journald.conf	2016-05-24 17:11:18.853126631 +0000
+diff -Naur systemd-239/src/journal/journald.conf systemd-239.tpg/src/journal/journald.conf
+--- systemd-239/src/journal/journald.conf	2018-06-22 11:11:49.000000000 +0000
++++ systemd-239.tpg/src/journal/journald.conf	2018-07-12 14:09:22.598556914 +0000
 @@ -13,17 +13,17 @@
  
  [Journal]
@@ -11,7 +11,7 @@ diff -Naur systemd-230/src/journal/journald.conf systemd-230.tpg/src/journal/jou
  #SplitMode=uid
  #SyncIntervalSec=5m
  #RateLimitIntervalSec=30s
- #RateLimitBurst=1000
+ #RateLimitBurst=10000
 -#SystemMaxUse=
 +SystemMaxUse=150M
  #SystemKeepFree=
