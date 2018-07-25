@@ -1,5 +1,9 @@
 %ifarch %{ix86}
 %define _disable_lto 1
+# (tpg) try to make it build
+# /usr/include/kmod-25/libkmod.h:214:24: error: result of â1 << 31â requires 33 bits to represent, but âintâ only has 32 bits [-Werror=shift-overflow=]
+#  _KMOD_MODULE_PAD = (1 << 31),
+%global optflags  %{optflags} -Wno-error=shift-overflow
 %endif
 
 %bcond_with bootstrap
