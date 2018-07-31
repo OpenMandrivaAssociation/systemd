@@ -1,10 +1,9 @@
 %ifarch %{ix86}
 %define _disable_lto 1
-# (tpg) try to make it build
-# /usr/include/kmod-25/libkmod.h:214:24: error: result of â1 << 31â requires 33 bits to represent, but âintâ only has 32 bits [-Werror=shift-overflow=]
-#  _KMOD_MODULE_PAD = (1 << 31),
-%global optflags  %{optflags} -Wno-error=shift-overflow
 %endif
+
+# (tpg) special options for systemd to keep it fast and secure
+%global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32
 
 %bcond_with bootstrap
 
@@ -36,7 +35,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	239
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
