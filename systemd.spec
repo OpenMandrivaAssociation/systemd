@@ -97,6 +97,11 @@ Patch111:	0035-skip-not-present-ACPI-devices.patch
 Patch112:	0038-Compile-udev-with-O3.patch
 Patch113:	0039-Don-t-wait-for-utmp-at-shutdown.patch
 Patch114:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
+Patch115:	0032-Make-timesyncd-a-simple-service.patch
+Patch116:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
+Patch117:	0036-don-t-use-libm-just-for-integer-exp10.patch
+Patch118:	0037-Notify-systemd-earlier-that-resolved-is-ready.patch
+Patch119:	0038-Do-not-crash-if-udev-hasn-t-initialized-one-link-yet.patch
 
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
 
