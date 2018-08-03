@@ -151,7 +151,7 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/usr/lib/systemd/systemd-binfmt"))
+        assert(posix.exec("/lib/systemd/systemd-binfmt"))
     elseif pid > 0 then
         posix.wait(pid)
     end
