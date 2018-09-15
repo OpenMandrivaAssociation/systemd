@@ -69,6 +69,9 @@ Source21:	efi-loader.conf
 Source22:	efi-omv.conf
 
 Source23:	systemd-udev-trigger-no-reload.conf
+# (tpg) protect systemd from unistnalling it
+Source24:	yum-protect-systemd.conf
+
 ### OMV patches###
 # from Mandriva
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
@@ -103,6 +106,10 @@ Patch117:	0036-don-t-use-libm-just-for-integer-exp10.patch
 Patch118:	0037-Notify-systemd-earlier-that-resolved-is-ready.patch
 
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
+Patch1001:	0001-build-sys-Detect-whether-struct-statx-is-defined-in-.patch
+
+# (tpg) patch from Fedora
+Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
@@ -168,10 +175,7 @@ BuildRequires:	pkgconfig(gobject-introspection-1.0)
 Requires:	acl
 Requires:	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
-Requires(post):	gawk
-Requires(post):	awk
 Requires(post):	grep
-Requires(post):	awk
 Requires:	basesystem-minimal >= 1:3-4
 Requires:	util-linux >= 2.27
 Requires:	shadow >= 2:4.5
@@ -533,8 +537,7 @@ Group:		Development/Other
 For building RPM packages to utilize standard systemd runtime macros.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 %build
 %ifarch %{ix86}
@@ -750,6 +753,9 @@ install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
 
+# Install yum protection fragment
+install -Dm0644 %{SOURCE24} %{buildroot}%{_sysconfdir}/dnf/protected.d/systemd.conf
+
 #################
 #	UDEV	#
 #	START	#
@@ -821,7 +827,7 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.ser
 # reexec daemon on self or glibc update to avoid busy / on shutdown
 # trigger is executed on both self and target install so no need to have
 # extra own post
-if [ $1 -ge 2 -o $2 -ge 2 ]; then
+if [ $1 -ge 2 ] || [ $2 -ge 2 ]; then
     /bin/systemctl daemon-reexec 2>&1 || :
 fi
 
@@ -864,38 +870,33 @@ if [ $1 -eq 1 ]; then
 fi
 
 if [ $1 -ge 2 ]; then
-# (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
-    if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
-	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
-	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
-    fi
-
-# Remove spurious /etc/fstab entries from very old installations
-    if [ -e /etc/fstab ]; then
-	grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
-	    sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
-    fi
-
-# Try to read default runlevel from the old inittab if it exists
-    runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
-    if [ -z "$runlevel" ] ; then
-	target="/lib/systemd/system/graphical.target"
-    else
-	target="/lib/systemd/system/runlevel$runlevel.target"
-    fi
-
-# And symlink what we found to the new-style default.target
-    /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-
-# (tpg) on update always set to systemd resolv.conf
-    if [ -L /etc/resolv.conf ] && [ "$(readlink /etc/resolv.conf)" != "../run/systemd/resolve/resolv.conf" ]; then
-	rm -f /etc/resolv.conf
-	ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-    fi
-
     /bin/systemctl restart systemd-resolved.service 2>&1 || :
 fi
 
+%triggerin -- %{name} < 239
+# (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
+if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
+	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
+	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
+fi
+
+# Remove spurious /etc/fstab entries from very old installations
+if [ -e /etc/fstab ]; then
+	grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
+	    sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+fi
+
+# Try to read default runlevel from the old inittab if it exists
+runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
+if [ -z "$runlevel" ] ; then
+	target="/lib/systemd/system/graphical.target"
+    else
+	target="/lib/systemd/system/runlevel$runlevel.target"
+ fi
+
+# And symlink what we found to the new-style default.target
+/bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+	
 %preun
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
@@ -1296,6 +1297,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev_net
 %config(noreplace) %{_sysconfdir}/%{name}/*.conf
 %config(noreplace) %{_sysconfdir}/udev/*.conf
+%config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
 %{_localstatedir}/lib/systemd/catalog/database
 
 %files journal-gateway
