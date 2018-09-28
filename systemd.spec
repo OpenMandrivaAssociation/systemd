@@ -39,7 +39,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	239
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -650,7 +650,8 @@ done
 ln -s /bin/loginctl %{buildroot}%{_bindir}/%{name}-loginctl
 
 # (tpg) dracut needs this
-ln -s /bin/systemctl %{buildroot}%{_bindir}/systemctl
+ln -sf /bin/systemctl %{buildroot}%{_bindir}/systemctl
+ln -sf /bin/systemd-escape %{buildroot}%{_bindir}/systemd-escape
 
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
