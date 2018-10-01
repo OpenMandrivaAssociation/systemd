@@ -115,6 +115,9 @@ Patch1001:	0001-build-sys-Detect-whether-struct-statx-is-defined-in-.patch
 # (tpg) patch from Fedora
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
+# (tpg) drop this patch when new version is released, double check it these are in tarball
+Patch1101:	systemd-239-various-fixes.patch
+
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	audit-devel
