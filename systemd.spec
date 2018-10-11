@@ -39,7 +39,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	239
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -378,6 +378,7 @@ systemd-delta
 Summary:	Gateway for serving journal events over the network using HTTP
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{EVRD}
+BuildRequires:	rpm-helper
 Requires(pre):	rpm-helper
 Requires(post):	rpm-helper
 Requires(preun):	rpm-helper
