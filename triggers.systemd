@@ -161,7 +161,7 @@ end
 -- This script will run after any preset is installed in RPM files
 local path = "/usr/lib/systemd/system-preset"
 -- Get a list of presets that need to be enabled or disabled
--- as part of the installation of this edition
+-- as part of the installation of RPM files
 local function read_presets(path)
   local result = {}
   local f = assert(io.open(path))
@@ -182,7 +182,7 @@ local function read_presets(path)
 end
 
 local function set_presets
-      local presets = read_presets(target)
+      local presets = read_presets
       local systemctl = "/usr/bin/systemctl"
       if posix.access(systemctl, "x") then
         --fork off a systemctl call
