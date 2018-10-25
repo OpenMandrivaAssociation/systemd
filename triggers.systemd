@@ -156,3 +156,45 @@ if posix.access("/run/systemd/system") then
         posix.wait(pid)
     end
 end
+
+%transfiletriggerin -P 900901 -p <lua> -- /lib/systemd/system-preset
+-- This script will run after any preset is installed in RPM files
+local path = "/usr/lib/systemd/system-preset"
+-- Get a list of presets that need to be enabled or disabled
+-- as part of the installation of this edition
+local function read_presets(path)
+  local result = {}
+  local f = assert(io.open(path))
+  if f ~= nil then
+    while true do
+      local line = f:read()
+      if line == nil then
+        break
+      end
+      local cmd, arg = line:match("^([^ \t]+)[ \t]+([^\n \t]+)")
+      if cmd == "enable" or cmd == "disable" then
+        result[#result + 1] = arg
+      end
+    end
+    f:close()
+  end
+  return result
+end
+
+local function set_presets
+      local presets = read_presets(target)
+      local systemctl = "/usr/bin/systemctl"
+      if posix.access(systemctl, "x") then
+        --fork off a systemctl call
+        local pid = assert(posix.fork())
+        if pid == 0 then
+          -- Child
+          posix.exec(systemctl, "preset", "-q", "--now", table.unpack(presets))
+          -- In case exec() fails
+          os.exit(17)
+        else
+          -- RPM
+          assert(posix.wait(pid))
+        end
+      end
+end
