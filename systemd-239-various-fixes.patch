@@ -51,9 +51,9 @@ diff -Naur systemd-239/tmpfiles.d/systemd.conf.m4 systemd-239.tpg/tmpfiles.d/sys
 -d /run/systemd/netif - - - -
 -d /run/systemd/netif/links - - - -
 -d /run/systemd/netif/leases - - - -
-+d /run/systemd/netif systemd-network systemd-network -
-+d /run/systemd/netif/links systemd-network systemd-network -
-+d /run/systemd/netif/leases systemd-network systemd-network -
++d /run/systemd/netif 0755 systemd-network systemd-network -
++d /run/systemd/netif/links 0755 systemd-network systemd-network -
++d /run/systemd/netif/leases 0755 systemd-network systemd-network -
  )m4_dnl
  
  d /run/log 0755 root root -
