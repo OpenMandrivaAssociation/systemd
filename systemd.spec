@@ -841,16 +841,18 @@ if [ $1 -ge 2 ] || [ $2 -ge 2 ]; then
 fi
 
 %post
-/bin/systemd-firstboot --setup-machine-id >/dev/null 2>&1 ||:
-/bin/systemd-sysusers >/dev/null 2>&1 ||:
-/bin/systemd-machine-id-setup >/dev/null 2>&1 ||:
-%{systemd_libdir}/systemd-random-seed save >/dev/null 2>&1 || :
-/bin/systemctl daemon-reexec >/dev/null 2>&1 || :
-/bin/systemctl start systemd-udevd.service >/dev/null 2>&1 || :
-/bin/journalctl --update-catalog >/dev/null 2>&1 || :
+/bin/systemd-firstboot --setup-machine-id &>/dev/null ||:
+/bin/systemd-sysusers &>/dev/null ||:
+/bin/systemd-machine-id-setup &>/dev/null ||:
+%{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
+/bin/systemctl daemon-reexec &>/dev/null ||:
+/bin/journalctl --update-catalog &>/dev/null ||:
+/bin/systemd-tmpfiles --create &>/dev/null ||:
 
 # Enable the services we install by default.
-/bin/systemctl preset-all &>/dev/null || :
+if [ $1 -eq 1 ] ; then
+    /bin/systemctl preset-all &>/dev/null || :
+fi
 
 hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
 if [ -z "$hostname_new" ]; then
@@ -905,7 +907,7 @@ if [ -z "$runlevel" ] ; then
 
 # And symlink what we found to the new-style default.target
 /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-	
+
 %preun
 if [ $1 -eq 0 ] ; then
     /bin/systemctl --quiet disable \
