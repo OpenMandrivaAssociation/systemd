@@ -39,7 +39,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	239
-Release:	8
+Release:	9
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -50,13 +50,11 @@ Source1:	triggers.systemd
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
+Source6:	81-net.rules
 # (blino) net rules and helpers
-Source6:	76-net.rules
 Source7:	udev_net_create_ifcfg
 Source8:	udev_net_action
 Source9:	udev_net.sysconfig
-# (hk) udev rules for zte 3g modems with drakx-net
-Source10:	61-mobile-zte-drakx-net.rules
 Source11:	listen.conf
 # (tpg) default preset for services
 Source12:	99-default-disable.preset
