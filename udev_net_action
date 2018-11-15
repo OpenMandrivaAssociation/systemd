@@ -2,19 +2,19 @@
 
 # conform to network service (USE NM ONLY)
 
-if ! [[ `/usr/bin/systemctl is-enabled NetworkManager` = "enabled" ]]; then
+if ! [ $(/usr/bin/systemctl is-enabled NetworkManager) = 'enabled'] || ! [ $(/usr/bin/systemctl is-enabled systemd-networkd) = 'enabled' ] ; then
 
-[ -z "$INTERFACE" ] && exit 0
-[ ! -f /var/lock/subsys/network ] && exit 0
+    [ -z "$INTERFACE" ] && exit 0
+    [ ! -f /var/lock/subsys/network ] && exit 0
 
-[ -r /etc/sysconfig/udev_net ] && . /etc/sysconfig/udev_net
-[ -n "$BLACKLIST_ALL" ] && eval "case $INTERFACE in $BLACKLIST_ALL) exit 1;; esac"
+    [ -r /etc/sysconfig/udev_net ] && . /etc/sysconfig/udev_net
+    [ -n "$BLACKLIST_ALL" ] && eval "case $INTERFACE in $BLACKLIST_ALL) exit 1;; esac"
 
-CFG=/etc/sysconfig/network-scripts/ifcfg-$INTERFACE
-[ ! -r $CFG ] && exit 0
+    CFG=/etc/sysconfig/network-scripts/ifcfg-$INTERFACE
+    [ ! -r $CFG ] && exit 0
 
-export IN_HOTPLUG=1
-[ "$ACTION" = add ] && exec /sbin/ifup $INTERFACE daemon
-[ "$ACTION" = remove ] && exec /sbin/ifdown $INTERFACE daemon
+    export IN_HOTPLUG=1
+    [ "$ACTION" = add ] && exec /sbin/ifup $INTERFACE daemon
+    [ "$ACTION" = remove ] && exec /sbin/ifdown $INTERFACE daemon
 
 fi

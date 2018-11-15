@@ -13,7 +13,7 @@ CFG=/etc/sysconfig/network-scripts/ifcfg-$INTERFACE
 [ "$PHYSDEVDRIVER" = "ne2k-pci" ] || /usr/sbin/ethtool $INTERFACE &>/dev/null || exit 0
 
 # conform to network service (USE NM ONLY)
-if ! [[ `/usr/bin/systemctl is-enabled NetworkManager` = "enabled" ]]; then
+if ! [ $(/usr/bin/systemctl is-enabled NetworkManager) = 'enabled' ] || ! [ $(/usr/bin/systemctl is-enabled systemd-networkd) = 'enabled' ]; then
 
 	debug_mesg creating config file for $INTERFACE
 	cat > $CFG <<EOF
