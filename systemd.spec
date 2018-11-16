@@ -779,7 +779,6 @@ install -m 0755 %{SOURCE7} %{buildroot}%{udev_libdir}/net_create_ifcfg
 install -m 0755 %{SOURCE8} %{buildroot}%{udev_libdir}/net_action
 install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/sysconfig/udev_net
 
-install -m 0644 %{SOURCE10} %{buildroot}%{udev_rules_dir}/
 install -m 0644 %{SOURCE19} %{buildroot}%{udev_rules_dir}/
 
 # probably not required, but let's just be on the safe side for now..
