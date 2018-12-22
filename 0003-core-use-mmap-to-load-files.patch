@@ -1,23 +1,12 @@
-From 4058eb4f688d02b5ed3ff3d4297042c7f0b1c786 Mon Sep 17 00:00:00 2001
-From: Dimitri John Ledkov <dimitri.j.ledkov@intel.com>
-Date: Tue, 23 Jun 2015 11:26:11 +0100
-Subject: [PATCH 03/39] core: use mmap to load files.
-
----
- src/core/load-fragment.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff -Naur systemd-239/src/core/load-fragment.c systemd-239.tpg/src/core/load-fragment.c
---- systemd-239/src/core/load-fragment.c	2018-06-22 11:11:49.000000000 +0000
-+++ systemd-239.tpg/src/core/load-fragment.c	2018-07-12 14:18:20.733521676 +0000
-@@ -4174,7 +4174,7 @@
+diff -up systemd-240/src/core/load-fragment.c.11~ systemd-240/src/core/load-fragment.c
+--- systemd-240/src/core/load-fragment.c.11~	2018-12-22 14:52:34.550163871 +0100
++++ systemd-240/src/core/load-fragment.c	2018-12-22 14:53:51.664738838 +0100
+@@ -4415,7 +4415,7 @@ static int open_follow(char **filename,
                  free_and_replace(*filename, target);
          }
  
--        f = fdopen(fd, "re");
-+        f = fdopen(fd, "rem");
+-        f = fdopen(fd, "r");
++        f = fdopen(fd, "rm");
          if (!f) {
                  safe_close(fd);
                  return -errno;
--- 
-2.13.3

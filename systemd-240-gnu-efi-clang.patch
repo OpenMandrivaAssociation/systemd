@@ -1,0 +1,17 @@
+diff -up systemd-240/src/boot/efi/meson.build.omv~ systemd-240/src/boot/efi/meson.build
+--- systemd-240/src/boot/efi/meson.build.omv~	2018-12-22 15:14:45.172629815 +0100
++++ systemd-240/src/boot/efi/meson.build	2018-12-22 15:17:38.432091070 +0100
+@@ -64,6 +64,13 @@ if conf.get('ENABLE_EFI') == 1 and get_o
+                         if ret.returncode() == 0
+                                 efi_libdir = ret.stdout().strip()
+                         endif
++                else
++                        # clang doesn't do -print-multi-os-directory
++                        if efi_arch == 'aarch64' or efi_arch == 'x86_64'
++                                efi_libdir = '/usr/lib64'
++                        else
++                                efi_libdir = '/usr/lib'
++                        endif
+                 endif
+         endif
+ 

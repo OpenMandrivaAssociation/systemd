@@ -1,13 +1,13 @@
-diff -Naur systemd-238/src/basic/macro.h systemd-238.tpg/src/basic/macro.h
---- systemd-238/src/basic/macro.h	2018-04-11 16:07:49.531228000 +0000
-+++ systemd-238.tpg/src/basic/macro.h	2018-04-11 16:09:45.745467487 +0000
-@@ -48,10 +48,10 @@
- #define _weakref_(x) __attribute__((weakref(#x)))
- #define _alignas_(x) __attribute__((aligned(__alignof(x))))
- #define _cleanup_(x) __attribute__((cleanup(x)))
+diff -up systemd-240/src/basic/macro.h.26~ systemd-240/src/basic/macro.h
+--- systemd-240/src/basic/macro.h.26~	2018-12-22 15:01:20.733125593 +0100
++++ systemd-240/src/basic/macro.h	2018-12-22 15:02:11.158954468 +0100
+@@ -35,10 +35,10 @@
+ #define _alignas_(x) __attribute__((__aligned__(__alignof(x))))
+ #define _alignptr_ __attribute__((__aligned__(sizeof(void*))))
+ #define _cleanup_(x) __attribute__((__cleanup__(x)))
 -#if __GNUC__ >= 7
 +#if __GNUC__ >= 7 && __has_attribute(__fallthrough__)
- #define _fallthrough_ __attribute__((fallthrough))
+ #define _fallthrough_ __attribute__((__fallthrough__))
  #else
 -#define _fallthrough_
 +#define _fallthrough_ ((void) 0)

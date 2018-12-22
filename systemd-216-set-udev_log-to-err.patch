@@ -1,9 +1,12 @@
-diff -Naur systemd-238/src/udev/udev.conf systemd-238.tpg/src/udev/udev.conf
---- systemd-238/src/udev/udev.conf	2018-03-05 22:16:37.000000000 +0000
-+++ systemd-238.tpg/src/udev/udev.conf	2018-03-10 15:58:59.774234921 +0000
-@@ -3,4 +3,4 @@
+diff -up systemd-240/src/udev/udev.conf.2~ systemd-240/src/udev/udev.conf
+--- systemd-240/src/udev/udev.conf.2~	2018-12-22 14:52:00.254913845 +0100
++++ systemd-240/src/udev/udev.conf	2018-12-22 14:52:21.494696075 +0100
+@@ -3,7 +3,7 @@
  # udevd is also started in the initrd.  When this file is modified you might
  # also want to rebuild the initrd, so that it will include the modified configuration.
  
--#udev_log="info"
-+udev_log="err"
+-#udev_log=info
++udev_log=err
+ #children_max=
+ #exec_delay=
+ #event_timeout=180
