@@ -38,12 +38,12 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	239
-Release:	9
+Version:	240
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
-Source0:	http://www.freedesktop.org/software/%{name}/%{name}-%{version}.tar.gz
+Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 # This file must be available before %%prep.
 # It is generated during systemd build and can be found in src/core/.
 Source1:	triggers.systemd
@@ -105,16 +105,13 @@ Patch114:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
 Patch115:	0032-Make-timesyncd-a-simple-service.patch
 Patch116:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0036-don-t-use-libm-just-for-integer-exp10.patch
-Patch118:	0037-Notify-systemd-earlier-that-resolved-is-ready.patch
 
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
-Patch1001:	0001-build-sys-Detect-whether-struct-statx-is-defined-in-.patch
+Patch1001:	systemd-240-gnu-efi-clang.patch
+Patch1002:	systemd-240-compile-with-clang.patch
 
 # (tpg) patch from Fedora
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-
-# (tpg) drop this patch when new version is released, double check it these are in tarball
-Patch1101:	systemd-239-various-fixes.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
@@ -1245,7 +1242,7 @@ fi
 %{_sysconfdir}/xdg/%{name}
 
 %{systemd_libdir}/portable/*
-%{systemd_libdir}/portablectl
+/bin/portablectl
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/network/80-container-host0.network
@@ -1371,7 +1368,9 @@ fi
 %{_includedir}/%{name}/sd-bus-protocol.h
 %{_includedir}/%{name}/sd-bus-vtable.h
 %{_includedir}/%{name}/sd-bus.h
+%{_includedir}/%{name}/sd-device.h
 %{_includedir}/%{name}/sd-event.h
+%{_includedir}/%{name}/sd-hwdb.h
 %{_includedir}/%{name}/sd-id128.h
 %{_includedir}/%{name}/sd-journal.h
 %{_includedir}/%{name}/sd-login.h
@@ -1450,7 +1449,6 @@ fi
 %{udev_rules_dir}/75-probe_mtd.rules
 %{udev_rules_dir}/78-sound-card.rules
 %{udev_libdir}/cdrom_id
-%{udev_libdir}/collect
 %{udev_libdir}/mtd_probe
 %{udev_libdir}/v4l_id
 

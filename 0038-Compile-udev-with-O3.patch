@@ -1,28 +1,28 @@
-diff -Naur systemd-237/meson.build systemd-237.tpg/meson.build
---- systemd-237/meson.build	2018-01-28 15:58:17.000000000 +0000
-+++ systemd-237.tpg/meson.build	2018-02-08 15:45:24.261941558 +0000
-@@ -2316,7 +2316,7 @@
+diff -up systemd-240/meson.build.20~ systemd-240/meson.build
+--- systemd-240/meson.build.20~	2018-12-22 14:57:21.034386538 +0100
++++ systemd-240/meson.build	2018-12-22 14:58:33.350976101 +0100
+@@ -2622,7 +2622,7 @@ public_programs += exe
  exe = executable('systemd-udevd',
                   systemd_udevd_sources,
                   include_directories : includes,
--                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
+-                 c_args : '-DLOG_REALM=LOG_REALM_UDEV',
 +                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
                   link_with : [libudev_core,
                                libsystemd_network,
                                libudev_static],
-@@ -2332,7 +2332,7 @@
+@@ -2638,7 +2638,7 @@ public_programs += exe
  
  exe = executable('udevadm',
                   udevadm_sources,
--                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
+-                 c_args : '-DLOG_REALM=LOG_REALM_UDEV',
 +                 c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
                   include_directories : includes,
                   link_with : [libudev_core,
                                libsystemd_network,
-diff -Naur systemd-237/src/udev/meson.build systemd-237.tpg/src/udev/meson.build
---- systemd-237/src/udev/meson.build	2018-01-28 15:58:17.000000000 +0000
-+++ systemd-237.tpg/src/udev/meson.build	2018-02-08 15:44:07.975654245 +0000
-@@ -170,7 +170,7 @@
+diff -up systemd-240/src/udev/meson.build.20~ systemd-240/src/udev/meson.build
+--- systemd-240/src/udev/meson.build.20~	2018-12-21 19:53:33.000000000 +0100
++++ systemd-240/src/udev/meson.build	2018-12-22 14:57:21.035386561 +0100
+@@ -177,7 +177,7 @@ foreach prog : [['ata_id/ata_id.c'],
          executable(prog[0].split('/')[0],
                     prog,
                     include_directories : includes,
