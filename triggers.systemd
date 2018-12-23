@@ -159,10 +159,10 @@ end
 
 %transfiletriggerin -P 900901 -p <lua> -- /lib/systemd/system-preset
 -- This script will run after any preset is installed in RPM files
-local path = "/usr/lib/systemd/system-preset"
 -- Get a list of presets that need to be enabled or disabled
 -- as part of the installation of RPM files
-local function read_presets(path)
+local function read_presets
+  local path = "/usr/lib/systemd/system-preset"
   local result = {}
   local f = assert(io.open(path))
   if f ~= nil then
