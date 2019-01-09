@@ -39,7 +39,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	240
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -112,6 +112,9 @@ Patch1002:	systemd-240-compile-with-clang.patch
 
 # (tpg) patch from Fedora
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
+# (tpg) upstream patches
+# https://github.com/systemd/systemd/issues/11255
+Patch120:	udev-event-do-not-read-stdout-or-stderr-if-the-pipefd-is-.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
