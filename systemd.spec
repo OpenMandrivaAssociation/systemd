@@ -39,7 +39,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	240
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -90,7 +90,6 @@ Patch18:	0516-udev-silence-version-print.patch
 Patch100:	0001-journal-raise-compression-threshold.patch
 Patch101:	0002-journal-clearout-drop-kmsg.patch
 Patch102:	0003-core-use-mmap-to-load-files.patch
-
 Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
 Patch104:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch105:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
@@ -106,15 +105,42 @@ Patch115:	0032-Make-timesyncd-a-simple-service.patch
 Patch116:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0036-don-t-use-libm-just-for-integer-exp10.patch
 
+# (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
 Patch1001:	systemd-240-gnu-efi-clang.patch
 Patch1002:	systemd-240-compile-with-clang.patch
 
-# (tpg) patch from Fedora
+# (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
+
 # (tpg) upstream patches
-# https://github.com/systemd/systemd/issues/11255
-Patch120:	udev-event-do-not-read-stdout-or-stderr-if-the-pipefd-is-.patch
+
+Patch120:	0000-Do-not-start-server-if-it-is-already-runnning-11245.patch
+Patch121:	0000-core-free-lines-after-reading-them.patch
+Patch122:	0000-udev-event-do-not-read-stdout-or-stderr-if-the-pipef.patch
+Patch123:	0000-Make-default-locale-a-compile-time-option.patch
+Patch124:	0000-journal-rely-on-_cleanup_free_-to-free-a-temporary-s.patch
+Patch125:	0000-ask-password-make-ask_password_keyring-static.patch
+Patch126:	0000-ask-password-api-do-not-call-ask_password_keyring-if.patch
+Patch127:	0000-sd-device-fix-segfault-when-error-occurs-in-device_n.patch
+Patch128:	0000-Revert-sd-device-ignore-bind-unbind-events-for-now.patch
+Patch129:	0000-Revert-udevd-configure-a-child-process-name-for-work.patch
+#Patch130:	0000-udevadm-add-a-workaround-for-dracut.patch
+Patch131:	0000-network-do-not-ignore-errors-on-link_request_set_nei.patch
+Patch132:	0000-network-rename-link_set_routing_policy_rule-to-link_.patch
+Patch133:	0000-network-set-_configured-flags-to-false-before-reques.patch
+Patch134:	0000-libudev-util-make-util_replace_whitespace-read-only-.patch
+Patch135:	0000-Revert-pam_systemd-drop-setting-DBUS_SESSION_BUS_ADD.patch
+Patch136:	0000-pam_systemd-set-DBUS_SESSION_BUS_ADDRESS-uncondition.patch
+#Patch137:	0000-Print-the-systemd-version-in-a-format-that-dracut-li.patch
+Patch138:	0000-udev-rework-how-we-handle-the-return-value-from-spaw.patch
+Patch139:	0000-udevadm-refuse-to-run-trigger-control-settle-and-mon.patch
+Patch140:	0000-udev-node-make-link_find_prioritized-return-negative.patch
+Patch141:	0000-core-mount-make-mount_setup_existing_unit-not-drop-M.patch
+
+Patch142:	0000-journald-do-not-store-the-iovec-entry-for-process-co.patch
+Patch143:	0000-basic-process-util-limit-command-line-lengths-to-_SC.patch
+Patch144:	0000-journald-set-a-limit-on-the-number-of-fields-1k.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
