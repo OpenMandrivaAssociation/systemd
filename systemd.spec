@@ -39,7 +39,7 @@
 Summary:	A System and Session Manager
 Name:		systemd
 Version:	240
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -270,8 +270,8 @@ Provides:	MAKEDEV = 4.4-23
 Conflicts:	makedev < 4.4-23
 Obsoletes:	readahead < 1.5.7-8
 Provides:	readahead = 1.5.7-8
-Obsoletes:	resolvconf < 1.75-3
-Provides:	resolvconf = 1.75-3
+Obsoletes:	resolvconf < 1.75-6
+Provides:	resolvconf = 1.75-6
 Obsoletes:	bootchart < 2.0.11.4-3
 Provides:	bootchart = 2.0.11.4-3
 Obsoletes:	python-%{name} < 223
