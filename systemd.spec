@@ -891,7 +891,7 @@ fi
 if [ $1 -ge 1 ]; then
     if [ ! -e /run/systemd/resolve/resolv.conf ]; then
 	mkdir -p /run/systemd/resolve
-	echo -e "nameserver 208.67.222.222\nnameserver 208.67.220.220\n" > /run/systemd/resolve/resolv.conf
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
     fi
 fi
 
