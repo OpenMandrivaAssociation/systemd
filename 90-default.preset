@@ -1,6 +1,9 @@
 # tpg@mandriva.org
-# By default all services are enabled in their rpm packages
-# anyways just override it here
+# By default all services have to be enabled in their rpm packages
+# Here we can force some defaults for things may need be on all the time
+
+# Core services , systemd ones make sense to enable here
+# anything else please don't.
 
 # systemd stuff
 enable remote-fs.target
@@ -8,22 +11,11 @@ enable remote-cryptsetup.target
 enable machines.target
 enable getty@tty1.service
 
-# Enable ACPI daemon
-enable acpid.*
-
 # Enable udev service
 enable systemd-udev*.service
 enable systemd-udev*.socket
 
-# Enable udisk service
-enable udisks2.service
-
-# Enable upower service
-enable upower.service
-
-# Enable polkit service
-enable polkit.service
-
+# (crazy) what is this ?
 # Enable mandriva services
 enable mandriva-everytime.service
 
@@ -33,23 +25,9 @@ enable NetworkManager-dispatcher.service
 enable ModemManager.service
 
 # Enable other system services
-enable sshd.socket
-enable atd.*
-enable crond.*
-enable rpcbind.socket
-enable bluetooth.*
-enable cups.path
-enable cups.socket
-enable cups.service
-enable cups-browsed.service
-enable cups-lpd.socket
-enable accounts-daemon.service
-enable rtkit-daemon.service
-enable usbmuxd.service
 enable man-db.*
 enable nscd.*
 enable shadow.*
-enable saned.socket
 enable systemd-bus-proxy.socket
 enable systemd-initctl.socket
 enable systemd-journald.socket
@@ -61,25 +39,12 @@ enable systemd-timesyncd.service
 enable systemd-rfkill.socket
 enable firewalld.service
 enable iptables.service
-enable realmd.service
-enable xinetd.service
-
-# Storage services
-enable multipathd.service
-enable blk-availability.service
-enable lvm2-monitor.*
-enable lvm2-lvmetad.*
-enable dm-event.*
-enable mdmonitor.service
 
 # Hardware services
-enable irqbalance.service
-enable lm_sensors.service
 enable uuidd.*
 enable gpm.*
-enable dkms.service
-enable cpupower.service
 
+# (crazy) that may be ok
 # Sound services
 enable alsa*.service
 enable sound.service
