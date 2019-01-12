@@ -63,7 +63,9 @@ Source14:	85-display-manager.preset
 Source16:	systemd.rpmlintrc
 # (tpg) by default enable network on eth, enp0s3
 Source17:	90-enable.network
-Source18:	90-user-default.preset
+# (crazy) don't play weird games with these
+# never enable / disable like this
+#Source18:	90-user-default.preset
 Source19:	10-imx.rules
 Source20:	90-wireless.network
 # (tpg) EFI bootctl
@@ -765,7 +767,8 @@ install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
 install -m 0644 %{SOURCE20} %{buildroot}%{systemd_libdir}/network/
 
 # (tpg) install userspace presets
-install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
+# (crazy) .. but not like this
+#install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
 
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/

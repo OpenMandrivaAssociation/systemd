@@ -2,3 +2,5 @@
 # By default disable services which are not in 90-default.preset
 disable *
 disable systemd-firstboot.service
+disable systemd-networkd.socket
+disable systemd-networkd.service
