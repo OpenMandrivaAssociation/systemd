@@ -1,0 +1,540 @@
+From 270db58d139aeee76b9164657256e26a6792a75a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zbigniew=20J=C4=99drzejewski-Szmek?= <zbyszek@in.waw.pl>
+Date: Thu, 10 Jan 2019 16:09:52 +0100
+Subject: [PATCH] Revert "nss: prevent PROTECT_ERRNO from squashing changes to
+ *errnop"
+
+This reverts commit b26c90411343d74b15deb24bd87077848e316dab.
+
+I don't see anythign wrong, but Ubuntu autopkgtest CI started failing fairly
+consistently since this was merged. Let's see if reverting fixes things.
+---
+ src/basic/util.h                    | 23 +---------
+ src/nss-myhostname/nss-myhostname.c | 23 +++++-----
+ src/nss-mymachines/nss-mymachines.c | 26 +++++------
+ src/nss-resolve/nss-resolve.c       | 16 +++----
+ src/nss-systemd/nss-systemd.c       | 16 +++----
+ src/test/test-fs-util.c             |  6 +--
+ src/test/test-util.c                | 67 -----------------------------
+ 7 files changed, 44 insertions(+), 133 deletions(-)
+
+diff --git a/src/basic/util.h b/src/basic/util.h
+index 77ef1d9892a..f009d37d4c6 100644
+--- a/src/basic/util.h
++++ b/src/basic/util.h
+@@ -174,33 +174,12 @@ static inline void *mempset(void *s, int c, size_t n) {
+ }
+ 
+ static inline void _reset_errno_(int *saved_errno) {
+-        if (*saved_errno >= 0)
+-                errno = *saved_errno;
++        errno = *saved_errno;
+ }
+ 
+ #define PROTECT_ERRNO                                                   \
+         _cleanup_(_reset_errno_) _unused_ int _saved_errno_ = errno
+ 
+-/*
+- * NSS modules should indicate errors by assigning to the passed-in *errnop
+- * rather than errno directly; however in dynamically-linked programs, errnop
+- * == &errno, so PROTECT_ERRNO has to be disabled in order for assigning to
+- * *errnop to be effective.
+- */
+-#define DISARM_PROTECT_ERRNO(r) \
+-        ({ \
+-                _reset_errno_(&_saved_errno_); \
+-                _saved_errno_ = -1; \
+-                abs(r); \
+-        })
+-
+-#define DISARM_PROTECT_ERRNO_INNER(r) \
+-        ({ \
+-                _reset_errno_(_saved_errno_p); \
+-                *_saved_errno_p = -1; \
+-                abs(r); \
+-        })
+-
+ static inline int negative_errno(void) {
+         /* This helper should be used to shut up gcc if you know 'errno' is
+          * negative. Instead of "return -errno;", use "return negative_errno();"
+diff --git a/src/nss-myhostname/nss-myhostname.c b/src/nss-myhostname/nss-myhostname.c
+index baeb6f952dd..5abc0c91bf2 100644
+--- a/src/nss-myhostname/nss-myhostname.c
++++ b/src/nss-myhostname/nss-myhostname.c
+@@ -74,7 +74,7 @@ enum nss_status _nss_myhostname_gethostbyname4_r(
+         } else {
+                 hn = gethostname_malloc();
+                 if (!hn) {
+-                        *errnop = DISARM_PROTECT_ERRNO(ENOMEM);
++                        *errnop = ENOMEM;
+                         *h_errnop = NO_RECOVERY;
+                         return NSS_STATUS_TRYAGAIN;
+                 }
+@@ -96,7 +96,7 @@ enum nss_status _nss_myhostname_gethostbyname4_r(
+         l = strlen(canonical);
+         ms = ALIGN(l+1) + ALIGN(sizeof(struct gaih_addrtuple)) * (n_addresses > 0 ? n_addresses : 2);
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -171,7 +171,7 @@ static enum nss_status fill_in_hostent(
+                 uint32_t local_address_ipv4,
+                 struct hostent *result,
+                 char *buffer, size_t buflen,
+-                int *errnop, int *h_errnop, int* _saved_errno_p,
++                int *errnop, int *h_errnop,
+                 int32_t *ttlp,
+                 char **canonp) {
+ 
+@@ -185,7 +185,6 @@ static enum nss_status fill_in_hostent(
+         assert(buffer);
+         assert(errnop);
+         assert(h_errnop);
+-        assert(_saved_errno_p);
+ 
+         alen = FAMILY_ADDRESS_SIZE(af);
+ 
+@@ -203,7 +202,7 @@ static enum nss_status fill_in_hostent(
+                 (c > 0 ? c+1 : 2) * sizeof(char*);
+ 
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO_INNER(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -322,7 +321,7 @@ enum nss_status _nss_myhostname_gethostbyname3_r(
+                 af = AF_INET;
+ 
+         if (!IN_SET(af, AF_INET, AF_INET6)) {
+-                *errnop = DISARM_PROTECT_ERRNO(EAFNOSUPPORT);
++                *errnop = EAFNOSUPPORT;
+                 *h_errnop = NO_DATA;
+                 return NSS_STATUS_UNAVAIL;
+         }
+@@ -344,7 +343,7 @@ enum nss_status _nss_myhostname_gethostbyname3_r(
+         } else {
+                 hn = gethostname_malloc();
+                 if (!hn) {
+-                        *errnop = DISARM_PROTECT_ERRNO(ENOMEM);
++                        *errnop = ENOMEM;
+                         *h_errnop = NO_RECOVERY;
+                         return NSS_STATUS_TRYAGAIN;
+                 }
+@@ -370,7 +369,7 @@ enum nss_status _nss_myhostname_gethostbyname3_r(
+                         local_address_ipv4,
+                         host,
+                         buffer, buflen,
+-                        errnop, h_errnop, &_saved_errno_,
++                        errnop, h_errnop,
+                         ttlp,
+                         canonp);
+ }
+@@ -402,13 +401,13 @@ enum nss_status _nss_myhostname_gethostbyaddr2_r(
+         assert(h_errnop);
+ 
+         if (!IN_SET(af, AF_INET, AF_INET6)) {
+-                *errnop = DISARM_PROTECT_ERRNO(EAFNOSUPPORT);
++                *errnop = EAFNOSUPPORT;
+                 *h_errnop = NO_DATA;
+                 return NSS_STATUS_UNAVAIL;
+         }
+ 
+         if (len != FAMILY_ADDRESS_SIZE(af)) {
+-                *errnop = DISARM_PROTECT_ERRNO(EINVAL);
++                *errnop = EINVAL;
+                 *h_errnop = NO_RECOVERY;
+                 return NSS_STATUS_UNAVAIL;
+         }
+@@ -462,7 +461,7 @@ enum nss_status _nss_myhostname_gethostbyaddr2_r(
+         if (!canonical || additional_from_hostname) {
+                 hn = gethostname_malloc();
+                 if (!hn) {
+-                        *errnop = DISARM_PROTECT_ERRNO(ENOMEM);
++                        *errnop = ENOMEM;
+                         *h_errnop = NO_RECOVERY;
+                         return NSS_STATUS_TRYAGAIN;
+                 }
+@@ -480,7 +479,7 @@ enum nss_status _nss_myhostname_gethostbyaddr2_r(
+                         local_address_ipv4,
+                         host,
+                         buffer, buflen,
+-                        errnop, h_errnop, &_saved_errno_,
++                        errnop, h_errnop,
+                         ttlp,
+                         NULL);
+ }
+diff --git a/src/nss-mymachines/nss-mymachines.c b/src/nss-mymachines/nss-mymachines.c
+index 332d440a51e..3d1fc283533 100644
+--- a/src/nss-mymachines/nss-mymachines.c
++++ b/src/nss-mymachines/nss-mymachines.c
+@@ -153,7 +153,7 @@ enum nss_status _nss_mymachines_gethostbyname4_r(
+         l = strlen(name);
+         ms = ALIGN(l+1) + ALIGN(sizeof(struct gaih_addrtuple)) * c;
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -227,7 +227,7 @@ enum nss_status _nss_mymachines_gethostbyname4_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         *h_errnop = NO_DATA;
+         return NSS_STATUS_UNAVAIL;
+ }
+@@ -313,7 +313,7 @@ enum nss_status _nss_mymachines_gethostbyname3_r(
+         ms = ALIGN(l+1) + c * ALIGN(alen) + (c+2) * sizeof(char*);
+ 
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -396,7 +396,7 @@ enum nss_status _nss_mymachines_gethostbyname3_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         *h_errnop = NO_DATA;
+         return NSS_STATUS_UNAVAIL;
+ }
+@@ -484,7 +484,7 @@ enum nss_status _nss_mymachines_getpwnam_r(
+ 
+         l = strlen(name);
+         if (buflen < l+1) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -501,7 +501,7 @@ enum nss_status _nss_mymachines_getpwnam_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+@@ -564,7 +564,7 @@ enum nss_status _nss_mymachines_getpwuid_r(
+                 return NSS_STATUS_NOTFOUND;
+ 
+         if (snprintf(buffer, buflen, "vu-%s-" UID_FMT, machine, (uid_t) mapped) >= (int) buflen) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -579,7 +579,7 @@ enum nss_status _nss_mymachines_getpwuid_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+@@ -662,7 +662,7 @@ enum nss_status _nss_mymachines_getgrnam_r(
+ 
+         l = sizeof(char*) + strlen(name) + 1;
+         if (buflen < l) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -677,7 +677,7 @@ enum nss_status _nss_mymachines_getgrnam_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+@@ -740,13 +740,13 @@ enum nss_status _nss_mymachines_getgrgid_r(
+                 return NSS_STATUS_NOTFOUND;
+ 
+         if (buflen < sizeof(char*) + 1) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+         memzero(buffer, sizeof(char*));
+         if (snprintf(buffer + sizeof(char*), buflen - sizeof(char*), "vg-%s-" GID_FMT, machine, (gid_t) mapped) >= (int) buflen) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -758,6 +758,6 @@ enum nss_status _nss_mymachines_getgrgid_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+diff --git a/src/nss-resolve/nss-resolve.c b/src/nss-resolve/nss-resolve.c
+index a283384f902..a28b5d8ba81 100644
+--- a/src/nss-resolve/nss-resolve.c
++++ b/src/nss-resolve/nss-resolve.c
+@@ -186,7 +186,7 @@ enum nss_status _nss_resolve_gethostbyname4_r(
+         l = strlen(canonical);
+         ms = ALIGN(l+1) + ALIGN(sizeof(struct gaih_addrtuple)) * c;
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -267,7 +267,7 @@ enum nss_status _nss_resolve_gethostbyname4_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         *h_errnop = NO_RECOVERY;
+         return ret;
+ 
+@@ -364,7 +364,7 @@ enum nss_status _nss_resolve_gethostbyname3_r(
+         ms = ALIGN(l+1) + c * ALIGN(alen) + (c+2) * sizeof(char*);
+ 
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -455,7 +455,7 @@ enum nss_status _nss_resolve_gethostbyname3_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         *h_errnop = NO_RECOVERY;
+         return ret;
+ 
+@@ -492,13 +492,13 @@ enum nss_status _nss_resolve_gethostbyaddr2_r(
+         assert(h_errnop);
+ 
+         if (!IN_SET(af, AF_INET, AF_INET6)) {
+-                *errnop = DISARM_PROTECT_ERRNO(EAFNOSUPPORT);
++                *errnop = EAFNOSUPPORT;
+                 *h_errnop = NO_DATA;
+                 return NSS_STATUS_UNAVAIL;
+         }
+ 
+         if (len != FAMILY_ADDRESS_SIZE(af)) {
+-                *errnop = DISARM_PROTECT_ERRNO(EINVAL);
++                *errnop = EINVAL;
+                 *h_errnop = NO_RECOVERY;
+                 return NSS_STATUS_UNAVAIL;
+         }
+@@ -576,7 +576,7 @@ enum nss_status _nss_resolve_gethostbyaddr2_r(
+               c * sizeof(char*);        /* pointers to aliases, plus trailing NULL */
+ 
+         if (buflen < ms) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 *h_errnop = NETDB_INTERNAL;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+@@ -636,7 +636,7 @@ enum nss_status _nss_resolve_gethostbyaddr2_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         *h_errnop = NO_RECOVERY;
+         return ret;
+ 
+diff --git a/src/nss-systemd/nss-systemd.c b/src/nss-systemd/nss-systemd.c
+index 96e6c42ff7e..f554828d49a 100644
+--- a/src/nss-systemd/nss-systemd.c
++++ b/src/nss-systemd/nss-systemd.c
+@@ -210,7 +210,7 @@ enum nss_status _nss_systemd_getpwnam_r(
+ 
+         l = strlen(name);
+         if (buflen < l+1) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -227,7 +227,7 @@ enum nss_status _nss_systemd_getpwnam_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+@@ -310,7 +310,7 @@ enum nss_status _nss_systemd_getpwuid_r(
+ 
+         l = strlen(translated) + 1;
+         if (buflen < l) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -327,7 +327,7 @@ enum nss_status _nss_systemd_getpwuid_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+@@ -408,7 +408,7 @@ enum nss_status _nss_systemd_getgrnam_r(
+ 
+         l = sizeof(char*) + strlen(name) + 1;
+         if (buflen < l) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -423,7 +423,7 @@ enum nss_status _nss_systemd_getgrnam_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+@@ -506,7 +506,7 @@ enum nss_status _nss_systemd_getgrgid_r(
+ 
+         l = sizeof(char*) + strlen(translated) + 1;
+         if (buflen < l) {
+-                *errnop = DISARM_PROTECT_ERRNO(ERANGE);
++                *errnop = ERANGE;
+                 return NSS_STATUS_TRYAGAIN;
+         }
+ 
+@@ -521,7 +521,7 @@ enum nss_status _nss_systemd_getgrgid_r(
+         return NSS_STATUS_SUCCESS;
+ 
+ fail:
+-        *errnop = DISARM_PROTECT_ERRNO(r);
++        *errnop = -r;
+         return NSS_STATUS_UNAVAIL;
+ }
+ 
+diff --git a/src/test/test-fs-util.c b/src/test/test-fs-util.c
+index e049abc4a40..b3a4b1749c2 100644
+--- a/src/test/test-fs-util.c
++++ b/src/test/test-fs-util.c
+@@ -361,11 +361,11 @@ static void test_unlink_noerrno(void) {
+ 
+         {
+                 PROTECT_ERRNO;
+-                errno = 42;
++                errno = -42;
+                 assert_se(unlink_noerrno(name) >= 0);
+-                assert_se(errno == 42);
++                assert_se(errno == -42);
+                 assert_se(unlink_noerrno(name) < 0);
+-                assert_se(errno == 42);
++                assert_se(errno == -42);
+         }
+ }
+ 
+diff --git a/src/test/test-util.c b/src/test/test-util.c
+index 95eebde6b02..3c1b5f9b413 100644
+--- a/src/test/test-util.c
++++ b/src/test/test-util.c
+@@ -213,70 +213,6 @@ static void test_protect_errno(void) {
+         assert_se(errno == 12);
+ }
+ 
+-static void test_protect_errno_disarmed(void) {
+-        log_info("/* %s */", __func__);
+-
+-        errno = 12;
+-        /**
+-         * Simulate dynamically-linked glibc calling the NSS module with errnop
+-         * and &errno being the same.
+-         */
+-        int *errnop = &errno;
+-
+-        {
+-                PROTECT_ERRNO;
+-
+-                *errnop = DISARM_PROTECT_ERRNO(25);
+-        }
+-
+-        assert_se(errno == 25);
+-        assert_se(*errnop == 25);
+-}
+-
+-static void test_protect_errno_disarmed_inner(void) {
+-        log_info("/* %s */", __func__);
+-
+-        errno = 12;
+-        int *errnop = &errno;
+-
+-        {
+-                PROTECT_ERRNO;
+-
+-                int *_saved_errno_p = &_saved_errno_;
+-                *errnop = DISARM_PROTECT_ERRNO_INNER(25);
+-        }
+-
+-        assert_se(errno == 25);
+-        assert_se(*errnop == 25);
+-}
+-
+-static void test_protect_errno_disarmed_static(void) {
+-        log_info("/* %s */", __func__);
+-
+-        errno = 12;
+-        /*
+-         * "In statically linked programs, the main application and NSS
+-         * modules do not share the same thread-local variable errno,
+-         * which is the reason why there is an explicit errnop function
+-         * argument."
+-         */
+-        int errno2 = 15;
+-        int *errnop = &errno2;
+-
+-        {
+-                PROTECT_ERRNO;
+-
+-                errno = 13;
+-                *errnop = DISARM_PROTECT_ERRNO(25);
+-                assert_se(errno == 12);
+-
+-                errno = 14;
+-        }
+-
+-        assert_se(errno == 14);
+-        assert_se(*errnop == 25);
+-}
+-
+ static void test_in_set(void) {
+         log_info("/* %s */", __func__);
+ 
+@@ -447,9 +383,6 @@ int main(int argc, char *argv[]) {
+         test_div_round_up();
+         test_u64log2();
+         test_protect_errno();
+-        test_protect_errno_disarmed();
+-        test_protect_errno_disarmed_inner();
+-        test_protect_errno_disarmed_static();
+         test_in_set();
+         test_log2i();
+         test_eqzero();
