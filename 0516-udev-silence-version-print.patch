@@ -1,12 +1,12 @@
-diff -Naur systemd-234/src/udev/udevd.c systemd-234.tpg/src/udev/udevd.c
---- systemd-234/src/udev/udevd.c	2017-07-12 14:01:10.010605872 +0000
-+++ systemd-234.tpg/src/udev/udevd.c	2017-07-27 22:40:32.207303587 +0000
-@@ -1741,7 +1741,7 @@
+diff -up systemd-240.20190114/src/udev/udevd.c.8~ systemd-240.20190114/src/udev/udevd.c
+--- systemd-240.20190114/src/udev/udevd.c.8~	2019-01-14 01:25:37.048998327 +0100
++++ systemd-240.20190114/src/udev/udevd.c	2019-01-14 01:26:22.998704643 +0100
+@@ -1823,7 +1823,7 @@ static int run(int argc, char *argv[]) {
          if (arg_daemonize) {
                  pid_t pid;
  
--                log_info("starting version " PACKAGE_VERSION);
-+                log_debug("starting version " PACKAGE_VERSION);
+-                log_info("Starting version " PACKAGE_VERSION);
++                log_debug("Starting version " PACKAGE_VERSION);
  
                  /* connect /dev/null to stdin, stdout, stderr */
                  if (log_get_max_level() < LOG_DEBUG) {
