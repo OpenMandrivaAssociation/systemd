@@ -12,7 +12,7 @@ Fixes #11362.
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/core/mount.c b/src/core/mount.c
-index ead9bc1f4..4c5a02948 100644
+index ead9bc1f441..4c5a02948c6 100644
 --- a/src/core/mount.c
 +++ b/src/core/mount.c
 @@ -1528,10 +1528,10 @@ static int mount_setup_existing_unit(
@@ -29,6 +29,3 @@ index ead9bc1f4..4c5a02948 100644
  
          if (IN_SET(u->load_state, UNIT_NOT_FOUND, UNIT_BAD_SETTING, UNIT_ERROR)) {
                  /* The unit was previously not found or otherwise not loaded. Now that the unit shows up in
--- 
-2.19.1
-

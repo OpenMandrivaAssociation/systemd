@@ -41,7 +41,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -124,6 +124,16 @@ Patch1002:	systemd-240-compile-with-clang.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
+
+# Upstream patches from master that haven't landed in -stable yet
+# https://github.com/systemd/systemd/issues/11416
+Patch1200:	https://github.com/systemd/systemd/commit/0eba88dc9f66aca023a89e2bf25f6bff49787145.patch
+# https://github.com/systemd/systemd/issues/11386
+# This reverts https://github.com/systemd/systemd/commit/a17c17122c304ff3f67f1cbf119fa7116315a7df.patch
+Patch1201:	revert-a17c17122c304ff3f67f1cbf119fa7116315a7df.patch
+# https://github.com/systemd/systemd/issues/11314
+Patch1202:	https://github.com/systemd/systemd/commit/98aed1d68e13ef44bd844e6347e05faf9385a2ff.patch
+
 
 BuildRequires:	meson
 BuildRequires:	quota
