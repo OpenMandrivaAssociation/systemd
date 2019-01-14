@@ -36,14 +36,24 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
+%define major 240
+%define stable 20190114
+
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	240
-Release:	7
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
+%if 0%stable
+Version:	%{major}.%{stable}
+# Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
+# https://github.com/systemd/systemd-stable/
+Source0:	systemd-%{version}.tar.xz
+%else
+Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
+%endif
 # This file must be available before %%prep.
 # It is generated during systemd build and can be found in src/core/.
 Source1:	triggers.systemd
@@ -114,35 +124,6 @@ Patch1002:	systemd-240-compile-with-clang.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-
-# (tpg) upstream patches
-
-Patch120:	0000-Do-not-start-server-if-it-is-already-runnning-11245.patch
-Patch121:	0000-core-free-lines-after-reading-them.patch
-Patch122:	0000-udev-event-do-not-read-stdout-or-stderr-if-the-pipef.patch
-Patch123:	0000-Make-default-locale-a-compile-time-option.patch
-Patch124:	0000-journal-rely-on-_cleanup_free_-to-free-a-temporary-s.patch
-Patch125:	0000-ask-password-make-ask_password_keyring-static.patch
-Patch126:	0000-ask-password-api-do-not-call-ask_password_keyring-if.patch
-Patch127:	0000-sd-device-fix-segfault-when-error-occurs-in-device_n.patch
-Patch128:	0000-Revert-sd-device-ignore-bind-unbind-events-for-now.patch
-Patch129:	0000-Revert-udevd-configure-a-child-process-name-for-work.patch
-#Patch130:	0000-udevadm-add-a-workaround-for-dracut.patch
-Patch131:	0000-network-do-not-ignore-errors-on-link_request_set_nei.patch
-Patch132:	0000-network-rename-link_set_routing_policy_rule-to-link_.patch
-Patch133:	0000-network-set-_configured-flags-to-false-before-reques.patch
-Patch134:	0000-libudev-util-make-util_replace_whitespace-read-only-.patch
-Patch135:	0000-Revert-pam_systemd-drop-setting-DBUS_SESSION_BUS_ADD.patch
-Patch136:	0000-pam_systemd-set-DBUS_SESSION_BUS_ADDRESS-uncondition.patch
-#Patch137:	0000-Print-the-systemd-version-in-a-format-that-dracut-li.patch
-Patch138:	0000-udev-rework-how-we-handle-the-return-value-from-spaw.patch
-Patch139:	0000-udevadm-refuse-to-run-trigger-control-settle-and-mon.patch
-Patch140:	0000-udev-node-make-link_find_prioritized-return-negative.patch
-Patch141:	0000-core-mount-make-mount_setup_existing_unit-not-drop-M.patch
-
-Patch142:	0000-journald-do-not-store-the-iovec-entry-for-process-co.patch
-Patch143:	0000-basic-process-util-limit-command-line-lengths-to-_SC.patch
-Patch144:	0000-journald-set-a-limit-on-the-number-of-fields-1k.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
@@ -1313,7 +1294,7 @@ fi
 %{systemd_libdir}/system/remote-fs.target.wants/*.mount
 %{systemd_libdir}/systemd*
 # (tpg) internal library - only systemd uses it
-%{systemd_libdir}/libsystemd-shared-%{version}.so
+%{systemd_libdir}/libsystemd-shared-%{major}.so
 #
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
