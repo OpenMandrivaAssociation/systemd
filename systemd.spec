@@ -41,7 +41,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -572,6 +572,12 @@ export CC=gcc
 export CXX=g++
 %endif
 
+# FIXME
+# Switch to
+#	-Ddefault-hierarchy=unified \
+# below once Docker has been fixed to work with it.
+# In the mean time, hybrid provides cgroups2 features
+# while keeping docker working.
 %serverbuild_hardened
 %meson \
 	-Drootprefix="" \
@@ -633,11 +639,7 @@ export CXX=g++
 	-Dcertificate-root="%{_sysconfdir}/pki" \
 	-Dfallback-hostname=openmandriva \
 	-Dsupport-url="%{disturl}" \
-%if %mdvver <= 3000000
 	-Ddefault-hierarchy=hybrid \
-%else
-	-Ddefault-hierarchy=unified \
-%endif
 	-Dtty-gid=5 \
 	-Dusers-gid=100 \
 	-Dnobody-user=nobody \
