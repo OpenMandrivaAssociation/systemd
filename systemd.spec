@@ -41,7 +41,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -702,13 +702,15 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 
+# (crazy) .. uhm ? FIXME
 # (bor) enable rpcbind.target by default so we have something to plug portmapper service into
 ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
 
+# (crazy) Do not do that .. is imposible to disable such services
+# resolved will stay that way for other reasons and bugs we hit with 239/240  but after Lx4 is out
+# it has to go from here too
 # (tpg) explicitly enable these services
 ln -sf /lib/%{name}/system/%{name}-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-resolved.service
-ln -sf /lib/%{name}/system/%{name}-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-networkd.service
-ln -sf /lib/%{name}/system/%{name}-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/%{name}-timesyncd.service
 
 # (eugeni) install /run
 mkdir %{buildroot}/run
