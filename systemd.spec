@@ -134,11 +134,10 @@ Patch1201:	revert-a17c17122c304ff3f67f1cbf119fa7116315a7df.patch
 # https://github.com/systemd/systemd/issues/11314
 Patch1202:	https://github.com/systemd/systemd/commit/98aed1d68e13ef44bd844e6347e05faf9385a2ff.patch
 
-
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	audit-devel
-BuildRequires:	acl-devel
+BuildRequires:	pkgconfig(libacl)
 BuildRequires:	docbook-style-xsl
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-dtd45-xml
@@ -148,7 +147,7 @@ BuildRequires:	cap-devel
 BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
-BuildRequires:	elfutils-devel
+BuildRequires:	pkgconfig(libelf)
 BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(gee-0.8)
@@ -169,7 +168,7 @@ BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
-BuildRequires:	pciutils-devel
+BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(bzip2)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
@@ -702,10 +701,6 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 
-# (crazy) .. uhm ? FIXME
-# (bor) enable rpcbind.target by default so we have something to plug portmapper service into
-ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
-
 # (crazy) Do not do that .. is imposible to disable such services
 # resolved will stay that way for other reasons and bugs we hit with 239/240  but after Lx4 is out
 # it has to go from here too
@@ -779,7 +774,7 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
-%ifnarch %armx
+%ifnarch %{armx}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
