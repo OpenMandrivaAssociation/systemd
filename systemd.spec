@@ -1,6 +1,12 @@
 # (tpg) special options for systemd to keep it fast and secure
 %global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32
 
+%ifarch %{ix86}
+# Workaround for "relocation R_386_GOTOFF against preemptible symbol string_hash_ops cannot be used when making a shared object" at link time
+%global optflags %{optflags} -fuse-ld=bfd
+%global ldflags %{ldflags} -fuse-ld=bfd
+%endif
+
 %bcond_with bootstrap
 
 # macros for sysvinit transition - should be equal to
