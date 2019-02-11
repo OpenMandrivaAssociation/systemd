@@ -1,11 +1,3 @@
-%ifarch %{ix86}
-%define _disable_lto 1
-# (tpg) try to make it build
-# /usr/include/kmod-25/libkmod.h:214:24: error: result of â1 << 31â requires 33 bits to represent, but âintâ only has 32 bits [-Werror=shift-overflow=]
-#  _KMOD_MODULE_PAD = (1 << 31),
-%global optflags %{optflags} -Wno-error=shift-overflow
-%endif
-
 # (tpg) special options for systemd to keep it fast and secure
 %global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32
 
@@ -133,7 +125,7 @@ Patch1201:	revert-a17c17122c304ff3f67f1cbf119fa7116315a7df.patch
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	audit-devel
-BuildRequires:	acl-devel
+BuildRequires:	pkgconfig(libacl)
 BuildRequires:	docbook-style-xsl
 BuildRequires:	docbook-dtd42-xml
 BuildRequires:	docbook-dtd45-xml
@@ -143,7 +135,7 @@ BuildRequires:	cap-devel
 BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
 BuildRequires:	tcp_wrappers-devel
-BuildRequires:	elfutils-devel
+BuildRequires:	pkgconfig(libelf)
 BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(gee-0.8)
@@ -164,7 +156,7 @@ BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
-BuildRequires:	pciutils-devel
+BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(bzip2)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
@@ -697,13 +689,11 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 
-# (bor) enable rpcbind.target by default so we have something to plug portmapper service into
-ln -s ../rpcbind.target %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants
-
+# (crazy) Do not do that .. is imposible to disable such services
+# resolved will stay that way for other reasons and bugs we hit with 239/240  but after Lx4 is out
+# it has to go from here too
 # (tpg) explicitly enable these services
 ln -sf /lib/%{name}/system/%{name}-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-resolved.service
-ln -sf /lib/%{name}/system/%{name}-networkd.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-networkd.service
-ln -sf /lib/%{name}/system/%{name}-timesyncd.service %{buildroot}/%{systemd_libdir}/system/sysinit.target.wants/%{name}-timesyncd.service
 
 # (eugeni) install /run
 mkdir %{buildroot}/run
@@ -772,7 +762,7 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
-%ifnarch %armx
+%ifnarch %{armx}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
