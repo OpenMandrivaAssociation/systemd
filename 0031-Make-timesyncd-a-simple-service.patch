@@ -9,19 +9,15 @@ that it is done, even though that's really not relevant
  units/systemd-timesyncd.service.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/units/systemd-timesyncd.service.in b/units/systemd-timesyncd.service.in
-index 4a490b6e1..1638c1bc3 100644
---- a/units/systemd-timesyncd.service.in
-+++ b/units/systemd-timesyncd.service.in
-@@ -19,7 +19,7 @@ Conflicts=shutdown.target
- Wants=time-sync.target
- 
- [Service]
+diff -Naur systemd-240.20190211/units/systemd-timesyncd.service.in systemd-240.20190211.tpg/units/systemd-timesyncd.service.in
+--- systemd-240.20190211/units/systemd-timesyncd.service.in	2019-02-11 13:20:05.000000000 +0000
++++ systemd-240.20190211.tpg/units/systemd-timesyncd.service.in	2019-02-28 14:28:26.730000000 +0000
+@@ -42,7 +42,7 @@
+ SystemCallArchitectures=native
+ SystemCallErrorNumber=EPERM
+ SystemCallFilter=@system-service @clock
 -Type=notify
 +Type=simple
- Restart=always
- RestartSec=0
- ExecStart=!!@rootlibexecdir@/systemd-timesyncd
--- 
-2.19.0
-
+ User=systemd-timesync
+ WatchdogSec=3min
+ 
