@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	1
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -101,19 +101,32 @@ Patch100:	0001-journal-raise-compression-threshold.patch
 Patch101:	0002-journal-clearout-drop-kmsg.patch
 Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
-Patch104:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
-Patch105:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
-Patch106:	0024-more-udev-children-workers.patch
-Patch108:	0030-network-online-complete-once-one-link-is-online-not-.patch
-Patch109:	0031-DHCP-retry-faster.patch
-Patch110:	0033-Remove-libm-memory-overhead.patch
-Patch111:	0035-skip-not-present-ACPI-devices.patch
-Patch112:	0038-Compile-udev-with-O3.patch
-Patch113:	0039-Don-t-wait-for-utmp-at-shutdown.patch
-Patch114:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
-Patch115:	0032-Make-timesyncd-a-simple-service.patch
-Patch116:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
-Patch117:	0036-don-t-use-libm-just-for-integer-exp10.patch
+Patch104:	0008-analyze-increase-precision.patch
+Patch105:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
+Patch106:	0010-efi-boot-generator-Do-not-automount-boot-partition.patch
+Patch107:	0012-locale-setup-set-default-locale-to-a-unicode-one.patch
+Patch108:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
+Patch109:	0024-more-udev-children-workers.patch
+Patch110:	0021-not-load-iptables.patch
+Patch111:	0024-Enable-BBR-Bottleneck-Bandwidth-and-RTT.patch
+Patch112:	0030-network-online-complete-once-one-link-is-online-not-.patch
+Patch113:	0031-DHCP-retry-faster.patch
+Patch114:	0033-Remove-libm-memory-overhead.patch
+Patch115:	0035-skip-not-present-ACPI-devices.patch
+Patch116:	0031-Make-timesyncd-a-simple-service.patch
+Patch117:	0038-Compile-udev-with-O3.patch
+Patch118:	0039-Don-t-wait-for-utmp-at-shutdown.patch
+Patch119:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
+Patch120:	0032-Make-timesyncd-a-simple-service.patch
+Patch121:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
+Patch122:	0036-don-t-use-libm-just-for-integer-exp10.patch
+Patch123:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
+Patch124:	0037-Do-not-crash-if-udev-hasn-t-initialized-one-link-yet.patch
+Patch125:	0041-Make-bzip2-an-optional-dependency-for-systemd-import.patch
+Patch126:	0043-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
+Patch127:	no-audit-by-default.patch
+Patch128:	no-xz-for-libsystemd.patch
+Patch129:	mq_getattr.patch
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
@@ -163,7 +176,6 @@ BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
 BuildRequires:	pkgconfig(libpci)
-BuildRequires:	pkgconfig(bzip2)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
@@ -189,6 +201,7 @@ BuildRequires:	distro-release-common
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 %endif
+Requires:	libcap-utils
 Requires:	acl
 Requires:	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
@@ -602,7 +615,7 @@ export CXX=g++
 	-Dpolkit=true \
 	-Dxz=true \
 	-Dzlib=true \
-	-Dbzip2=true \
+	-Dbzip2=false \
 	-Dlz4=true \
 	-Dpam=true \
 	-Dacl=true \
@@ -639,7 +652,7 @@ export CXX=g++
 	-Dnobody-group=nogroup \
 	-Dsystem-uid-max='999' \
 	-Dsystem-gid-max='999' \
-	-Dntp-servers='0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
+	-Dntp-servers='_gateway gateway 0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
 	-Ddns-servers='208.67.222.222 208.67.220.220'
 
 %meson_build
