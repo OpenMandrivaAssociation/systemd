@@ -174,7 +174,7 @@ BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
-%ifnarch %armx
+%ifnarch %armx riscv64
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
 %if !%{with bootstrap}
@@ -589,7 +589,7 @@ export CXX=g++
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
 	-Defi=true \
-%ifnarch %{armx}
+%ifnarch %{armx} riscv64
 	-Dgnu-efi=true \
 %endif
 %if %{with bootstrap}
@@ -782,7 +782,7 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
-%ifnarch %{armx}
+%ifnarch %{armx} riscv64
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
@@ -1427,7 +1427,7 @@ fi
 
 %files boot
 %{_bindir}/bootctl
-%ifnarch %armx
+%ifnarch %armx riscv64
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
