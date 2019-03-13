@@ -182,7 +182,9 @@ BuildRequires:	qemu
 %endif
 %endif
 BuildRequires:	chkconfig
+%ifnarch riscv64
 BuildRequires:	pkgconfig(libseccomp)
+%endif
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn2)
 BuildRequires:	pkgconfig(polkit-gobject-1)
@@ -603,7 +605,11 @@ export CXX=g++
 	-Dkmod=true \
 	-Dxkbcommon=true \
 	-Dblkid=true \
+%ifnarch riscv64
 	-Dseccomp=true \
+%else
+	-Dseccomp=false \
+%endif
 	-Dima=true \
 	-Dselinux=false \
 	-Dapparmor=false \
