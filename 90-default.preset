@@ -5,7 +5,7 @@
 # Core services , systemd ones make sense to enable here
 # anything else please don't.
 
-# systemd stuff
+# Important stuff
 enable remote-fs.target
 enable remote-cryptsetup.target
 enable machines.target
@@ -28,3 +28,14 @@ enable systemd-resolved.service
 enable systemd-timedated.service
 enable systemd-timesyncd.service
 enable systemd-rfkill.socket
+
+# Others taken from 90-systemd.preset
+disable console-getty.service
+disable debug-shell.service
+disable halt.target
+disable kexec.target
+disable poweroff.target
+enable reboot.target
+disable rescue.target
+disable exit.target
+disable syslog.socket
