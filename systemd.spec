@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -767,6 +767,9 @@ install -m 0644 %{SOURCE20} %{buildroot}%{systemd_libdir}/network/
 # (tpg) install userspace presets
 # (crazy) .. but not like this
 #install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
+
+# (tpg) remove 90-systemd-preset as it is included in ours 90-default.preset
+rm -rf %{buildroot}%{systemd_libdir}/system-preset/90-systemd.preset
 
 # Install rsyslog fragment
 mkdir -p %{buildroot}%{_sysconfdir}/rsyslog.d/
