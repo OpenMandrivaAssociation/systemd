@@ -146,42 +146,33 @@ end
 -- This script will run after any preset is installed in RPM files
 -- Get a list of presets that need to be enabled or disabled
 -- as part of the installation of RPM files
-local function read_presets()
-  local path = "/lib/systemd/system-preset"
-  local result = {}
-  local f = assert(io.open(path))
-  if f ~= nil then
-    while true do
-      local line = f:read()
-      if line == nil then
-        break
-      end
-      local cmd, arg = line:match("^([^ \t]+)[ \t]+([^\n \t]+)")
-      if cmd == "enable" or cmd == "disable" then
-        result[#result + 1] = arg
-      end
-    end
-    f:close()
-  end
-  return result
-end
+local systemctl = "/bin/systemctl"
+local unitdir = "/lib/systemd/system/"
+local path = "/lib/systemd/system-preset/"
+local pfiles = assert(io.popen('/bin/ls -1 ' ..path.. "*.preset")):lines()
+presets = {}
 
-local function set_presets()
-      local presets = read_presets()
-      local systemctl = "/usr/bin/systemctl"
-      if posix.access(systemctl, "x") then
-        --fork off a systemctl call
-        local pid = assert(posix.fork())
-        if pid == 0 then
-          -- Child
-          posix.exec(systemctl, "preset", "-q", "--now", table.unpack(presets))
-          -- In case exec() fails
-          os.exit(17)
-        else
-          -- RPM
-          assert(posix.wait(pid))
+if pfiles ~= nil then
+    for file in pfiles do
+        for line in assert(io.lines(file)) do
+            if line == nil then
+                break
+            end
+
+            local cmd, arg = line:match("^([^ \t]+)[ \t]+([^\n \t]+)")
+                if (cmd == "enable" or cmd == "disable") and string.match(arg, "%*") ~= "*"  then
+                    presets[#presets + 1] = arg:match("^%s*(.+)%s*$")
+                end
+            end
+            io.close()
         end
-      end
-end
+    end
 
-set_presets()
+if posix.access(systemctl, "x") then
+    for key,unit in pairs(presets) do
+        if posix.stat(unitdir ..unit) then
+            print("Executing systemd preset on: " ..unit)
+            os.execute(systemctl .." preset -q --now " .. unit)
+        end
+    end
+end
