@@ -12,17 +12,13 @@ enable machines.target
 enable getty@tty1.service
 
 # Enable udev service
-enable systemd-udev*.service
-enable systemd-udev*.socket
-
-# Enable NM by default
-enable NetworkManager.service
-enable NetworkManager-dispatcher.service
+systemd-udevd-control.socket
+systemd-udevd-kernel.socket
+systemd-udevd.service
+systemd-udev-settle.service
+systemd-udev-trigger.service
 
 # Enable other system services
-enable man-db.*
-enable nscd.*
-enable shadow.*
 enable systemd-bus-proxy.socket
 enable systemd-initctl.socket
 enable systemd-journald.socket
@@ -32,14 +28,3 @@ enable systemd-resolved.service
 enable systemd-timedated.service
 enable systemd-timesyncd.service
 enable systemd-rfkill.socket
-enable firewalld.service
-enable iptables.service
-
-# Hardware services
-enable uuidd.*
-enable gpm.*
-
-# (crazy) that may be ok
-# Sound services
-enable alsa*.service
-enable sound.service
