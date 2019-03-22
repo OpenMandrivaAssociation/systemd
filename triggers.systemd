@@ -17,9 +17,9 @@
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/bin/systemctl", "daemon-reload"))
+	assert(posix.exec("/bin/systemctl", "daemon-reload"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -50,9 +50,9 @@ if posix.access("%{_localstatedir}/lib/rpm-state/systemd/needs-reload") then
     posix.rmdir("%{_localstatedir}/lib/rpm-state/systemd")
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/bin/systemctl", "daemon-reload"))
+	assert(posix.exec("/bin/systemctl", "daemon-reload"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -63,9 +63,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/bin/systemd-sysusers"))
+	assert(posix.exec("/bin/systemd-sysusers"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -76,9 +76,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/bin/systemd-tmpfiles", "--create"))
+	assert(posix.exec("/bin/systemd-tmpfiles", "--create"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -88,9 +88,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/bin/systemd-hwdb", "update"))
+	assert(posix.exec("/bin/systemd-hwdb", "update"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -100,9 +100,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/bin/journalctl", "--update-catalog"))
+	assert(posix.exec("/bin/journalctl", "--update-catalog"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -112,9 +112,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/sbin/udevadm", "control", "--reload"))
+	assert(posix.exec("/sbin/udevadm", "control", "--reload"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -124,9 +124,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/lib/systemd/systemd-sysctl"))
+	assert(posix.exec("/lib/systemd/systemd-sysctl"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -136,9 +136,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.exec("/lib/systemd/systemd-binfmt"))
+	assert(posix.exec("/lib/systemd/systemd-binfmt"))
     elseif pid > 0 then
-        posix.wait(pid)
+	posix.wait(pid)
     end
 end
 
@@ -151,34 +151,36 @@ local unitdir = "/lib/systemd/system/"
 local rpmfiles = rpm.next_file()
 local presets = {}
 
-if rpmfiles ~= nil then
-    for file in rpmfiles do
-        local preset = file:match("^/lib/systemd/system%-preset/.*.preset$")
-        if preset ~= nil then
-        local f = assert(io.open(preset))
-        while true do
-            local line = f:read()
-            if line == nil then
-                break
-            end
-            local cmd, arg = line:match("^([^ \t]+)[ \t]+([^\n \t]+)")
-                if (cmd == "enable" or cmd == "disable") and string.match(arg, "%*") ~= "*"  then
-                    presets[#presets + 1] = arg:match("^%s*(.+)%s*$")
-                end
-        end
-        f:close()
+while rpmfiles do
+    local preset = rpmfiles:match("^/lib/systemd/system%%-preset/.*.preset$")
+    if preset ~= nil then
+	local f = assert(io.open(preset))
+	while true do
+	    local line = f:read()
+	    if line == nil then
+		break
+	    end
+	    local cmd, arg = line:match("^([^ \t]+)[ \t]+([^\n \t]+)")
+-- takes enable and disable and skip * from any preset files
+	    if (cmd == "enable" or cmd == "disable") and string.match(arg, "%*") ~= "*"  then
+		presets[#presets + 1] = arg:match("^%s*(.+)%s*$")
+	    end
+	end
+	f:close()
     end
-    end
+    rpmfiles = rpm.next_file()
 end
 
 if posix.access(systemctl, "x") then
     for kunit,unit in pairs(presets) do
-        if posix.stat(unitdir ..unit) then
-            local status=io.popen('systemctl is-enabled ' ..unit):read("*l")
-            if status == "disabled" then
-                print("Executing systemd preset on: " ..unit)
-                os.execute(systemctl .." preset -q --now " .. unit)
-            end
-        end
+	if posix.stat(unitdir ..unit) then
+-- check if service from preset file is enabled
+	    local status=io.popen('systemctl is-enabled ' ..unit):read("*l")
+-- execute presets only on services which are actually disabled
+	    if status == "disabled" then
+		print("Executing systemd preset on: " ..unit)
+		os.execute(systemctl .." preset -q --now " .. unit)
+	    end
+	end
     end
 end
