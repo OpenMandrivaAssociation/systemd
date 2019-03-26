@@ -11,13 +11,6 @@ enable remote-cryptsetup.target
 enable machines.target
 enable getty@tty1.service
 
-# Enable udev service
-systemd-udevd-control.socket
-systemd-udevd-kernel.socket
-systemd-udevd.service
-systemd-udev-settle.service
-systemd-udev-trigger.service
-
 # Enable other system services
 enable systemd-bus-proxy.socket
 enable systemd-initctl.socket
