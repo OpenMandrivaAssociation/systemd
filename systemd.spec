@@ -170,7 +170,6 @@ BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	usbutils >= 005-3
-BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
@@ -184,10 +183,11 @@ BuildRequires:	qemu
 BuildRequires:	chkconfig
 %ifnarch riscv64
 BuildRequires:	pkgconfig(libseccomp)
+BuildRequires:	pkgconfig(libpci)
+BuildRequires:	pkgconfig(polkit-gobject-1)
 %endif
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn2)
-BuildRequires:	pkgconfig(polkit-gobject-1)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
 BuildRequires:	rpm-build >= 2:4.14.0
