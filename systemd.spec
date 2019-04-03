@@ -152,7 +152,6 @@ BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pkgconfig(libelf)
 BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
-BuildRequires:	pkgconfig(gee-0.8)
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(libgcrypt)
 BuildRequires:	pkgconfig(gpg-error)
@@ -160,6 +159,7 @@ BuildRequires:	gtk-doc
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
 BuildRequires:	pkgconfig(python)
+BuildRequires:	pkgconfig(gee-0.8)
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
