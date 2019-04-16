@@ -34,12 +34,12 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 240
-%define stable 20190211
+%define major 242
+%define stable 20190416
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	11
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -108,14 +108,12 @@ Patch107:	0012-locale-setup-set-default-locale-to-a-unicode-one.patch
 Patch108:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch109:	0024-more-udev-children-workers.patch
 Patch110:	0021-not-load-iptables.patch
-Patch111:	0030-network-online-complete-once-one-link-is-online-not-.patch
 Patch112:	0031-DHCP-retry-faster.patch
 Patch113:	0033-Remove-libm-memory-overhead.patch
 Patch114:	0035-skip-not-present-ACPI-devices.patch
 Patch115:	0031-Make-timesyncd-a-simple-service.patch
 Patch116:	0038-Compile-udev-with-O3.patch
 Patch117:	0039-Don-t-wait-for-utmp-at-shutdown.patch
-Patch118:	0040-network-wait-online-don-t-pass-NULL-to-strv_find.patch
 Patch119:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch120:	0036-don-t-use-libm-just-for-integer-exp10.patch
 Patch121:	0043-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
@@ -1242,8 +1240,6 @@ fi
 %exclude %{_bindir}/%{name}-cgtop
 %exclude %{_bindir}/%{name}-delta
 %{_bindir}/timedatectl
-%{_sysconfdir}/systemd/system/dbus-org.freedesktop.network1.service
-%{_sysconfdir}/systemd/system/dbus-org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
@@ -1296,7 +1292,6 @@ fi
 %{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
 %{systemd_libdir}/system/graphical.target.wants/*.service
 %{systemd_libdir}/system/local-fs.target.wants/*.mount
-%{systemd_libdir}/system/local-fs.target.wants/*.service
 %{systemd_libdir}/system/multi-user.target.wants/*.path
 %{systemd_libdir}/system/multi-user.target.wants/*.service
 %{systemd_libdir}/system/multi-user.target.wants/*.target

@@ -1,7 +1,7 @@
-diff -up systemd-240/meson.build.20~ systemd-240/meson.build
---- systemd-240/meson.build.20~	2018-12-22 14:57:21.034386538 +0100
-+++ systemd-240/meson.build	2018-12-22 14:58:33.350976101 +0100
-@@ -2622,7 +2622,7 @@ public_programs += exe
+diff -up systemd-242.20190416/meson.build.24~ systemd-242.20190416/meson.build
+--- systemd-242.20190416/meson.build.24~	2019-04-11 18:28:36.000000000 +0200
++++ systemd-242.20190416/meson.build	2019-04-16 16:04:19.231952509 +0200
+@@ -2662,7 +2662,7 @@ public_programs += exe
  exe = executable('systemd-udevd',
                   systemd_udevd_sources,
                   include_directories : includes,
@@ -10,7 +10,7 @@ diff -up systemd-240/meson.build.20~ systemd-240/meson.build
                   link_with : [libudev_core,
                                libsystemd_network,
                                libudev_static],
-@@ -2638,7 +2638,7 @@ public_programs += exe
+@@ -2679,7 +2679,7 @@ public_programs += exe
  
  exe = executable('udevadm',
                   udevadm_sources,
@@ -19,15 +19,33 @@ diff -up systemd-240/meson.build.20~ systemd-240/meson.build
                   include_directories : includes,
                   link_with : [libudev_core,
                                libsystemd_network,
-diff -up systemd-240/src/udev/meson.build.20~ systemd-240/src/udev/meson.build
---- systemd-240/src/udev/meson.build.20~	2018-12-21 19:53:33.000000000 +0100
-+++ systemd-240/src/udev/meson.build	2018-12-22 14:57:21.035386561 +0100
-@@ -177,7 +177,7 @@ foreach prog : [['ata_id/ata_id.c'],
+diff -up systemd-242.20190416/src/udev/meson.build.24~ systemd-242.20190416/src/udev/meson.build
+--- systemd-242.20190416/src/udev/meson.build.24~	2019-04-16 16:04:19.231952509 +0200
++++ systemd-242.20190416/src/udev/meson.build	2019-04-16 16:04:58.109360206 +0200
+@@ -113,7 +113,7 @@ libudev_basic = static_library(
+         'udev-basic',
+         libudev_sources,
+         include_directories : includes,
+-        c_args : ['-fvisibility=default'])
++        c_args : ['-fvisibility=default', '-O3'])
+ 
+ libudev_static = static_library(
+         'udev_static',
+@@ -161,7 +161,7 @@ libudev_core = static_library(
+         link_config_gperf_c,
+         keyboard_keys_from_name_h,
+         include_directories : libudev_core_includes,
+-        c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
++        c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
+         link_with : udev_link_with,
+         dependencies : [libblkid, libkmod])
+ 
+@@ -179,7 +179,7 @@ foreach prog : [['ata_id/ata_id.c'],
          executable(prog[0].split('/')[0],
                     prog,
                     include_directories : includes,
 -                   c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
 +                   c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
+                    dependencies : [versiondep],
                     link_with : [libudev_static],
                     install_rpath : udev_rpath,
-                    install : true,
