@@ -1,12 +1,12 @@
-diff -up systemd-240.20190114/src/udev/udevd.c.8~ systemd-240.20190114/src/udev/udevd.c
---- systemd-240.20190114/src/udev/udevd.c.8~	2019-01-14 01:25:37.048998327 +0100
-+++ systemd-240.20190114/src/udev/udevd.c	2019-01-14 01:26:22.998704643 +0100
-@@ -1823,7 +1823,7 @@ static int run(int argc, char *argv[]) {
+diff -up systemd-242.20190416/src/udev/udevd.c.8~ systemd-242.20190416/src/udev/udevd.c
+--- systemd-242.20190416/src/udev/udevd.c.8~	2019-04-16 16:02:22.617729601 +0200
++++ systemd-242.20190416/src/udev/udevd.c	2019-04-16 16:02:55.740076949 +0200
+@@ -1791,7 +1791,7 @@ static int run(int argc, char *argv[]) {
          if (arg_daemonize) {
                  pid_t pid;
  
--                log_info("Starting version " PACKAGE_VERSION);
-+                log_debug("Starting version " PACKAGE_VERSION);
+-                log_info("Starting version " GIT_VERSION);
++                log_debug("Starting version " GIT_VERSION);
  
                  /* connect /dev/null to stdin, stdout, stderr */
                  if (log_get_max_level() < LOG_DEBUG) {
