@@ -1,7 +1,7 @@
-diff -up systemd-242.20190416/meson.build.24~ systemd-242.20190416/meson.build
---- systemd-242.20190416/meson.build.24~	2019-04-11 18:28:36.000000000 +0200
-+++ systemd-242.20190416/meson.build	2019-04-16 16:04:19.231952509 +0200
-@@ -2662,7 +2662,7 @@ public_programs += exe
+diff -Naur systemd-242/meson.build systemd-242.tpg/meson.build
+--- systemd-242/meson.build	2019-04-15 12:24:21.436000000 +0000
++++ systemd-242.tpg/meson.build	2019-04-15 12:23:50.298000000 +0000
+@@ -2662,7 +2662,7 @@
  exe = executable('systemd-udevd',
                   systemd_udevd_sources,
                   include_directories : includes,
@@ -10,7 +10,7 @@ diff -up systemd-242.20190416/meson.build.24~ systemd-242.20190416/meson.build
                   link_with : [libudev_core,
                                libsystemd_network,
                                libudev_static],
-@@ -2679,7 +2679,7 @@ public_programs += exe
+@@ -2679,7 +2679,7 @@
  
  exe = executable('udevadm',
                   udevadm_sources,
@@ -19,28 +19,10 @@ diff -up systemd-242.20190416/meson.build.24~ systemd-242.20190416/meson.build
                   include_directories : includes,
                   link_with : [libudev_core,
                                libsystemd_network,
-diff -up systemd-242.20190416/src/udev/meson.build.24~ systemd-242.20190416/src/udev/meson.build
---- systemd-242.20190416/src/udev/meson.build.24~	2019-04-16 16:04:19.231952509 +0200
-+++ systemd-242.20190416/src/udev/meson.build	2019-04-16 16:04:58.109360206 +0200
-@@ -113,7 +113,7 @@ libudev_basic = static_library(
-         'udev-basic',
-         libudev_sources,
-         include_directories : includes,
--        c_args : ['-fvisibility=default'])
-+        c_args : ['-fvisibility=default', '-O3'])
- 
- libudev_static = static_library(
-         'udev_static',
-@@ -161,7 +161,7 @@ libudev_core = static_library(
-         link_config_gperf_c,
-         keyboard_keys_from_name_h,
-         include_directories : libudev_core_includes,
--        c_args : ['-DLOG_REALM=LOG_REALM_UDEV'],
-+        c_args : ['-DLOG_REALM=LOG_REALM_UDEV', '-O3'],
-         link_with : udev_link_with,
-         dependencies : [libblkid, libkmod])
- 
-@@ -179,7 +179,7 @@ foreach prog : [['ata_id/ata_id.c'],
+diff -Naur systemd-242/src/udev/meson.build systemd-242.tpg/src/udev/meson.build
+--- systemd-242/src/udev/meson.build	2019-04-15 12:24:54.947000000 +0000
++++ systemd-242.tpg/src/udev/meson.build	2019-04-15 12:22:06.420000000 +0000
+@@ -179,7 +179,7 @@
          executable(prog[0].split('/')[0],
                     prog,
                     include_directories : includes,
