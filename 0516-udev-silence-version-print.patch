@@ -1,7 +1,7 @@
-diff -up systemd-242.20190416/src/udev/udevd.c.8~ systemd-242.20190416/src/udev/udevd.c
---- systemd-242.20190416/src/udev/udevd.c.8~	2019-04-16 16:02:22.617729601 +0200
-+++ systemd-242.20190416/src/udev/udevd.c	2019-04-16 16:02:55.740076949 +0200
-@@ -1791,7 +1791,7 @@ static int run(int argc, char *argv[]) {
+diff -Naur systemd-242/src/udev/udevd.c systemd-242.tpg/src/udev/udevd.c
+--- systemd-242/src/udev/udevd.c	2019-04-11 16:28:36.000000000 +0000
++++ systemd-242.tpg/src/udev/udevd.c	2019-04-15 12:15:54.782000000 +0000
+@@ -1791,7 +1791,7 @@
          if (arg_daemonize) {
                  pid_t pid;
  

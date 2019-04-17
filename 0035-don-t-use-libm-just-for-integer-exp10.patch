@@ -1,7 +1,16 @@
-diff -up systemd-242.20190416/src/resolve/resolved-dns-rr.c.27~ systemd-242.20190416/src/resolve/resolved-dns-rr.c
---- systemd-242.20190416/src/resolve/resolved-dns-rr.c.27~	2019-04-11 18:28:36.000000000 +0200
-+++ systemd-242.20190416/src/resolve/resolved-dns-rr.c	2019-04-16 16:06:48.479517625 +0200
-@@ -700,6 +700,8 @@ int dns_resource_record_equal(const DnsR
+From 8c096bb4d0892128fcb19d2571b1a6b7db1a7f88 Mon Sep 17 00:00:00 2001
+From: Arjan van de Ven <arjan@linux.intel.com>
+Date: Wed, 13 Jun 2018 11:49:55 -0700
+Subject: [PATCH 35/42] don't use libm just for integer exp10()
+
+---
+ src/resolve/resolved-dns-rr.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff -Naur systemd-242/src/resolve/resolved-dns-rr.c systemd-242.tpg/src/resolve/resolved-dns-rr.c
+--- systemd-242/src/resolve/resolved-dns-rr.c	2019-04-11 16:28:36.000000000 +0000
++++ systemd-242.tpg/src/resolve/resolved-dns-rr.c	2019-04-15 12:31:04.347000000 +0000
+@@ -700,6 +700,8 @@
          return dns_resource_record_payload_equal(a, b);
  }
  
@@ -10,7 +19,7 @@ diff -up systemd-242.20190416/src/resolve/resolved-dns-rr.c.27~ systemd-242.2019
  static char* format_location(uint32_t latitude, uint32_t longitude, uint32_t altitude,
                               uint8_t size, uint8_t horiz_pre, uint8_t vert_pre) {
          char *s;
-@@ -709,9 +711,9 @@ static char* format_location(uint32_t la
+@@ -709,9 +711,9 @@
          int lat = latitude >= 1U<<31 ? (int) (latitude - (1U<<31)) : (int) ((1U<<31) - latitude);
          int lon = longitude >= 1U<<31 ? (int) (longitude - (1U<<31)) : (int) ((1U<<31) - longitude);
          double alt = altitude >= 10000000u ? altitude - 10000000u : -(double)(10000000u - altitude);

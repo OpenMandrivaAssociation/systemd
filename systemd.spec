@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -115,11 +115,12 @@ Patch115:	0031-Make-timesyncd-a-simple-service.patch
 Patch116:	0038-Compile-udev-with-O3.patch
 Patch117:	0039-Don-t-wait-for-utmp-at-shutdown.patch
 Patch119:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
-Patch120:	0036-don-t-use-libm-just-for-integer-exp10.patch
+Patch120:	0035-don-t-use-libm-just-for-integer-exp10.patch
 Patch121:	0043-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
-Patch122:	no-audit-by-default.patch
-Patch123:	no-xz-for-libsystemd.patch
-Patch124:	mq_getattr.patch
+Patch122:	0040-Do-not-enable-audit-by-default-in-the-journal.patch
+Patch123:	0041-Disable-XZ-support-in-the-journal.patch
+Patch124:	0042-Localize-1-symbol.patch
+Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
