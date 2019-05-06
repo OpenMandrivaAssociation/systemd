@@ -580,6 +580,7 @@ export CXX=g++
 # below once Docker has been fixed to work with it.
 # In the mean time, hybrid provides cgroups2 features
 # while keeping docker working.
+# https://github.com/opencontainers/runc/issues/654
 %serverbuild_hardened
 %meson \
 	-Drootprefix="" \
