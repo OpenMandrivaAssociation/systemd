@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -777,7 +777,7 @@ install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/rsyslog.d/
 
 # (tpg) silent kernel messages
 # print only KERN_ERR and more serious alerts
-echo "kernel.printk = 3 3 3 3" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
+echo "kernel.printk = 2 2 2 2" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
 
 # (tpg) by default enable SysRq
 sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d/50-default.conf
