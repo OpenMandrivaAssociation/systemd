@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -147,18 +147,17 @@ BuildRequires:	intltool
 BuildRequires:	cap-devel
 BuildRequires:	pam-devel
 BuildRequires:	perl(XML::Parser)
-BuildRequires:	tcp_wrappers-devel
 BuildRequires:	pkgconfig(libelf)
 BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(glib-2.0)
-BuildRequires:	pkgconfig(libgcrypt)
+BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	gtk-doc
+BuildRequires:	cmake
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
 BuildRequires:	pkgconfig(python)
-BuildRequires:	pkgconfig(gee-0.8)
 %endif
 BuildRequires:	pkgconfig(libkmod) >= 5
 BuildRequires:	pkgconfig(liblzma)
@@ -168,21 +167,15 @@ BuildRequires:	pkgconfig(libqrencode)
 BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
-BuildRequires:	usbutils >= 005-3
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
 %ifnarch %armx riscv64
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
-%if !%{with bootstrap}
-BuildRequires:	qemu
 %endif
-%endif
-BuildRequires:	chkconfig
 %ifnarch riscv64
 BuildRequires:	pkgconfig(libseccomp)
-BuildRequires:	pkgconfig(libpci)
 BuildRequires:	pkgconfig(polkit-gobject-1)
 %endif
 BuildRequires:	pkgconfig(libcurl)
