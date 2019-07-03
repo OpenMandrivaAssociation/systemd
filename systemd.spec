@@ -151,6 +151,7 @@ BuildRequires:	pkgconfig(libelf)
 BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(glib-2.0)
+BuildRequires:	pkgconfig(libgcrypt)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	gtk-doc
