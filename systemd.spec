@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -295,6 +295,8 @@ Systemd boot tools to manage EFI boot.
 Summary:	Console support for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
+# need for /sbin/setfont etc
+Requires:	kbd
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
