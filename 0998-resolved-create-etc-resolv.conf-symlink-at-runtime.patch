@@ -1,7 +1,7 @@
-diff -up systemd-240/src/resolve/resolved.c.27~ systemd-240/src/resolve/resolved.c
---- systemd-240/src/resolve/resolved.c.27~	2018-12-22 15:03:12.241896673 +0100
-+++ systemd-240/src/resolve/resolved.c	2018-12-22 15:04:45.420219661 +0100
-@@ -45,6 +45,10 @@ static int run(int argc, char *argv[]) {
+diff -up systemd-243.20190913/src/resolve/resolved.c.33~ systemd-243.20190913/src/resolve/resolved.c
+--- systemd-243.20190913/src/resolve/resolved.c.33~	2019-09-13 01:57:24.683406430 +0200
++++ systemd-243.20190913/src/resolve/resolved.c	2019-09-13 01:57:24.698417251 +0200
+@@ -49,6 +49,10 @@ static int run(int argc, char *argv[]) {
          /* Drop privileges, but only if we have been started as root. If we are not running as root we assume most
           * privileges are already dropped. */
          if (getuid() == 0) {
@@ -12,16 +12,16 @@ diff -up systemd-240/src/resolve/resolved.c.27~ systemd-240/src/resolve/resolved
  
                  /* Drop privileges, but keep three caps. Note that we drop those too, later on (see below) */
                  r = drop_privileges(uid, gid,
-diff -up systemd-240/tmpfiles.d/etc.conf.m4.27~ systemd-240/tmpfiles.d/etc.conf.m4
---- systemd-240/tmpfiles.d/etc.conf.m4.27~	2018-12-21 19:53:33.000000000 +0100
-+++ systemd-240/tmpfiles.d/etc.conf.m4	2018-12-22 15:03:12.241896673 +0100
-@@ -13,9 +13,6 @@ L+ /etc/mtab - - - - ../proc/self/mounts
+diff -up systemd-243.20190913/tmpfiles.d/etc.conf.m4.33~ systemd-243.20190913/tmpfiles.d/etc.conf.m4
+--- systemd-243.20190913/tmpfiles.d/etc.conf.m4.33~	2019-09-13 01:57:24.698417251 +0200
++++ systemd-243.20190913/tmpfiles.d/etc.conf.m4	2019-09-13 01:58:21.684802161 +0200
+@@ -12,9 +12,6 @@ L+ /etc/mtab - - - - ../proc/self/mounts
  m4_ifdef(`HAVE_SMACK_RUN_LABEL',
  t /etc/mtab - - - - security.SMACK64=_
  )m4_dnl
 -m4_ifdef(`ENABLE_RESOLVE',
 -L! /etc/resolv.conf - - - - ../run/systemd/resolve/stub-resolv.conf
 -)m4_dnl
- C /etc/nsswitch.conf - - - -
+ C! /etc/nsswitch.conf - - - -
  m4_ifdef(`HAVE_PAM',
- C /etc/pam.d - - - -
+ C! /etc/pam.d - - - -

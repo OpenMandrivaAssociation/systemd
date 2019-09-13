@@ -34,12 +34,12 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 242
-%define stable 20190509
+%define major 243
+%define stable 20190913
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	4
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -99,16 +99,13 @@ Patch18:	0516-udev-silence-version-print.patch
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
 Patch101:	0002-journal-clearout-drop-kmsg.patch
-Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
-Patch104:	0008-analyze-increase-precision.patch
 Patch105:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch106:	0010-efi-boot-generator-Do-not-automount-boot-partition.patch
 Patch107:	0012-locale-setup-set-default-locale-to-a-unicode-one.patch
 Patch108:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch109:	0024-more-udev-children-workers.patch
 Patch110:	0021-not-load-iptables.patch
-Patch112:	0031-DHCP-retry-faster.patch
 Patch113:	0033-Remove-libm-memory-overhead.patch
 Patch114:	0035-skip-not-present-ACPI-devices.patch
 Patch115:	0031-Make-timesyncd-a-simple-service.patch
@@ -131,9 +128,6 @@ Patch1002:	systemd-240-compile-with-clang.patch
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # Upstream patches from master that haven't landed in -stable yet
-# https://github.com/systemd/systemd/issues/11386
-# This reverts https://github.com/systemd/systemd/commit/a17c17122c304ff3f67f1cbf119fa7116315a7df.patch
-Patch1201:	revert-a17c17122c304ff3f67f1cbf119fa7116315a7df.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
@@ -629,6 +623,8 @@ export CXX=g++
 	-Dtpm=true \
 	-Dhwdb=true \
 	-Dsysusers=true \
+	-Dman=true \
+	-Dhtml=true \
 	-Ddefault-kill-user-processes=false \
 	-Dtests=unsafe \
 	-Dinstall-tests=false \
@@ -682,7 +678,7 @@ ln -sf /bin/systemd-escape %{buildroot}%{_bindir}/systemd-escape
 # We create all wants links manually at installation time to make sure
 # they are not owned and hence overriden by rpm after the used deleted
 # them.
-rm -r %{buildroot}%{_sysconfdir}/%{name}/system/*.target.wants
+rm -rf %{buildroot}%{_sysconfdir}/%{name}/system/*.target.wants
 
 # Make sure these directories are properly owned
 mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
@@ -1238,14 +1234,12 @@ fi
 %exclude %{_bindir}/%{name}-cgtop
 %exclude %{_bindir}/%{name}-delta
 %{_bindir}/timedatectl
-%{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
 %{_datadir}/factory/etc/nsswitch.conf
@@ -1267,7 +1261,9 @@ fi
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
-
+%dir /lib/systemd/ntp-units.d
+/lib/systemd/ntp-units.d/80-systemd-timesync.list
+%{_datadir}/factory/etc/issue
 %{systemd_libdir}/portable/*
 /bin/portablectl
 %{systemd_libdir}/resolv.conf
@@ -1311,15 +1307,15 @@ fi
 #
 %{udev_rules_dir}/*.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
-%attr(0755,root,root) /sbin/udevadm
-%attr(0755,root,root) /sbin/udevd
-%attr(0755,root,root) %{_bindir}/udevadm
-%attr(0755,root,root) %{_sbindir}/udevadm
+/sbin/udevadm
+/sbin/udevd
+%{_bindir}/udevadm
+%{_sbindir}/udevadm
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/net_action
 %attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/scsi_id
-%attr(0755,root,root) %{udev_libdir}/udevd
+%{udev_libdir}/udevd
 %config(noreplace) %{_prefix}/lib/sysctl.d/*.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/*.conf
 %config(noreplace) %{_sysconfdir}/pam.d/%{name}-user
@@ -1485,6 +1481,7 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy

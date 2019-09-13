@@ -1,25 +1,13 @@
-From 4da1898a08d6c1bbcf14359634b5029b05e8e2ad Mon Sep 17 00:00:00 2001
-From: Arjan van de Ven <arjan@linux.intel.com>
-Date: Mon, 14 Jan 2019 09:46:32 -0800
-Subject: [PATCH 41/42] Disable XZ support in the journal.
-
----
- src/journal/compress.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/src/journal/compress.c b/src/journal/compress.c
-index e95ce2bcaa..320fb030f9 100644
---- a/src/journal/compress.c
-+++ b/src/journal/compress.c
-@@ -26,6 +26,8 @@
- #include "string-util.h"
+diff -up systemd-243.20190913/src/journal/compress.c.27~ systemd-243.20190913/src/journal/compress.c
+--- systemd-243.20190913/src/journal/compress.c.27~	2019-09-13 01:56:20.204498714 +0200
++++ systemd-243.20190913/src/journal/compress.c	2019-09-13 01:57:07.732000626 +0200
+@@ -29,6 +29,9 @@
+ #include "unaligned.h"
  #include "util.h"
  
 +#undef HAVE_XZ
 +#define HAVE_XZ 0
++
  #if HAVE_LZ4
  DEFINE_TRIVIAL_CLEANUP_FUNC(LZ4F_compressionContext_t, LZ4F_freeCompressionContext);
  DEFINE_TRIVIAL_CLEANUP_FUNC(LZ4F_decompressionContext_t, LZ4F_freeDecompressionContext);
--- 
-2.20.1
-
