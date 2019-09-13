@@ -557,13 +557,6 @@ For building RPM packages to utilize standard systemd runtime macros.
 %autosetup -p1
 
 %build
-%ifarch %{ix86}
-# (tpg) since LLVM/clang-3.8.0 systemd hangs system on i586
-# (bero) since 3.9.0, also hangs system on x86_64
-export CC=gcc
-export CXX=g++
-%endif
-
 # FIXME
 # Switch to
 #	-Ddefault-hierarchy=unified \
