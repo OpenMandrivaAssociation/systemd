@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -95,6 +95,7 @@ Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
+Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
