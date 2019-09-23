@@ -39,7 +39,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -100,6 +100,7 @@ Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
 Patch101:	0002-journal-clearout-drop-kmsg.patch
+Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
 Patch105:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch106:	0010-efi-boot-generator-Do-not-automount-boot-partition.patch
