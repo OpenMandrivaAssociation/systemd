@@ -29,7 +29,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 243
-%define stable 20190913
+%define stable 20191015
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -40,7 +40,8 @@ Url:		http://www.freedesktop.org/wiki/Software/systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# https://github.com/systemd/systemd-stable/
+# git clone https://github.com/systemd/systemd-stable/ -b v243-stable
+# git archive --prefix=systemd-243.$(date +%Y%m%d)/ --format=tar HEAD | xz > ../systemd-243.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
