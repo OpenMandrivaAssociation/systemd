@@ -3,6 +3,9 @@
 
 %bcond_with bootstrap
 
+# (tpg) do not reqire pkg-config
+%global __requires_exclude pkg-config
+
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
