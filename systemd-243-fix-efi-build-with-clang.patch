@@ -1,0 +1,22 @@
+diff -Naur systemd-243.20191015/src/boot/efi/meson.build systemd-243.20191015.tpg/src/boot/efi/meson.build
+--- systemd-243.20191015/src/boot/efi/meson.build	2019-10-10 12:56:01.000000000 +0000
++++ systemd-243.20191015.tpg/src/boot/efi/meson.build	2019-10-17 11:31:46.649605071 +0000
+@@ -112,7 +112,6 @@
+         compile_args = ['-Wall',
+                         '-Wextra',
+                         '-std=gnu90',
+-                        '-nostdinc',
+                         '-ggdb', '-O0',
+                         '-fpic',
+                         '-fshort-wchar',
+@@ -139,6 +138,10 @@
+                 compile_args += ['-Werror']
+         endif
+ 
++        if cc.get_id() != 'clang'
++                compile_args += ['-nostdinc']
++        endif
++
+         efi_ldflags = ['-T',
+                        join_paths(efi_ldsdir, arch_lds),
+                        '-shared',
