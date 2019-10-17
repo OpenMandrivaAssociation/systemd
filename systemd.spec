@@ -94,6 +94,7 @@ Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
+Patch20:	systemd-243-fix-efi-build-with-clang.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
@@ -165,11 +166,11 @@ BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
-%ifnarch %armx riscv64
+%ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
 BuildRequires:	gnu-efi
 %endif
-%ifnarch riscv64
+%ifnarch %{riscv}
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(polkit-gobject-1)
 %endif
@@ -572,7 +573,7 @@ For building RPM packages to utilize standard systemd runtime macros.
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
 	-Defi=true \
-%ifnarch %{armx} riscv64
+%ifnarch %{armx} %{riscv}
 	-Dgnu-efi=true \
 %endif
 %if %{with bootstrap}
@@ -588,7 +589,7 @@ For building RPM packages to utilize standard systemd runtime macros.
 	-Dkmod=true \
 	-Dxkbcommon=true \
 	-Dblkid=true \
-%ifnarch riscv64
+%ifnarch %{riscv}
 	-Dseccomp=true \
 %else
 	-Dseccomp=false \
@@ -770,7 +771,7 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
-%ifnarch %{armx} riscv64
+%ifnarch %{armx} %{riscv}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
@@ -1412,7 +1413,7 @@ fi
 
 %files boot
 %{_bindir}/bootctl
-%ifnarch %armx riscv64
+%ifnarch %{armx} %{riscv}
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
