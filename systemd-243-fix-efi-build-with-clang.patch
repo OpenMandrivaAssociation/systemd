@@ -1,6 +1,6 @@
 diff -Naur systemd-243.20191015/src/boot/efi/meson.build systemd-243.20191015.tpg/src/boot/efi/meson.build
 --- systemd-243.20191015/src/boot/efi/meson.build	2019-10-10 12:56:01.000000000 +0000
-+++ systemd-243.20191015.tpg/src/boot/efi/meson.build	2019-10-17 11:31:46.649605071 +0000
++++ systemd-243.20191015.tpg/src/boot/efi/meson.build	2019-10-18 08:03:51.290825455 +0000
 @@ -112,7 +112,6 @@
          compile_args = ['-Wall',
                          '-Wextra',
@@ -9,7 +9,7 @@ diff -Naur systemd-243.20191015/src/boot/efi/meson.build systemd-243.20191015.tp
                          '-ggdb', '-O0',
                          '-fpic',
                          '-fshort-wchar',
-@@ -139,6 +138,10 @@
+@@ -139,12 +138,17 @@
                  compile_args += ['-Werror']
          endif
  
@@ -20,3 +20,10 @@ diff -Naur systemd-243.20191015/src/boot/efi/meson.build systemd-243.20191015.tp
          efi_ldflags = ['-T',
                         join_paths(efi_ldsdir, arch_lds),
                         '-shared',
+                        '-Bsymbolic',
+                        '-nostdlib',
+                        '-znocombreloc',
++                       '-znorelro',
+                        '-L', efi_libdir,
+                        join_paths(efi_ldsdir, 'crt0-efi-@0@.o'.format(gnu_efi_path_arch))]
+         if efi_arch == 'aarch64' or efi_arch == 'arm'
