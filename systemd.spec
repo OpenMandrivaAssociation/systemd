@@ -563,6 +563,12 @@ For building RPM packages to utilize standard systemd runtime macros.
 %autosetup -p1
 
 %build
+%ifarch %{ix86}
+mkdir -p bin
+ln -sf %{_bindir}/ld.bfd bin/ld
+PATH=$PWD/bin:$PATH
+%endif
+
 # FIXME
 # Switch to
 #	-Ddefault-hierarchy=unified \
