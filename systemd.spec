@@ -1,5 +1,10 @@
 # (tpg) special options for systemd to keep it fast and secure
+%ifnarch %{ix86}
 %global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32
+%else
+%global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fuse-ld=bfd
+%global ldflags %{ldflags} -fuse-ld=bfd
+%endif
 
 %bcond_with bootstrap
 
