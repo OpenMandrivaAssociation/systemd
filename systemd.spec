@@ -41,7 +41,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -99,7 +99,6 @@ Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
-Patch20:	systemd-243-fix-efi-build-with-clang.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
@@ -173,7 +172,7 @@ BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
 %ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
-BuildRequires:	gnu-efi
+BuildRequires:	gnu-efi >= 3.0.11
 %endif
 %ifnarch %{riscv}
 BuildRequires:	pkgconfig(libseccomp)
