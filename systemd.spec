@@ -37,11 +37,11 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 243
-%define stable 20191015
+%define stable 20191121
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
