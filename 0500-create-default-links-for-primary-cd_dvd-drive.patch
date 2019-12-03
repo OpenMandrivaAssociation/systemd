@@ -7,9 +7,10 @@ cdrom_id: created links for the default cd/dvd drive (bnc#783054).
  rules/60-cdrom_id.rules | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
---- systemd.orig/rules/60-cdrom_id.rules
-+++ systemd/rules/60-cdrom_id.rules
-@@ -20,6 +20,9 @@ IMPORT{program}="cdrom_id --lock-media $
+diff -Naur systemd-244.20191203/rules.d/60-cdrom_id.rules systemd-244.20191203.tpg/rules.d/60-cdrom_id.rules
+--- systemd-244.20191203/rules.d/60-cdrom_id.rules	2019-11-29 16:32:36.000000000 +0000
++++ systemd-244.20191203.tpg/rules.d/60-cdrom_id.rules	2019-12-03 12:16:25.896021820 +0000
+@@ -24,6 +24,9 @@
  # stale mounts after ejecting
  ENV{DISK_MEDIA_CHANGE}=="?*", ENV{ID_CDROM_MEDIA}!="?*", ENV{SYSTEMD_READY}="0"
  
