@@ -9,15 +9,15 @@ that it is done, even though that's really not relevant
  units/systemd-timesyncd.service.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -Naur systemd-240.20190211/units/systemd-timesyncd.service.in systemd-240.20190211.tpg/units/systemd-timesyncd.service.in
---- systemd-240.20190211/units/systemd-timesyncd.service.in	2019-02-11 13:20:05.000000000 +0000
-+++ systemd-240.20190211.tpg/units/systemd-timesyncd.service.in	2019-02-28 14:28:26.730000000 +0000
-@@ -42,7 +42,7 @@
+diff -Naur systemd-244.20191203/units/systemd-timesyncd.service.in systemd-244.20191203.tpg/units/systemd-timesyncd.service.in
+--- systemd-244.20191203/units/systemd-timesyncd.service.in	2019-11-29 16:32:36.000000000 +0000
++++ systemd-244.20191203.tpg/units/systemd-timesyncd.service.in	2019-12-03 12:20:16.346023149 +0000
+@@ -45,7 +45,7 @@
  SystemCallArchitectures=native
  SystemCallErrorNumber=EPERM
  SystemCallFilter=@system-service @clock
 -Type=notify
 +Type=simple
  User=systemd-timesync
- WatchdogSec=3min
+ @SERVICE_WATCHDOG@
  
