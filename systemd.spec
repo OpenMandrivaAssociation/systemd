@@ -36,25 +36,25 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 243
-%define stable 20191121
+%define major 244
+%define stable 20191203
 
 Summary:	A System and Session Manager
 Name:		systemd
-Release:	5
-License:	GPLv2+
-Group:		System/Configuration/Boot and Init
-Url:		http://www.freedesktop.org/wiki/Software/systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v243-stable
-# git archive --prefix=systemd-243.$(date +%Y%m%d)/ --format=tar HEAD | xz > ../systemd-243.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v244-stable
+# git archive --prefix=systemd-244.$(date +%Y%m%d)/ --format=tar HEAD | xz > ../systemd-244.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
+Release:	1
+License:	GPLv2+
+Group:		System/Configuration/Boot and Init
+Url:		http://www.freedesktop.org/wiki/Software/systemd
 # This file must be available before %%prep.
 # It is generated during systemd build and can be found in src/core/.
 Source1:	triggers.systemd
