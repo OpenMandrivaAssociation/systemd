@@ -7,19 +7,15 @@ Subject: [PATCH 24/39] more udev children workers
  units/systemd-udevd.service.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/units/systemd-udevd.service.in b/units/systemd-udevd.service.in
-index fc037b5a5..6806d5b41 100644
---- a/units/systemd-udevd.service.in
-+++ b/units/systemd-udevd.service.in
-@@ -20,7 +20,7 @@ OOMScoreAdjust=-1000
+diff -Naur systemd-244.20191203/units/systemd-udevd.service.in systemd-244.20191203.tpg/units/systemd-udevd.service.in
+--- systemd-244.20191203/units/systemd-udevd.service.in	2019-11-29 16:32:36.000000000 +0000
++++ systemd-244.20191203.tpg/units/systemd-udevd.service.in	2019-12-03 12:18:37.251022578 +0000
+@@ -22,7 +22,7 @@
  Sockets=systemd-udevd-control.socket systemd-udevd-kernel.socket
  Restart=always
  RestartSec=0
 -ExecStart=@rootlibexecdir@/systemd-udevd
-+ExecStart=@rootlibexecdir@/systemd-udevd  --children-max=16
++ExecStart=@rootlibexecdir@/systemd-udevd --children-max=16
+ ExecReload=@rootbindir@/udevadm control --reload --timeout 0
  KillMode=mixed
- WatchdogSec=3min
  TasksMax=infinity
--- 
-2.13.3
-
