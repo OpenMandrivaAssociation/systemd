@@ -1077,7 +1077,6 @@ fi
 %dir %{systemd_libdir}/network
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/portable
-%dir %{systemd_libdir}/portable
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/system-shutdown
 %dir %{systemd_libdir}/system-sleep
@@ -1275,6 +1274,9 @@ fi
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/80-container-vz.network
+%{systemd_libdir}/network//80-wifi-adhoc.network
+%{systemd_libdir}/network//80-wifi-ap.network.example
+%{systemd_libdir}/network//80-wifi-station.network.example
 %{systemd_libdir}/network/90-enable.network
 %{systemd_libdir}/network/90-wireless.network
 %{systemd_libdir}/network/99-default.link
@@ -1316,6 +1318,7 @@ fi
 %{_bindir}/udevadm
 %{_sbindir}/udevadm
 %attr(0755,root,root) %{udev_libdir}/ata_id
+%attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/net_action
 %attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/scsi_id
