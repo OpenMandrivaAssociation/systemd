@@ -195,7 +195,7 @@ Requires:	acl
 Requires:	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
 Requires(post):	grep
-Requires:	basesystem-minimal >= 1:3-4
+Requires:	basesystem-minimal
 Requires:	util-linux >= 2.27
 Requires:	shadow >= 2:4.5
 Requires(post,postun):	setup >= 2.8.9
