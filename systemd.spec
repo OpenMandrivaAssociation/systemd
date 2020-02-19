@@ -554,6 +554,7 @@ This package contains bash completion.
 %package macros
 Summary:	A RPM macros
 Group:		Development/Other
+Provides:	systemd-rpm-macros
 
 %description macros
 For building RPM packages to utilize standard systemd runtime macros.
