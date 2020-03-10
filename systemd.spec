@@ -126,8 +126,6 @@ Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
-#Patch1001:	systemd-240-gnu-efi-clang.patch
-#Patch1002:	systemd-240-compile-with-clang.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
@@ -1238,12 +1236,14 @@ fi
 %exclude %{_bindir}/%{name}-cgtop
 %exclude %{_bindir}/%{name}-delta
 %{_bindir}/timedatectl
+%{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
 %{_datadir}/factory/etc/nsswitch.conf
