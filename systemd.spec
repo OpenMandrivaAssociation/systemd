@@ -126,14 +126,13 @@ Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
-Patch1001:	systemd-240-gnu-efi-clang.patch
-Patch1002:	systemd-240-compile-with-clang.patch
+#Patch1001:	systemd-240-gnu-efi-clang.patch
+#Patch1002:	systemd-240-compile-with-clang.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # Upstream patches from master that haven't landed in -stable yet
-
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	audit-devel
@@ -584,6 +583,7 @@ PATH=$PWD/bin:$PATH
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
 	-Defi=true \
+	-Defi-libdir=%{_libdir} \
 %ifnarch %{armx} %{riscv}
 	-Dgnu-efi=true \
 %endif
