@@ -37,7 +37,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 244
-%define stable 20200310
+%define stable 20200403
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -51,7 +51,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -187,7 +187,7 @@ BuildRequires:	distro-release-common
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 # (tpg) this is needed to update /usr/share/systemd/kbd-model-map
-BuildRequires:	kbd
+BuildRequires:	kbd >= 2.2.0
 %endif
 Requires:	libcap-utils
 Requires:	acl
