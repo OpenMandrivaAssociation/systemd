@@ -51,7 +51,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -186,6 +186,8 @@ BuildRequires:	pkgconfig(mount) >= 2.27
 BuildRequires:	distro-release-common
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
+# (tpg) this is needed to update /usr/share/systemd/kbd-model-map
+BuildRequires:	kbd
 %endif
 Requires:	libcap-utils
 Requires:	acl
@@ -788,6 +790,10 @@ install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 # Install yum protection fragment
 install -Dm0644 %{SOURCE24} %{buildroot}%{_sysconfdir}/dnf/protected.d/systemd.conf
 
+# (tpg) update /usr/share/systemd/kbd-model-map based on kbd package
+if [ -f /usr/share/systemd/kbd-model-map.generated ]; then
+    cat /usr/share/systemd/kbd-model-map.generated >> %{buildroot}%{_datadir}/%{name}/kbd-model-map
+fi
 #################
 #	UDEV	#
 #	START	#
