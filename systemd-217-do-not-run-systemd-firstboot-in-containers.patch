@@ -1,6 +1,6 @@
-diff -Naur systemd-217/units/systemd-firstboot.service.in systemd-217.tpg/units/systemd-firstboot.service.in
---- systemd-217/units/systemd-firstboot.service.in	2014-10-22 23:24:07.218205305 +0000
-+++ systemd-217.tpg/units/systemd-firstboot.service.in	2014-11-10 19:16:32.154559274 +0000
+diff -Naur systemd-217/units/systemd-firstboot.service systemd-217.tpg/units/systemd-firstboot.service
+--- systemd-217/units/systemd-firstboot.service	2014-10-22 23:24:07.218205305 +0000
++++ systemd-217.tpg/units/systemd-firstboot.service	2014-11-10 19:16:32.154559274 +0000
 @@ -14,6 +14,7 @@
  Before=systemd-sysusers.service sysinit.target shutdown.target
  ConditionPathIsReadWrite=/etc
