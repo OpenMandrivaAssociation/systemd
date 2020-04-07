@@ -14,7 +14,7 @@
 # macros for sysvinit transition - should be equal to
 # sysvinit %version-%release-plus-1
 %define sysvinit_version 2.87
-%define sysvinit_release %mkrel 23
+%define sysvinit_release 23
 
 %define libsystemd_major 0
 %define libnss_major 2
@@ -36,22 +36,22 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 244
-%define stable 20200403
+%define major 245
+%define stable 20200407
 
 Summary:	A System and Session Manager
 Name:		systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v244-stable
-# git archive --prefix=systemd-244.$(date +%Y%m%d)/ --format=tar HEAD | xz > ../systemd-244.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v245-stable
+# git archive --prefix=systemd-245.$(date +%Y%m%d)/ --format=tar HEAD | xz > ../systemd-245.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	5
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1222,6 +1222,7 @@ fi
 /bin/%{name}-tmpfiles
 /bin/%{name}-tty-ask-password-agent
 /bin/udevadm
+/bin/userdbctl
 /sbin/init
 /sbin/runlevel
 /sbin/shutdown
