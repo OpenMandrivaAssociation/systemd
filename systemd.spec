@@ -37,7 +37,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 245
-%define stable 20200407
+%define stable 20200426
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -45,7 +45,7 @@ Name:		systemd
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
 # git clone https://github.com/systemd/systemd-stable/ -b v245-stable
-# git archive --prefix=systemd-245.$(date +%Y%m%d)/ --format=tar HEAD | xz > ../systemd-245.$(date +%Y%m%d).tar.xz
+# git archive --prefix=systemd-245.$(date +%Y%m%d)/ --format=tar stable/v245-stable | xz -9ef > ../systemd-245.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
