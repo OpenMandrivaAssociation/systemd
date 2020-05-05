@@ -51,7 +51,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -89,6 +89,8 @@ Source24:	yum-protect-systemd.conf
 
 ### OMV patches###
 # from Mandriva
+# Workaround for lld bug causing compile failure in lld 10.0.1-20200423 on x86_64
+Patch1:		systemd-245-lld-workaround-disable-test-unit-name.patch
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
@@ -303,6 +305,20 @@ Suggests:	%{name}-locale = %{EVRD}
 Some systemd units and udev rules are useful only when
 you have an actual console, this subpackage contains
 these units.
+
+%package networkd
+Summary:	Network manager for %{name}
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Conflicts:	networkmanager
+
+%description networkd
+A network manager for %{name}.
+
+%{name}-networkd should not be used alongside NetworkManager
+(which is the default in OpenMandriva).
+
+Install and use with care.
 
 %package coredump
 Summary:	Coredump component for %{name}
@@ -942,7 +958,6 @@ if [ $1 -eq 0 ] ; then
 	    getty@tty1.service \
 	    getty@getty.service \
 	    remote-fs.target \
-	    systemd-networkd.service \
 	    systemd-resolvd.service \
 	    systemd-timesync.service \
 	    systemd-timedated.service \
@@ -1071,7 +1086,6 @@ fi
 %dir %{_sysconfdir}/%{name}/user
 %dir %{_sysconfdir}/%{name}/user-preset
 %dir %{_sysconfdir}/%{name}/user/default.target.wants
-%dir %{_sysconfdir}/%{name}/network
 %dir %{_sysconfdir}/tmpfiles.d
 %dir %{_sysconfdir}/udev
 %dir %{_sysconfdir}/udev/agents.d
@@ -1079,7 +1093,6 @@ fi
 %dir %{_sysconfdir}/udev/rules.d
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/*-generators
-%dir %{systemd_libdir}/network
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/portable
 %dir %{systemd_libdir}/system-preset
@@ -1174,6 +1187,13 @@ fi
 %exclude %{udev_rules_dir}/70-joystick.rules
 %exclude %{udev_rules_dir}/75-probe_mtd.rules
 %exclude %{udev_rules_dir}/78-sound-card.rules
+### network excludes
+%exclude %{_sysconfdir}/systemd/networkd.conf
+%exclude %{systemd_libdir}/system/systemd-networkd-wait-online.service
+%exclude %{systemd_libdir}/system/systemd-networkd.service
+%exclude %{systemd_libdir}/system/systemd-networkd.socket
+%exclude %{systemd_libdir}/systemd-networkd
+%exclude %{systemd_libdir}/systemd-networkd-wait-online
 ###
 %if !%{with bootstrap}
 ### cryptsetup excludes
@@ -1197,7 +1217,6 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
@@ -1207,7 +1226,6 @@ fi
 /bin/halt
 /bin/journalctl
 /bin/loginctl
-/bin/networkctl
 /bin/poweroff
 /bin/reboot
 /bin/systemctl
@@ -1247,7 +1265,6 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
@@ -1279,15 +1296,6 @@ fi
 /bin/portablectl
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
-%{systemd_libdir}/network/80-container-host0.network
-%{systemd_libdir}/network/80-container-ve.network
-%{systemd_libdir}/network/80-container-vz.network
-%{systemd_libdir}/network//80-wifi-adhoc.network
-%{systemd_libdir}/network//80-wifi-ap.network.example
-%{systemd_libdir}/network//80-wifi-station.network.example
-%{systemd_libdir}/network/90-enable.network
-%{systemd_libdir}/network/90-wireless.network
-%{systemd_libdir}/network/99-default.link
 %{systemd_libdir}/system-preset/*.preset
 %{systemd_libdir}/system/*.automount
 %{systemd_libdir}/system/*.mount
@@ -1496,11 +1504,41 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.hostname1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.locale1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
+
+%files networkd
+%{_sysconfdir}/systemd/networkd.conf
+%dir %{_sysconfdir}/%{name}/network
+%{systemd_libdir}/system/systemd-networkd-wait-online.service
+%{systemd_libdir}/system/systemd-networkd.service
+%{systemd_libdir}/system/systemd-networkd.socket
+%{systemd_libdir}/systemd-networkd
+%{systemd_libdir}/systemd-networkd-wait-online
+%dir %{systemd_libdir}/network
+%{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
+/bin/networkctl
+%{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
+%{systemd_libdir}/network/80-container-host0.network
+%{systemd_libdir}/network/80-container-ve.network
+%{systemd_libdir}/network/80-container-vz.network
+%{systemd_libdir}/network//80-wifi-adhoc.network
+%{systemd_libdir}/network//80-wifi-ap.network.example
+%{systemd_libdir}/network//80-wifi-station.network.example
+%{systemd_libdir}/network/90-enable.network
+%{systemd_libdir}/network/90-wireless.network
+%{systemd_libdir}/network/99-default.link
+%{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
+
+%preun networkd
+if [ $1 -eq 0 ] ; then
+	/bin/systemctl --quiet disable \
+		systemd-networkd.service \
+		2>&1 || :
+fi
+
 
 %if !%{with bootstrap}
 %files cryptsetup
