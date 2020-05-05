@@ -1,0 +1,28 @@
+diff -up systemd-245.20200426/src/test/meson.build.omv~ systemd-245.20200426/src/test/meson.build
+--- systemd-245.20200426/src/test/meson.build.omv~	2020-05-05 20:34:16.384741419 +0200
++++ systemd-245.20200426/src/test/meson.build	2020-05-05 20:34:42.512051618 +0200
+@@ -139,15 +139,15 @@ tests += [
+          [],
+          []],
+ 
+-        [['src/test/test-unit-name.c'],
+-         [libcore,
+-          libshared],
+-         [threads,
+-          librt,
+-          libseccomp,
+-          libselinux,
+-          libmount,
+-          libblkid]],
++#        [['src/test/test-unit-name.c'],
++#         [libcore,
++#          libshared],
++#         [threads,
++#          librt,
++#          libseccomp,
++#          libselinux,
++#          libmount,
++#          libblkid]],
+ 
+         [['src/test/test-load-fragment.c'],
+          [libcore,
