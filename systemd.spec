@@ -51,7 +51,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -285,6 +285,7 @@ Summary:	EFI boot component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{name} < 235-9
+Conflicts:	%{name} < 245.20200426-3
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
 
@@ -1124,6 +1125,8 @@ fi
 %dir %{udev_rules_dir}
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
+### boot excludes
+%exclude %{systemd_libdir}/system/systemd-boot-system-token.service
 ### container excludes
 %exclude %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
 %exclude %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
@@ -1442,6 +1445,7 @@ fi
 
 %files boot
 %{_bindir}/bootctl
+%{systemd_libdir}/system/systemd-boot-system-token.service
 %ifnarch %{armx} %{riscv}
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
