@@ -290,6 +290,15 @@ BuildRequires:	devel(libpcre2-8)
 BuildRequires:	devel(liblz4)
 BuildRequires:	devel(libcrypto)
 BuildRequires:	devel(libcurl)
+BuildRequires:	devel(libcrypt) libcrypt-devel
+BuildRequires:	devel(liblzma)
+BuildRequires:	devel(libglib-2.0)
+BuildRequires:	devel(libmount)
+BuildRequires:	devel(libblkid)
+BuildRequires:	devel(libidn2)
+BuildRequires:	devel(libz)
+BuildRequires:	devel(libdw)
+BuildRequires:	devel(libdbus-1)
 %endif
 
 %description
@@ -624,17 +633,6 @@ nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
 functionality of the GNU C Library (glibc) providing host name
 resolution for the locally configured system hostname as returned by
 gethostname(2).
-
-%package -n %{lib32nss_resolve}
-Summary:	Provide hostname resolution via systemd-resolved.service (32-bit)
-Group:		System/Libraries
-
-%description -n %{lib32nss_resolve}
-nss-resolve is a plug-in module for the GNU Name Service Switch (NSS) 
-functionality of the GNU C Library (glibc) enabling it to resolve host 
-names via the systemd-resolved(8) local network name resolution service. 
-It replaces the nss-dns plug-in module that traditionally resolves 
-hostnames via DNS.
 
 %package -n %{lib32nss_systemd}
 Summary:	Provide UNIX user and group name resolution for dynamic users and groups (32-bit)
