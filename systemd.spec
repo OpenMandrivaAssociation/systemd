@@ -1,3 +1,10 @@
+# libsystemd is used by wine
+%ifarch %{x86_64}
+%bcond_without compat32
+%else
+%bcond_with compat32
+%endif
+
 # (tpg) special options for systemd to keep it fast and secure
 %ifnarch %{ix86}
 %global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32
@@ -21,15 +28,21 @@
 
 %define libsystemd %mklibname %{name} %{libsystemd_major}
 %define libsystemd_devel %mklibname %{name} -d
+%define lib32systemd lib%{name}%{libsystemd_major}
+%define lib32systemd_devel lib%{name}-devel
 
 %define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
 %define libnss_mymachines %mklibname nss_mymachines %{libnss_major}
 %define libnss_resolve %mklibname nss_resolve %{libnss_major}
 %define libnss_systemd %mklibname nss_systemd %{libnss_major}
+%define lib32nss_myhostname libnss_myhostname%{libnss_major}
+%define lib32nss_systemd libnss_systemd%{libnss_major}
 
 %define udev_major 1
 %define libudev %mklibname udev %{udev_major}
 %define libudev_devel %mklibname udev -d
+%define lib32udev libudev%{udev_major}
+%define lib32udev_devel libudev-devel
 
 %define systemd_libdir /lib/systemd
 %define udev_libdir /lib/udev
@@ -51,7 +64,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -153,7 +166,6 @@ BuildRequires:	pkgconfig(libgcrypt)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	gtk-doc
-BuildRequires:	cmake
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
 BuildRequires:	pkgconfig(python)
@@ -269,6 +281,16 @@ Obsoletes:	gummiboot
 %rename		systemd-tools
 %rename		systemd-units
 %rename		udev
+%if %{with compat32}
+BuildRequires:	devel(libcap)
+BuildRequires:	devel(libgcrypt)
+BuildRequires:	devel(libip4tc)
+BuildRequires:	devel(libip6tc)
+BuildRequires:	devel(libpcre2-8)
+BuildRequires:	devel(liblz4)
+BuildRequires:	devel(libcrypto)
+BuildRequires:	devel(libcurl)
+%endif
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -430,7 +452,7 @@ Systemd generators for cryptsetup (Luks encryption and verity).
 %endif
 
 %package -n %{libsystemd}
-Summary:	Systemdlibrary package
+Summary:	Systemd library package
 Group:		System/Libraries
 # (tpg) old, pre 230 stuff - keep for smooth update from old relases
 Provides:	libsystemd = 208-20
@@ -575,6 +597,75 @@ Provides:	systemd-rpm-macros
 %description macros
 For building RPM packages to utilize standard systemd runtime macros.
 
+%if %{with compat32}
+%package -n %{lib32systemd}
+Summary:	Systemd library package (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32systemd}
+This package provides the systemd shared library.
+
+%package -n %{lib32systemd_devel}
+Summary:	Systemd library development files (32-bit)
+Group:		Development/C
+Requires:	%{name}-macros = %{EVRD}
+Requires:	%{lib32systemd} = %{EVRD}
+Requires:	%{libsystemd_devel} = %{EVRD}
+
+%description -n %{lib32systemd_devel}
+Development files for the systemd shared library.
+
+%package -n %{lib32nss_myhostname}
+Summary:	Library for local system host name resolution (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32nss_myhostname}
+nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
+functionality of the GNU C Library (glibc) providing host name
+resolution for the locally configured system hostname as returned by
+gethostname(2).
+
+%package -n %{lib32nss_resolve}
+Summary:	Provide hostname resolution via systemd-resolved.service (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32nss_resolve}
+nss-resolve is a plug-in module for the GNU Name Service Switch (NSS) 
+functionality of the GNU C Library (glibc) enabling it to resolve host 
+names via the systemd-resolved(8) local network name resolution service. 
+It replaces the nss-dns plug-in module that traditionally resolves 
+hostnames via DNS.
+
+%package -n %{lib32nss_systemd}
+Summary:	Provide UNIX user and group name resolution for dynamic users and groups (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32nss_systemd}
+nss-systemd is a plug-in module for the GNU Name Service Switch (NSS) 
+functionality of the GNU C Library (glibc), providing UNIX user and 
+group name resolution for dynamic users and groups allocated through 
+the DynamicUser= option in systemd unit files. See systemd.exec(5) 
+for details on this option.
+
+%package -n %{lib32udev}
+Summary:	Library for udev (32-bit)
+Group:		System/Libraries
+
+%description -n %{lib32udev}
+Library for udev.
+
+%package -n %{lib32udev_devel}
+Summary:	Devel library for udev (32-bit)
+Group:		Development/C
+License:	LGPLv2+
+Requires:	%{libudev_devel} = %{EVRD}
+Requires:	%{lib32udev} = %{EVRD}
+Requires:	%{name}-macros = %{EVRD}
+
+%description -n %{lib32udev_devel}
+Devel library for udev.
+%endif
+
 %prep
 %autosetup -p1
 
@@ -593,6 +684,33 @@ PATH=$PWD/bin:$PATH
 # while keeping docker working.
 # https://github.com/opencontainers/runc/issues/654
 %serverbuild_hardened
+
+%if %{with compat32}
+%meson32 \
+	-Dsplit-usr=true \
+	-Dresolve=false \
+	-Dhostnamed=false \
+	-Dlocaled=false \
+	-Dmachined=false \
+	-Dportabled=false \
+	-Duserdb=false \
+	-Dhomed=false \
+	-Dnetworkd=false \
+	-Dtimedated=false \
+	-Dtimesyncd=false \
+	-Dselinux=false \
+	-Dlibcryptsetup=false \
+	-Dseccomp=false \
+	-Dkmod=false \
+	-Dpam=false \
+	-Dqrencode=false \
+	-Dp11kit=false \
+	-Daudit=false \
+	-Dmicrohttpd=false \
+	-Dgnutls=false
+%ninja_build -C build32
+%endif
+
 %meson \
 	-Drootprefix="" \
 	-Drootlibdir=/%{_lib} \
@@ -673,6 +791,13 @@ PATH=$PWD/bin:$PATH
 %meson_build
 
 %install
+%if %{with compat32}
+%ninja_install -C build32
+rm -rf %{buildroot}%{_sysconfdir} %{buildroot}/lib/{systemd,modprobe.d,udev}
+# 32 bit cruft is not needed at early bootup...
+mv %{buildroot}/lib/* %{buildroot}%{_prefix}/lib/
+rmdir %{buildroot}/lib
+%endif
 %meson_install
 
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
@@ -1565,3 +1690,25 @@ fi
 
 %files macros
 %{_rpmmacrodir}/macros.systemd
+
+%if %{with compat32}
+%files -n %{lib32nss_myhostname}
+%{_prefix}/lib/libnss_myhostname.so.*
+
+%files -n %{lib32nss_systemd}
+%{_prefix}/lib/libnss_systemd.so.*
+
+%files -n %{lib32systemd}
+%{_prefix}/lib/libsystemd.so.*
+
+%files -n %{lib32udev}
+%{_prefix}/lib/libudev.so.*
+
+%files -n %{lib32systemd_devel}
+%{_prefix}/lib/libsystemd.so
+%{_prefix}/lib/pkgconfig/libsystemd.pc
+
+%files -n %{lib32udev_devel}
+%{_prefix}/lib/libudev.so
+%{_prefix}/lib/pkgconfig/libudev.pc
+%endif
