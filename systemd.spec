@@ -50,7 +50,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 245
-%define stable 20200426
+%define stable 20200601
 
 Summary:	A System and Session Manager
 Name:		systemd
