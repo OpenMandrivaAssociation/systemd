@@ -108,6 +108,7 @@ Patch1:		systemd-245-lld-workaround-disable-test-unit-name.patch
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
+Patch9:		systemd-245-disable-audit-by-default.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
 Patch14:	systemd-217-do-not-run-systemd-firstboot-in-containers.patch
 Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
@@ -134,7 +135,6 @@ Patch117:	0039-Don-t-wait-for-utmp-at-shutdown.patch
 Patch119:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch120:	0035-don-t-use-libm-just-for-integer-exp10.patch
 Patch121:	0043-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
-Patch122:	0040-Do-not-enable-audit-by-default-in-the-journal.patch
 Patch123:	0041-Disable-XZ-support-in-the-journal.patch
 Patch124:	0042-Localize-1-symbol.patch
 Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
