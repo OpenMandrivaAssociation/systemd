@@ -1,0 +1,9 @@
+diff -Naur systemd-245.20200601/src/journal/journald.conf systemd-245.20200601.tpg/src/journal/journald.conf
+--- systemd-245.20200601/src/journal/journald.conf	2020-06-01 07:46:31.880871976 +0000
++++ systemd-245.20200601.tpg/src/journal/journald.conf	2020-06-01 07:47:25.963868218 +0000
+@@ -41,4 +41,4 @@
+ #MaxLevelWall=emerg
+ #LineMax=48K
+ #ReadKMsg=yes
+-#Audit=yes
++Audit=no
