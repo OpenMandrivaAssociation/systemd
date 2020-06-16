@@ -5,12 +5,23 @@
 %bcond_with compat32
 %endif
 
+%bcond_with gcc
+
 # (tpg) special options for systemd to keep it fast and secure
+%if %{with gcc}
 %ifnarch %{ix86}
-%global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32
+%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC
 %else
-%global optflags %{optflags} -O2 -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fuse-ld=bfd
+%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC -fuse-ld=bfd
+%global ldflags %{ldflags} -fuse-ld=bfd -fPIC
+%endif
+%else
+%ifnarch %{ix86}
+%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32
+%else
+%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fuse-ld=bfd
 %global ldflags %{ldflags} -fuse-ld=bfd
+%endif
 %endif
 
 %bcond_with bootstrap
@@ -50,7 +61,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 245
-%define stable 20200601
+%define stable 20200616
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -64,7 +75,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	4
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -141,6 +152,7 @@ Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
+Patch1001:	systemd-245-allow-compiling-with-gcc.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
@@ -709,6 +721,11 @@ PATH=$PWD/bin:$PATH
 %ninja_build -C build32
 %endif
 
+%if %{with gcc}
+export CC=gcc
+export CXX=g++
+export LD=gcc
+%endif
 %meson \
 	-Drootprefix="" \
 	-Drootlibdir=/%{_lib} \
