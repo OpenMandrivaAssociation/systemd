@@ -1,0 +1,18 @@
+diff -up systemd-245.20200614/src/libsystemd/disable-mempool.c.omv~ systemd-245.20200614/src/libsystemd/disable-mempool.c
+--- systemd-245.20200614/src/libsystemd/disable-mempool.c.omv~	2020-06-14 03:38:48.801773430 +0200
++++ systemd-245.20200614/src/libsystemd/disable-mempool.c	2020-06-14 03:38:55.831808656 +0200
+@@ -2,4 +2,4 @@
+ 
+ #include "mempool.h"
+ 
+-const bool mempool_use_allowed = false;
++__attribute__((used)) const bool mempool_use_allowed = false;
+diff -up systemd-245.20200614/src/shared/enable-mempool.c.omv~ systemd-245.20200614/src/shared/enable-mempool.c
+--- systemd-245.20200614/src/shared/enable-mempool.c.omv~	2020-06-14 03:38:33.224693203 +0200
++++ systemd-245.20200614/src/shared/enable-mempool.c	2020-06-14 03:38:42.750742622 +0200
+@@ -2,4 +2,4 @@
+ 
+ #include "mempool.h"
+ 
+-const bool mempool_use_allowed = true;
++__attribute__((used)) const bool mempool_use_allowed = true;
