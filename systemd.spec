@@ -5,7 +5,13 @@
 %bcond_with compat32
 %endif
 
+# For debugging a crash that doesn't happen on znver1
+# Use of x86_64 instead of %{x86_64} is intentional.
+%ifarch x86_64
+%bcond_without gcc
+%else
 %bcond_with gcc
+%endif
 
 # (tpg) special options for systemd to keep it fast and secure
 %if %{with gcc}
