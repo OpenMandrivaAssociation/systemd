@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 245
-%define stable 20200616
+%define stable 20200628
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -699,6 +699,8 @@ PATH=$PWD/bin:$PATH
 # In the mean time, hybrid provides cgroups2 features
 # while keeping docker working.
 # https://github.com/opencontainers/runc/issues/654
+#
+# In order to switch to cgroup2 it is enough to pass systemd.unified_cgroup_hierarchy=1 via kernel command line.
 %serverbuild_hardened
 
 %if %{with compat32}
