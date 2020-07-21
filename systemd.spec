@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -159,6 +159,9 @@ Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
 Patch1001:	systemd-245-allow-compiling-with-gcc.patch
+#(tpg) we use bsdtar so let's adapt attribues to match implementation
+# httpa://github.com/systemd/systemd/issues/16506
+Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
