@@ -1,21 +1,19 @@
-diff -Naur systemd-245.20200628/src/import/import-common.c systemd-245.20200628.tpg/src/import/import-common.c
---- systemd-245.20200628/src/import/import-common.c	2020-06-23 09:31:16.000000000 +0000
-+++ systemd-245.20200628.tpg/src/import/import-common.c	2020-07-21 08:41:08.191031409 +0000
-@@ -104,7 +104,7 @@
-                 if (r < 0)
-                         log_error_errno(r, "Failed to drop capabilities, ignoring: %m");
- 
--                execlp("tar", "tar", "--numeric-owner", "-C", path, "-px", "--xattrs", "--xattrs-include=*",
-+                execlp("tar", "tar", "--numeric-owner", "-C", path, "-px", "--xattrs",
-                        use_selinux ? "--selinux" : "--no-selinux", NULL);
-                 log_error_errno(errno, "Failed to execute tar: %m");
-                 _exit(EXIT_FAILURE);
-@@ -152,7 +152,7 @@
-                 if (r < 0)
-                         log_error_errno(r, "Failed to drop capabilities, ignoring: %m");
- 
--                execlp("tar", "tar", "-C", path, "-c", "--xattrs", "--xattrs-include=*",
-+                execlp("tar", "tar", "-C", path, "-c", "--xattrs",
-                        use_selinux ? "--selinux" : "--no-selinux", ".", NULL);
-                 log_error_errno(errno, "Failed to execute tar: %m");
-                 _exit(EXIT_FAILURE);
+diff -up systemd-246.20200806/src/import/import-common.c.34~ systemd-246.20200806/src/import/import-common.c
+--- systemd-246.20200806/src/import/import-common.c.34~	2020-08-06 23:02:11.227462692 +0200
++++ systemd-246.20200806/src/import/import-common.c	2020-08-06 23:03:02.525124891 +0200
+@@ -85,7 +85,6 @@ int import_fork_tar_x(const char *path,
+                        "-C", path,
+                        "-px",
+                        "--xattrs",
+-                       "--xattrs-include=*",
+                        use_selinux ? "--selinux" : "--no-selinux",
+                        NULL
+                 };
+@@ -156,7 +155,6 @@ int import_fork_tar_c(const char *path,
+                         "-C", path,
+                         "-c",
+                         "--xattrs",
+-                        "--xattrs-include=*",
+                        use_selinux ? "--selinux" : "--no-selinux",
+                         ".",
+                         NULL
