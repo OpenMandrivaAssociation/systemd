@@ -66,8 +66,8 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 245
-%define stable 20200628
+%define major 246
+%define stable 20200806
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -147,7 +147,6 @@ Patch110:	0021-not-load-iptables.patch
 Patch113:	0033-Remove-libm-memory-overhead.patch
 Patch114:	0035-skip-not-present-ACPI-devices.patch
 Patch115:	0031-Make-timesyncd-a-simple-service.patch
-Patch116:	0038-Compile-udev-with-O3.patch
 Patch117:	0039-Don-t-wait-for-utmp-at-shutdown.patch
 Patch119:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch120:	0035-don-t-use-libm-just-for-integer-exp10.patch
@@ -1376,6 +1375,7 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
+%{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
 /%{_lib}/security/pam_systemd.so
 /bin/halt
 /bin/journalctl
@@ -1575,6 +1575,7 @@ fi
 %{_includedir}/%{name}/sd-login.h
 %{_includedir}/%{name}/sd-messages.h
 %{_includedir}/%{name}/sd-daemon.h
+%{_includedir}/%{name}/sd-path.h
 /%{_lib}/lib%{name}.so
 %{_datadir}/pkgconfig/%{name}.pc
 %{_libdir}/pkgconfig/lib%{name}.pc
@@ -1678,6 +1679,7 @@ fi
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/80-container-vz.network
+%{systemd_libdir}/network/80-vm-vt.network
 %{systemd_libdir}/network//80-wifi-adhoc.network
 %{systemd_libdir}/network//80-wifi-ap.network.example
 %{systemd_libdir}/network//80-wifi-station.network.example
