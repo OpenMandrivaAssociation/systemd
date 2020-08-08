@@ -5,7 +5,16 @@
 %bcond_with compat32
 %endif
 
+# FIXME workaround for a very very weird bug
+# systemd on x86_64, but not znver1 (so we're intentionally
+# not using %{x86_64} here), hangs indefinitely on upgrades
+# if built with clang.
+# Last verified with systemd 246.20200806, clang 10.0.1
+%ifarch x86_64
+%bcond_without gcc
+%else
 %bcond_with gcc
+%endif
 
 # (tpg) special options for systemd to keep it fast and secure
 %if %{with gcc}
@@ -75,7 +84,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
