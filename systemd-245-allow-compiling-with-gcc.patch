@@ -16,3 +16,15 @@ diff -up systemd-245.20200614/src/shared/enable-mempool.c.omv~ systemd-245.20200
  
 -const bool mempool_use_allowed = true;
 +__attribute__((used)) const bool mempool_use_allowed = true;
+diff -up systemd-246.20200806/src/test/test-set.c.omv~ systemd-246.20200806/src/test/test-set.c
+--- systemd-246.20200806/src/test/test-set.c.omv~	2020-08-08 06:50:10.878162432 +0200
++++ systemd-246.20200806/src/test/test-set.c	2020-08-08 06:50:17.877246466 +0200
+@@ -3,7 +3,7 @@
+ #include "set.h"
+ #include "strv.h"
+ 
+-const bool mempool_use_allowed = VALGRIND;
++__attribute__((used)) const bool mempool_use_allowed = VALGRIND;
+ 
+ static void test_set_steal_first(void) {
+         _cleanup_set_free_ Set *m = NULL;
