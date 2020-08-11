@@ -10,7 +10,9 @@
 # not using %{x86_64} here), hangs indefinitely on upgrades
 # if built with clang.
 # Last verified with systemd 246.20200806, clang 10.0.1
-%ifarch x86_64
+# aarch64 added for testing (to see if systemctl hangs on
+# synquacer and pinephone go away)
+%ifarch x86_64 aarch64
 %bcond_without gcc
 %else
 %bcond_with gcc
@@ -70,7 +72,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 246
-%define stable 20200806
+%define stable 20200811
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -84,7 +86,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -121,9 +123,6 @@ Source23:	systemd-udev-trigger-no-reload.conf
 Source24:	yum-protect-systemd.conf
 
 ### OMV patches###
-# from Mandriva
-# Workaround for lld bug causing compile failure in lld 10.0.1-20200423 on x86_64
-Patch1:		systemd-245-lld-workaround-disable-test-unit-name.patch
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
@@ -483,6 +482,28 @@ Conflicts:	%{name} < 238-4
 %description cryptsetup
 Systemd generators for cryptsetup (Luks encryption and verity).
 %endif
+
+%package portable
+Summary:	Tools for working with Portable Service Images
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+
+%description portable
+Portable service images contain an OS file system tree along with systemd
+unit file information. A service image may be "attached" to the local
+system.
+
+If attached, a set of unit files are copied from the image to the host,
+and extended with RootDirectory= or RootImage= assignments (in case of
+service units) pointing to the image file or directory, ensuring the
+services will run within the file system context of the image.
+
+Portable service images are an efficient way to bundle multiple related
+services and other units together, and transfer them as a whole between
+systems. When these images are attached the local system the contained
+units may run in most ways like regular system-provided units, either
+with full privileges or inside strict sandboxing, depending on the
+selected configuration.
 
 %package -n %{libsystemd}
 Summary:	Systemd library package
@@ -1249,7 +1270,6 @@ fi
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/*-generators
 %dir %{systemd_libdir}/system
-%dir %{systemd_libdir}/portable
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/system-shutdown
 %dir %{systemd_libdir}/system-sleep
@@ -1281,6 +1301,10 @@ fi
 %dir %{_localstatedir}/lib/systemd/catalog
 ### boot excludes
 %exclude %{systemd_libdir}/system/systemd-boot-system-token.service
+### portable excludes
+%exclude %{systemd_libdir}/system/dbus-org.freedesktop.portable1.service
+%exclude %{systemd_libdir}/system/systemd-portabled.service
+%exclude %{systemd_libdir}/systemd-portabled
 ### container excludes
 %exclude %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
 %exclude %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
@@ -1304,6 +1328,7 @@ fi
 %exclude %{systemd_libdir}/import-pubring.gpg
 %exclude /bin/machinectl
 %exclude %{_bindir}/systemd-nspawn
+%exclude %{_prefix}/lib/tmpfiles.d/portables.conf
 %exclude %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
 ### gateway excludes
 %exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.service
@@ -1374,7 +1399,6 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
@@ -1423,7 +1447,6 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
@@ -1450,8 +1473,6 @@ fi
 %dir /lib/systemd/ntp-units.d
 /lib/systemd/ntp-units.d/80-systemd-timesync.list
 %{_datadir}/factory/etc/issue
-%{systemd_libdir}/portable/*
-/bin/portablectl
 %{systemd_libdir}/resolv.conf
 %{systemd_libdir}/*-generators/*
 %{systemd_libdir}/system-preset/*.preset
@@ -1508,6 +1529,18 @@ fi
 %config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
 %{_localstatedir}/lib/systemd/catalog/database
 
+%files portable
+%dir %{systemd_libdir}/portable
+%{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
+%{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
+%{systemd_libdir}/portable/*
+%{systemd_libdir}/system/dbus-org.freedesktop.portable1.service
+%{systemd_libdir}/system/systemd-portabled.service
+%{systemd_libdir}/systemd-portabled
+%{_datadir}/polkit-1/actions/org.freedesktop.portable1.policy
+%{_prefix}/lib/tmpfiles.d/portables.conf
+/bin/portablectl
+
 %files journal-gateway
 %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
 %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
@@ -1548,7 +1581,6 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.portable1.policy
 
 %files -n %{libnss_mymachines}
 /%{_lib}/libnss_mymachines.so.%{libnss_major}
