@@ -1,17 +1,17 @@
-From 30da036bae1c7798dd4883b9bfc35be0b6b5a6aa Mon Sep 17 00:00:00 2001
+From f3ac56d3de5eb66226d943b7c64b2660fdeeecca Mon Sep 17 00:00:00 2001
 From: Auke Kok <auke-jan.h.kok@intel.com>
 Date: Fri, 14 Jul 2017 11:37:58 -0700
-Subject: [PATCH 39/39] Don't wait for utmp at shutdown.
+Subject: [PATCH 30/45] Don't wait for utmp at shutdown.
 
 ---
  units/systemd-update-utmp.service.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/units/systemd-update-utmp.service.in b/units/systemd-update-utmp.service.in
-index 163eccd91..8ee6c9c79 100644
+index b9a668faeb..ed9eb04178 100644
 --- a/units/systemd-update-utmp.service.in
 +++ b/units/systemd-update-utmp.service.in
-@@ -12,7 +12,7 @@ DefaultDependencies=no
+@@ -14,7 +14,7 @@ DefaultDependencies=no
  RequiresMountsFor=/var/log/wtmp
  Conflicts=shutdown.target
  After=systemd-remount-fs.service systemd-tmpfiles-setup.service auditd.service
@@ -21,5 +21,5 @@ index 163eccd91..8ee6c9c79 100644
  [Service]
  Type=oneshot
 -- 
-2.13.3
+2.26.0
 
