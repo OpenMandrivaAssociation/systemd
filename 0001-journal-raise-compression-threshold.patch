@@ -1,16 +1,17 @@
-From 499add1098733d5b45d46a56177e01792904bc80 Mon Sep 17 00:00:00 2001
+From 16eee061e8caf6062214324be22ab328668aef32 Mon Sep 17 00:00:00 2001
 From: Dimitri John Ledkov <dimitri.j.ledkov@intel.com>
 Date: Tue, 23 Jun 2015 11:23:57 +0100
-Subject: [PATCH 01/39] journal: raise compression threshold.
+Subject: [PATCH 01/45] journal: raise compression threshold.
 
 ---
  src/journal/journal-file.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -Naur systemd-239/src/journal/journal-file.c systemd-239.tpg/src/journal/journal-file.c
---- systemd-239/src/journal/journal-file.c	2018-06-22 11:11:49.000000000 +0000
-+++ systemd-239.tpg/src/journal/journal-file.c	2018-07-12 14:13:37.423540227 +0000
-@@ -33,7 +33,7 @@
+diff --git a/src/journal/journal-file.c b/src/journal/journal-file.c
+index bd53635860..46cb5e5902 100644
+--- a/src/journal/journal-file.c
++++ b/src/journal/journal-file.c
+@@ -36,7 +36,7 @@
  #define DEFAULT_DATA_HASH_TABLE_SIZE (2047ULL*sizeof(HashItem))
  #define DEFAULT_FIELD_HASH_TABLE_SIZE (333ULL*sizeof(HashItem))
  
@@ -19,5 +20,6 @@ diff -Naur systemd-239/src/journal/journal-file.c systemd-239.tpg/src/journal/jo
  #define MIN_COMPRESS_THRESHOLD (8ULL)
  
  /* This is the minimum journal file size */
---
-2.13.3
+-- 
+2.26.0
+
