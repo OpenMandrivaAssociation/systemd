@@ -1,7 +1,7 @@
-From 44e7ea6f888b2043a1bc71b47cc5e11472f1a4e6 Mon Sep 17 00:00:00 2001
+From 90a810f2770da48e91c14c6caed12f8021a050da Mon Sep 17 00:00:00 2001
 From: Auke Kok <auke-jan.h.kok@intel.com>
 Date: Fri, 14 Jul 2017 11:34:36 -0700
-Subject: [PATCH] Make timesyncd a "simple" service
+Subject: [PATCH 28/45] Make timesyncd a "simple" service
 
 the daemon ends up waiting 100 msec on networking conditions before notifying
 that it is done, even though that's really not relevant
@@ -9,10 +9,11 @@ that it is done, even though that's really not relevant
  units/systemd-timesyncd.service.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -Naur systemd-244.20191203/units/systemd-timesyncd.service.in systemd-244.20191203.tpg/units/systemd-timesyncd.service.in
---- systemd-244.20191203/units/systemd-timesyncd.service.in	2019-11-29 16:32:36.000000000 +0000
-+++ systemd-244.20191203.tpg/units/systemd-timesyncd.service.in	2019-12-03 12:20:16.346023149 +0000
-@@ -45,7 +45,7 @@
+diff --git a/units/systemd-timesyncd.service.in b/units/systemd-timesyncd.service.in
+index f0486a70ab..f3b02abd24 100644
+--- a/units/systemd-timesyncd.service.in
++++ b/units/systemd-timesyncd.service.in
+@@ -45,7 +45,7 @@ StateDirectory=systemd/timesync
  SystemCallArchitectures=native
  SystemCallErrorNumber=EPERM
  SystemCallFilter=@system-service @clock
@@ -21,3 +22,6 @@ diff -Naur systemd-244.20191203/units/systemd-timesyncd.service.in systemd-244.2
  User=systemd-timesync
  @SERVICE_WATCHDOG@
  
+-- 
+2.26.0
+

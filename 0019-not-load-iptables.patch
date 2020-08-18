@@ -1,16 +1,17 @@
-From 6c3fb54f769d76852d2e06cf058b4d9be0463dbf Mon Sep 17 00:00:00 2001
+From 2277d823e6d2cf78dd5f475c7794ff73a98eb265 Mon Sep 17 00:00:00 2001
 From: Arjan van de Ven <arjan@linux.intel.com>
 Date: Sun, 19 Jun 2016 00:51:22 +0000
-Subject: [PATCH] not load iptables
+Subject: [PATCH 19/45] not load iptables
 
 ---
  src/core/kmod-setup.c | 4 ----
  1 file changed, 4 deletions(-)
 
-diff -Naur systemd-240.20190211/src/core/kmod-setup.c systemd-240.20190211.tpg/src/core/kmod-setup.c
---- systemd-240.20190211/src/core/kmod-setup.c	2019-02-11 13:20:05.000000000 +0000
-+++ systemd-240.20190211.tpg/src/core/kmod-setup.c	2019-02-28 14:23:57.555000000 +0000
-@@ -87,10 +87,6 @@
+diff --git a/src/core/kmod-setup.c b/src/core/kmod-setup.c
+index 1286743273..a356da013d 100644
+--- a/src/core/kmod-setup.c
++++ b/src/core/kmod-setup.c
+@@ -85,10 +85,6 @@ int kmod_setup(void) {
                  /* This should never be a module */
                  { "unix",      "/proc/net/unix",            true,   true,    NULL      },
  
@@ -21,3 +22,6 @@ diff -Naur systemd-240.20190211/src/core/kmod-setup.c systemd-240.20190211.tpg/s
                  /* virtio_rng would be loaded by udev later, but real entropy might be needed very early */
                  { "virtio_rng", NULL,                       false,  false,   has_virtio_rng },
          };
+-- 
+2.26.0
+

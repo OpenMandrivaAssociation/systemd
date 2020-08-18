@@ -86,7 +86,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -137,25 +137,28 @@ Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
-Patch101:	0002-journal-clearout-drop-kmsg.patch
+Patch101:	0002-journal-Add-option-to-skip-boot-kmsg-events.patch
 Patch102:	0003-core-use-mmap-to-load-files.patch
-Patch103:	0005-journal-flush-var-kmsg-after-starting.patch
-Patch105:	0010-sd-event-return-malloc-memory-reserves-when-main-loo.patch
-Patch106:	0010-efi-boot-generator-Do-not-automount-boot-partition.patch
-Patch107:	0012-locale-setup-set-default-locale-to-a-unicode-one.patch
-Patch108:	0020-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
-Patch109:	0024-more-udev-children-workers.patch
-Patch110:	0021-not-load-iptables.patch
-Patch113:	0033-Remove-libm-memory-overhead.patch
-Patch114:	0035-skip-not-present-ACPI-devices.patch
-Patch115:	0031-Make-timesyncd-a-simple-service.patch
-Patch117:	0039-Don-t-wait-for-utmp-at-shutdown.patch
-Patch119:	0035-Don-t-do-transient-hostnames-we-set-ours-already.patch
-Patch120:	0035-don-t-use-libm-just-for-integer-exp10.patch
-Patch121:	0043-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
-Patch123:	0041-Disable-XZ-support-in-the-journal.patch
-Patch124:	0042-Localize-1-symbol.patch
-Patch126:	0036-Notify-systemd-earlier-that-resolved-is-ready.patch
+Patch103:	0005-journal-flush-var-kmsg-after-starting-disable-kmsg-f.patch
+Patch104:	0007-sd-event-return-malloc-memory-reserves-when-main-loo.patch
+Patch105:	0008-efi-boot-generator-Do-not-automount-boot-partition.patch
+Patch106:	0010-locale-setup-set-default-locale-to-a-unicode-one.patch
+Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
+Patch108:	0018-more-udev-children-workers.patch
+Patch109:	0019-not-load-iptables.patch
+Patch110:	0023-DHCP-retry-faster.patch
+Patch111:	0024-Remove-libm-memory-overhead.patch
+Patch112:	0028-Make-timesyncd-a-simple-service.patch
+Patch113:	0029-Compile-udev-with-O3.patch
+Patch114:	0030-Don-t-wait-for-utmp-at-shutdown.patch
+Patch115:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
+Patch116:	0032-don-t-use-libm-just-for-integer-exp10.patch
+Patch117:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
+Patch118:	0035-skip-not-present-ACPI-devices.patch
+Patch119:	0037-Disable-XZ-support-in-the-journal.patch
+Patch120:	0038-Localize-1-symbol.patch
+Patch121:	0039-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
+
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
