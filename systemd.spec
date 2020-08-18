@@ -157,8 +157,6 @@ Patch117:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 Patch118:	0035-skip-not-present-ACPI-devices.patch
 Patch119:	0037-Disable-XZ-support-in-the-journal.patch
 Patch120:	0038-Localize-1-symbol.patch
-Patch121:	0039-mount-setup-Harden-a-bit-the-options-for-certan-moun.patch
-
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
