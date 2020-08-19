@@ -40,11 +40,6 @@
 # (tpg) do not reqire pkg-config
 %global __requires_exclude pkg-config
 
-# macros for sysvinit transition - should be equal to
-# sysvinit %version-%release-plus-1
-%define sysvinit_version 2.87
-%define sysvinit_release 23
-
 %define libsystemd_major 0
 %define libnss_major 2
 
@@ -280,11 +275,9 @@ Provides:	syslog-daemon
 %rename		systemd-sysvinit
 Conflicts:	systemd-sysvinit < 207-1
 # (eugeni) systemd should work as a drop-in replacement for sysvinit, but not obsolete it
-#SysVinit < %sysvinit_release-%sysvinit_release It's provides something
-#like that SysVinit < 14-14 when it should be SysVinit 2.87-14
-Provides:	sysvinit = %sysvinit_version-%sysvinit_release, SysVinit = %sysvinit_version-%sysvinit_release
+Provides:	sysvinit = 2.87-23, SysVinit = 2.87-23
 # (tpg) time to die
-Obsoletes:	sysvinit < %sysvinit_version-%sysvinit_release, SysVinit < %sysvinit_version-%sysvinit_release
+Obsoletes:	sysvinit < 2.87-23, SysVinit < 2.87-23
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
 Obsoletes:	hal <= 0.5.14-6
@@ -301,7 +294,7 @@ Obsoletes:	bootchart < 2.0.11.4-3
 Provides:	bootchart = 2.0.11.4-3
 Obsoletes:	python-%{name} < 223
 Provides:	python-%{name} = 223
-Obsoletes:	gummiboot
+Obsoletes:	gummiboot < 46
 %rename		systemd-tools
 %rename		systemd-units
 %rename		udev
