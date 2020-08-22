@@ -1306,6 +1306,7 @@ fi
 %exclude %{systemd_libdir}/system/machines.target
 %exclude %{systemd_libdir}/system/machines.target.wants/var-lib-machines.mount
 %exclude %{systemd_libdir}/system/remote-fs.target.wants/var-lib-machines.mount
+%exclude %{systemd_libdir}/system/sysinit.target.wants/systemd-boot-system-token.service
 %exclude %{systemd_libdir}/system/systemd-importd.service
 %exclude %{systemd_libdir}/system/systemd-machined.service
 %exclude %{systemd_libdir}/system/systemd-nspawn@.service
@@ -1628,6 +1629,7 @@ fi
 %files boot
 %{_bindir}/bootctl
 %{systemd_libdir}/system/systemd-boot-system-token.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-boot-system-token.service
 %ifnarch %{armx} %{riscv}
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
