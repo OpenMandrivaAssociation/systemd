@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 246
-%define stable 20200818
+%define stable 20200827
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -91,24 +91,17 @@ Source1:	triggers.systemd
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
-Source6:	81-net.rules
 # (blino) net rules and helpers
-Source7:	udev_net_create_ifcfg
-Source8:	udev_net_action
-Source9:	udev_net.sysconfig
 Source11:	listen.conf
 # (tpg) default preset for services
 Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
 Source16:	systemd.rpmlintrc
-# (tpg) by default enable network on eth, enp0s3
-Source17:	90-enable.network
 # (crazy) don't play weird games with these
 # never enable / disable like this
 #Source18:	90-user-default.preset
 Source19:	10-imx.rules
-Source20:	90-wireless.network
 # (tpg) EFI bootctl
 Source21:	efi-loader.conf
 Source22:	efi-omv.conf
@@ -942,11 +935,6 @@ install -m 0644 %{SOURCE12} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
-# (tpg) install network file
-install -m 0644 %{SOURCE17} %{buildroot}%{systemd_libdir}/network/
-# (fedya) install wireless file
-install -m 0644 %{SOURCE20} %{buildroot}%{systemd_libdir}/network/
-
 # (tpg) install userspace presets
 # (crazy) .. but not like this
 #install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
@@ -990,12 +978,6 @@ install -m 644 %{SOURCE3} %{buildroot}%{udev_rules_dir}/
 mkdir -p  %{buildroot}%{_sysconfdir}/sysconfig/udev
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/udev/
 
-# net rules
-install -m 0644 %{SOURCE6} %{buildroot}%{udev_rules_dir}/
-install -m 0755 %{SOURCE7} %{buildroot}%{udev_libdir}/net_create_ifcfg
-install -m 0755 %{SOURCE8} %{buildroot}%{udev_libdir}/net_action
-install -m 0644 %{SOURCE9} %{buildroot}%{_sysconfdir}/sysconfig/udev_net
-
 install -m 0644 %{SOURCE19} %{buildroot}%{udev_rules_dir}/
 
 # probably not required, but let's just be on the safe side for now..
@@ -1013,8 +995,6 @@ touch %{buildroot}%{_sysconfdir}/scsi_id.config
 
 ln -s ..%{systemd_libdir}/%{name}-udevd %{buildroot}/sbin/udevd
 ln -s %{systemd_libdir}/%{name}-udevd %{buildroot}%{udev_libdir}/udevd
-
-# udev rules for zte 3g modems and drakx-net
 
 mkdir -p %{buildroot}/lib/firmware/updates
 # default /dev content, from Fedora RPM
@@ -1262,7 +1242,7 @@ fi
 %dir %{_sysconfdir}/udev/agents.d/usb
 %dir %{_sysconfdir}/udev/rules.d
 %dir %{systemd_libdir}
-%dir %{systemd_libdir}/*-generators
+#dir %{systemd_libdir}/*-generators
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/system-shutdown
@@ -1293,96 +1273,6 @@ fi
 %dir %{udev_rules_dir}
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
-### boot excludes
-%exclude %{systemd_libdir}/system/systemd-boot-system-token.service
-### portable excludes
-%exclude %{systemd_libdir}/system/dbus-org.freedesktop.portable1.service
-%exclude %{systemd_libdir}/system/systemd-portabled.service
-%exclude %{systemd_libdir}/systemd-portabled
-### container excludes
-%exclude %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
-%exclude %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
-%exclude %{systemd_libdir}/system/machine.slice
-%exclude %{systemd_libdir}/system/machines.target
-%exclude %{systemd_libdir}/system/machines.target.wants/var-lib-machines.mount
-%exclude %{systemd_libdir}/system/remote-fs.target.wants/var-lib-machines.mount
-%exclude %{systemd_libdir}/system/sysinit.target.wants/systemd-boot-system-token.service
-%exclude %{systemd_libdir}/system/systemd-importd.service
-%exclude %{systemd_libdir}/system/systemd-machined.service
-%exclude %{systemd_libdir}/system/systemd-nspawn@.service
-%exclude %{systemd_libdir}/system/var-lib-machines.mount
-%exclude %{systemd_libdir}/systemd-import
-%exclude %{systemd_libdir}/systemd-importd
-%exclude %{systemd_libdir}/systemd-machined
-%exclude %{systemd_libdir}/systemd-pull
-%exclude %{systemd_libdir}/import-pubring.gpg
-%exclude %{systemd_libdir}/systemd-import
-%exclude %{systemd_libdir}/systemd-importd
-%exclude %{systemd_libdir}/systemd-machined
-%exclude %{systemd_libdir}/systemd-pull
-%exclude %{systemd_libdir}/import-pubring.gpg
-%exclude /bin/machinectl
-%exclude %{_bindir}/systemd-nspawn
-%exclude %{_prefix}/lib/tmpfiles.d/portables.conf
-%exclude %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
-### gateway excludes
-%exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.service
-%exclude %{systemd_libdir}/system/%{name}-journal-gatewayd.socket
-%exclude %{systemd_libdir}/system/%{name}-journal-remote.service
-%exclude %{systemd_libdir}/system/%{name}-journal-remote.socket
-%exclude %{systemd_libdir}/system/%{name}-journal-upload.service
-%exclude %{systemd_libdir}/%{name}-journal-gatewayd
-%exclude %{systemd_libdir}/%{name}-journal-remote
-%exclude %{systemd_libdir}/%{name}-journal-upload
-%exclude %config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
-%exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
-%exclude %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
-### console excludes
-%exclude %{systemd_libdir}/systemd-vconsole-setup
-%exclude %{systemd_libdir}/system/serial-getty@.service
-%exclude %{udev_rules_dir}/90-vconsole.rules
-%exclude %{udev_rules_dir}/70-mouse.rules
-%exclude %{udev_rules_dir}/60-drm.rules
-%exclude %{udev_rules_dir}/60-persistent-input.rules
-%exclude %{udev_rules_dir}/70-touchpad.rules
-%exclude %{udev_rules_dir}/60-evdev.rules
-%exclude %{udev_rules_dir}/60-input-id.rules
-### coredump excludes
-%exclude %config(noreplace) %{_sysconfdir}/%{name}/coredump.conf
-%exclude %{_prefix}/lib/sysctl.d/50-coredump.conf
-%exclude %{systemd_libdir}/systemd-coredump
-%exclude %{systemd_libdir}/system/systemd-coredump.socket
-%exclude %{systemd_libdir}/system/systemd-coredump@.service
-%exclude %{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
-### hwdb excludes
-%exclude %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
-%exclude %{systemd_libdir}/system/systemd-hwdb-update.service
-%exclude %{udev_rules_dir}/60-cdrom_id.rules
-%exclude %{udev_rules_dir}/60-persistent-alsa.rules
-%exclude %{udev_rules_dir}/60-persistent-storage-tape.rules
-%exclude %{udev_rules_dir}/60-persistent-v4l.rules
-%exclude %{udev_rules_dir}/70-joystick.rules
-%exclude %{udev_rules_dir}/75-probe_mtd.rules
-%exclude %{udev_rules_dir}/78-sound-card.rules
-### network excludes
-%exclude %{_sysconfdir}/systemd/networkd.conf
-%exclude %{systemd_libdir}/system/systemd-networkd-wait-online.service
-%exclude %{systemd_libdir}/system/systemd-networkd.service
-%exclude %{systemd_libdir}/system/systemd-networkd.socket
-%exclude %{systemd_libdir}/systemd-networkd
-%exclude %{systemd_libdir}/systemd-networkd-wait-online
-###
-%if !%{with bootstrap}
-### cryptsetup excludes
-%exclude %{systemd_libdir}/system-generators/systemd-cryptsetup-generator
-%exclude %{systemd_libdir}/system-generators/systemd-veritysetup-generator
-%exclude %{systemd_libdir}//system/sysinit.target.wants/cryptsetup.target
-%exclude %{systemd_libdir}/system/remote-cryptsetup.target
-%exclude %{systemd_libdir}/system/cryptsetup-pre.target
-%exclude %{systemd_libdir}/system/cryptsetup.target
-%exclude %{systemd_libdir}/systemd-cryptsetup
-###
-%endif
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
@@ -1431,12 +1321,19 @@ fi
 %{_bindir}/kernel-install
 %{_bindir}/localectl
 %{_bindir}/systemctl
-%{_bindir}/%{name}-*
+%{_bindir}/systemd-cat
+%{_bindir}/systemd-detect-virt
+%{_bindir}/systemd-escape
+%{_bindir}/systemd-id128
+%{_bindir}/systemd-loginctl
+%{_bindir}/systemd-mount
+%{_bindir}/systemd-path
+%{_bindir}/systemd-resolve
+%{_bindir}/systemd-run
+%{_bindir}/systemd-socket-activate
+%{_bindir}/systemd-stdio-bridge
+%{_bindir}/systemd-umount
 %{_bindir}/resolvectl
-%exclude %{_bindir}/%{name}-analyze
-%exclude %{_bindir}/%{name}-cgls
-%exclude %{_bindir}/%{name}-cgtop
-%exclude %{_bindir}/%{name}-delta
 %{_bindir}/timedatectl
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1465,43 +1362,305 @@ fi
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
-%dir /lib/systemd/ntp-units.d
-/lib/systemd/ntp-units.d/80-systemd-timesync.list
+%dir %{systemd_libdir}/ntp-units.d
+%{systemd_libdir}/ntp-units.d/80-systemd-timesync.list
 %{_datadir}/factory/etc/issue
 %{systemd_libdir}/resolv.conf
-%{systemd_libdir}/*-generators/*
-%{systemd_libdir}/system-preset/*.preset
-%{systemd_libdir}/system/*.automount
-%{systemd_libdir}/system/*.mount
-%{systemd_libdir}/system/*.path
-%{systemd_libdir}/system/*.service
-%{systemd_libdir}/system/*.slice
-%{systemd_libdir}/system/*.socket
-%{systemd_libdir}/system/*.target
-%{systemd_libdir}/system/*.timer
-%{systemd_libdir}/system/systemd-udev-trigger.service.d/*.conf
-%{systemd_libdir}/system/graphical.target.wants/*.service
-%{systemd_libdir}/system/local-fs.target.wants/*.mount
-%{systemd_libdir}/system/multi-user.target.wants/*.path
-%{systemd_libdir}/system/multi-user.target.wants/*.service
-%{systemd_libdir}/system/multi-user.target.wants/*.target
-%{systemd_libdir}/system/rescue.target.wants/*.service
-%{systemd_libdir}/system/sockets.target.wants/*.socket
-%{systemd_libdir}/system/sysinit.target.wants/*.*mount
-%{systemd_libdir}/system/sysinit.target.wants/*.path
-%{systemd_libdir}/system/sysinit.target.wants/*.service
-%{systemd_libdir}/system/user-.slice.d/*.conf
-%if !%{with bootstrap}
-%{systemd_libdir}/system/sysinit.target.wants/*.target
-%endif
-%{systemd_libdir}/system/timers.target.wants/*.timer
-%{systemd_libdir}/system/machines.target.wants/*.mount
-%{systemd_libdir}/system/remote-fs.target.wants/*.mount
-%{systemd_libdir}/systemd*
+# Generators
+%{systemd_libdir}/system-generators/systemd-bless-boot-generator
+%{systemd_libdir}/system-generators/systemd-debug-generator
+%{systemd_libdir}/system-generators/systemd-fstab-generator
+%{systemd_libdir}/system-generators/systemd-getty-generator
+%{systemd_libdir}/system-generators/systemd-gpt-auto-generator
+%{systemd_libdir}/system-generators/systemd-hibernate-resume-generator
+%{systemd_libdir}/system-generators/systemd-rc-local-generator
+%{systemd_libdir}/system-generators/systemd-run-generator
+%{systemd_libdir}/system-generators/systemd-system-update-generator
+%{systemd_libdir}/system-generators/systemd-sysv-generator
+# Presets
+%{systemd_libdir}/system-preset/85-display-manager.preset
+%{systemd_libdir}/system-preset/90-default.preset
+%{systemd_libdir}/system-preset/99-default-disable.preset
+# Mounts
+%{systemd_libdir}/system/dev-hugepages.mount
+%{systemd_libdir}/system/dev-mqueue.mount
+%{systemd_libdir}/system/proc-sys-fs-binfmt_misc.automount
+%{systemd_libdir}/system/proc-sys-fs-binfmt_misc.mount
+%{systemd_libdir}/system/sys-fs-fuse-connections.mount
+%{systemd_libdir}/system/sys-kernel-config.mount
+%{systemd_libdir}/system/sys-kernel-debug.mount
+%{systemd_libdir}/system/sys-kernel-tracing.mount
+%{systemd_libdir}/system/tmp.mount
+# Paths
+%{systemd_libdir}/system/systemd-ask-password-console.path
+%{systemd_libdir}/system/systemd-ask-password-wall.path
+# Slices
+%{systemd_libdir}/system/user.slice
+# Services
+%{systemd_libdir}/system/autovt@.service
+%{systemd_libdir}/system/console-getty.service
+%{systemd_libdir}/system/container-getty@.service
+%{systemd_libdir}/system/dbus-org.freedesktop.hostname1.service
+%{systemd_libdir}/system/dbus-org.freedesktop.locale1.service
+%{systemd_libdir}/system/dbus-org.freedesktop.login1.service
+%{systemd_libdir}/system/dbus-org.freedesktop.timedate1.service
+%{systemd_libdir}/system/debug-shell.service
+%{systemd_libdir}/system/emergency.service
+%{systemd_libdir}/system/getty@.service
+%{systemd_libdir}/system/initrd-cleanup.service
+%{systemd_libdir}/system/initrd-parse-etc.service
+%{systemd_libdir}/system/initrd-switch-root.service
+%{systemd_libdir}/system/initrd-udevadm-cleanup-db.service
+%{systemd_libdir}/system/kmod-static-nodes.service
+%{systemd_libdir}/system/ldconfig.service
+%{systemd_libdir}/system/modprobe@.service
+%{systemd_libdir}/system/quotaon.service
+%{systemd_libdir}/system/rc-local.service
+%{systemd_libdir}/system/rescue.service
+%{systemd_libdir}/system/system-update-cleanup.service
+%{systemd_libdir}/system/systemd-ask-password-console.service
+%{systemd_libdir}/system/systemd-ask-password-wall.service
+%{systemd_libdir}/system/systemd-backlight@.service
+%{systemd_libdir}/system/systemd-binfmt.service
+%{systemd_libdir}/system/systemd-bless-boot.service
+%{systemd_libdir}/system/systemd-boot-check-no-failures.service
+%{systemd_libdir}/system/systemd-exit.service
+%{systemd_libdir}/system/systemd-firstboot.service
+%{systemd_libdir}/system/systemd-fsck-root.service
+%{systemd_libdir}/system/systemd-fsck@.service
+%{systemd_libdir}/system/systemd-halt.service
+%{systemd_libdir}/system/systemd-hibernate-resume@.service
+%{systemd_libdir}/system/systemd-hibernate.service
+%{systemd_libdir}/system/systemd-hostnamed.service
+%{systemd_libdir}/system/systemd-hybrid-sleep.service
+%{systemd_libdir}/system/systemd-initctl.service
+%{systemd_libdir}/system/systemd-journal-catalog-update.service
+%{systemd_libdir}/system/systemd-journal-flush.service
+%{systemd_libdir}/system/systemd-journald.service
+%{systemd_libdir}/system/systemd-journald@.service
+%{systemd_libdir}/system/systemd-kexec.service
+%{systemd_libdir}/system/systemd-localed.service
+%{systemd_libdir}/system/systemd-logind.service
+%{systemd_libdir}/system/systemd-machine-id-commit.service
+%{systemd_libdir}/system/systemd-modules-load.service
+%{systemd_libdir}/system/systemd-poweroff.service
+%{systemd_libdir}/system/systemd-pstore.service
+%{systemd_libdir}/system/systemd-quotacheck.service
+%{systemd_libdir}/system/systemd-random-seed.service
+%{systemd_libdir}/system/systemd-reboot.service
+%{systemd_libdir}/system/systemd-remount-fs.service
+%{systemd_libdir}/system/systemd-resolved.service
+%{systemd_libdir}/system/systemd-rfkill.service
+%{systemd_libdir}/system/systemd-suspend-then-hibernate.service
+%{systemd_libdir}/system/systemd-suspend.service
+%{systemd_libdir}/system/systemd-sysctl.service
+%{systemd_libdir}/system/systemd-sysusers.service
+%{systemd_libdir}/system/systemd-time-wait-sync.service
+%{systemd_libdir}/system/systemd-timedated.service
+%{systemd_libdir}/system/systemd-timesyncd.service
+%{systemd_libdir}/system/systemd-tmpfiles-clean.service
+%{systemd_libdir}/system/systemd-tmpfiles-setup-dev.service
+%{systemd_libdir}/system/systemd-tmpfiles-setup.service
+%{systemd_libdir}/system/systemd-udev-settle.service
+%{systemd_libdir}/system/systemd-udev-trigger.service
+%{systemd_libdir}/system/systemd-udevd.service
+%{systemd_libdir}/system/systemd-update-done.service
+%{systemd_libdir}/system/systemd-update-utmp-runlevel.service
+%{systemd_libdir}/system/systemd-update-utmp.service
+%{systemd_libdir}/system/systemd-user-sessions.service
+%{systemd_libdir}/system/systemd-userdbd.service
+%{systemd_libdir}/system/systemd-vconsole-setup.service
+%{systemd_libdir}/system/systemd-volatile-root.service
+%{systemd_libdir}/system/user-runtime-dir@.service
+%{systemd_libdir}/system/user@.service
+# Sockets
+%{systemd_libdir}/system/syslog.socket
+%{systemd_libdir}/system/systemd-initctl.socket
+%{systemd_libdir}/system/systemd-journald-audit.socket
+%{systemd_libdir}/system/systemd-journald-dev-log.socket
+%{systemd_libdir}/system/systemd-journald-varlink@.socket
+%{systemd_libdir}/system/systemd-journald.socket
+%{systemd_libdir}/system/systemd-journald@.socket
+%{systemd_libdir}/system/systemd-rfkill.socket
+%{systemd_libdir}/system/systemd-udevd-control.socket
+%{systemd_libdir}/system/systemd-udevd-kernel.socket
+%{systemd_libdir}/system/systemd-userdbd.socket
+# Targets
+%{systemd_libdir}/system/basic.target
+%{systemd_libdir}/system/blockdev@.target
+%{systemd_libdir}/system/bluetooth.target
+%{systemd_libdir}/system/boot-complete.target
+%{systemd_libdir}/system/ctrl-alt-del.target
+%{systemd_libdir}/system/default.target
+%{systemd_libdir}/system/emergency.target
+%{systemd_libdir}/system/exit.target
+%{systemd_libdir}/system/final.target
+%{systemd_libdir}/system/getty-pre.target
+%{systemd_libdir}/system/getty.target
+%{systemd_libdir}/system/graphical.target
+%{systemd_libdir}/system/halt.target
+%{systemd_libdir}/system/hibernate.target
+%{systemd_libdir}/system/hybrid-sleep.target
+%{systemd_libdir}/system/initrd-fs.target
+%{systemd_libdir}/system/initrd-root-device.target
+%{systemd_libdir}/system/initrd-root-fs.target
+%{systemd_libdir}/system/initrd-switch-root.target
+%{systemd_libdir}/system/initrd.target
+%{systemd_libdir}/system/kexec.target
+%{systemd_libdir}/system/local-fs-pre.target
+%{systemd_libdir}/system/local-fs.target
+%{systemd_libdir}/system/multi-user.target
+%{systemd_libdir}/system/network-online.target
+%{systemd_libdir}/system/network-pre.target
+%{systemd_libdir}/system/network.target
+%{systemd_libdir}/system/nss-lookup.target
+%{systemd_libdir}/system/nss-user-lookup.target
+%{systemd_libdir}/system/paths.target
+%{systemd_libdir}/system/poweroff.target
+%{systemd_libdir}/system/printer.target
+%{systemd_libdir}/system/reboot.target
+%{systemd_libdir}/system/remote-fs-pre.target
+%{systemd_libdir}/system/remote-fs.target
+%{systemd_libdir}/system/rescue.target
+%{systemd_libdir}/system/rpcbind.target
+%{systemd_libdir}/system/runlevel0.target
+%{systemd_libdir}/system/runlevel1.target
+%{systemd_libdir}/system/runlevel2.target
+%{systemd_libdir}/system/runlevel3.target
+%{systemd_libdir}/system/runlevel4.target
+%{systemd_libdir}/system/runlevel5.target
+%{systemd_libdir}/system/runlevel6.target
+%{systemd_libdir}/system/shutdown.target
+%{systemd_libdir}/system/sigpwr.target
+%{systemd_libdir}/system/sleep.target
+%{systemd_libdir}/system/slices.target
+%{systemd_libdir}/system/smartcard.target
+%{systemd_libdir}/system/sockets.target
+%{systemd_libdir}/system/sound.target
+%{systemd_libdir}/system/suspend-then-hibernate.target
+%{systemd_libdir}/system/suspend.target
+%{systemd_libdir}/system/swap.target
+%{systemd_libdir}/system/sysinit.target
+%{systemd_libdir}/system/system-update-pre.target
+%{systemd_libdir}/system/system-update.target
+%{systemd_libdir}/system/time-set.target
+%{systemd_libdir}/system/time-sync.target
+%{systemd_libdir}/system/timers.target
+%{systemd_libdir}/system/umount.target
+# Timers
+%{systemd_libdir}/system/systemd-tmpfiles-clean.timer
+# Udev...
+%{systemd_libdir}/system/systemd-udev-trigger.service.d/systemd-udev-trigger-no-reload.conf
+%{systemd_libdir}/system/graphical.target.wants/systemd-update-utmp-runlevel.service
+%{systemd_libdir}/system/local-fs.target.wants/tmp.mount
+%{systemd_libdir}/system/multi-user.target.wants/systemd-ask-password-wall.path
+%{systemd_libdir}/system/multi-user.target.wants/systemd-logind.service
+%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
+%{systemd_libdir}/system/multi-user.target.wants/systemd-update-utmp-runlevel.service
+%{systemd_libdir}/system/multi-user.target.wants/systemd-user-sessions.service
+%{systemd_libdir}/system/multi-user.target.wants/getty.target
+%{systemd_libdir}/system/rescue.target.wants/systemd-update-utmp-runlevel.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-initctl.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-journald-audit.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-journald-dev-log.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-udevd-kernel.socket
+%{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
+%{systemd_libdir}/system/sysinit.target.wants/dev-mqueue.mount
+%{systemd_libdir}/system/sysinit.target.wants/kmod-static-nodes.service
+%{systemd_libdir}/system/sysinit.target.wants/ldconfig.service
+%{systemd_libdir}/system/sysinit.target.wants/proc-sys-fs-binfmt_misc.automount
+%{systemd_libdir}/system/sysinit.target.wants/sys-fs-fuse-connections.mount
+%{systemd_libdir}/system/sysinit.target.wants/sys-kernel-config.mount
+%{systemd_libdir}/system/sysinit.target.wants/sys-kernel-debug.mount
+%{systemd_libdir}/system/sysinit.target.wants/sys-kernel-tracing.mount
+%{systemd_libdir}/system/sysinit.target.wants/systemd-ask-password-console.path
+%{systemd_libdir}/system/sysinit.target.wants/systemd-binfmt.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-firstboot.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-journal-catalog-update.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-journal-flush.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-journald.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-udev-trigger.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-udevd.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-update-done.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-update-utmp.service
+%{systemd_libdir}/system/user-.slice.d/10-defaults.conf
+%{systemd_libdir}/system/timers.target.wants/systemd-tmpfiles-clean.timer
+%{systemd_libdir}/systemd
+%{systemd_libdir}/systemd-ac-power
+%{systemd_libdir}/systemd-backlight
+%{systemd_libdir}/systemd-binfmt
+%{systemd_libdir}/systemd-bless-boot
+%{systemd_libdir}/systemd-boot-check-no-failures
+%{systemd_libdir}/systemd-cgroups-agent
+%{systemd_libdir}/systemd-dissect
+%{systemd_libdir}/systemd-export
+%{systemd_libdir}/systemd-fsck
+%{systemd_libdir}/systemd-growfs
+%{systemd_libdir}/systemd-hibernate-resume
+%{systemd_libdir}/systemd-hostnamed
+%{systemd_libdir}/systemd-import-fs
+%{systemd_libdir}/systemd-initctl
+%{systemd_libdir}/systemd-journald
+%{systemd_libdir}/systemd-localed
+%{systemd_libdir}/systemd-logind
+%{systemd_libdir}/systemd-makefs
+%{systemd_libdir}/systemd-modules-load
+%{systemd_libdir}/systemd-pstore
+%{systemd_libdir}/systemd-quotacheck
+%{systemd_libdir}/systemd-random-seed
+%{systemd_libdir}/systemd-remount-fs
+%{systemd_libdir}/systemd-reply-password
+%{systemd_libdir}/systemd-resolved
+%{systemd_libdir}/systemd-rfkill
+%{systemd_libdir}/systemd-shutdown
+%{systemd_libdir}/systemd-sleep
+%{systemd_libdir}/systemd-socket-proxyd
+%{systemd_libdir}/systemd-sulogin-shell
+%{systemd_libdir}/systemd-sysctl
+%{systemd_libdir}/systemd-time-wait-sync
+%{systemd_libdir}/systemd-timedated
+%{systemd_libdir}/systemd-timesyncd
+%{systemd_libdir}/systemd-udevd
+%{systemd_libdir}/systemd-update-done
+%{systemd_libdir}/systemd-update-utmp
+%{systemd_libdir}/systemd-user-runtime-dir
+%{systemd_libdir}/systemd-user-sessions
+%{systemd_libdir}/systemd-userdbd
+%{systemd_libdir}/systemd-userwork
+%{systemd_libdir}/systemd-veritysetup
+%{systemd_libdir}/systemd-volatile-root
+%{systemd_libdir}/systemd-xdg-autostart-condition
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{major}.so
 #
-%{udev_rules_dir}/*.rules
+%{udev_rules_dir}/10-imx.rules
+%{udev_rules_dir}/50-udev-default.rules
+%{udev_rules_dir}/50-udev-mandriva.rules
+%{udev_rules_dir}/60-autosuspend.rules
+%{udev_rules_dir}/60-block.rules
+%{udev_rules_dir}/60-fido-id.rules
+%{udev_rules_dir}/60-persistent-storage.rules
+%{udev_rules_dir}/60-sensor.rules
+%{udev_rules_dir}/60-serial.rules
+%{udev_rules_dir}/64-btrfs.rules
+%{udev_rules_dir}/69-printeracl.rules
+%{udev_rules_dir}/70-power-switch.rules
+%{udev_rules_dir}/70-uaccess.rules
+%{udev_rules_dir}/71-seat.rules
+%{udev_rules_dir}/73-seat-late.rules
+%{udev_rules_dir}/75-net-description.rules
+%{udev_rules_dir}/80-drivers.rules
+%{udev_rules_dir}/80-net-setup-link.rules
+%{udev_rules_dir}/99-systemd.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 /sbin/udevadm
 /sbin/udevd
@@ -1509,20 +1668,32 @@ fi
 %{_sbindir}/udevadm
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
-%attr(0755,root,root) %{udev_libdir}/net_action
-%attr(0755,root,root) %{udev_libdir}/net_create_ifcfg
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %{udev_libdir}/udevd
-%config(noreplace) %{_prefix}/lib/sysctl.d/*.conf
-%config(noreplace) %{_prefix}/lib/sysusers.d/*.conf
+%config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
+%config(noreplace) %{_prefix}/lib/sysctl.d/50-pid-max.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
 %config(noreplace) %{_sysconfdir}/pam.d/%{name}-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
-%config(noreplace) %{_sysconfdir}/sysconfig/udev_net
-%config(noreplace) %{_sysconfdir}/%{name}/*.conf
-%config(noreplace) %{_sysconfdir}/udev/*.conf
+%config(noreplace) %{_sysconfdir}/%{name}/journald.conf
+%config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
+%config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
+%config(noreplace) %{_sysconfdir}/%{name}/logind.conf
+%config(noreplace) %{_sysconfdir}/%{name}/pstore.conf
+%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
+%config(noreplace) %{_sysconfdir}/%{name}/sleep.conf
+%config(noreplace) %{_sysconfdir}/%{name}/system.conf
+%config(noreplace) %{_sysconfdir}/%{name}/timesyncd.conf
+%config(noreplace) %{_sysconfdir}/%{name}/user.conf
+%config(noreplace) %{_sysconfdir}/udev/udev.conf
 %config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
 %{_localstatedir}/lib/systemd/catalog/database
+# This takes care of interface renaming etc. -- it is NOT for networkd
+%dir %{systemd_libdir}/network
+%{systemd_libdir}/network/99-default.link
 
 %files portable
 %dir %{systemd_libdir}/portable
@@ -1699,12 +1870,13 @@ fi
 %files networkd
 %{_sysconfdir}/systemd/networkd.conf
 %dir %{_sysconfdir}/%{name}/network
+%{systemd_libdir}/system/systemd-network-generator.service
 %{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-networkd.service
 %{systemd_libdir}/system/systemd-networkd.socket
+%{systemd_libdir}/systemd-network-generator
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
-%dir %{systemd_libdir}/network
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
 /bin/networkctl
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
@@ -1712,12 +1884,9 @@ fi
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/80-container-vz.network
 %{systemd_libdir}/network/80-vm-vt.network
-%{systemd_libdir}/network//80-wifi-adhoc.network
-%{systemd_libdir}/network//80-wifi-ap.network.example
-%{systemd_libdir}/network//80-wifi-station.network.example
-%{systemd_libdir}/network/90-enable.network
-%{systemd_libdir}/network/90-wireless.network
-%{systemd_libdir}/network/99-default.link
+%{systemd_libdir}/network/80-wifi-adhoc.network
+%{systemd_libdir}/network/80-wifi-ap.network.example
+%{systemd_libdir}/network/80-wifi-station.network.example
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
@@ -1734,7 +1903,8 @@ fi
 %{systemd_libdir}/systemd-cryptsetup
 %{systemd_libdir}/system-generators/systemd-cryptsetup-generator
 %{systemd_libdir}/system-generators/systemd-veritysetup-generator
-%{systemd_libdir}//system/sysinit.target.wants/cryptsetup.target
+%{systemd_libdir}/system/sysinit.target.wants/cryptsetup.target
+%{systemd_libdir}/system/system-systemd\x2dcryptsetup.slice
 %{systemd_libdir}/system/remote-cryptsetup.target
 %{systemd_libdir}/system/cryptsetup-pre.target
 %{systemd_libdir}/system/cryptsetup.target
