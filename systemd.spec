@@ -1671,7 +1671,10 @@ fi
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %{udev_libdir}/udevd
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
+# This file exists only on 64-bit arches
+%ifnarch %{ix86} %{arm}
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-pid-max.conf
+%endif
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
