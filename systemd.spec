@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1043,9 +1043,30 @@ fi
 /bin/journalctl --update-catalog &>/dev/null ||:
 /bin/systemd-tmpfiles --create &>/dev/null ||:
 
-# Enable the services we install by default.
+# Init 90-default.prese
+# never use preset-all
 if [ $1 -eq 1 ] ; then
-    /bin/systemctl preset-all &>/dev/null || :
+	# keep in sysnc with 90-default.preset
+	/bin/systemctl preset remote-fs.target &>/dev/null ||:
+	/bin/systemctl preset remote-cryptsetup.target &>/dev/null ||:
+	/bin/systemctl preset machines.target &>/dev/null ||:
+	/bin/systemctl preset getty@tty1.service &>/dev/null ||:
+	/bin/systemctl preset systemd-bus-proxy.socket &>/dev/null ||:
+	/bin/systemctl preset systemd-initctl.socket &>/dev/null ||:
+	/bin/systemctl preset systemd-journald.socket &>/dev/null ||:
+	/bin/systemctl preset systemd-resolved.service &>/dev/null ||:
+	/bin/systemctl preset systemd-timedated.service &>/dev/null ||:
+	/bin/systemctl preset systemd-timesyncd.service &>/dev/null ||:
+	/bin/systemctl preset systemd-rfkill.socket &>/dev/null ||:
+	/bin/systemctl preset console-getty.service &>/dev/null ||:
+	/bin/systemctl preset debug-shell.service &>/dev/null ||:
+	/bin/systemctl preset halt.target &>/dev/null ||:
+	/bin/systemctl preset kexec.target &>/dev/null ||:
+	/bin/systemctl preset poweroff.target &>/dev/null ||:
+	/bin/systemctl preset reboot.target &>/dev/null ||:
+	/bin/systemctl preset rescue.target &>/dev/null ||:
+	/bin/systemctl preset exit.target &>/dev/null ||:
+	/bin/systemctl preset syslog.socket &>/dev/null ||:
 fi
 
 hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
