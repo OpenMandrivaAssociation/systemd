@@ -122,6 +122,7 @@ Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
+Patch20:	http://crazy.dev.frugalware.org/fix-macros.systemd.in.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
