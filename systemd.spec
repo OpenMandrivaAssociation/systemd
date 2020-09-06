@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 246
-%define stable 20200827
+%define stable 20200906
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -1615,6 +1615,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-update-done.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-update-utmp.service
 %{systemd_libdir}/system/user-.slice.d/10-defaults.conf
+%{systemd_libdir}/system/usb-gadget.target
 %{systemd_libdir}/system/timers.target.wants/systemd-tmpfiles-clean.timer
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-ac-power
