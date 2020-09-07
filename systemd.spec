@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 246
-%define stable 20200906
+%define stable 20200907
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -570,6 +570,7 @@ Summary:	Provide hostname resolution via systemd-resolved.service
 Group:		System/Libraries
 Provides:	libnss_resolve = %{EVRD}
 Provides:	nss_resolve= %{EVRD}
+Requires:	%{name}-resolved = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
 
 %description -n %{libnss_resolve}
@@ -638,6 +639,15 @@ Provides:	systemd-rpm-macros
 
 %description macros
 For building RPM packages to utilize standard systemd runtime macros.
+
+%package resolved
+Summary:	Network name resolution via D-Bus interface, NSS, and local DNS
+Group:		System
+
+%description resolved
+systemd-resolved is a systemd service that provides network name resolution
+to local applications via a D-Bus interface, the resolve NSS service,
+and a local DNS stub listener
 
 %if %{with compat32}
 %package -n %{lib32systemd}
@@ -1044,7 +1054,7 @@ fi
 /bin/journalctl --update-catalog &>/dev/null ||:
 /bin/systemd-tmpfiles --create &>/dev/null ||:
 
-# Init 90-default.prese
+# Init 90-default.preset
 # never use preset-all
 if [ $1 -eq 1 ] ; then
 	# keep in sysnc with 90-default.preset
@@ -1055,7 +1065,6 @@ if [ $1 -eq 1 ] ; then
 	/bin/systemctl preset systemd-bus-proxy.socket &>/dev/null ||:
 	/bin/systemctl preset systemd-initctl.socket &>/dev/null ||:
 	/bin/systemctl preset systemd-journald.socket &>/dev/null ||:
-	/bin/systemctl preset systemd-resolved.service &>/dev/null ||:
 	/bin/systemctl preset systemd-timedated.service &>/dev/null ||:
 	/bin/systemctl preset systemd-timesyncd.service &>/dev/null ||:
 	/bin/systemctl preset systemd-rfkill.socket &>/dev/null ||:
@@ -1306,7 +1315,6 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
-%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
@@ -1337,7 +1345,6 @@ fi
 /sbin/halt
 /sbin/poweroff
 /sbin/reboot
-/sbin/resolvconf
 %{_bindir}/busctl
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
@@ -1350,18 +1357,15 @@ fi
 %{_bindir}/systemd-loginctl
 %{_bindir}/systemd-mount
 %{_bindir}/systemd-path
-%{_bindir}/systemd-resolve
 %{_bindir}/systemd-run
 %{_bindir}/systemd-socket-activate
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-umount
-%{_bindir}/resolvectl
 %{_bindir}/timedatectl
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.login1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
@@ -1387,7 +1391,6 @@ fi
 %dir %{systemd_libdir}/ntp-units.d
 %{systemd_libdir}/ntp-units.d/80-systemd-timesync.list
 %{_datadir}/factory/etc/issue
-%{systemd_libdir}/resolv.conf
 # Generators
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
 %{systemd_libdir}/system-generators/systemd-debug-generator
@@ -1471,7 +1474,6 @@ fi
 %{systemd_libdir}/system/systemd-random-seed.service
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount-fs.service
-%{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-rfkill.service
 %{systemd_libdir}/system/systemd-suspend-then-hibernate.service
 %{systemd_libdir}/system/systemd-suspend.service
@@ -1577,7 +1579,6 @@ fi
 %{systemd_libdir}/system/local-fs.target.wants/tmp.mount
 %{systemd_libdir}/system/multi-user.target.wants/systemd-ask-password-wall.path
 %{systemd_libdir}/system/multi-user.target.wants/systemd-logind.service
-%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
 %{systemd_libdir}/system/multi-user.target.wants/systemd-update-utmp-runlevel.service
 %{systemd_libdir}/system/multi-user.target.wants/systemd-user-sessions.service
 %{systemd_libdir}/system/multi-user.target.wants/getty.target
@@ -1642,7 +1643,6 @@ fi
 %{systemd_libdir}/systemd-random-seed
 %{systemd_libdir}/systemd-remount-fs
 %{systemd_libdir}/systemd-reply-password
-%{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/systemd-rfkill
 %{systemd_libdir}/systemd-shutdown
 %{systemd_libdir}/systemd-sleep
@@ -1709,7 +1709,6 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
 %config(noreplace) %{_sysconfdir}/%{name}/logind.conf
 %config(noreplace) %{_sysconfdir}/%{name}/pstore.conf
-%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
 %config(noreplace) %{_sysconfdir}/%{name}/sleep.conf
 %config(noreplace) %{_sysconfdir}/%{name}/system.conf
 %config(noreplace) %{_sysconfdir}/%{name}/timesyncd.conf
@@ -1891,7 +1890,6 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 
 %files networkd
 %{_sysconfdir}/systemd/networkd.conf
@@ -1915,6 +1913,24 @@ fi
 %{systemd_libdir}/network/80-wifi-station.network.example
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
+
+%files resolved
+/sbin/resolvconf
+%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
+%{_bindir}/systemd-resolve
+%{_bindir}/resolvectl
+%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
+%{systemd_libdir}/resolv.conf
+%{systemd_libdir}/system/systemd-resolved.service
+%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
+%{systemd_libdir}/systemd-resolved
+%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
+%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
+
+%post resolved
+if [ $1 -eq 1 ] ; then
+	/bin/systemctl preset systemd-resolved.service &>/dev/null ||:
+fi
 
 %preun networkd
 if [ $1 -eq 0 ] ; then
