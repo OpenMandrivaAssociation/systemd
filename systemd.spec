@@ -876,11 +876,22 @@ ln -sf /bin/systemd-escape %{buildroot}%{_bindir}/systemd-escape
 rm -rf %{buildroot}%{_sysconfdir}/%{name}/system/*.target.wants
 
 # Make sure these directories are properly owned
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/system/getty.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/default.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/dbus.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/syslog.target.wants
-mkdir -p %{buildroot}%{_sysconfdir}/%{name}/system/getty.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/halt.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/initrd-switch-root.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/initrd.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/kexec.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/poweroff.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/reboot.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/systemsound.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/system-update.target.wants
+mkdir -p %{buildroot}/%{_prefix}/lib/%{name}/user/basic.target.wants
+mkdir -p %{buildroot}/%{_prefix}/lib/%{name}/user/default.target.wants
+mkdir -p %{buildroot}/%{_prefix}/lib/%{name}/user/sockets.target.wants
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/%{name}/system/default.target
@@ -1212,7 +1223,7 @@ if [ -f /etc/nsswitch.conf ]; then
 		s/^(passwd:.*) mymachines$/\1/;
 		s/^(group:.*) mymachines$/\1/;
 		' /etc/nsswitch.conf &>/dev/null || :
-fi
+fie
 
 %triggerin -- %{libnss_resolve} < 237
 if [ -f /etc/nsswitch.conf ]; then
@@ -1255,7 +1266,10 @@ fi
 %dir %{_prefix}/lib/%{name}/user
 %dir %{_prefix}/lib/%{name}/user-preset
 %dir %{_prefix}/lib/%{name}/user-generators
-%dir %{_prefix}/lib/systemd/user-environment-generators
+%dir %{_prefix}/lib/%{name}/user-environment-generators
+%dir %{_prefix}/lib/%{name}/user/basic.target.wants
+%dir %{_prefix}/lib/%{name}/user/default.target.wants
+%dir %{_prefix}/lib/%{name}/user/sockets.target.wants
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_sysconfdir}/binfmt.d
@@ -1295,6 +1309,14 @@ fi
 %dir %{systemd_libdir}/system/sockets.target.wants
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
+%dir %{systemd_libdir}/system/halt.target.wants
+%dir %{systemd_libdir}/system/initrd-switch-root.target.wants
+%dir %{systemd_libdir}/system/initrd.target.wants
+%dir %{systemd_libdir}/system/kexec.target.wants
+%dir %{systemd_libdir}/system/poweroff.target.wants
+%dir %{systemd_libdir}/system/reboot.target.wants
+%dir %{systemd_libdir}/systemsound.target.wants
+%dir %{systemd_libdir}/system/system-update.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{systemd_libdir}/system/machines.target.wants
 %dir %{systemd_libdir}/system/remote-fs.target.wants
