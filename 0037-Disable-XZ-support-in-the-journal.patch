@@ -1,19 +1,8 @@
-From 9e7d3785a0bf1dfb65d3c22f29824d86785e2d62 Mon Sep 17 00:00:00 2001
-From: Arjan van de Ven <arjan@linux.intel.com>
-Date: Mon, 14 Jan 2019 09:46:32 -0800
-Subject: [PATCH 37/45] Disable XZ support in the journal.
-
----
- src/coredump/coredump.c | 3 +++
- src/journal/compress.c  | 2 ++
- 2 files changed, 5 insertions(+)
-
-diff --git a/src/coredump/coredump.c b/src/coredump/coredump.c
-index 0e9a3c023c..de5d284cf9 100644
---- a/src/coredump/coredump.c
-+++ b/src/coredump/coredump.c
-@@ -48,6 +48,9 @@
- #include "tmpfile-util.h"
+diff -up systemd-247.20201128/src/coredump/coredump.c.31~ systemd-247.20201128/src/coredump/coredump.c
+--- systemd-247.20201128/src/coredump/coredump.c.31~	2020-11-28 18:12:20.369893740 +0100
++++ systemd-247.20201128/src/coredump/coredump.c	2020-11-28 18:12:49.925492583 +0100
+@@ -49,6 +49,9 @@
+ #include "user-record.h"
  #include "user-util.h"
  
 +#undef HAVE_XZ
@@ -22,11 +11,10 @@ index 0e9a3c023c..de5d284cf9 100644
  /* The maximum size up to which we process coredumps */
  #define PROCESS_SIZE_MAX ((uint64_t) (2LLU*1024LLU*1024LLU*1024LLU))
  
-diff --git a/src/journal/compress.c b/src/journal/compress.c
-index 4e00e4fc5e..569b7d47b8 100644
---- a/src/journal/compress.c
-+++ b/src/journal/compress.c
-@@ -28,6 +28,8 @@
+diff -up systemd-247.20201128/src/journal/compress.c.31~ systemd-247.20201128/src/journal/compress.c
+--- systemd-247.20201128/src/journal/compress.c.31~	2020-11-27 01:03:18.000000000 +0100
++++ systemd-247.20201128/src/journal/compress.c	2020-11-28 18:12:20.369893740 +0100
+@@ -33,6 +33,8 @@
  #include "unaligned.h"
  #include "util.h"
  
@@ -35,6 +23,3 @@ index 4e00e4fc5e..569b7d47b8 100644
  #if HAVE_LZ4
  DEFINE_TRIVIAL_CLEANUP_FUNC(LZ4F_compressionContext_t, LZ4F_freeCompressionContext);
  DEFINE_TRIVIAL_CLEANUP_FUNC(LZ4F_decompressionContext_t, LZ4F_freeDecompressionContext);
--- 
-2.26.0
-
