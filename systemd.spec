@@ -66,8 +66,8 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 246
-%define stable 20201020
+%define major 247
+%define stable 20201128
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -706,6 +706,13 @@ Requires:	%{name}-macros = %{EVRD}
 %description -n %{lib32udev_devel}
 Devel library for udev.
 %endif
+
+%package oom
+Summary:	Out of Memory handler
+Group:		System/Base
+
+%description oom
+Out of Memory handler
 
 %prep
 %autosetup -p1
@@ -1374,6 +1381,7 @@ fi
 %{_bindir}/systemctl
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-detect-virt
+%{_bindir}/systemd-dissect
 %{_bindir}/systemd-escape
 %{_bindir}/systemd-id128
 %{_bindir}/systemd-loginctl
@@ -1405,6 +1413,7 @@ fi
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
 %{_prefix}/lib/%{name}/user/*.timer
+%{_prefix}/lib/%{name}/user/*.slice
 %{_prefix}/lib/systemd/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
@@ -1541,6 +1550,7 @@ fi
 %{systemd_libdir}/system/emergency.target
 %{systemd_libdir}/system/exit.target
 %{systemd_libdir}/system/final.target
+%{systemd_libdir}/system/first-boot-complete.target
 %{systemd_libdir}/system/getty-pre.target
 %{systemd_libdir}/system/getty.target
 %{systemd_libdir}/system/graphical.target
@@ -1647,7 +1657,6 @@ fi
 %{systemd_libdir}/systemd-bless-boot
 %{systemd_libdir}/systemd-boot-check-no-failures
 %{systemd_libdir}/systemd-cgroups-agent
-%{systemd_libdir}/systemd-dissect
 %{systemd_libdir}/systemd-export
 %{systemd_libdir}/systemd-fsck
 %{systemd_libdir}/systemd-growfs
@@ -1723,7 +1732,7 @@ fi
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
-%config(noreplace) %{_sysconfdir}/pam.d/%{name}-user
+%config(noreplace) %{_prefix}/lib/pam.d/systemd-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/%{name}/journald.conf
@@ -1972,6 +1981,7 @@ fi
 %{systemd_libdir}/system/remote-cryptsetup.target
 %{systemd_libdir}/system/cryptsetup-pre.target
 %{systemd_libdir}/system/cryptsetup.target
+%{systemd_libdir}/system/initrd-root-device.target.wants/remote-cryptsetup.target
 %endif
 
 %files zsh-completion
@@ -1984,6 +1994,14 @@ fi
 
 %files macros
 %{_rpmmacrodir}/macros.systemd
+
+%files oom
+/bin/oomctl
+%{_sysconfdir}/systemd/oomd.conf
+/lib/systemd/system/systemd-oomd.service
+/lib/systemd/systemd-oomd
+%{_datadir}/dbus-1/system-services/org.freedesktop.oom1.service
+%{_datadir}/dbus-1/system.d/org.freedesktop.oom1.conf
 
 %if %{with compat32}
 %files -n %{lib32nss_myhostname}
