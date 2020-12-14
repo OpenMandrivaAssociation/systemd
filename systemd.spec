@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -724,15 +724,6 @@ ln -sf %{_bindir}/ld.bfd bin/ld
 PATH=$PWD/bin:$PATH
 %endif
 
-# FIXME
-# Switch to
-#	-Ddefault-hierarchy=unified \
-# below once Docker has been fixed to work with it.
-# In the mean time, hybrid provides cgroups2 features
-# while keeping docker working.
-# https://github.com/opencontainers/runc/issues/654
-#
-# In order to switch to cgroup2 it is enough to pass systemd.unified_cgroup_hierarchy=1 via kernel command line.
 %serverbuild_hardened
 
 %if %{with compat32}
@@ -833,7 +824,7 @@ export LD=gcc
 	-Dcertificate-root="%{_sysconfdir}/pki" \
 	-Dfallback-hostname=openmandriva \
 	-Dsupport-url="%{disturl}" \
-	-Ddefault-hierarchy=hybrid \
+	-Ddefault-hierarchy=unified \
 	-Dtty-gid=5 \
 	-Dusers-gid=100 \
 	-Dnobody-user=nobody \
