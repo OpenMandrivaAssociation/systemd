@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -249,8 +249,11 @@ Requires:	%{name}-macros = %{EVRD}
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
-Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
+# If we use libnss_resolve, it needs to be in sync with
+# systemd -- but we shouldn't pull it in as a hard
+# dependency, so just conflict with other versions
+Conflicts:	%{libnss_resolve} < %{EVRD}
 Suggests:	%{name}-analyze
 Suggests:	%{name}-boot
 Suggests:	%{name}-console
@@ -1107,26 +1110,6 @@ if [ -z "$hostname_new" ]; then
     fi
 fi
 
-# (tpg) create resolv.conf based on systemd
-if [ $1 -ge 1 ]; then
-    if [ ! -e /run/systemd/resolve/resolv.conf ]; then
-	mkdir -p /run/systemd/resolve
-	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
-    fi
-fi
-
-# (tpg) link to resolv.conf from systemd
-if [ $1 -eq 1 ]; then
-    if [ -e /etc/resolv.conf ]; then
-	rm -f /etc/resolv.conf
-    fi
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
-fi
-
-if [ $1 -ge 2 ]; then
-    /bin/systemctl restart systemd-resolved.service 2>&1 || :
-fi
-
 %triggerin -- %{name} < 239
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
 if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
@@ -1961,6 +1944,26 @@ fi
 %post resolved
 if [ $1 -eq 1 ] ; then
 	/bin/systemctl preset systemd-resolved.service &>/dev/null ||:
+fi
+
+# (tpg) create resolv.conf based on systemd
+if [ $1 -ge 1 ]; then
+    if [ ! -e /run/systemd/resolve/resolv.conf ]; then
+	mkdir -p /run/systemd/resolve
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
+    fi
+fi
+
+# (tpg) link to resolv.conf from systemd
+if [ $1 -eq 1 ]; then
+    if [ -e /etc/resolv.conf ]; then
+	rm -f /etc/resolv.conf
+    fi
+    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+fi
+
+if [ $1 -ge 2 ]; then
+    /bin/systemctl restart systemd-resolved.service 2>&1 || :
 fi
 
 %preun networkd
