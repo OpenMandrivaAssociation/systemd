@@ -249,11 +249,8 @@ Requires:	%{name}-macros = %{EVRD}
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
+Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
-# If we use libnss_resolve, it needs to be in sync with
-# systemd -- but we shouldn't pull it in as a hard
-# dependency, so just conflict with other versions
-Conflicts:	%{libnss_resolve} < %{EVRD}
 Suggests:	%{name}-analyze
 Suggests:	%{name}-boot
 Suggests:	%{name}-console
@@ -1104,9 +1101,9 @@ hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
 if [ -z "$hostname_new" ]; then
     hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
     if [ ! -z "$hostname_old" ]; then
-	echo "$hostname_old" >> %{_sysconfdir}/hostname
+	printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
     else
-	echo "localhost" >> %{_sysconfdir}/hostname
+	printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
     fi
 fi
 
@@ -1942,24 +1939,22 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 
 %post resolved
-if [ $1 -eq 1 ] ; then
-	/bin/systemctl preset systemd-resolved.service &>/dev/null ||:
-fi
-
 # (tpg) create resolv.conf based on systemd
-if [ $1 -ge 1 ]; then
-    if [ ! -e /run/systemd/resolve/resolv.conf ]; then
-	mkdir -p /run/systemd/resolve
-	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
-    fi
-fi
-
-# (tpg) link to resolv.conf from systemd
 if [ $1 -eq 1 ]; then
+    /bin/systemctl preset systemd-resolved.service &>/dev/null ||:
+# (tpg) link to resolv.conf from systemd
     if [ -e /etc/resolv.conf ]; then
 	rm -f /etc/resolv.conf
     fi
-    ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+fi
+
+if [ $1 -ge 1 ]; then
+    if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
+	mkdir -p /run/systemd/resolve
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
+    fi
 fi
 
 if [ $1 -ge 2 ]; then
@@ -1968,11 +1963,8 @@ fi
 
 %preun networkd
 if [ $1 -eq 0 ] ; then
-	/bin/systemctl --quiet disable \
-		systemd-networkd.service \
-		2>&1 || :
+    /bin/systemctl --quiet disable systemd-networkd.service 2>&1 || :
 fi
-
 
 %if !%{with bootstrap}
 %files cryptsetup
