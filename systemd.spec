@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -939,6 +939,9 @@ touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 mkdir -p %{buildroot}%{_sysconfdir}/udev
 touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 
+# (tpg) needed for containers
+mkdir -p %{buildroot}%{_sysconfig}/%{name}/nspawn
+
 # (cg) Set up the pager to make it generally more useful
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 cat > %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh << EOF
@@ -1774,6 +1777,7 @@ fi
 %{systemd_libdir}/systemd-machined
 %{systemd_libdir}/systemd-pull
 %{systemd_libdir}/import-pubring.gpg
+%dir %{_sysconfig}/%{name}/nspawn
 /bin/machinectl
 %{_bindir}/systemd-nspawn
 %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
