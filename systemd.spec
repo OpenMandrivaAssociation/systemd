@@ -940,7 +940,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/udev
 touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
 
 # (tpg) needed for containers
-mkdir -p %{buildroot}%{_sysconfig}/%{name}/nspawn
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}/nspawn
 
 # (cg) Set up the pager to make it generally more useful
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
@@ -1777,7 +1777,7 @@ fi
 %{systemd_libdir}/systemd-machined
 %{systemd_libdir}/systemd-pull
 %{systemd_libdir}/import-pubring.gpg
-%dir %{_sysconfig}/%{name}/nspawn
+%dir %{_sysconfdir}/%{name}/nspawn
 /bin/machinectl
 %{_bindir}/systemd-nspawn
 %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
