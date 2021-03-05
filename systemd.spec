@@ -13,7 +13,7 @@
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
 %ifarch x86_64 aarch64
-%bcond_without gcc
+%bcond_with gcc
 %else
 %bcond_with gcc
 %endif
@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 247
-%define stable 20210207
+%define stable 20210305
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -75,13 +75,13 @@ Name:		systemd
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
 # git clone https://github.com/systemd/systemd-stable/ -b v247-stable
-# git archive --prefix=systemd-247.$(date +%Y%m%d)/ --format=tar stable/v247-stable | xz -9ef > ../systemd-247.$(date +%Y%m%d).tar.xz
+# cd systemd-stabe && git archive --prefix=systemd-247.$(date +%Y%m%d)/ --format=tar v247-stable | xz -9ef > ../systemd-247.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
