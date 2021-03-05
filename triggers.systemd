@@ -6,7 +6,7 @@
 
 # The contents of this are an example to be copied into systemd.spec.
 #
-# Minimum rpm version supported: 4.13.0
+# Minimum rpm version supported: 4.14.0
 
 %transfiletriggerin -P 900900 -p <lua> -- /lib/systemd/system /etc/systemd/system
 -- This script will run after any package is initially installed or
@@ -23,31 +23,13 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerun -p <lua> -- /lib/systemd/system /etc/systemd/system
+%transfiletriggerpostun -P 1000100 -p <lua> -- /lib/systemd/system /etc/systemd/system
 -- On removal, we need to run daemon-reload after any units have been
--- removed. %transfiletriggerpostun would be ideal, but it does not get
--- executed for some reason.
+-- removed.
 -- On upgrade, we need to run daemon-reload after any new unit files
 -- have been installed, but before %postun scripts in packages get
--- executed. %transfiletriggerun gets the right list of files
--- but it is invoked too early (before changes happen).
--- %filetriggerpostun happens at the right time, but it fires for
--- every package.
--- To execute the reload at the right time, we create a state
--- file in %transfiletriggerun and execute the daemon-reload in
--- the first %filetriggerpostun.
-
+-- executed.
 if posix.access("/run/systemd/system") then
-    posix.mkdir("%{_localstatedir}/lib")
-    posix.mkdir("%{_localstatedir}/lib/rpm-state")
-    posix.mkdir("%{_localstatedir}/lib/rpm-state/systemd")
-    io.open("%{_localstatedir}/lib/rpm-state/systemd/needs-reload", "w")
-end
-
-%filetriggerpostun -P 1000100 -p <lua> -- /lib/systemd/system /etc/systemd/system
-if posix.access("%{_localstatedir}/lib/rpm-state/systemd/needs-reload") then
-    posix.unlink("%{_localstatedir}/lib/rpm-state/systemd/needs-reload")
-    posix.rmdir("%{_localstatedir}/lib/rpm-state/systemd")
     pid = posix.fork()
     if pid == 0 then
 	assert(posix.exec("/bin/systemctl", "daemon-reload"))
@@ -56,7 +38,7 @@ if posix.access("%{_localstatedir}/lib/rpm-state/systemd/needs-reload") then
     end
 end
 
-%transfiletriggerin -P 100700 -p <lua> -- /usr/lib/sysusers.d
+%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/sysusers.d
 -- This script will process files installed in /usr/lib/sysusers.d to create
 -- specified users automatically. The priority is set such that it
 -- will run before the tmpfiles file trigger.
@@ -69,7 +51,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -P 100500 -p <lua> -- /usr/lib/tmpfiles.d /lib/tmpfiles.d/ /etc/tmpfiles.d/
+%transfiletriggerin -P 1000600 -p <lua> -- /usr/lib/tmpfiles.d /lib/tmpfiles.d /etc/tmpfiles.d
 -- This script will process files installed in /usr/lib/tmpfiles.d to create
 -- tmpfiles automatically. The priority is set such that it will run
 -- after the sysusers file trigger, but before any other triggers.
@@ -82,7 +64,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin hwdb -p <lua> -- /lib/udev/hwdb.d/
+%transfiletriggerin hwdb -P 1000700 -p <lua> -- /lib/udev/hwdb.d/
 -- This script will automatically invoke hwdb update if files have been
 -- installed or updated in /lib/udev/hwdb.d.
 if posix.access("/run/systemd/system") then
@@ -94,7 +76,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin locale -p <lua> -- /usr/lib/systemd/catalog
+%transfiletriggerin locale -P 1000700 -p <lua> -- /usr/lib/systemd/catalog
 -- This script will automatically invoke journal catalog update if files
 -- have been installed or updated in /usr/lib/systemd/catalog.
 if posix.access("/run/systemd/system") then
@@ -106,7 +88,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -p <lua> -- /lib/udev/rules.d /etc/udev/rules.d
+%transfiletriggerin -P 1000600 -p <lua> -- /lib/udev/rules.d /etc/udev/rules.d
 -- This script will automatically update udev with new rules if files
 -- have been installed or updated in /lib/udev/rules.d and /etc/udev/rules.d.
 if posix.access("/run/systemd/system") then
@@ -118,7 +100,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -p <lua> -- /usr/lib/sysctl.d
+%transfiletriggerin -P 1000500 -p <lua> -- /usr/lib/sysctl.d
 -- This script will automatically apply sysctl rules if files have been
 -- installed or updated in /usr/lib/sysctl.d.
 if posix.access("/run/systemd/system") then
@@ -130,7 +112,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -p <lua> -- /usr/lib/binfmt.d
+%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/binfmt.d
 -- This script will automatically apply binfmt rules if files have been
 -- installed or updated in /usr/lib/binfmt.d.
 if posix.access("/run/systemd/system") then
