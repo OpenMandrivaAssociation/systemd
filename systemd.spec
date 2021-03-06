@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -291,6 +291,7 @@ Provides:	python-%{name} = 223
 Obsoletes:	gummiboot < 46
 %rename		systemd-tools
 %rename		systemd-units
+%rename		systemd-resolved
 %rename		udev
 %if %{with compat32}
 BuildRequires:	devel(libcap)
@@ -570,7 +571,7 @@ Summary:	Provide hostname resolution via systemd-resolved.service
 Group:		System/Libraries
 Provides:	libnss_resolve = %{EVRD}
 Provides:	nss_resolve= %{EVRD}
-Requires:	%{name}-resolved = %{EVRD}
+Requires:	%{name} = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
 
 %description -n %{libnss_resolve}
@@ -639,15 +640,6 @@ Provides:	systemd-rpm-macros
 
 %description macros
 For building RPM packages to utilize standard systemd runtime macros.
-
-%package resolved
-Summary:	Network name resolution via D-Bus interface, NSS, and local DNS
-Group:		System
-
-%description resolved
-systemd-resolved is a systemd service that provides network name resolution
-to local applications via a D-Bus interface, the resolve NSS service,
-and a local DNS stub listener
 
 %if %{with compat32}
 %package -n %{lib32systemd}
@@ -914,12 +906,6 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
 sed -i -e 's/^#MountAuto=yes$/MountAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 
-# (crazy) Do not do that .. is imposible to disable such services
-# resolved will stay that way for other reasons and bugs we hit with 239/240  but after Lx4 is out
-# it has to go from here too
-# (tpg) explicitly enable these services
-ln -sf /lib/%{name}/system/%{name}-resolved.service %{buildroot}/%{systemd_libdir}/system/multi-user.target.wants/%{name}-resolved.service
-
 # (eugeni) install /run
 mkdir %{buildroot}/run
 
@@ -968,8 +954,7 @@ install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
 # (tpg) install userspace presets
-# (crazy) .. but not like this
-#install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
+install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
 
 # (tpg) remove 90-systemd-preset as it is included in ours 90-default.preset
 rm -rf %{buildroot}%{systemd_libdir}/system-preset/90-systemd.preset
@@ -1068,36 +1053,28 @@ fi
 
 %post
 /bin/systemd-firstboot --setup-machine-id &>/dev/null ||:
-/bin/systemd-sysusers &>/dev/null ||:
 /bin/systemd-machine-id-setup &>/dev/null ||:
-%{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
 /bin/systemctl daemon-reexec &>/dev/null ||:
-/bin/journalctl --update-catalog &>/dev/null ||:
-/bin/systemd-tmpfiles --create &>/dev/null ||:
 
-# Init 90-default.preset
-# never use preset-all
+
 if [ $1 -eq 1 ] ; then
-	# keep in sysnc with 90-default.preset
-	/bin/systemctl preset remote-fs.target &>/dev/null ||:
-	/bin/systemctl preset remote-cryptsetup.target &>/dev/null ||:
-	/bin/systemctl preset machines.target &>/dev/null ||:
-	/bin/systemctl preset getty@tty1.service &>/dev/null ||:
-	/bin/systemctl preset systemd-bus-proxy.socket &>/dev/null ||:
-	/bin/systemctl preset systemd-initctl.socket &>/dev/null ||:
-	/bin/systemctl preset systemd-journald.socket &>/dev/null ||:
-	/bin/systemctl preset systemd-timedated.service &>/dev/null ||:
-	/bin/systemctl preset systemd-timesyncd.service &>/dev/null ||:
-	/bin/systemctl preset systemd-rfkill.socket &>/dev/null ||:
-	/bin/systemctl preset console-getty.service &>/dev/null ||:
-	/bin/systemctl preset debug-shell.service &>/dev/null ||:
-	/bin/systemctl preset halt.target &>/dev/null ||:
-	/bin/systemctl preset kexec.target &>/dev/null ||:
-	/bin/systemctl preset poweroff.target &>/dev/null ||:
-	/bin/systemctl preset reboot.target &>/dev/null ||:
-	/bin/systemctl preset rescue.target &>/dev/null ||:
-	/bin/systemctl preset exit.target &>/dev/null ||:
-	/bin/systemctl preset syslog.socket &>/dev/null ||:
+    /bin/systemd-sysusers &>/dev/null ||:
+    %{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
+    /bin/journalctl --update-catalog &>/dev/null ||:
+    /bin/systemd-tmpfiles --create &>/dev/null ||:
+
+# Init 90-default.preset only on first install
+    /bin/systemctl preset-all &>/dev/null ||:
+    /bin/systemctl --global preset-all &>/dev/null ||:
+
+# (tpg) link to resolv.conf from systemd
+    [ -e /etc/resolv.conf ] && rm -f /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
+	mkdir -p /run/systemd/resolve
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
+    fi
 fi
 
 hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
@@ -1133,56 +1110,6 @@ if [ -z "$runlevel" ] ; then
 
 # And symlink what we found to the new-style default.target
 /bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
-
-%preun
-if [ $1 -eq 0 ] ; then
-    /bin/systemctl --quiet disable \
-	    getty@tty1.service \
-	    getty@getty.service \
-	    remote-fs.target \
-	    systemd-resolvd.service \
-	    systemd-timesync.service \
-	    systemd-timedated.service \
-	    console-getty.service \
-	    console-shell.service \
-	    debug-shell.service \
-	    2>&1 || :
-
-    /bin/rm -f /etc/systemd/system/default.target 2>&1 || :
-fi
-
-%postun
-if [ $1 -ge 1 ] ; then
-    /bin/systemctl daemon-reload > /dev/null 2>&1 || :
-fi
-
-%post hwdb
-/bin/systemd-hwdb update >/dev/null 2>&1 || :
-
-#triggerin -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
-#ARG1=$1
-#ARG2=$2
-#shift
-#shift
-#
-#units=${*#%{_unitdir}/}
-#if [ $ARG1 -eq 1 -a $ARG2 -eq 1 ]; then
-#    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-#    /bin/systemctl preset ${units} >/dev/null 2>&1 || :
-#fi
-#triggerun -- ^%{_unitdir}/.*\.(service|socket|path|timer)$
-#ARG1=$1
-#ARG2=$2
-#shift
-#shift
-
-#skip="$(grep -l 'Alias=display-manager.service' $*)"
-#units=${*#%{_unitdir}/}
-#units=${units#${skip##*/}}
-#if [ $ARG2 -eq 0 ]; then
-#    /bin/systemctl --no-reload disable ${units} >/dev/null 2>&1 || :
-#    /bin/systemctl stop ${units} >/dev/null 2>&1 || :
-#fi
 
 %triggerin -- %{libnss_myhostname} < 237
 if [ -f /etc/nsswitch.conf ]; then
@@ -1351,6 +1278,7 @@ fi
 /bin/udevadm
 /bin/userdbctl
 /sbin/init
+/sbin/resolvconf
 /sbin/runlevel
 /sbin/shutdown
 /sbin/telinit
@@ -1374,6 +1302,8 @@ fi
 %{_bindir}/systemd-socket-activate
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-umount
+%{_bindir}/systemd-resolve
+%{_bindir}/resolvectl
 %{_bindir}/timedatectl
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1382,6 +1312,8 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
+%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
+%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
@@ -1486,6 +1418,7 @@ fi
 %{systemd_libdir}/system/systemd-pstore.service
 %{systemd_libdir}/system/systemd-quotacheck.service
 %{systemd_libdir}/system/systemd-random-seed.service
+%{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount-fs.service
 %{systemd_libdir}/system/systemd-rfkill.service
@@ -1622,6 +1555,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
+%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service
@@ -1655,6 +1589,7 @@ fi
 %{systemd_libdir}/systemd-pstore
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
+%{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/systemd-remount-fs
 %{systemd_libdir}/systemd-reply-password
 %{systemd_libdir}/systemd-rfkill
@@ -1676,6 +1611,7 @@ fi
 %{systemd_libdir}/systemd-veritysetup
 %{systemd_libdir}/systemd-volatile-root
 %{systemd_libdir}/systemd-xdg-autostart-condition
+%{systemd_libdir}/resolv.conf
 # (tpg) internal library - only systemd uses it
 %{systemd_libdir}/libsystemd-shared-%{major}.so
 #
@@ -1725,6 +1661,7 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/pstore.conf
 %config(noreplace) %{_sysconfdir}/%{name}/sleep.conf
 %config(noreplace) %{_sysconfdir}/%{name}/system.conf
+%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
 %config(noreplace) %{_sysconfdir}/%{name}/timesyncd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/user.conf
 %config(noreplace) %{_sysconfdir}/udev/udev.conf
@@ -1905,6 +1842,7 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 
 %files networkd
 %{_sysconfdir}/systemd/networkd.conf
@@ -1928,42 +1866,6 @@ fi
 %{systemd_libdir}/network/80-wifi-station.network.example
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
-
-%files resolved
-/sbin/resolvconf
-%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
-%{_bindir}/systemd-resolve
-%{_bindir}/resolvectl
-%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
-%{systemd_libdir}/resolv.conf
-%{systemd_libdir}/system/systemd-resolved.service
-%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
-%{systemd_libdir}/systemd-resolved
-%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
-%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
-
-%post resolved
-# (tpg) create resolv.conf based on systemd
-if [ $1 -eq 1 ]; then
-    /bin/systemctl preset systemd-resolved.service &>/dev/null ||:
-# (tpg) link to resolv.conf from systemd
-    if [ -e /etc/resolv.conf ]; then
-	rm -f /etc/resolv.conf
-    fi
-    ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-fi
-
-if [ $1 -ge 1 ]; then
-    if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
-	mkdir -p /run/systemd/resolve
-	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
-	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
-    fi
-fi
-
-if [ $1 -ge 2 ]; then
-    /bin/systemctl restart systemd-resolved.service 2>&1 || :
-fi
 
 %preun networkd
 if [ $1 -eq 0 ] ; then
