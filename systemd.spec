@@ -9,11 +9,11 @@
 # systemd on x86_64, but not znver1 (so we're intentionally
 # not using %{x86_64} here), hangs indefinitely on upgrades
 # if built with clang.
-# Last verified with systemd 246.20200806, clang 10.0.1
+# Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
 %ifarch x86_64 aarch64
-%bcond_with gcc
+%bcond_without gcc
 %else
 %bcond_with gcc
 %endif
