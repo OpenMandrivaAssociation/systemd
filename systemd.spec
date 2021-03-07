@@ -1553,7 +1553,6 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
-%{systemd_libdir}/system/multi-user.target.wants/systemd-resolved.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service
