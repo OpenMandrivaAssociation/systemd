@@ -98,9 +98,7 @@ Source12:	99-default-disable.preset
 Source13:	90-default.preset
 Source14:	85-display-manager.preset
 Source16:	systemd.rpmlintrc
-# (crazy) don't play weird games with these
-# never enable / disable like this
-#Source18:	90-user-default.preset
+Source18:	90-user-default.preset
 Source19:	10-imx.rules
 # (tpg) EFI bootctl
 Source21:	efi-loader.conf
