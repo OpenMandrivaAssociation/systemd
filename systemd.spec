@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -830,6 +830,7 @@ export LD=gcc
 	-Dnobody-group=nogroup \
 	-Dsystem-uid-max='999' \
 	-Dsystem-gid-max='999' \
+	-Ddefault-dnssec=no \
 	-Dntp-servers='_gateway gateway 0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
 	-Ddns-servers='208.67.222.222 208.67.220.220'
 
