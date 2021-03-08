@@ -741,6 +741,7 @@ PATH=$PWD/bin:$PATH
 
 %if %{with compat32}
 %meson32 \
+	-Dmode=release \
 	-Dsplit-usr=true \
 	-Dresolve=false \
 	-Dhostnamed=false \
@@ -771,6 +772,7 @@ export CXX=g++
 export LD=gcc
 %endif
 %meson \
+	-Dmode=release \
 	-Drootprefix="" \
 	-Drootlibdir=/%{_lib} \
 	-Dsysvinit-path=%{_initrddir} \
