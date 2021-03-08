@@ -1,21 +1,21 @@
-diff -up systemd-245.20200407/src/resolve/resolved.c.33~ systemd-245.20200407/src/resolve/resolved.c
---- systemd-245.20200407/src/resolve/resolved.c.33~	2020-04-07 04:50:18.255148753 +0200
-+++ systemd-245.20200407/src/resolve/resolved.c	2020-04-07 04:53:21.323193090 +0200
-@@ -50,6 +50,11 @@ static int run(int argc, char *argv[]) {
+diff -up systemd-248.20210308/src/resolve/resolved.c.33~ systemd-248.20210308/src/resolve/resolved.c
+--- systemd-248.20210308/src/resolve/resolved.c.33~	2021-03-08 01:11:18.972335907 +0100
++++ systemd-248.20210308/src/resolve/resolved.c	2021-03-08 01:13:09.298971226 +0100
+@@ -58,6 +58,11 @@ static int run(int argc, char *argv[]) {
                  if (r < 0)
                          return log_error_errno(r, "Could not create runtime directory: %m");
  
-+                r = symlink("../run/systemd/resolve/resolv.conf", "/etc/resolv.conf");
-+                if (r < 0 && errno != EEXIST)
-+                        log_warning_errno(errno,
-+                                          "Could not create /etc/resolv.conf symlink: %m");
++		r = symlink("../run/systemd/resolve/resolv.conf", "/etc/resolv.conf");
++		if (r < 0 && errno != EEXIST)
++			log_warning_errno(errno,
++					  "Could not create /etc/resolv.conf symlink: %m");
 +
-                 /* Drop privileges, but keep three caps. Note that we drop those too, later on (see below) */
+                 /* Drop privileges, but keep three caps. Note that we drop two of those too, later on (see below) */
                  r = drop_privileges(uid, gid,
                                      (UINT64_C(1) << CAP_NET_RAW)|          /* needed for SO_BINDTODEVICE */
-diff -up systemd-245.20200407/tmpfiles.d/etc.conf.m4.33~ systemd-245.20200407/tmpfiles.d/etc.conf.m4
---- systemd-245.20200407/tmpfiles.d/etc.conf.m4.33~	2020-04-01 19:23:42.000000000 +0200
-+++ systemd-245.20200407/tmpfiles.d/etc.conf.m4	2020-04-07 04:50:18.255148753 +0200
+diff -up systemd-248.20210308/tmpfiles.d/etc.conf.m4.33~ systemd-248.20210308/tmpfiles.d/etc.conf.m4
+--- systemd-248.20210308/tmpfiles.d/etc.conf.m4.33~	2021-02-23 18:43:34.000000000 +0100
++++ systemd-248.20210308/tmpfiles.d/etc.conf.m4	2021-03-08 01:11:18.972335907 +0100
 @@ -12,9 +12,6 @@ L+ /etc/mtab - - - - ../proc/self/mounts
  m4_ifdef(`HAVE_SMACK_RUN_LABEL',
  t /etc/mtab - - - - security.SMACK64=_

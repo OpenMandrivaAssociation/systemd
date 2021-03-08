@@ -1,16 +1,16 @@
-diff -up systemd-240/src/basic/macro.h.26~ systemd-240/src/basic/macro.h
---- systemd-240/src/basic/macro.h.26~	2018-12-22 15:01:20.733125593 +0100
-+++ systemd-240/src/basic/macro.h	2018-12-22 15:02:11.158954468 +0100
-@@ -35,10 +35,10 @@
+diff -up systemd-248.20210308/src/basic/macro.h.30~ systemd-248.20210308/src/basic/macro.h
+--- systemd-248.20210308/src/basic/macro.h.30~	2021-03-08 01:09:25.945701347 +0100
++++ systemd-248.20210308/src/basic/macro.h	2021-03-08 01:10:49.509010943 +0100
+@@ -33,10 +33,10 @@
+ #define _align_(x) __attribute__((__aligned__(x)))
  #define _alignas_(x) __attribute__((__aligned__(__alignof(x))))
  #define _alignptr_ __attribute__((__aligned__(sizeof(void*))))
- #define _cleanup_(x) __attribute__((__cleanup__(x)))
 -#if __GNUC__ >= 7
 +#if __GNUC__ >= 7 && __has_attribute(__fallthrough__)
  #define _fallthrough_ __attribute__((__fallthrough__))
  #else
 -#define _fallthrough_
-+#define _fallthrough_ ((void) 0)
++#define _fallthrough_ ((void)0)
  #endif
  /* Define C11 noreturn without <stdnoreturn.h> and even on older gcc
   * compiler versions */

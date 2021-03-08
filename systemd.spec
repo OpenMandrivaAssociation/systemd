@@ -66,8 +66,8 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 247
-%define stable 20210305
+%define major 248
+%define stable 20210308
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -133,16 +133,16 @@ Patch106:	0010-locale-setup-set-default-locale-to-a-unicode-one.patch
 Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch108:	0018-more-udev-children-workers.patch
 Patch109:	0019-not-load-iptables.patch
-Patch110:	0023-DHCP-retry-faster.patch
+#Patch110:	0023-DHCP-retry-faster.patch
 Patch111:	0024-Remove-libm-memory-overhead.patch
 Patch112:	0028-Make-timesyncd-a-simple-service.patch
-Patch113:	0029-Compile-udev-with-O3.patch
+#Patch113:	0029-Compile-udev-with-O3.patch
 Patch114:	0030-Don-t-wait-for-utmp-at-shutdown.patch
 Patch115:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch116:	0032-don-t-use-libm-just-for-integer-exp10.patch
 Patch117:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 Patch118:	0035-skip-not-present-ACPI-devices.patch
-Patch119:	0037-Disable-XZ-support-in-the-journal.patch
+#Patch119:	0037-Disable-XZ-support-in-the-journal.patch
 Patch120:	0038-Localize-1-symbol.patch
 
 # (tpg) OMV patches
@@ -491,6 +491,20 @@ systems. When these images are attached the local system the contained
 units may run in most ways like regular system-provided units, either
 with full privileges or inside strict sandboxing, depending on the
 selected configuration.
+
+%package sysext
+Summary:	System extension manager
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+
+%description sysext
+systemd-sysext activates/deactivates system extension images. System extension
+images may – dynamically at runtime — extend the /usr/ and /opt/ directory
+hierarchies with additional files.
+
+This is particularly useful on immutable system images where a /usr/ and/or
+/opt/ hierarchy residing on a read-only file system shall be extended
+temporarily at runtime without making any persistent modifications.
 
 %package -n %{libsystemd}
 Summary:	Systemd library package
@@ -1637,6 +1651,8 @@ fi
 /sbin/udevd
 %{_bindir}/udevadm
 %{_sbindir}/udevadm
+/lib/udev/dmi_memory_id
+/lib/udev/rules.d/70-memory.rules
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
@@ -1668,6 +1684,10 @@ fi
 # This takes care of interface renaming etc. -- it is NOT for networkd
 %dir %{systemd_libdir}/network
 %{systemd_libdir}/network/99-default.link
+
+%files sysext
+/bin/systemd-sysext
+/lib/systemd/system/systemd-sysext.service
 
 %files portable
 %dir %{systemd_libdir}/portable
@@ -1881,6 +1901,12 @@ fi
 %{systemd_libdir}/system/cryptsetup-pre.target
 %{systemd_libdir}/system/cryptsetup.target
 %{systemd_libdir}/system/initrd-root-device.target.wants/remote-cryptsetup.target
+%{systemd_libdir}/system/initrd-root-device.target.wants/remote-veritysetup.target
+%{systemd_libdir}/system/remote-veritysetup.target
+%{systemd_libdir}/system/sysinit.target.wants/veritysetup.target
+%{systemd_libdir}/system/veritysetup-pre.target
+%{systemd_libdir}/system/veritysetup.target
+%{_bindir}/systemd-cryptenroll
 %endif
 
 %files zsh-completion

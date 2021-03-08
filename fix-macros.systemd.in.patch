@@ -1,7 +1,7 @@
-diff -Naur systemd-246/src/core/macros.systemd.in systemd-246-p/src/core/macros.systemd.in
---- systemd-246/src/core/macros.systemd.in	2020-07-30 21:02:36.000000000 +0200
-+++ systemd-246-p/src/core/macros.systemd.in	2020-08-31 23:10:21.951993361 +0200
-@@ -45,9 +45,9 @@
+diff -up systemd-248.20210308/src/rpm/macros.systemd.in.11~ systemd-248.20210308/src/rpm/macros.systemd.in
+--- systemd-248.20210308/src/rpm/macros.systemd.in.11~	2021-02-23 18:43:34.000000000 +0100
++++ systemd-248.20210308/src/rpm/macros.systemd.in	2021-03-08 00:57:49.959232051 +0100
+@@ -46,9 +46,9 @@ OrderWithRequires(postun): systemd \
  
  %systemd_post() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_post}} \
@@ -13,7 +13,7 @@ diff -Naur systemd-246/src/core/macros.systemd.in systemd-246-p/src/core/macros.
  fi \
  %{nil}
  
-@@ -55,17 +55,17 @@
+@@ -56,17 +56,17 @@ fi \
  
  %systemd_preun() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_preun}} \
@@ -35,19 +35,20 @@ diff -Naur systemd-246/src/core/macros.systemd.in systemd-246-p/src/core/macros.
  fi \
  %{nil}
  
-@@ -79,9 +79,9 @@
+@@ -80,10 +80,10 @@ fi \
  
  %systemd_postun_with_restart() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_postun_with_restart}} \
 -if [ $1 -ge 1 ] && [ -x @bindir@/systemctl ]; then \
 +if [ $1 -ge 1 ] && [ -x @rootbindir@/systemctl ]; then \
          # Package upgrade, not uninstall \
--        @bindir@/systemctl try-restart %{?*} || : \
-+        @rootbindir@/systemctl try-restart %{?*} || : \
+         for unit in %{?*}; do \
+-                @bindir@/systemctl set-property $unit Markers=+needs-restart || : \
++                @rootbindir@/systemctl set-property $unit Markers=+needs-restart || : \
+         done \
  fi \
  %{nil}
- 
-@@ -98,17 +98,17 @@
+@@ -101,17 +101,17 @@ fi \
  # Deprecated. Use %tmpfiles_create_package instead
  %tmpfiles_create() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# tmpfiles_create}} \

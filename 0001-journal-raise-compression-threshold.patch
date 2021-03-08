@@ -7,10 +7,10 @@ Subject: [PATCH 01/45] journal: raise compression threshold.
  src/journal/journal-file.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/src/journal/journal-file.c b/src/journal/journal-file.c
+diff --git a/src/libsystemd/sd-journal/journal-file.c b/src/libsystemd/sd-journal/journal-file.c
 index bd53635860..46cb5e5902 100644
---- a/src/journal/journal-file.c
-+++ b/src/journal/journal-file.c
+--- a/src/libsystemd/sd-journal/journal-file.c
++++ b/src/libsystemd/sd-journal/journal-file.c
 @@ -36,7 +36,7 @@
  #define DEFAULT_DATA_HASH_TABLE_SIZE (2047ULL*sizeof(HashItem))
  #define DEFAULT_FIELD_HASH_TABLE_SIZE (333ULL*sizeof(HashItem))
