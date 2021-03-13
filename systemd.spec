@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 248
-%define stable 20210308
+%define stable 20210313
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -192,8 +192,11 @@ BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
+BuildRequires:	efi-srpm-macros
 %ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
+%endif
+%ifarch %{efi}
 BuildRequires:	gnu-efi >= 3.0.11
 %endif
 %ifnarch %{riscv}
@@ -250,7 +253,9 @@ Requires:	%{libnss_myhostname} = %{EVRD}
 Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
 Suggests:	%{name}-analyze
+%ifarch %{efi}
 Suggests:	%{name}-boot
+%endif
 Suggests:	%{name}-console
 Suggests:	%{name}-coredump
 Suggests:	%{name}-documentation >= 236
@@ -286,7 +291,6 @@ Obsoletes:	bootchart < 2.0.11.4-3
 Provides:	bootchart = 2.0.11.4-3
 Obsoletes:	python-%{name} < 223
 Provides:	python-%{name} = 223
-Obsoletes:	gummiboot < 46
 %rename		systemd-tools
 %rename		systemd-units
 %rename		systemd-resolved
@@ -321,6 +325,7 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
+%ifarch %{efi}
 %package boot
 Summary:	EFI boot component for %{name}
 Group:		System/Base
@@ -329,9 +334,11 @@ Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 245.20200426-3
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
+Obsoletes:	gummiboot < 46
 
 %description boot
 Systemd boot tools to manage EFI boot.
+%endif
 
 %package console
 Summary:	Console support for %{name}
@@ -778,10 +785,13 @@ export LD=gcc
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
+%ifarch %{efi}
 	-Defi=true \
-	-Defi-libdir=%{_libdir} \
-%ifnarch %{armx} %{riscv}
 	-Dgnu-efi=true \
+	-Defi-libdir=%{_libdir} \
+%else
+	-Defi=false \
+	-Dgnu-efi=false \
 %endif
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
@@ -988,7 +998,7 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
-%ifnarch %{armx} %{riscv}
+%ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
 %endif
@@ -1794,11 +1804,11 @@ fi
 %{_bindir}/%{name}-cgtop
 %{_bindir}/%{name}-delta
 
+%ifarch %{efi}
 %files boot
 %{_bindir}/bootctl
 %{systemd_libdir}/system/systemd-boot-system-token.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-boot-system-token.service
-%ifnarch %{armx} %{riscv}
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
