@@ -1001,6 +1001,8 @@ sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{
 %ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
+# this is ghost file, as we will generate it on systemd-boot install/update
+touch %{buildroot}%{_datadir}/%{name}/bootctl/splash-omv.bmp
 %endif
 
 # Install yum protection fragment
@@ -1815,7 +1817,13 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.efi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
+%ghost %{_datadir}/%{name}/bootctl/splash-omv.bmp
 %endif
+
+%post boot
+if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png ] && [-x %{_bindir}/convert ] ; then
+    convert %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
+fi
 
 %files console
 %{systemd_libdir}/systemd-vconsole-setup
