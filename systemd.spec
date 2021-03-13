@@ -330,6 +330,7 @@ work as a drop-in replacement for sysvinit.
 Summary:	EFI boot component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
+Requires:	efi-filesystem
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 245.20200426-3
 Suggests:	%{name}-documentation = %{EVRD}
