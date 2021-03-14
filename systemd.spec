@@ -336,6 +336,7 @@ Conflicts:	%{name} < 245.20200426-3
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
 Obsoletes:	gummiboot < 46
+Provides:	bootloader
 
 %description boot
 Systemd boot tools to manage EFI boot.
