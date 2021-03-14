@@ -788,6 +788,8 @@ export LD=gcc
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
 %ifarch %{efi}
+	-Defi-cc=gcc \
+	-Defi-ld=ld.bfd \
 	-Defi=true \
 	-Dgnu-efi=true \
 	-Defi-libdir=%{_libdir} \
