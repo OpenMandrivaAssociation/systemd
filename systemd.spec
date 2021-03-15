@@ -1,6 +1,6 @@
 # libsystemd is used by wine
 %ifarch %{x86_64}
-%bcond_without compat32
+%bcond_with compat32
 %else
 %bcond_with compat32
 %endif
@@ -151,10 +151,11 @@ Patch1001:	systemd-245-allow-compiling-with-gcc.patch
 #(tpg) we use bsdtar so let's adapt attribues to match implementation
 # httpa://github.com/systemd/systemd/issues/16506
 Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
+Patch1003:	systemd-boot-keep-efi-relocations-when-linked-with-ld.lld.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-
+%if 0
 # Upstream patches from master that haven't landed in -stable yet
 BuildRequires:	meson
 BuildRequires:	quota
@@ -314,6 +315,7 @@ BuildRequires:	devel(libz)
 BuildRequires:	devel(libdw)
 BuildRequires:	devel(libdbus-1)
 %endif
+%endif
 
 %description
 systemd is a system and session manager for Linux, compatible with
@@ -324,7 +326,7 @@ Linux cgroups, supports snapshotting and restoring of the system
 state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
-
+%if 0
 %ifarch %{efi}
 %package boot
 Summary:	EFI boot component for %{name}
@@ -725,7 +727,9 @@ Summary:	Out of Memory handler
 Group:		System/Base
 
 %description oom
-Out of Memory handler
+Out of Memory handler.
+
+%endif
 
 %prep
 %autosetup -p1
@@ -788,8 +792,8 @@ export LD=gcc
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
 %ifarch %{efi}
-	-Defi-cc=gcc \
-	-Defi-ld=ld.bfd \
+	-Defi-cc=clang \
+	-Defi-ld=ld.lld \
 	-Defi=true \
 	-Dgnu-efi=true \
 	-Defi-libdir=%{_libdir} \
@@ -800,46 +804,46 @@ export LD=gcc
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
 %else
-	-Dlibcryptsetup=true \
+	-Dlibcryptsetup=false \
 %endif
 	-Dsplit-usr=true \
 	-Dsplit-bin=true \
-	-Dxkbcommon=true \
-	-Dtpm=true \
+	-Dxkbcommon=false \
+	-Dtpm=false \
 	-Ddev-kvm-mode=0666 \
-	-Dkmod=true \
-	-Dxkbcommon=true \
-	-Dblkid=true \
+	-Dkmod=false \
+	-Dxkbcommon=false \
+	-Dblkid=false \
 %ifnarch %{riscv}
-	-Dseccomp=true \
+	-Dseccomp=false \
 %else
 	-Dseccomp=false \
 %endif
-	-Dima=true \
+	-Dima=false \
 	-Dselinux=false \
 	-Dapparmor=false \
-	-Dpolkit=true \
-	-Dxz=true \
+	-Dpolkit=false \
+	-Dxz=false \
 	-Dzlib=true \
 	-Dbzip2=false \
-	-Dlz4=true \
-	-Dpam=true \
-	-Dacl=true \
-	-Dsmack=true \
-	-Dgcrypt=true \
-	-Daudit=true \
-	-Delfutils=true \
-	-Dqrencode=true \
-	-Dgnutls=true \
-	-Dmicrohttpd=true \
-	-Dlibidn2=true \
-	-Dlibiptc=true \
-	-Dlibcurl=true \
-	-Dtpm=true \
-	-Dhwdb=true \
-	-Dsysusers=true \
-	-Dman=true \
-	-Dhtml=true \
+	-Dlz4=false \
+	-Dpam=false \
+	-Dacl=false \
+	-Dsmack=false \
+	-Dgcrypt=false \
+	-Daudit=false \
+	-Delfutils=false \
+	-Dqrencode=false \
+	-Dgnutls=false \
+	-Dmicrohttpd=false \
+	-Dlibidn2=false \
+	-Dlibiptc=false \
+	-Dlibcurl=false \
+	-Dtpm=false \
+	-Dhwdb=false \
+	-Dsysusers=false \
+	-Dman=false \
+	-Dhtml=false \
 	-Ddefault-kill-user-processes=false \
 	-Dtests=unsafe \
 	-Dinstall-tests=false \
@@ -876,6 +880,7 @@ rmdir %{buildroot}/lib
 %endif
 %meson_install
 
+%if 0
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
 
 # (bor) create late shutdown and sleep directory
@@ -1196,8 +1201,12 @@ fi
 %_pre_useradd systemd-journal-remote %{_var}/log/journal/remote /sbin/nologin
 %_pre_groupadd systemd-journal-upload systemd-journal-upload
 %_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
+%endif
 
 %files
+/*
+
+%if 0
 %dir /lib/firmware
 %dir /lib/firmware/updates
 %dir /lib/modprobe.d
@@ -1972,4 +1981,5 @@ fi
 %files -n %{lib32udev_devel}
 %{_prefix}/lib/libudev.so
 %{_prefix}/lib/pkgconfig/libudev.pc
+%endif
 %endif

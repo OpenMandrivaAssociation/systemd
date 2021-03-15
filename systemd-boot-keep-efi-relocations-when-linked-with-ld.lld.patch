@@ -1,0 +1,15 @@
+diff -Naur a/src/boot/efi/meson.build b/src/boot/efi/meson.build
+--- a/src/boot/efi/meson.build	2021-03-13 13:13:54.000000000 +0000
++++ b/src/boot/efi/meson.build	2021-03-15 09:07:14.158000000 +0000
+@@ -194,6 +194,11 @@
+                 efi_format = ['--target=efi-app-@0@'.format(gnu_efi_arch)]
+         endif
+ 
++        if efi_ld.to_lower().contains('lld')
++                # prevent efi image not boot by keeping PE/COFF relocation
++                efi_ldflags += ['--pack-dyn-relocs=relr']
++        endif
++
+         systemd_boot_objects = []
+         stub_objects = []
+         foreach file : fundamental_source_paths + common_sources + systemd_boot_sources + stub_sources
