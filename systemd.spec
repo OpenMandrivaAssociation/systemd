@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 247
-%define stable 20210305
+%define stable 20210315
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -151,6 +151,8 @@ Patch1001:	systemd-245-allow-compiling-with-gcc.patch
 #(tpg) we use bsdtar so let's adapt attribues to match implementation
 # httpa://github.com/systemd/systemd/issues/16506
 Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
+# tpg https://github.com/systemd/systemd/issues/18917
+Patch1003:	systemd-resolve-revert-handle-packets-with-too-large-RR-count-for-issue-18917.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
