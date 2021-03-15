@@ -7,7 +7,7 @@ diff -Naur a/src/boot/efi/meson.build b/src/boot/efi/meson.build
  
 +        if efi_ld.to_lower().contains('lld')
 +                # prevent efi image not boot by keeping PE/COFF relocation
-+                efi_ldflags += ['--emit-relocs', '--discard-none', '--eh-frame-hdr']
++                efi_ldflags += ['--emit-relocs', '--discard-none', '--eh-frame-hdr', '--icf=none', '--relocatable']
 +        endif
 +
          systemd_boot_objects = []
