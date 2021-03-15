@@ -155,7 +155,7 @@ Patch1003:	systemd-boot-keep-efi-relocations-when-linked-with-ld.lld.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-%if 0
+
 # Upstream patches from master that haven't landed in -stable yet
 BuildRequires:	meson
 BuildRequires:	quota
@@ -314,7 +314,6 @@ BuildRequires:	devel(libidn2)
 BuildRequires:	devel(libz)
 BuildRequires:	devel(libdw)
 BuildRequires:	devel(libdbus-1)
-%endif
 %endif
 
 %description
