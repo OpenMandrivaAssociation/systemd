@@ -12,7 +12,7 @@
 # Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
-%ifarch x86_64 aarch64
+%ifarch x86_64
 %bcond_without gcc
 %else
 %bcond_with gcc
@@ -100,6 +100,7 @@ Source14:	85-display-manager.preset
 Source16:	systemd.rpmlintrc
 Source18:	90-user-default.preset
 Source19:	10-imx.rules
+Source20:	20-wired.network
 # (tpg) EFI bootctl
 Source21:	efi-loader.conf
 Source22:	efi-omv.conf
@@ -193,8 +194,11 @@ BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
+BuildRequires:	efi-srpm-macros
 %ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
+%endif
+%ifarch %{efi}
 BuildRequires:	gnu-efi >= 3.0.11
 %endif
 %ifnarch %{riscv}
@@ -227,7 +231,6 @@ Requires(post,postun):	setup >= 2.8.9
 Requires:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
-%if "%{distepoch}" >= "2013.0"
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
 Provides:	consolekit-x11 = 0.4.5-6
@@ -235,23 +238,22 @@ Obsoletes:	consolekit <= 0.4.5-5
 Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
-%endif
-%if "%{distepoch}" >= "2015.0"
 # (tpg) this is obsoleted
 Obsoletes:	suspend < 1.0-10
 Provides:	suspend = 1.0-10
 Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
-%endif
 Provides:	should-restart = system
-Requires:	%{name}-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
 Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
 Suggests:	%{name}-analyze
+%ifarch %{efi}
 Suggests:	%{name}-boot
+%endif
 Suggests:	%{name}-console
 Suggests:	%{name}-coredump
 Suggests:	%{name}-documentation >= 236
@@ -287,7 +289,6 @@ Obsoletes:	bootchart < 2.0.11.4-3
 Provides:	bootchart = 2.0.11.4-3
 Obsoletes:	python-%{name} < 223
 Provides:	python-%{name} = 223
-Obsoletes:	gummiboot < 46
 %rename		systemd-tools
 %rename		systemd-units
 %rename		systemd-resolved
@@ -322,17 +323,22 @@ state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
 
+%ifarch %{efi}
 %package boot
 Summary:	EFI boot component for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
+Requires:	efi-filesystem
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 245.20200426-3
 Suggests:	%{name}-documentation = %{EVRD}
 Suggests:	%{name}-locale = %{EVRD}
+Obsoletes:	gummiboot < 46
+Provides:	bootloader
 
 %description boot
 Systemd boot tools to manage EFI boot.
+%endif
 
 %package console
 Summary:	Console support for %{name}
@@ -353,7 +359,10 @@ these units.
 Summary:	Network manager for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
+# (tpg) guess what, on some minimal installations systemd-networkd wins over NM
+%ifnarch %{armx} %{riscv}
 Conflicts:	networkmanager
+%endif
 
 %description networkd
 A network manager for %{name}.
@@ -533,7 +542,7 @@ This package provides the systemd shared library.
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
-Requires:	%{name}-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 Requires:	%{libsystemd} = %{EVRD}
 # (tpg) old, pre 230 stuff - keep for smooth update from old relases
 %rename		%{_lib}systemd-daemon0-devel
@@ -622,7 +631,7 @@ Group:		Development/C
 License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
-Requires:	%{name}-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel < 236
 Conflicts:	%{_lib}udev-devel < 236-8
 Obsoletes:	%{_lib}udev-devel < 236-8
@@ -646,12 +655,12 @@ Requires:	bash
 %description bash-completion
 This package contains bash completion.
 
-%package macros
+%package rpm-macros
 Summary:	A RPM macros
 Group:		Development/Other
-Provides:	systemd-rpm-macros
+%rename	%{name}-macros
 
-%description macros
+%description rpm-macros
 For building RPM packages to utilize standard systemd runtime macros.
 
 %if %{with compat32}
@@ -665,7 +674,7 @@ This package provides the systemd shared library.
 %package -n %{lib32systemd_devel}
 Summary:	Systemd library development files (32-bit)
 Group:		Development/C
-Requires:	%{name}-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 Requires:	%{lib32systemd} = %{EVRD}
 Requires:	%{libsystemd_devel} = %{EVRD}
 
@@ -706,7 +715,7 @@ Group:		Development/C
 License:	LGPLv2+
 Requires:	%{libudev_devel} = %{EVRD}
 Requires:	%{lib32udev} = %{EVRD}
-Requires:	%{name}-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 
 %description -n %{lib32udev_devel}
 Devel library for udev.
@@ -779,10 +788,15 @@ export LD=gcc
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=/etc/rc.d/rc.local \
+%ifarch %{efi}
+	-Defi-cc=gcc \
+	-Defi-ld=ld.bfd \
 	-Defi=true \
-	-Defi-libdir=%{_libdir} \
-%ifnarch %{armx} %{riscv}
 	-Dgnu-efi=true \
+	-Defi-libdir=%{_libdir} \
+%else
+	-Defi=false \
+	-Dgnu-efi=false \
 %endif
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
@@ -956,6 +970,7 @@ install -m 0755 -d %{buildroot}%{_logdir}/journal
 
 #
 install -m 0755 -d %{buildroot}%{_sysconfdir}/%{name}/network
+install -m644 -D %{SOURCE20} %{buildroot}%{_sysconfdir}/%{name}/network/20-wired.network
 
 # (tpg) Install default distribution preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset
@@ -989,9 +1004,11 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
-%ifnarch %{armx} %{riscv}
+%ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
+# this is ghost file, as we will generate it on systemd-boot install/update
+touch %{buildroot}%{_datadir}/%{name}/bootctl/splash-omv.bmp
 %endif
 
 # Install yum protection fragment
@@ -1026,8 +1043,8 @@ mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
 touch %{buildroot}%{_sysconfdir}/scsi_id.config
 
-ln -s ..%{systemd_libdir}/%{name}-udevd %{buildroot}/sbin/udevd
-ln -s %{systemd_libdir}/%{name}-udevd %{buildroot}%{udev_libdir}/udevd
+ln -s /bin/udevadm %{buildroot}/sbin/udevd
+ln -s /bin/udevadm %{buildroot}%{udev_libdir}/udevd
 
 mkdir -p %{buildroot}/lib/firmware/updates
 # default /dev content, from Fedora RPM
@@ -1347,6 +1364,7 @@ fi
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
+/lib/modprobe.d/README
 /lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
@@ -1356,6 +1374,7 @@ fi
 %{_prefix}/lib/%{name}/user/*.timer
 %{_prefix}/lib/%{name}/user/*.slice
 %{_prefix}/lib/systemd/user-environment-generators/*
+%{_prefix}/lib/tmpfiles.d/README
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
@@ -1665,16 +1684,19 @@ fi
 %{_bindir}/udevadm
 %{_sbindir}/udevadm
 /lib/udev/dmi_memory_id
+/lib/udev/rules.d/README
 /lib/udev/rules.d/70-memory.rules
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %{udev_libdir}/udevd
+%{_prefix}/lib/sysctl.d/README
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
 # This file exists only on 64-bit arches
 %ifnarch %{ix86} %{arm}
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-pid-max.conf
 %endif
+%{_prefix}/lib/sysusers.d/README
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
@@ -1805,18 +1827,24 @@ fi
 %{_bindir}/%{name}-cgtop
 %{_bindir}/%{name}-delta
 
+%ifarch %{efi}
 %files boot
 %{_bindir}/bootctl
 %{systemd_libdir}/system/systemd-boot-system-token.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-boot-system-token.service
-%ifnarch %{armx} %{riscv}
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
 %{_prefix}/lib/%{name}/boot/efi/*.efi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
+%ghost %{_datadir}/%{name}/bootctl/splash-omv.bmp
 %endif
+
+%post boot
+if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png ] && [-x %{_bindir}/convert ] ; then
+    convert %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
+fi
 
 %files console
 %{systemd_libdir}/systemd-vconsole-setup
@@ -1852,6 +1880,7 @@ fi
 %{systemd_libdir}/system/systemd-hwdb-update.service
 /bin/systemd-hwdb
 %{udev_libdir}/*.bin
+%{udev_libdir}/hwdb.d/README
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/60-cdrom_id.rules
 %{udev_rules_dir}/60-persistent-alsa.rules
@@ -1878,6 +1907,7 @@ fi
 %files networkd
 %{_sysconfdir}/systemd/networkd.conf
 %dir %{_sysconfdir}/%{name}/network
+%{_sysconfdir}/%{name}/network/20-wired.network
 %{systemd_libdir}/system/systemd-network-generator.service
 %{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-networkd.service
@@ -1930,7 +1960,7 @@ fi
 %dir %{_datadir}/bash-completion/completions
 %{_datadir}/bash-completion/completions/*
 
-%files macros
+%files rpm-macros
 %{_rpmmacrodir}/macros.systemd
 
 %files oom

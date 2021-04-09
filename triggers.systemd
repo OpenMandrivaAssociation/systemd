@@ -64,7 +64,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin hwdb -P 1000700 -p <lua> -- /lib/udev/hwdb.d/
+%transfiletriggerin hwdb -P 1000700 -p <lua> -- /lib/udev/hwdb.d
 -- This script will automatically invoke hwdb update if files have been
 -- installed or updated in /lib/udev/hwdb.d.
 if posix.access("/run/systemd/system") then
