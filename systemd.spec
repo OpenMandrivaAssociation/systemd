@@ -12,7 +12,7 @@
 # Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
-%ifarch x86_64 aarch64
+%ifarch x86_64
 %bcond_without gcc
 %else
 %bcond_with gcc
@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 248
-%define stable 20210314
+%define stable 20210409
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -100,6 +100,7 @@ Source14:	85-display-manager.preset
 Source16:	systemd.rpmlintrc
 Source18:	90-user-default.preset
 Source19:	10-imx.rules
+Source20:	20-wired.network
 # (tpg) EFI bootctl
 Source21:	efi-loader.conf
 Source22:	efi-omv.conf
@@ -229,7 +230,6 @@ Requires(post,postun):	setup >= 2.8.9
 Requires:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
-%if "%{distepoch}" >= "2013.0"
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
 Provides:	consolekit-x11 = 0.4.5-6
@@ -237,16 +237,13 @@ Obsoletes:	consolekit <= 0.4.5-5
 Obsoletes:	consolekit-x11 <= 0.4.5-5
 Obsoletes:	libconsolekit0
 Obsoletes:	lib64consolekit0
-%endif
-%if "%{distepoch}" >= "2015.0"
 # (tpg) this is obsoleted
 Obsoletes:	suspend < 1.0-10
 Provides:	suspend = 1.0-10
 Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
-%endif
 Provides:	should-restart = system
-Requires:	%{name}-srpm-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
@@ -361,7 +358,10 @@ these units.
 Summary:	Network manager for %{name}
 Group:		System/Base
 Requires:	%{name} = %{EVRD}
+# (tpg) guess what, on some minimal installations systemd-networkd wins over NM
+%ifnarch %{armx} %{riscv}
 Conflicts:	networkmanager
+%endif
 
 %description networkd
 A network manager for %{name}.
@@ -541,7 +541,7 @@ This package provides the systemd shared library.
 %package -n %{libsystemd_devel}
 Summary:	Systemd library development files
 Group:		Development/C
-Requires:	%{name}-srpm-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 Requires:	%{libsystemd} = %{EVRD}
 # (tpg) old, pre 230 stuff - keep for smooth update from old relases
 %rename		%{_lib}systemd-daemon0-devel
@@ -630,7 +630,7 @@ Group:		Development/C
 License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
-Requires:	%{name}-srpm-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 Obsoletes:	%{_lib}udev0-devel < 236
 Conflicts:	%{_lib}udev-devel < 236-8
 Obsoletes:	%{_lib}udev-devel < 236-8
@@ -654,13 +654,12 @@ Requires:	bash
 %description bash-completion
 This package contains bash completion.
 
-%package srpm-macros
+%package rpm-macros
 Summary:	A RPM macros
 Group:		Development/Other
-Provides:	systemd-rpm-macros
 %rename	%{name}-macros
 
-%description srpm-macros
+%description rpm-macros
 For building RPM packages to utilize standard systemd runtime macros.
 
 %if %{with compat32}
@@ -674,7 +673,7 @@ This package provides the systemd shared library.
 %package -n %{lib32systemd_devel}
 Summary:	Systemd library development files (32-bit)
 Group:		Development/C
-Requires:	%{name}-srpm-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 Requires:	%{lib32systemd} = %{EVRD}
 Requires:	%{libsystemd_devel} = %{EVRD}
 
@@ -715,7 +714,7 @@ Group:		Development/C
 License:	LGPLv2+
 Requires:	%{libudev_devel} = %{EVRD}
 Requires:	%{lib32udev} = %{EVRD}
-Requires:	%{name}-srpm-macros = %{EVRD}
+Requires:	%{name}-rpm-macros = %{EVRD}
 
 %description -n %{lib32udev_devel}
 Devel library for udev.
@@ -970,6 +969,7 @@ install -m 0755 -d %{buildroot}%{_logdir}/journal
 
 #
 install -m 0755 -d %{buildroot}%{_sysconfdir}/%{name}/network
+install -m644 -D %{SOURCE20} %{buildroot}%{_sysconfdir}/%{name}/network/20-wired.network
 
 # (tpg) Install default distribution preset policy for services
 mkdir -p %{buildroot}%{systemd_libdir}/system-preset
@@ -1042,8 +1042,8 @@ mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
 touch %{buildroot}%{_sysconfdir}/scsi_id.config
 
-ln -s ..%{systemd_libdir}/%{name}-udevd %{buildroot}/sbin/udevd
-ln -s %{systemd_libdir}/%{name}-udevd %{buildroot}%{udev_libdir}/udevd
+ln -s /bin/udevadm %{buildroot}/sbin/udevd
+ln -s /bin/udevadm %{buildroot}%{udev_libdir}/udevd
 
 mkdir -p %{buildroot}/lib/firmware/updates
 # default /dev content, from Fedora RPM
@@ -1353,6 +1353,7 @@ fi
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
+/lib/modprobe.d/README
 /lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
@@ -1362,6 +1363,7 @@ fi
 %{_prefix}/lib/%{name}/user/*.timer
 %{_prefix}/lib/%{name}/user/*.slice
 %{_prefix}/lib/systemd/user-environment-generators/*
+%{_prefix}/lib/tmpfiles.d/README
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
@@ -1671,16 +1673,19 @@ fi
 %{_bindir}/udevadm
 %{_sbindir}/udevadm
 /lib/udev/dmi_memory_id
+/lib/udev/rules.d/README
 /lib/udev/rules.d/70-memory.rules
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %{udev_libdir}/udevd
+%{_prefix}/lib/sysctl.d/README
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
 # This file exists only on 64-bit arches
 %ifnarch %{ix86} %{arm}
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-pid-max.conf
 %endif
+%{_prefix}/lib/sysusers.d/README
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
@@ -1864,6 +1869,7 @@ fi
 %{systemd_libdir}/system/systemd-hwdb-update.service
 /bin/systemd-hwdb
 %{udev_libdir}/*.bin
+%{udev_libdir}/hwdb.d/README
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/60-cdrom_id.rules
 %{udev_rules_dir}/60-persistent-alsa.rules
@@ -1890,6 +1896,7 @@ fi
 %files networkd
 %{_sysconfdir}/systemd/networkd.conf
 %dir %{_sysconfdir}/%{name}/network
+%{_sysconfdir}/%{name}/network/20-wired.network
 %{systemd_libdir}/system/systemd-network-generator.service
 %{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-networkd.service
@@ -1942,7 +1949,7 @@ fi
 %dir %{_datadir}/bash-completion/completions
 %{_datadir}/bash-completion/completions/*
 
-%files srpm-macros
+%files rpm-macros
 %{_rpmmacrodir}/macros.systemd
 
 %files oom
