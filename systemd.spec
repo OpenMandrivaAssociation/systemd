@@ -67,21 +67,21 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 248
-%define stable 20210308
+%define stable 20210409
 
 Summary:	A System and Session Manager
 Name:		systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v247-stable
-# cd systemd-stabe && git archive --prefix=systemd-247.$(date +%Y%m%d)/ --format=tar v247-stable | xz -9ef > ../systemd-247.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v248-stable
+# cd systemd-stabe && git archive --prefix=systemd-248.$(date +%Y%m%d)/ --format=tar v248-stable | xz -9ef > ../systemd-248.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -111,6 +111,7 @@ Source24:	yum-protect-systemd.conf
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+Patch3:		systemd-248-fix-build.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
@@ -1054,6 +1055,10 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.ser
 # Compute catalog
 ./build/journalctl --root %{buildroot} --update-catalog
 
+# Compilers don't look in /lib or /lib64
+rm %{buildroot}/%{_lib}/libsystemd.so
+ln -s ../../%{_lib}/libsystemd.so.0 %{buildroot}%{_libdir}/libsystemd.so
+
 %find_lang %{name}
 
 %include %{SOURCE1}
@@ -1266,6 +1271,12 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
+%doc /lib/modprobe.d/README
+%doc /lib/udev/hwdb.d/README
+%doc /lib/udev/rules.d/README
+%doc %{_prefix}/lib/sysctl.d/README
+%doc %{_prefix}/lib/sysusers.d/README
+%doc %{_prefix}/lib/tmpfiles.d/README
 %{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
@@ -1775,7 +1786,7 @@ fi
 %{_includedir}/%{name}/sd-messages.h
 %{_includedir}/%{name}/sd-daemon.h
 %{_includedir}/%{name}/sd-path.h
-/%{_lib}/lib%{name}.so
+%{_libdir}/lib%{name}.so
 %{_datadir}/pkgconfig/%{name}.pc
 %{_libdir}/pkgconfig/lib%{name}.pc
 

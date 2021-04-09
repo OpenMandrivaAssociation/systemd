@@ -1,17 +1,17 @@
-diff -Naur systemd-245.20200601/src/journal/journald.conf systemd-245.20200601.tpg/src/journal/journald.conf
---- systemd-245.20200601/src/journal/journald.conf	2020-06-01 07:46:31.880871976 +0000
-+++ systemd-245.20200601.tpg/src/journal/journald.conf	2020-06-01 07:47:25.963868218 +0000
-@@ -41,4 +41,4 @@
+diff -up systemd-248.20210409/src/journal/journald.conf.4~ systemd-248.20210409/src/journal/journald.conf
+--- systemd-248.20210409/src/journal/journald.conf.4~	2021-04-09 21:16:50.633183415 +0200
++++ systemd-248.20210409/src/journal/journald.conf	2021-04-09 21:16:50.633183415 +0200
+@@ -44,4 +44,4 @@ RuntimeMaxUse=150M
  #MaxLevelWall=emerg
  #LineMax=48K
  #ReadKMsg=yes
 -#Audit=yes
 +Audit=no
-diff -up systemd-245.20200614/src/journal/journald-server.c.omv~ systemd-245.20200614/src/journal/journald-server.c
---- systemd-245.20200614/src/journal/journald-server.c.omv~	2020-06-14 01:38:23.830881443 +0200
-+++ systemd-245.20200614/src/journal/journald-server.c	2020-06-14 01:38:33.674324363 +0200
-@@ -2214,7 +2214,7 @@ int server_init(Server *s, const char *n
-                 .compress.threshold_bytes = (uint64_t) -1,
+diff -up systemd-248.20210409/src/journal/journald-server.c.4~ systemd-248.20210409/src/journal/journald-server.c
+--- systemd-248.20210409/src/journal/journald-server.c.4~	2021-04-09 21:16:50.633183415 +0200
++++ systemd-248.20210409/src/journal/journald-server.c	2021-04-09 22:00:09.425123839 +0200
+@@ -2190,7 +2190,7 @@ int server_init(Server *s, const char *n
+                 .compress.threshold_bytes = UINT64_MAX,
                  .seal = true,
  
 -                .set_audit = true,
