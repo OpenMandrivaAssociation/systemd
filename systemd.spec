@@ -1,38 +1,13 @@
 # libsystemd is used by wine
 %ifarch %{x86_64}
-%bcond_without compat32
+%bcond_with compat32
 %else
 %bcond_with compat32
 %endif
 
-# FIXME workaround for a very very weird bug
-# systemd on x86_64, but not znver1 (so we're intentionally
-# not using %{x86_64} here), hangs indefinitely on upgrades
-# if built with clang.
-# Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
-# aarch64 added for testing (to see if systemctl hangs on
-# synquacer and pinephone go away)
-%ifarch x86_64
-%bcond_without gcc
-%else
-%bcond_with gcc
-%endif
-
 # (tpg) special options for systemd to keep it fast and secure
-%if %{with gcc}
-%ifnarch %{ix86}
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC
-%else
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC -fuse-ld=bfd
-%global ldflags %{ldflags} -fuse-ld=bfd -fPIC
-%endif
-%else
-%ifnarch %{ix86}
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32
-%else
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32
-%endif
-%endif
+%global optflags %{optflags} -Oz
+%global build_ldflags %{ldflags} -Wl,--icf=none -Wl,--no-gc-sections
 
 %bcond_with bootstrap
 
@@ -152,6 +127,7 @@ Patch1001:	systemd-245-allow-compiling-with-gcc.patch
 #(tpg) we use bsdtar so let's adapt attribues to match implementation
 # httpa://github.com/systemd/systemd/issues/16506
 Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
+Patch1003:	systemd-248-disable-icf-and-gc-sections-for-efi.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
@@ -774,21 +750,14 @@ PATH=$PWD/bin:$PATH
 %ninja_build -C build32
 %endif
 
-%if %{with gcc}
-export CC=gcc
-export CXX=g++
-export LD=gcc
-%endif
 %meson \
 	-Dmode=release \
 	-Drootprefix="" \
 	-Drootlibdir=/%{_lib} \
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
-	-Drc-local=/etc/rc.d/rc.local \
+	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %ifarch %{efi}
-	-Defi-cc=gcc \
-	-Defi-ld=ld.bfd \
 	-Defi=true \
 	-Dgnu-efi=true \
 	-Defi-libdir=%{_libdir} \

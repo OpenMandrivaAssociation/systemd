@@ -1,0 +1,24 @@
+--- systemd-248.20210409/src/boot/efi/meson.build.org	2021-04-06 06:04:23.000000000 +0000
++++ systemd-248.20210409/src/boot/efi/meson.build	2021-04-11 11:38:29.022782758 +0000
+@@ -48,11 +48,6 @@
+ 
+         efi_ld = find_program(get_option('efi-ld'), required: true)
+         efi_ld_name = efi_ld.path().split('/')[-1]
+-        if efi_ld_name == 'lld' or efi_ld_name == 'ld.lld'
+-                # LLVM/LLD does not support PE/COFF relocations
+-                # https://lists.llvm.org/pipermail/llvm-dev/2021-March/149234.html
+-                error('LLVM/lld does not support PE/COFF relocations. Use different linker for EFI image.')
+-        endif
+ 
+         efi_incdir = get_option('efi-includedir')
+ 
+@@ -198,6 +193,9 @@
+         else
+                 efi_format = ['--target=efi-app-@0@'.format(gnu_efi_arch)]
+         endif
++        if efi_ld_name == 'lld' or efi_ld_name == 'ld.lld'
++                efi_ldflags += ['-Wl,--icf=none', '-Wl,--no-gc-setions']
++        endif
+ 
+         systemd_boot_objects = []
+         stub_objects = []
