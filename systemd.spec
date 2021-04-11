@@ -12,7 +12,7 @@
 # Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
-%ifarch x86_64
+%ifarch x86_64 aarch64
 %bcond_without gcc
 %else
 %bcond_with gcc
