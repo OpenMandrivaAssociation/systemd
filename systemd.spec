@@ -12,7 +12,7 @@
 # Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
-%ifarch x86_64 aarch64
+%ifarch x86_64
 %bcond_without gcc
 %else
 %bcond_with gcc
@@ -30,8 +30,7 @@
 %ifnarch %{ix86}
 %global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32
 %else
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fuse-ld=bfd
-%global ldflags %{ldflags} -fuse-ld=bfd
+%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32
 %endif
 %endif
 
@@ -747,7 +746,6 @@ PATH=$PWD/bin:$PATH
 # https://github.com/opencontainers/runc/issues/654
 #
 # In order to switch to cgroup2 it is enough to pass systemd.unified_cgroup_hierarchy=1 via kernel command line.
-%serverbuild_hardened
 
 %if %{with compat32}
 %meson32 \
