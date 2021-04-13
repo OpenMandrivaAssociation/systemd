@@ -1842,7 +1842,7 @@ fi
 %endif
 
 %post boot
-if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png ] && [-x %{_bindir}/convert ] ; then
+if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png ] && [ -x %{_bindir}/convert ] ; then
     convert %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
 
