@@ -650,7 +650,7 @@ This package contains zsh completion.
 %package bash-completion
 Summary:	bash completions
 Group:		Shells
-Requires:	bash
+Requires:	bash-completion
 
 %description bash-completion
 This package contains bash completion.
