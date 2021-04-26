@@ -5,6 +5,9 @@
 %bcond_with compat32
 %endif
 
+# (tpg) https://github.com/systemd/systemd/pull/19302
+%define Werror_cflags %Werror_cflags -Wno-error=sign-compare
+
 # FIXME workaround for a very very weird bug
 # systemd on x86_64, but not znver1 (so we're intentionally
 # not using %{x86_64} here), hangs indefinitely on upgrades
