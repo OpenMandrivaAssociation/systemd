@@ -1704,7 +1704,7 @@ fi
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
-%config(noreplace) %{_prefix}/lib/pam.d/systemd-user
+%config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/%{name}/journald.conf
