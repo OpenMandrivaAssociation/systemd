@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -825,6 +825,7 @@ export LD=gcc
 	-Dbzip2=false \
 	-Dlz4=true \
 	-Dpam=true \
+	-Dpamconfdir="%{_sysconfdir}/pam.d" \
 	-Dacl=true \
 	-Dsmack=true \
 	-Dgcrypt=true \
