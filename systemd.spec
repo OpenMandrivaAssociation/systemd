@@ -1383,6 +1383,7 @@ fi
 %{systemd_libdir}/ntp-units.d/80-systemd-timesync.list
 %{_datadir}/factory/etc/issue
 # Generators
+%dir %{systemd_libdir}/system-generators/
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
 %{systemd_libdir}/system-generators/systemd-debug-generator
 %{systemd_libdir}/system-generators/systemd-fstab-generator
