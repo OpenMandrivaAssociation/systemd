@@ -178,6 +178,7 @@ BuildRequires:	pkgconfig(libgcrypt)
 BuildRequires:	pkgconfig(openssl)
 BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	gtk-doc
+BuildRequires:	rsync
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(libcryptsetup)
 BuildRequires:	pkgconfig(python)
@@ -225,10 +226,8 @@ Requires:	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
 Requires(post):	grep
 Requires:	basesystem-minimal
-Requires:	util-linux >= 2.27
-Requires:	shadow >= 2:4.5
-Requires(post,postun):	setup >= 2.8.9
-Requires:	kmod >= 24
+Requires(pre,post,postun):	setup >= 2.9.3.3
+Recommends:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
@@ -1088,6 +1087,9 @@ ln -s ../../%{_lib}/libsystemd.so.0 %{buildroot}%{_libdir}/libsystemd.so
 if [ $1 -ge 2 ] || [ $2 -ge 2 ]; then
     /bin/systemctl daemon-reexec 2>&1 || :
 fi
+
+%pre
+# just make sure setup is installed first
 
 %post
 /bin/systemd-firstboot --setup-machine-id &>/dev/null ||:
