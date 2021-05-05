@@ -5,9 +5,6 @@
 %bcond_with compat32
 %endif
 
-# (tpg) https://github.com/systemd/systemd/pull/19302
-%global Werror_cflags %Werror_cflags -Wno-error=sign-compare
-
 # FIXME workaround for a very very weird bug
 # systemd on x86_64, but not znver1 (so we're intentionally
 # not using %{x86_64} here), hangs indefinitely on upgrades
@@ -159,6 +156,8 @@ Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
+# (tpg) fix build, remove after upstream will update v248-stable branch
+Patch9999:	systemd-248.20210409-rfkill-add-some-casts-to-silence-Werror-sign-compare.patch
 
 # Upstream patches from master that haven't landed in -stable yet
 BuildRequires:	meson
