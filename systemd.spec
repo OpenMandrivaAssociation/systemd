@@ -727,7 +727,7 @@ Summary:	Out of Memory handler
 Group:		System/Base
 
 %description oom
-Out of Memory handler
+Out of Memory handler.
 
 %prep
 %autosetup -p1
@@ -752,28 +752,73 @@ PATH=$PWD/bin:$PATH
 
 %if %{with compat32}
 %meson32 \
-	-Dmode=release \
-	-Dsplit-usr=true \
-	-Dresolve=false \
-	-Dhostnamed=false \
-	-Dlocaled=false \
-	-Dmachined=false \
-	-Dportabled=false \
-	-Duserdb=false \
+	-Danalyze=false \
+	-Dapparmor=false \
+	-Daudit=false \
+	-Dbacklight=false \
+	-Dbinfmt=false \
+	-Dblkid=false \
+	-Dcoredump=false \
+	-Dcreate-log-dirs=false \
+	-Defi=false \
+	-Denvironment-d=false \
+	-Dfdisk=false \
+	-Dfirstboot=false \
+	-Dgnu-efi=false \
+	-Dgnutls=false\
+	-Dhibernate=false \
 	-Dhomed=false \
+	-Dhostnamed=false \
+	-Dhtml=false \
+	-Dhwdb=false \
+	-Dima=false \
+	-Dimportd=false \
+	-Dinitrd=false \
+	-Dkernel-install=false \
+	-Dkmod=false \
+	-Dldconfig=false \
+	-Dlibcryptsetup=false \
+	-Dlocaled=false \
+	-Dlogind=false \
+	-Dmachined=false \
+	-Dman=false \
+	-Dmicrohttpd=false \
+	-Dmode=release \
 	-Dnetworkd=false \
+	-Dnscd=false \
+	-Doomd=false \
+	-Dp11kit=false \
+	-Dpamconfdir="%{_sysconfdir}/pam.d" \
+	-Dpam=false \
+	-Dpolkit=false \
+	-Dportabled=false \
+	-Dpstore=false \
+	-Dpwquality=false \
+	-Dqrencode=false \
+	-Dquotacheck=false \
+	-Drandomseed=false \
+	-Dremote=false \
+	-Drepart=false \
+	-Dresolve=false \
+	-Drfkill=false \
+	-Dseccomp=false \
+	-Dselinux=false \
+	-Dsplit-usr=true \
+	-Dsupport-url="%{disturl}" \
+	-Dsysext=false
+	-Dsysusers=false \
+	-Dtests=false \
 	-Dtimedated=false \
 	-Dtimesyncd=false \
-	-Dselinux=false \
-	-Dlibcryptsetup=false \
-	-Dseccomp=false \
-	-Dkmod=false \
-	-Dpam=false \
-	-Dqrencode=false \
-	-Dp11kit=false \
-	-Daudit=false \
-	-Dmicrohttpd=false \
-	-Dgnutls=false
+	-Dtmpfiles=false \
+	-Dtpm=false \
+	-Dtranslations=false \
+	-Duserdb=false \
+	-Dutmp=false \
+	-Dvalgrind=false \
+	-Dvconsole=false \
+	-Dxdg-autostart=false
+
 %ninja_build -C build32
 %endif
 
@@ -872,10 +917,13 @@ export LD=gcc
 %install
 %if %{with compat32}
 %ninja_install -C build32
-rm -rf %{buildroot}%{_sysconfdir} %{buildroot}/lib/{systemd,modprobe.d,udev}
+rm -rf %{buildroot}%{_sysconfdir} %{buildroot}/lib/{systemd,modprobe.d,udev} %{buildroot}%{_datadir}/{dbus-1,factory,polkit-1}
 # 32 bit cruft is not needed at early bootup...
 mv %{buildroot}/lib/* %{buildroot}%{_prefix}/lib/
 rmdir %{buildroot}/lib
+# (tpg) remove as PAM is not enabled with 32 bit build
+rm -rf %{buildroot}%{_sysconfdir}/pam.d
+rm -rf %{buildroot}%{_prefix}/lib/{sysusers.d,tmpfile.d,sysctl.d,kernel,systemd/catalog}
 %endif
 %meson_install
 
