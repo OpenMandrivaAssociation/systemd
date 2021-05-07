@@ -1,27 +1,32 @@
-diff -up systemd-248.20210308/src/rpm/macros.systemd.in.11~ systemd-248.20210308/src/rpm/macros.systemd.in
---- systemd-248.20210308/src/rpm/macros.systemd.in.11~	2021-02-23 18:43:34.000000000 +0100
-+++ systemd-248.20210308/src/rpm/macros.systemd.in	2021-03-08 00:57:49.959232051 +0100
-@@ -46,9 +46,9 @@ OrderWithRequires(postun): systemd \
+diff -Naur a/src/rpm/macros.systemd.in b/src/rpm/macros.systemd.in
+--- a/src/rpm/macros.systemd.in	2021-05-06 12:51:08.000000000 +0000
++++ b/src/rpm/macros.systemd.in	2021-05-07 12:24:42.251289342 +0000
+@@ -46,9 +46,9 @@
  
  %systemd_post() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_post}} \
 -if [ $1 -eq 1 ] && [ -x @bindir@/systemctl ]; then \
 +if [ $1 -eq 1 ] && [ -x @rootbindir@/systemctl ]; then \
-         # Initial installation \
--        @bindir@/systemctl --no-reload preset %{?*} || : \
-+        @rootbindir@/systemctl --no-reload preset %{?*} || : \
+     # Initial installation \
+-    @bindir@/systemctl --no-reload preset %{?*} || : \
++    @rootbindir@/systemctl --no-reload preset %{?*} || : \
  fi \
  %{nil}
  
-@@ -56,17 +56,17 @@ fi \
+@@ -56,21 +56,21 @@
  
  %systemd_preun() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_preun}} \
 -if [ $1 -eq 0 ] && [ -x @bindir@/systemctl ]; then \
 +if [ $1 -eq 0 ] && [ -x @rootbindir@/systemctl ]; then \
-         # Package removal, not upgrade \
--        @bindir@/systemctl --no-reload disable --now %{?*} || : \
-+        @rootbindir@/systemctl --no-reload disable --now %{?*} || : \
+     # Package removal, not upgrade \
+     if [ -d /run/systemd/system ]; then \
+-          @bindir@/systemctl --no-reload disable --now %{?*} || : \
++          @rootbindir@/systemctl --no-reload disable --now %{?*} || : \
+     else \
+-          @bindir@/systemctl --no-reload disable %{?*} || : \
++          @rootbindir@/systemctl --no-reload disable %{?*} || : \
+     fi \
  fi \
  %{nil}
  
@@ -29,26 +34,26 @@ diff -up systemd-248.20210308/src/rpm/macros.systemd.in.11~ systemd-248.20210308
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_user_preun}} \
 -if [ $1 -eq 0 ] && [ -x @bindir@/systemctl ]; then \
 +if [ $1 -eq 0 ] && [ -x @rootbindir@/systemctl ]; then \
-         # Package removal, not upgrade \
--        @bindir@/systemctl --global disable %{?*} || : \
-+        @rootbindir@/systemctl --global disable %{?*} || : \
+     # Package removal, not upgrade \
+-    @bindir@/systemctl --global disable %{?*} || : \
++    @rootbindir@/systemctl --global disable %{?*} || : \
  fi \
  %{nil}
  
-@@ -80,10 +80,10 @@ fi \
+@@ -84,10 +84,10 @@
  
  %systemd_postun_with_restart() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_postun_with_restart}} \
 -if [ $1 -ge 1 ] && [ -x @bindir@/systemctl ]; then \
 +if [ $1 -ge 1 ] && [ -x @rootbindir@/systemctl ]; then \
-         # Package upgrade, not uninstall \
-         for unit in %{?*}; do \
--                @bindir@/systemctl set-property $unit Markers=+needs-restart || : \
-+                @rootbindir@/systemctl set-property $unit Markers=+needs-restart || : \
-         done \
+     # Package upgrade, not uninstall \
+     for unit in %{?*}; do \
+-         @bindir@/systemctl set-property $unit Markers=+needs-restart || : \
++         @rootbindir@/systemctl set-property $unit Markers=+needs-restart || : \
+     done \
  fi \
  %{nil}
-@@ -101,17 +101,17 @@ fi \
+@@ -105,17 +105,17 @@
  # Deprecated. Use %tmpfiles_create_package instead
  %tmpfiles_create() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# tmpfiles_create}} \

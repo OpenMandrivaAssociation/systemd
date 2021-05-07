@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 248
-%define stable 20210409
+%define stable 20210507
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -75,13 +75,13 @@ Name:		systemd
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
 # git clone https://github.com/systemd/systemd-stable/ -b v248-stable
-# cd systemd-stabe && git archive --prefix=systemd-248.$(date +%Y%m%d)/ --format=tar v248-stable | xz -9ef > ../systemd-248.$(date +%Y%m%d).tar.xz
+# cd systemd-stable && git archive --prefix=systemd-248.$(date +%Y%m%d)/ --format=tar v248-stable | xz -9ef > ../systemd-248.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		http://www.freedesktop.org/wiki/Software/systemd
@@ -109,10 +109,11 @@ Source23:	systemd-udev-trigger-no-reload.conf
 # (tpg) protect systemd from unistnalling it
 Source24:	yum-protect-systemd.conf
 
+Source25:	systemd-remote.sysusers
+
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-Patch3:		systemd-248-fix-build.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
@@ -156,8 +157,6 @@ Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
-# (tpg) fix build, remove after upstream will update v248-stable branch
-Patch9999:	systemd-248.20210409-rfkill-add-some-casts-to-silence-Werror-sign-compare.patch
 
 # Upstream patches from master that haven't landed in -stable yet
 BuildRequires:	meson
@@ -215,8 +214,10 @@ BuildRequires:	pkgconfig(libidn2)
 BuildRequires:	rpm-build >= 2:4.14.0
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount) >= 2.27
+BuildRequires:	pkgconfig(fdisk)
+BuildRequires:	pkgconfig(pwquality)
 # make sure we have /etc/os-release available, required by --with-distro
-BuildRequires:	distro-release-common
+BuildRequires:	distro-release-OpenMandriva
 %if !%{with bootstrap}
 BuildRequires:	pkgconfig(gobject-introspection-1.0)
 # (tpg) this is needed to update /usr/share/systemd/kbd-model-map
@@ -227,7 +228,6 @@ Requires:	acl
 Requires:	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
 Requires(post):	grep
-Requires:	basesystem-minimal
 Requires(pre,post,postun):	setup >= 2.9.3.3
 Recommends:	kmod >= 24
 Conflicts:	initscripts < 9.24
@@ -262,8 +262,7 @@ Suggests:	%{name}-hwdb
 Suggests:	%{name}-locale
 Suggests:	%{name}-polkit
 Suggests:	%{name}-cryptsetup
-Suggests:	%{name}-bash-completion = %{EVRD}
-#Suggests:	%{name}-zsh-completion = %{EVRD}
+Suggests:	%{name}-bash-completion
 
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
@@ -328,12 +327,12 @@ work as a drop-in replacement for sysvinit.
 %package boot
 Summary:	EFI boot component for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Requires:	efi-filesystem
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 245.20200426-3
-Suggests:	%{name}-documentation = %{EVRD}
-Suggests:	%{name}-locale = %{EVRD}
+Suggests:	%{name}-documentation
+Suggests:	%{name}-locale
 Obsoletes:	gummiboot < 46
 Provides:	bootloader
 
@@ -344,12 +343,12 @@ Systemd boot tools to manage EFI boot.
 %package console
 Summary:	Console support for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 # need for /sbin/setfont etc
 Requires:	kbd
 Conflicts:	%{name} < 235-9
-Suggests:	%{name}-documentation = %{EVRD}
-Suggests:	%{name}-locale = %{EVRD}
+Suggests:	%{name}-documentation
+Suggests:	%{name}-locale
 
 %description console
 Some systemd units and udev rules are useful only when
@@ -359,7 +358,7 @@ these units.
 %package networkd
 Summary:	Network manager for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 # (tpg) guess what, on some minimal installations systemd-networkd wins over NM
 %ifnarch %{armx} %{riscv}
 Conflicts:	networkmanager
@@ -376,10 +375,10 @@ Install and use with care.
 %package coredump
 Summary:	Coredump component for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
-Suggests:	%{name}-documentation = %{EVRD}
-Suggests:	%{name}-locale = %{EVRD}
+Suggests:	%{name}-documentation
+Suggests:	%{name}-locale
 
 %description coredump
 Systemd coredump tools to manage coredumps and backtraces.
@@ -387,9 +386,9 @@ Systemd coredump tools to manage coredumps and backtraces.
 %package documentation
 Summary:	Man pages and documentation for %{name}
 Group:		Books/Computer books
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
-Suggests:	%{name}-locale = %{EVRD}
+Suggests:	%{name}-locale
 Obsoletes:	systemd-doc < 236-10
 Conflicts:	systemd-doc < 236-10
 %rename		udev-doc
@@ -400,12 +399,12 @@ Man pages and documentation for %{name}.
 %package hwdb
 Summary:	hwdb component for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 238-4
-Suggests:	%{name}-polkit = %{EVRD}
-Suggests:	%{name}-documentation = %{EVRD}
-Suggests:	%{name}-locale = %{EVRD}
+Suggests:	%{name}-polkit
+Suggests:	%{name}-documentation
+Suggests:	%{name}-locale
 
 %description hwdb
 Hardware database management tool for %{name}.
@@ -413,7 +412,7 @@ Hardware database management tool for %{name}.
 %package locale
 Summary:	Translations component for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 
 %description locale
@@ -422,7 +421,7 @@ Translations for %{name}.
 %package polkit
 Summary:	PolKit component for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 
 %description polkit
@@ -431,12 +430,12 @@ PolKit support for %{name}.
 %package container
 Summary:	Tools for containers and VMs
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
-Requires:	%{libnss_mymachines} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
+Requires:	%{libnss_mymachines} >= %{EVRD}
 Conflicts:	%{name} < 235-1
-Suggests:	%{name}-polkit = %{EVRD}
-Suggests:	%{name}-bash-completion = %{EVRD}
-Suggests:	%{name}-zsh-completion = %{EVRD}
+Suggests:	%{name}-polkit
+Suggests:	%{name}-bash-completion
+Suggests:	%{name}-zsh-completion
 
 %description container
 Systemd tools to spawn and manage containers and virtual machines.
@@ -446,7 +445,7 @@ and systemd-importd.
 %package analyze
 Summary:	Tools for containers and VMs
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 238-4
 
 %description analyze
@@ -456,25 +455,22 @@ systemd-cgls
 systemd-cgtop
 systemd-delta
 
-%package journal-gateway
+%package journal-remote
 Summary:	Gateway for serving journal events over the network using HTTP
 Group:		System/Configuration/Boot and Init
-Requires:	%{name} = %{EVRD}
-BuildRequires:	rpm-helper
-Requires(pre):	rpm-helper
-Requires(post):	rpm-helper
-Requires(preun):	rpm-helper
-Requires(postun):	rpm-helper
+Requires:	%{name} >= %{EVRD}
+%systemd_requires
 Obsoletes:	systemd < 206-7
+%rename %{name}-journal-gateway
 
-%description journal-gateway
+%description journal-remote
 Offers journal events over the network using HTTP.
 
 %if !%{with bootstrap}
 %package cryptsetup
 Summary:	Cryptsetup generators for %{name}
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 238-4
 
 %description cryptsetup
@@ -484,7 +480,7 @@ Systemd generators for cryptsetup (Luks encryption and verity).
 %package portable
 Summary:	Tools for working with Portable Service Images
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 
 %description portable
 Portable service images contain an OS file system tree along with systemd
@@ -506,7 +502,7 @@ selected configuration.
 %package sysext
 Summary:	System extension manager
 Group:		System/Base
-Requires:	%{name} = %{EVRD}
+Requires:	%{name} >= %{EVRD}
 
 %description sysext
 systemd-sysext activates/deactivates system extension images. System extension
@@ -516,6 +512,26 @@ hierarchies with additional files.
 This is particularly useful on immutable system images where a /usr/ and/or
 /opt/ hierarchy residing on a read-only file system shall be extended
 temporarily at runtime without making any persistent modifications.
+
+%package repart
+Summary:	Automatically grow and add partitions
+Group:		System/Base
+Requires:	%{name} >= %{EVRD}
+
+%description repart
+systemd-repart grows and adds partitions to a partition table,
+based on the configuration files described in repart.d(5).
+
+%package homed
+Summary:	Home Area/User Account Manager
+Group:		System/Base
+Requires:	%{name} = %{EVRD}
+Recommends:	%{name}-polkit >= %{EVRD}
+
+%description homed
+systemd-homed is a system service that may be used to create, remove,
+change or inspect home areas (directories and network mounts and real
+or loopback block devices with a filesystem, optionally encrypted).
 
 %package -n %{libsystemd}
 Summary:	Systemd library package
@@ -701,7 +717,7 @@ nss-systemd is a plug-in module for the GNU Name Service Switch (NSS)
 functionality of the GNU C Library (glibc), providing UNIX user and 
 group name resolution for dynamic users and groups allocated through 
 the DynamicUser= option in systemd unit files. See systemd.exec(5) 
-for details on this option.
+[5~for details on this option.
 
 %package -n %{lib32udev}
 Summary:	Library for udev (32-bit)
@@ -725,6 +741,7 @@ Devel library for udev.
 %package oom
 Summary:	Out of Memory handler
 Group:		System/Base
+Requires:	%{name}
 
 %description oom
 Out of Memory handler.
@@ -857,6 +874,10 @@ export LD=gcc
 	-Dkmod=true \
 	-Dxkbcommon=true \
 	-Dblkid=true \
+	-Dfdisk=true \
+	-Dpwquality=true \
+	-Drepart=true \
+	-Dhomed=true \
 %ifnarch %{riscv}
 	-Dseccomp=true \
 %else
@@ -1248,13 +1269,8 @@ if [ -f /etc/nsswitch.conf ]; then
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
 
-%pre journal-gateway
-%_pre_groupadd systemd-journal-gateway systemd-journal-gateway
-%_pre_useradd systemd-journal-gateway %{_var}/log/journal /sbin/nologin
-%_pre_groupadd systemd-journal-remote systemd-journal-remote
-%_pre_useradd systemd-journal-remote %{_var}/log/journal/remote /sbin/nologin
-%_pre_groupadd systemd-journal-upload systemd-journal-upload
-%_pre_useradd systemd-journal-upload %{_var}/log/journal/upload /sbin/nologin
+%pre journal-remote
+%sysusers_create_package systemd-remote.conf %{SOURCE25}
 
 %files
 %dir /lib/firmware
@@ -1417,7 +1433,6 @@ fi
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
 %{_logdir}/README
-/lib/modprobe.d/README
 /lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
@@ -1427,7 +1442,6 @@ fi
 %{_prefix}/lib/%{name}/user/*.timer
 %{_prefix}/lib/%{name}/user/*.slice
 %{_prefix}/lib/systemd/user-environment-generators/*
-%{_prefix}/lib/tmpfiles.d/README
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
@@ -1738,19 +1752,16 @@ fi
 %{_bindir}/udevadm
 %{_sbindir}/udevadm
 /lib/udev/dmi_memory_id
-/lib/udev/rules.d/README
 /lib/udev/rules.d/70-memory.rules
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %{udev_libdir}/udevd
-%{_prefix}/lib/sysctl.d/README
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
 # This file exists only on 64-bit arches
 %ifnarch %{ix86} %{arm}
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-pid-max.conf
 %endif
-%{_prefix}/lib/sysusers.d/README
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
@@ -1776,7 +1787,25 @@ fi
 
 %files sysext
 /bin/systemd-sysext
-/lib/systemd/system/systemd-sysext.service
+%{systemd_libdir}/system/systemd-sysext.service
+
+%files repart
+/bin/systemd-repart
+%{systemd_libdir}/system/systemd-repart.service
+%{systemd_libdir}/system/initrd-root-fs.target.wants/systemd-repart.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-repart.service
+
+%files homed
+/bin/homectl
+%config(noreplace) %{_sysconfdir}/systemd/homed.conf
+%{systemd_libdir}/system/systemd-homed-activate.service
+%{systemd_libdir}/system/systemd-homed.service
+%{systemd_libdir}/systemd-homed
+%{systemd_libdir}/systemd-homework
+/%{_lib}/security/pam_systemd_home.so
+%{_datadir}/dbus-1/system-services/org.freedesktop.home1.service
+%{_datadir}/dbus-1/system.d/org.freedesktop.home1.conf
+%{_datadir}/polkit-1/actions/org.freedesktop.home1.policy
 
 %files portable
 %dir %{systemd_libdir}/portable
@@ -1790,7 +1819,7 @@ fi
 %{_prefix}/lib/tmpfiles.d/portables.conf
 /bin/portablectl
 
-%files journal-gateway
+%files journal-remote
 %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
 %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/%{name}-remote.conf
@@ -1934,7 +1963,6 @@ fi
 %{systemd_libdir}/system/systemd-hwdb-update.service
 /bin/systemd-hwdb
 %{udev_libdir}/*.bin
-%{udev_libdir}/hwdb.d/README
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/60-cdrom_id.rules
 %{udev_rules_dir}/60-persistent-alsa.rules
@@ -2020,8 +2048,9 @@ fi
 %files oom
 /bin/oomctl
 %{_sysconfdir}/systemd/oomd.conf
-/lib/systemd/system/systemd-oomd.service
-/lib/systemd/systemd-oomd
+%{systemd_libdir}/system/systemd-oomd.service
+%{systemd_libdir}/system/dbus-org.freedesktop.oom1.service
+%{systemd_libdir}/systemd-oomd
 %{_datadir}/dbus-1/system-services/org.freedesktop.oom1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.oom1.conf
 

@@ -21,6 +21,13 @@ if posix.access("/run/systemd/system") then
     elseif pid > 0 then
 	posix.wait(pid)
     end
+
+    pid = posix.fork()
+    if pid == 0 then
+	assert(posix.exec("/bin/systemctl", "reload-or-restart", "--marked"))
+    elseif pid > 0 then
+	posix.wait(pid)
+    end
 end
 
 %transfiletriggerpostun -P 1000100 -p <lua> -- /lib/systemd/system /etc/systemd/system
@@ -38,7 +45,18 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/sysusers.d
+%transfiletriggerpostun -P 10000 -p <lua> -- /lib/systemd/system /etc/systemd/system
+-- We restart remaining services that should be restarted here.
+if posix.access("/run/systemd/system") then
+    pid = posix.fork()
+    if pid == 0 then
+        assert(posix.exec("%{_bindir}/systemctl", "reload-or-restart", "--marked"))
+    elseif pid > 0 then
+        posix.wait(pid)
+    end
+end
+
+%transfiletriggerin -P 100700 -p <lua> -- /usr/lib/sysusers.d
 -- This script will process files installed in /usr/lib/sysusers.d to create
 -- specified users automatically. The priority is set such that it
 -- will run before the tmpfiles file trigger.
@@ -46,19 +64,6 @@ if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
 	assert(posix.exec("/bin/systemd-sysusers"))
-    elseif pid > 0 then
-	posix.wait(pid)
-    end
-end
-
-%transfiletriggerin -P 1000600 -p <lua> -- /usr/lib/tmpfiles.d /lib/tmpfiles.d /etc/tmpfiles.d
--- This script will process files installed in /usr/lib/tmpfiles.d to create
--- tmpfiles automatically. The priority is set such that it will run
--- after the sysusers file trigger, but before any other triggers.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-	assert(posix.exec("/bin/systemd-tmpfiles", "--create"))
     elseif pid > 0 then
 	posix.wait(pid)
     end
@@ -88,7 +93,32 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -P 1000600 -p <lua> -- /lib/udev/rules.d /etc/udev/rules.d
+%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/binfmt.d
+-- This script will automatically apply binfmt rules if files have been
+-- installed or updated in /usr/lib/binfmt.d.
+if posix.access("/run/systemd/system") then
+    pid = posix.fork()
+    if pid == 0 then
+	assert(posix.exec("/lib/systemd/systemd-binfmt"))
+    elseif pid > 0 then
+	posix.wait(pid)
+    end
+end
+
+%transfiletriggerin -P 1000600 -p <lua> -- /usr/lib/tmpfiles.d
+-- This script will process files installed in /usr/lib/tmpfiles.d to create
+-- tmpfiles automatically. The priority is set such that it will run
+-- after the sysusers file trigger, but before any other triggers.
+if posix.access("/run/systemd/system") then
+    pid = posix.fork()
+    if pid == 0 then
+	assert(posix.exec("/bin/systemd-tmpfiles", "--create"))
+    elseif pid > 0 then
+	posix.wait(pid)
+    end
+end
+
+%transfiletriggerin -P 1000600 -p <lua> -- /lib/udev/rules.d
 -- This script will automatically update udev with new rules if files
 -- have been installed or updated in /lib/udev/rules.d and /etc/udev/rules.d.
 if posix.access("/run/systemd/system") then
@@ -107,18 +137,6 @@ if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
 	assert(posix.exec("/lib/systemd/systemd-sysctl"))
-    elseif pid > 0 then
-	posix.wait(pid)
-    end
-end
-
-%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/binfmt.d
--- This script will automatically apply binfmt rules if files have been
--- installed or updated in /usr/lib/binfmt.d.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-	assert(posix.exec("/lib/systemd/systemd-binfmt"))
     elseif pid > 0 then
 	posix.wait(pid)
     end
