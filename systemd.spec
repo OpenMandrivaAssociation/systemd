@@ -1281,8 +1281,11 @@ fi
 %dir %{_datadir}/factory/etc/pam.d
 %dir %{_datadir}/%{name}
 %dir %{_prefix}/lib/binfmt.d
+%dir %{_prefix}/lib/environment.d
 %dir %{_prefix}/lib/modules-load.d
 %dir %{_prefix}/lib/sysctl.d
+%dir %{_prefix}/lib/kernel
+%dir %{_prefix}/lib/kernel/install.d
 %dir %{_prefix}/lib/%{name}
 %dir %{_prefix}/lib/%{name}/catalog
 %dir %{_prefix}/lib/%{name}/system-generators
