@@ -84,7 +84,7 @@ Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
-Url:		http://www.freedesktop.org/wiki/Software/systemd
+Url:		https://systemd.io/
 # This file must be available before %%prep.
 # It is generated during systemd build and can be found in src/core/.
 Source1:	triggers.systemd
