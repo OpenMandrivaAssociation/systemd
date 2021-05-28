@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -326,13 +326,17 @@ work as a drop-in replacement for sysvinit.
 %ifarch %{efi}
 %package boot
 Summary:	EFI boot component for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Requires:	efi-filesystem
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 245.20200426-3
 Suggests:	%{name}-documentation
 Suggests:	%{name}-locale
+# (tpg) for logo bootctl/splash-omv.bmp
+Suggests:	distro-release-theme
+Suggests:	imagemagick
+#
 Obsoletes:	gummiboot < 46
 Provides:	bootloader
 
@@ -342,7 +346,7 @@ Systemd boot tools to manage EFI boot.
 
 %package console
 Summary:	Console support for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 # need for /sbin/setfont etc
 Requires:	kbd
@@ -357,7 +361,7 @@ these units.
 
 %package networkd
 Summary:	Network manager for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 # (tpg) guess what, on some minimal installations systemd-networkd wins over NM
 %ifnarch %{armx} %{riscv}
@@ -374,7 +378,7 @@ Install and use with care.
 
 %package coredump
 Summary:	Coredump component for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-documentation
@@ -398,7 +402,7 @@ Man pages and documentation for %{name}.
 
 %package hwdb
 Summary:	hwdb component for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 238-4
@@ -411,7 +415,7 @@ Hardware database management tool for %{name}.
 
 %package locale
 Summary:	Translations component for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 
@@ -420,7 +424,7 @@ Translations for %{name}.
 
 %package polkit
 Summary:	PolKit component for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 235-9
 
@@ -429,7 +433,7 @@ PolKit support for %{name}.
 
 %package container
 Summary:	Tools for containers and VMs
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Requires:	%{libnss_mymachines} >= %{EVRD}
 Conflicts:	%{name} < 235-1
@@ -444,7 +448,7 @@ and systemd-importd.
 
 %package analyze
 Summary:	Tools for containers and VMs
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 238-4
 
@@ -469,7 +473,7 @@ Offers journal events over the network using HTTP.
 %if !%{with bootstrap}
 %package cryptsetup
 Summary:	Cryptsetup generators for %{name}
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 Conflicts:	%{name} < 238-4
 
@@ -479,7 +483,7 @@ Systemd generators for cryptsetup (Luks encryption and verity).
 
 %package portable
 Summary:	Tools for working with Portable Service Images
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 
 %description portable
@@ -501,7 +505,7 @@ selected configuration.
 
 %package sysext
 Summary:	System extension manager
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 
 %description sysext
@@ -515,7 +519,7 @@ temporarily at runtime without making any persistent modifications.
 
 %package repart
 Summary:	Automatically grow and add partitions
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 
 %description repart
@@ -524,7 +528,7 @@ based on the configuration files described in repart.d(5).
 
 %package homed
 Summary:	Home Area/User Account Manager
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{EVRD}
 Recommends:	%{name}-polkit >= %{EVRD}
 
@@ -740,7 +744,7 @@ Devel library for udev.
 
 %package oom
 Summary:	Out of Memory handler
-Group:		System/Base
+Group:		System/Configuration/Boot and Init
 Requires:	%{name}
 
 %description oom
@@ -1928,8 +1932,8 @@ fi
 %endif
 
 %post boot
-if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png ] && [ -x %{_bindir}/convert ] ; then
-    convert %{_datadir}/mdk/backgrounds/OpenMandriva-16x9.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
+if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
+    convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
 
 %files console
