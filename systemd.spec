@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -161,7 +161,6 @@ Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 # Upstream patches from master that haven't landed in -stable yet
 BuildRequires:	meson
 BuildRequires:	quota
-BuildRequires:	audit-devel
 BuildRequires:	pkgconfig(libacl)
 BuildRequires:	docbook-style-xsl
 BuildRequires:	docbook-dtd42-xml
@@ -900,7 +899,7 @@ export LD=gcc
 	-Dacl=true \
 	-Dsmack=true \
 	-Dgcrypt=true \
-	-Daudit=true \
+	-Daudit=false \
 	-Delfutils=true \
 	-Dqrencode=true \
 	-Dgnutls=true \
