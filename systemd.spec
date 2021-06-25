@@ -217,6 +217,7 @@ BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount) >= 2.27
 BuildRequires:	pkgconfig(fdisk)
 BuildRequires:	pkgconfig(pwquality)
+BuildRequires:	python3dist(jinja2)
 # make sure we have /etc/os-release available, required by --with-distro
 BuildRequires:	distro-release-OpenMandriva
 %if !%{with bootstrap}
