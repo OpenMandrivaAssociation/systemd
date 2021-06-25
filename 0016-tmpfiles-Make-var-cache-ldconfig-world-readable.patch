@@ -8,12 +8,12 @@ Signed-off-by: Ikey Doherty <michael.i.doherty@intel.com>
  tmpfiles.d/var.conf.m4 | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/tmpfiles.d/var.conf.m4 b/tmpfiles.d/var.conf.m4
+diff --git a/tmpfiles.d/var.conf.in b/tmpfiles.d/var.conf.in
 index 0e2c50966d..ea51397a46 100644
---- a/tmpfiles.d/var.conf.m4
-+++ b/tmpfiles.d/var.conf.m4
+--- a/tmpfiles.d/var.conf.in
++++ b/tmpfiles.d/var.conf.in
 @@ -19,6 +19,8 @@ f /var/log/lastlog 0664 root utmp -
- )m4_dnl
+ {% endif %}
  
  d /var/cache 0755 - - -
 +d /var/cache/locale 0755 - - -

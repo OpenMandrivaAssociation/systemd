@@ -1,18 +1,18 @@
-diff -Naur systemd-220/units/systemd-fsck-root.service.in systemd-220.tpg/units/systemd-fsck-root.service.in
---- systemd-220/units/systemd-fsck-root.service.in	2015-04-28 15:30:00.000000000 +0000
-+++ systemd-220.tpg/units/systemd-fsck-root.service.in	2015-05-23 20:07:15.498282145 +0000
-@@ -17,3 +17,5 @@
+diff -up systemd-249.20210625/units/systemd-fsck-root.service.in.5~ systemd-249.20210625/units/systemd-fsck-root.service.in
+--- systemd-249.20210625/units/systemd-fsck-root.service.in.5~	2021-06-25 17:23:58.109102881 +0200
++++ systemd-249.20210625/units/systemd-fsck-root.service.in	2021-06-25 17:24:49.382822264 +0200
+@@ -20,3 +20,5 @@ Type=oneshot
  RemainAfterExit=yes
- ExecStart=@rootlibexecdir@/systemd-fsck
+ ExecStart={{ROOTLIBEXECDIR}}/systemd-fsck
  TimeoutSec=0
 +StandardOutput=null
 +StandardError=journal+console
-diff -Naur systemd-220/units/systemd-fsck@.service.in systemd-220.tpg/units/systemd-fsck@.service.in
---- systemd-220/units/systemd-fsck@.service.in	2015-04-28 15:30:00.000000000 +0000
-+++ systemd-220.tpg/units/systemd-fsck@.service.in	2015-05-23 20:07:39.552973030 +0000
-@@ -18,3 +18,5 @@
+diff -up systemd-249.20210625/units/systemd-fsck@.service.in.5~ systemd-249.20210625/units/systemd-fsck@.service.in
+--- systemd-249.20210625/units/systemd-fsck@.service.in.5~	2021-06-25 17:23:58.110102855 +0200
++++ systemd-249.20210625/units/systemd-fsck@.service.in	2021-06-25 17:25:12.435293826 +0200
+@@ -21,3 +21,5 @@ Type=oneshot
  RemainAfterExit=yes
- ExecStart=@rootlibexecdir@/systemd-fsck %f
+ ExecStart={{ROOTLIBEXECDIR}}/systemd-fsck %f
  TimeoutSec=0
 +StandardOutput=null
 +StandardError=journal+console

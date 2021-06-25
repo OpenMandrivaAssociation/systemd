@@ -1,30 +1,30 @@
-diff -Naur a/src/rpm/macros.systemd.in b/src/rpm/macros.systemd.in
---- a/src/rpm/macros.systemd.in	2021-05-06 12:51:08.000000000 +0000
-+++ b/src/rpm/macros.systemd.in	2021-05-07 12:24:42.251289342 +0000
-@@ -46,9 +46,9 @@
+diff -up systemd-249.20210625/src/rpm/macros.systemd.in.11~ systemd-249.20210625/src/rpm/macros.systemd.in
+--- systemd-249.20210625/src/rpm/macros.systemd.in.11~	2021-06-25 17:25:28.457942831 +0200
++++ systemd-249.20210625/src/rpm/macros.systemd.in	2021-06-25 17:28:36.625686699 +0200
+@@ -46,9 +46,9 @@ OrderWithRequires(postun): systemd \
  
  %systemd_post() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_post}} \
--if [ $1 -eq 1 ] && [ -x @bindir@/systemctl ]; then \
+-if [ $1 -eq 1 ] && [ -x %{_bindir}/systemctl ]; then \
 +if [ $1 -eq 1 ] && [ -x @rootbindir@/systemctl ]; then \
      # Initial installation \
--    @bindir@/systemctl --no-reload preset %{?*} || : \
+-    %{_bindir}/systemctl --no-reload preset %{?*} || : \
 +    @rootbindir@/systemctl --no-reload preset %{?*} || : \
  fi \
  %{nil}
  
-@@ -56,21 +56,21 @@
+@@ -56,21 +56,21 @@ fi \
  
  %systemd_preun() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_preun}} \
--if [ $1 -eq 0 ] && [ -x @bindir@/systemctl ]; then \
+-if [ $1 -eq 0 ] && [ -x %{_bindir}/systemctl ]; then \
 +if [ $1 -eq 0 ] && [ -x @rootbindir@/systemctl ]; then \
      # Package removal, not upgrade \
      if [ -d /run/systemd/system ]; then \
--          @bindir@/systemctl --no-reload disable --now %{?*} || : \
+-          %{_bindir}/systemctl --no-reload disable --now %{?*} || : \
 +          @rootbindir@/systemctl --no-reload disable --now %{?*} || : \
      else \
--          @bindir@/systemctl --no-reload disable %{?*} || : \
+-          %{_bindir}/systemctl --no-reload disable %{?*} || : \
 +          @rootbindir@/systemctl --no-reload disable %{?*} || : \
      fi \
  fi \
@@ -32,44 +32,44 @@ diff -Naur a/src/rpm/macros.systemd.in b/src/rpm/macros.systemd.in
  
  %systemd_user_preun() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_user_preun}} \
--if [ $1 -eq 0 ] && [ -x @bindir@/systemctl ]; then \
+-if [ $1 -eq 0 ] && [ -x %{_bindir}/systemctl ]; then \
 +if [ $1 -eq 0 ] && [ -x @rootbindir@/systemctl ]; then \
      # Package removal, not upgrade \
--    @bindir@/systemctl --global disable %{?*} || : \
+-    %{_bindir}/systemctl --global disable %{?*} || : \
 +    @rootbindir@/systemctl --global disable %{?*} || : \
  fi \
  %{nil}
  
-@@ -84,10 +84,10 @@
+@@ -84,10 +84,10 @@ fi \
  
  %systemd_postun_with_restart() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# systemd_postun_with_restart}} \
--if [ $1 -ge 1 ] && [ -x @bindir@/systemctl ]; then \
+-if [ $1 -ge 1 ] && [ -x %{_bindir}/systemctl ]; then \
 +if [ $1 -ge 1 ] && [ -x @rootbindir@/systemctl ]; then \
      # Package upgrade, not uninstall \
      for unit in %{?*}; do \
--         @bindir@/systemctl set-property $unit Markers=+needs-restart || : \
+-         %{_bindir}/systemctl set-property $unit Markers=+needs-restart || : \
 +         @rootbindir@/systemctl set-property $unit Markers=+needs-restart || : \
      done \
  fi \
  %{nil}
-@@ -105,17 +105,17 @@
+@@ -105,17 +105,17 @@ fi \
  # Deprecated. Use %tmpfiles_create_package instead
  %tmpfiles_create() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# tmpfiles_create}} \
--[ -x @bindir@/systemd-tmpfiles ] && @bindir@/systemd-tmpfiles --create %{?*} || : \
+-[ -x %{_bindir}/systemd-tmpfiles ] && %{_bindir}/systemd-tmpfiles --create %{?*} || : \
 +[ -x @rootbindir@/systemd-tmpfiles ] && @rootbindir@/systemd-tmpfiles --create %{?*} || : \
  %{nil}
  
  # Deprecated. Use %sysusers_create_package instead
  %sysusers_create() \
  %{expand:%%{?__systemd_someargs_%#:%%__systemd_someargs_%# sysusers_create}} \
--[ -x @bindir@/systemd-sysusers ] && @bindir@/systemd-sysusers %{?*} || : \
+-[ -x %{_bindir}/systemd-sysusers ] && %{_bindir}/systemd-sysusers %{?*} || : \
 +[ -x @rootbindir@/systemd-sysusers ] && @rootbindir@/systemd-sysusers %{?*} || : \
  %{nil}
  
  %sysusers_create_inline() \
--[ -x @bindir@/systemd-sysusers ] && @bindir@/systemd-sysusers - <<SYSTEMD_INLINE_EOF || : \
+-[ -x %{_bindir}/systemd-sysusers ] && %{_bindir}/systemd-sysusers - <<SYSTEMD_INLINE_EOF || : \
 +[ -x @rootbindir@/systemd-sysusers ] && @rootbindir@/systemd-sysusers - <<SYSTEMD_INLINE_EOF || : \
  %{?*} \
  SYSTEMD_INLINE_EOF\

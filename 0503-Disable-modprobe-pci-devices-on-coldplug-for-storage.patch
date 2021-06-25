@@ -1,6 +1,6 @@
-diff -Naur systemd-244.20191203/rules.d/80-drivers.rules systemd-244.20191203.tpg/rules.d/80-drivers.rules
---- systemd-244.20191203/rules.d/80-drivers.rules	2019-11-29 16:32:36.000000000 +0000
-+++ systemd-244.20191203.tpg/rules.d/80-drivers.rules	2019-12-03 12:12:28.177020450 +0000
+diff -up systemd-249.20210625/rules.d/80-drivers.rules.1~ systemd-249.20210625/rules.d/80-drivers.rules
+--- systemd-249.20210625/rules.d/80-drivers.rules.1~	2021-06-25 17:21:27.659834005 +0200
++++ systemd-249.20210625/rules.d/80-drivers.rules	2021-06-25 17:23:12.866363290 +0200
 @@ -2,6 +2,14 @@
  
  ACTION!="add", GOTO="drivers_end"
@@ -13,6 +13,6 @@ diff -Naur systemd-244.20191203/rules.d/80-drivers.rules systemd-244.20191203.tp
 +# - skip loading if in initrd (i.e. no /initrd) and nokmsboot or failsafe is specified
 +SUBSYSTEM=="pci", ATTR{class}=="0x03*", DRIVER!="?*", PROGRAM=="/bin/grep -qFw -e nokmsboot -e failsafe /proc/cmdline", GOTO="drivers_end"
 +
- ENV{MODALIAS}=="?*", RUN{builtin}+="kmod load $env{MODALIAS}"
+ ENV{MODALIAS}=="?*", RUN{builtin}+="kmod load '$env{MODALIAS}'"
  SUBSYSTEM=="tifm", ENV{TIFM_CARD_TYPE}=="SD", RUN{builtin}+="kmod load tifm_sd"
  SUBSYSTEM=="tifm", ENV{TIFM_CARD_TYPE}=="MS", RUN{builtin}+="kmod load tifm_ms"

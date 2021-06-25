@@ -66,8 +66,9 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 248
-%define stable 20210517
+%define major 249
+# AKA rc1
+%define stable 20210625
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +82,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -154,6 +155,7 @@ Patch1001:	systemd-245-allow-compiling-with-gcc.patch
 #(tpg) we use bsdtar so let's adapt attribues to match implementation
 # httpa://github.com/systemd/systemd/issues/16506
 Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
+Patch1003:	systemd-249-no-clang-flags-for-bits-built-by-gcc.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
@@ -1596,6 +1598,7 @@ fi
 %{systemd_libdir}/system/initrd-root-device.target
 %{systemd_libdir}/system/initrd-root-fs.target
 %{systemd_libdir}/system/initrd-switch-root.target
+%{systemd_libdir}/system/initrd-usr-fs.target
 %{systemd_libdir}/system/initrd.target
 %{systemd_libdir}/system/kexec.target
 %{systemd_libdir}/system/local-fs-pre.target
@@ -1751,6 +1754,7 @@ fi
 %{udev_rules_dir}/75-net-description.rules
 %{udev_rules_dir}/80-drivers.rules
 %{udev_rules_dir}/80-net-setup-link.rules
+%{udev_rules_dir}/81-net-dhcp.rules
 %{udev_rules_dir}/99-systemd.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 /sbin/udevadm

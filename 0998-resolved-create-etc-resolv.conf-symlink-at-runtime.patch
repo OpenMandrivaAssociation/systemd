@@ -1,6 +1,6 @@
-diff -up systemd-248.20210308/src/resolve/resolved.c.33~ systemd-248.20210308/src/resolve/resolved.c
---- systemd-248.20210308/src/resolve/resolved.c.33~	2021-03-08 01:11:18.972335907 +0100
-+++ systemd-248.20210308/src/resolve/resolved.c	2021-03-08 01:13:09.298971226 +0100
+diff -up systemd-249.20210625/src/resolve/resolved.c.33~ systemd-249.20210625/src/resolve/resolved.c
+--- systemd-249.20210625/src/resolve/resolved.c.33~	2021-06-25 17:36:15.194222833 +0200
++++ systemd-249.20210625/src/resolve/resolved.c	2021-06-25 17:36:15.203222806 +0200
 @@ -58,6 +58,11 @@ static int run(int argc, char *argv[]) {
                  if (r < 0)
                          return log_error_errno(r, "Could not create runtime directory: %m");
@@ -13,16 +13,16 @@ diff -up systemd-248.20210308/src/resolve/resolved.c.33~ systemd-248.20210308/sr
                  /* Drop privileges, but keep three caps. Note that we drop two of those too, later on (see below) */
                  r = drop_privileges(uid, gid,
                                      (UINT64_C(1) << CAP_NET_RAW)|          /* needed for SO_BINDTODEVICE */
-diff -up systemd-248.20210308/tmpfiles.d/etc.conf.m4.33~ systemd-248.20210308/tmpfiles.d/etc.conf.m4
---- systemd-248.20210308/tmpfiles.d/etc.conf.m4.33~	2021-02-23 18:43:34.000000000 +0100
-+++ systemd-248.20210308/tmpfiles.d/etc.conf.m4	2021-03-08 01:11:18.972335907 +0100
+diff -up systemd-249.20210625/tmpfiles.d/etc.conf.in.33~ systemd-249.20210625/tmpfiles.d/etc.conf.in
+--- systemd-249.20210625/tmpfiles.d/etc.conf.in.33~	2021-06-25 17:36:15.203222806 +0200
++++ systemd-249.20210625/tmpfiles.d/etc.conf.in	2021-06-25 17:36:32.766171114 +0200
 @@ -12,9 +12,6 @@ L+ /etc/mtab - - - - ../proc/self/mounts
- m4_ifdef(`HAVE_SMACK_RUN_LABEL',
+ {% if HAVE_SMACK_RUN_LABEL %}
  t /etc/mtab - - - - security.SMACK64=_
- )m4_dnl
--m4_ifdef(`ENABLE_RESOLVE',
+ {% endif %}
+-{% if ENABLE_RESOLVE %}
 -L! /etc/resolv.conf - - - - ../run/systemd/resolve/stub-resolv.conf
--)m4_dnl
+-{% endif %}
  C! /etc/nsswitch.conf - - - -
- m4_ifdef(`HAVE_PAM',
+ {% if HAVE_PAM %}
  C! /etc/pam.d - - - -

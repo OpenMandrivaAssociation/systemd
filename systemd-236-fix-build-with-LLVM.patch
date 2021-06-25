@@ -1,8 +1,8 @@
-diff -up systemd-248.20210308/src/basic/macro.h.30~ systemd-248.20210308/src/basic/macro.h
---- systemd-248.20210308/src/basic/macro.h.30~	2021-03-08 01:09:25.945701347 +0100
-+++ systemd-248.20210308/src/basic/macro.h	2021-03-08 01:10:49.509010943 +0100
-@@ -33,10 +33,10 @@
- #define _align_(x) __attribute__((__aligned__(x)))
+diff -up systemd-249.20210625/src/basic/macro.h.30~ systemd-249.20210625/src/basic/macro.h
+--- systemd-249.20210625/src/basic/macro.h.30~	2021-06-25 17:33:53.256815134 +0200
++++ systemd-249.20210625/src/basic/macro.h	2021-06-25 17:34:52.791526367 +0200
+@@ -30,10 +30,10 @@
+ #define _weakref_(x) __attribute__((__weakref__(#x)))
  #define _alignas_(x) __attribute__((__aligned__(__alignof(x))))
  #define _alignptr_ __attribute__((__aligned__(sizeof(void*))))
 -#if __GNUC__ >= 7
