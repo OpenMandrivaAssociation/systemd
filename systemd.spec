@@ -67,8 +67,8 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 249
-# AKA rc1
-%define stable 20210625
+# AKA rc2
+%define stable 20210701
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -115,6 +115,10 @@ Source25:	systemd-remote.sysusers
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
+# Allow specifying @LIBDIR@ and @LIBEXECDIR@ in %%sysusers_create_package
+# files to make sure a system user's home can vary by architecture
+# (e.g. polkitd likes having its home in %{_libdir}/polkit-1)
+Patch3:		systemd-249-macros-expand-directory-names.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
