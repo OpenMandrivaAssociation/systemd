@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -1132,6 +1132,10 @@ mkdir -p %{buildroot}%{udev_libdir}/devices/{net,hugepages,pts,shm}
 # From previous Mandriva /etc/udev/devices.d
 mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 
+# A lot of configure scripts don't check /lib64 for linkable libraries, so
+# let's symlink libudev to something more common
+ln -s ../../%{_lib}/libudev.so %{buildroot}%{_libdir}/
+
 #################
 #	UDEV	#
 #	END	#
@@ -1914,6 +1918,7 @@ fi
 
 %files -n %{libudev_devel}
 /%{_lib}/libudev.so
+%{_libdir}/libudev.so
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
 %{_includedir}/libudev.h
