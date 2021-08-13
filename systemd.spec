@@ -67,21 +67,21 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 249
-%define stable 20210708
+%define stable 20210813
 
 Summary:	A System and Session Manager
 Name:		systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v248-stable
-# cd systemd-stable && git archive --prefix=systemd-248.$(date +%Y%m%d)/ --format=tar v249-stable | xz -9ef > ../systemd-249.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v249-stable
+# cd systemd-stable && git archive --prefix=systemd-249.$(date +%Y%m%d)/ --format=tar v249-stable | xz -9ef > ../systemd-249.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
