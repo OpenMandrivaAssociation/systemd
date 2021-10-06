@@ -28,7 +28,7 @@
 %endif
 %else
 %ifnarch %{ix86}
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32
+%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC
 %else
 %global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fuse-ld=bfd
 %global ldflags %{ldflags} -fuse-ld=bfd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	4
+Release:	5
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -233,7 +233,7 @@ Requires:	acl
 Requires:	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
 Requires(post):	grep
-Requires(pre,post,postun):	setup >= 2.9.3.3
+Requires:	(util-linux-core or util-linux)
 Recommends:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
@@ -940,7 +940,28 @@ export LD=gcc
 	-Dsystem-gid-max='999' \
 	-Ddefault-dnssec=no \
 	-Dntp-servers='_gateway gateway 0.openmandriva.pool.ntp.org 1.openmandriva.pool.ntp.org 2.openmandriva.pool.ntp.org 3.openmandriva.pool.ntp.org' \
-	-Ddns-servers='208.67.222.222 208.67.220.220'
+	-Ddns-servers='208.67.222.222 208.67.220.220' \
+	-Dadm-gid=4 \
+	-Daudio-gid=81 \
+	-Dcdrom-gid=22 \
+	-Ddialout-gid=83 \
+	-Ddisk-gid=6 \
+	-Dinput-gid=101 \
+	-Dkmem-gid=9 \
+	-Dkvm-gid=36 \
+	-Dlp-gid=7 \
+	-Drender-gid=105 \
+	-Dsgx-gid=106 \
+	-Dtape-gid=21 \
+	-Dtty-gid=5 \
+	-Dusers-gid=100 \
+	-Dutmp-gid=24 \
+	-Dvideo-gid=82 \
+	-Dwheel-gid=10 \
+	-Dsystemd-journal-gid=190 \
+	-Dsystemd-network-uid=194 \
+	-Dsystemd-resolve-uid=191
+# -Dsystemd-timesync-uid=, not set yet
 
 %meson_build
 
@@ -1172,16 +1193,13 @@ if [ $1 -ge 2 ] || [ $2 -ge 2 ]; then
     /bin/systemctl daemon-reexec 2>&1 || :
 fi
 
-%pre
-# just make sure setup is installed first
-
 %post
 /bin/systemd-firstboot --setup-machine-id &>/dev/null ||:
 /bin/systemd-machine-id-setup &>/dev/null ||:
 /bin/systemctl daemon-reexec &>/dev/null ||:
 
-
 if [ $1 -eq 1 ] ; then
+    [ -w %{_localstatedir} ] && mkdir -p %{_localstatedir}/log/journal
     /bin/systemd-sysusers &>/dev/null ||:
     %{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
     /bin/journalctl --update-catalog &>/dev/null ||:
