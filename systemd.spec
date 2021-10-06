@@ -250,7 +250,7 @@ Provides:	suspend = 1.0-10
 Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
 Provides:	should-restart = system
-Requires:	%{name}-rpm-macros = %{EVRD}
+Requires:	(%{name}-rpm-macros = %{EVRD} if rpm-build)
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
