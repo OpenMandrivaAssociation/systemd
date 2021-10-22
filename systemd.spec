@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 249
-%define stable 20210911
+%define stable 20211022
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	5
+Release:	6
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -164,6 +164,7 @@ Patch1003:	systemd-249-no-clang-flags-for-bits-built-by-gcc.patch
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # Upstream patches from master that haven't landed in -stable yet
+
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	pkgconfig(libacl)
