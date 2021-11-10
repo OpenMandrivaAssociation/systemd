@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 249
-%define stable 20211022
+%define stable 20211110
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	6
+Release:	7
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -110,6 +110,10 @@ Source23:	systemd-udev-trigger-no-reload.conf
 Source24:	yum-protect-systemd.conf
 
 Source25:	systemd-remote.sysusers
+
+Source26:	10-oomd-defaults.conf
+Source27:	10-oomd-root-slice-defaults.conf
+Source28:	10-oomd-user-service-defaults.conf
 
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
@@ -775,7 +779,6 @@ PATH=$PWD/bin:$PATH
 # https://github.com/opencontainers/runc/issues/654
 #
 # In order to switch to cgroup2 it is enough to pass systemd.unified_cgroup_hierarchy=1 via kernel command line.
-%serverbuild_hardened
 
 %if %{with compat32}
 %meson32 \
@@ -860,13 +863,18 @@ export LD=gcc
 	-Drootlibdir=/%{_lib} \
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
-	-Drc-local=/etc/rc.d/rc.local \
+	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %ifarch %{efi}
 	-Defi-cc=gcc \
 	-Defi-ld=ld.bfd \
 	-Defi=true \
 	-Dgnu-efi=true \
 	-Defi-libdir=%{_libdir} \
+	-Dsbat-distro="%{efi_vendor}" \
+	-Dsbat-distro-summary="%{distribution}" \
+	-Dsbat-distro-pkgname="%{name}" \
+	-Dsbat-distro-version="%{version}-%{release}" \
+	-Dsbat-distro-url="%{disturl}" \
 %else
 	-Defi=false \
 	-Dgnu-efi=false \
@@ -919,7 +927,6 @@ export LD=gcc
 	-Dsysusers=true \
 	-Dman=true \
 	-Dhtml=true \
-	-Ddefault-kill-user-processes=false \
 	-Dtests=unsafe \
 	-Dinstall-tests=false \
 %ifnarch %{ix86}
@@ -927,8 +934,8 @@ export LD=gcc
 %else
 	-Db_lto=false \
 %endif
-	-Dloadkeys-path=/bin/loadkeys \
-	-Dsetfont-path=/bin/setfont \
+	-Dloadkeys-path=%{_bindir}/loadkeys \
+	-Dsetfont-path=%{_bindir}/setfont \
 	-Dcertificate-root="%{_sysconfdir}/pki" \
 	-Dfallback-hostname=openmandriva \
 	-Dsupport-url="%{disturl}" \
@@ -1106,6 +1113,11 @@ sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
 
+# systemd-oomd default configuration
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/oomd.conf.d/ %{SOURCE26}
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/-.slice.d/ %{SOURCE27}
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/user@.service.d/ %{SOURCE28}
+
 %ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
@@ -1120,6 +1132,7 @@ install -Dm0644 %{SOURCE24} %{buildroot}%{_sysconfdir}/dnf/protected.d/systemd.c
 if [ -f /usr/share/systemd/kbd-model-map.generated ]; then
     cat /usr/share/systemd/kbd-model-map.generated >> %{buildroot}%{_datadir}/%{name}/kbd-model-map
 fi
+
 #################
 #	UDEV	#
 #	START	#
@@ -1129,17 +1142,12 @@ install -m 644 %{SOURCE2} %{buildroot}%{udev_rules_dir}/
 install -m 644 %{SOURCE3} %{buildroot}%{udev_rules_dir}/
 mkdir -p  %{buildroot}%{_sysconfdir}/sysconfig/udev
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/udev/
-
 install -m 0644 %{SOURCE19} %{buildroot}%{udev_rules_dir}/
 
 # probably not required, but let's just be on the safe side for now..
 ln -sf /bin/udevadm %{buildroot}/sbin/udevadm
 ln -sf /bin/udevadm %{buildroot}%{_bindir}/udevadm
 ln -sf /bin/udevadm %{buildroot}%{_sbindir}/udevadm
-
-# (tpg) this is needed, because udevadm is in /bin
-# altering the path allows to boot on before root pivot
-sed -i --follow-symlinks -e 's#/bin/udevadm#/sbin/udevadm#g' %{buildroot}/%{systemd_libdir}/system/*.service
 
 mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
@@ -2086,6 +2094,10 @@ fi
 %files oom
 /bin/oomctl
 %{_sysconfdir}/systemd/oomd.conf
+%dir %{systemd_libdir}/oomd.conf.d
+%{systemd_libdir}/oomd.conf.d/10-oomd-defaults.conf
+%{systemd_libdir}/system/-.slice.d/10-oomd-root-slice-defaults.conf
+%{systemd_libdir}/system/user@.service.d/10-oomd-user-service-defaults.conf
 %{systemd_libdir}/system/systemd-oomd.service
 %{systemd_libdir}/system/dbus-org.freedesktop.oom1.service
 %{systemd_libdir}/systemd-oomd

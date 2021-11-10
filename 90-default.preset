@@ -32,3 +32,4 @@ enable reboot.target
 disable rescue.target
 disable exit.target
 disable syslog.socket
+enable systemd-oomd.service
