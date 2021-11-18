@@ -67,7 +67,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 249
-%define stable 20211110
+%define stable 20211118
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -81,7 +81,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	7
+Release:	8
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -144,17 +144,17 @@ Patch106:	0010-locale-setup-set-default-locale-to-a-unicode-one.patch
 Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch108:	0018-more-udev-children-workers.patch
 Patch109:	0019-not-load-iptables.patch
-#Patch110:	0023-DHCP-retry-faster.patch
+Patch110:	0023-DHCP-retry-faster.patch
 Patch111:	0024-Remove-libm-memory-overhead.patch
-Patch112:	0028-Make-timesyncd-a-simple-service.patch
-#Patch113:	0029-Compile-udev-with-O3.patch
-Patch114:	0030-Don-t-wait-for-utmp-at-shutdown.patch
-Patch115:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
-Patch116:	0032-don-t-use-libm-just-for-integer-exp10.patch
-Patch117:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
-Patch118:	0035-skip-not-present-ACPI-devices.patch
-#Patch119:	0037-Disable-XZ-support-in-the-journal.patch
+Patch112:	0025-skip-not-present-ACPI-devices.patch
+Patch113:	0027-Make-timesyncd-a-simple-service.patch
+Patch114:	0028-Compile-udev-with-O3.patch
+Patch115:	0030-Don-t-wait-for-utmp-at-shutdown.patch
+Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
+Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
+Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 Patch120:	0038-Localize-1-symbol.patch
+patch121:	0040-boot-efi-comment-out-success-validation-message.patch
 
 # (tpg) OMV patches
 Patch1000:	systemd-236-fix-build-with-LLVM.patch
