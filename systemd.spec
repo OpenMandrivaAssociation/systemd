@@ -18,22 +18,8 @@
 %bcond_with gcc
 %endif
 
-# (tpg) special options for systemd to keep it fast and secure
-%if %{with gcc}
-%ifnarch %{ix86}
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC
-%else
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC -fuse-ld=bfd
-%global ldflags %{ldflags} -fuse-ld=bfd -fPIC
-%endif
-%else
-%ifnarch %{ix86}
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fPIC
-%else
-%global optflags %{optflags} -fexceptions -fstack-protector --param=ssp-buffer-size=32 -fuse-ld=bfd
-%global ldflags %{ldflags} -fuse-ld=bfd
-%endif
-%endif
+# (tpg) optimize it a bit
+%global optflags %{optflags} -O3
 
 %bcond_with bootstrap
 
@@ -67,7 +53,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 249
-%define stable 20211223
+%define stable 20220113
 
 Summary:	A System and Session Manager
 Name:		systemd
