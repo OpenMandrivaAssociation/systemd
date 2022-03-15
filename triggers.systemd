@@ -81,7 +81,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -P 1000700 udev -p <lua> -- /lib/udev/hwdb.d
+%transfiletriggerin -P 1000700 hwdb -p <lua> -- /lib/udev/hwdb.d
 -- This script will automatically invoke hwdb update if files have been
 -- installed or updated in /lib/udev/hwdb.d.
 if posix.access("/run/systemd/system") then
@@ -93,7 +93,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/systemd/catalog
+%transfiletriggerin -P 1000700 locale -p <lua> -- /usr/lib/systemd/catalog
 -- This script will automatically invoke journal catalog update if files
 -- have been installed or updated in /usr/lib/systemd/catalog.
 if posix.access("/run/systemd/system") then
@@ -130,7 +130,7 @@ if posix.access("/run/systemd/system") then
     end
 end
 
-%transfiletriggerin -P 1000600 udev -p <lua> -- /lib/udev/rules.d
+%transfiletriggerin -P 1000600 -p <lua> -- /lib/udev/rules.d
 -- This script will automatically update udev with new rules if files
 -- have been installed or updated in /lib/udev/rules.d.
 if posix.access("/run/systemd/system") then
