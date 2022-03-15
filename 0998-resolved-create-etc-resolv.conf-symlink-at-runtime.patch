@@ -13,16 +13,3 @@ diff -up systemd-249.20210625/src/resolve/resolved.c.33~ systemd-249.20210625/sr
                  /* Drop privileges, but keep three caps. Note that we drop two of those too, later on (see below) */
                  r = drop_privileges(uid, gid,
                                      (UINT64_C(1) << CAP_NET_RAW)|          /* needed for SO_BINDTODEVICE */
-diff -up systemd-249.20210625/tmpfiles.d/etc.conf.in.33~ systemd-249.20210625/tmpfiles.d/etc.conf.in
---- systemd-249.20210625/tmpfiles.d/etc.conf.in.33~	2021-06-25 17:36:15.203222806 +0200
-+++ systemd-249.20210625/tmpfiles.d/etc.conf.in	2021-06-25 17:36:32.766171114 +0200
-@@ -12,9 +12,6 @@ L+ /etc/mtab - - - - ../proc/self/mounts
- {% if HAVE_SMACK_RUN_LABEL %}
- t /etc/mtab - - - - security.SMACK64=_
- {% endif %}
--{% if ENABLE_RESOLVE %}
--L! /etc/resolv.conf - - - - ../run/systemd/resolve/stub-resolv.conf
--{% endif %}
- C! /etc/nsswitch.conf - - - -
- {% if HAVE_PAM %}
- C! /etc/pam.d - - - -

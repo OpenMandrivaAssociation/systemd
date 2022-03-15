@@ -1,32 +1,13 @@
-diff -up systemd-249.20210625/src/boot/efi/meson.build.omv~ systemd-249.20210625/src/boot/efi/meson.build
---- systemd-249.20210625/src/boot/efi/meson.build.omv~	2021-06-25 17:46:50.343244024 +0200
-+++ systemd-249.20210625/src/boot/efi/meson.build	2021-06-25 17:58:02.529412391 +0200
-@@ -175,19 +175,15 @@ if have_gnu_efi
- endif
+diff -up systemd-250.20220315/src/boot/efi/meson.build.34~ systemd-250.20220315/src/boot/efi/meson.build
+--- systemd-250.20220315/src/boot/efi/meson.build.34~	2022-03-15 20:11:56.242558640 +0100
++++ systemd-250.20220315/src/boot/efi/meson.build	2022-03-15 20:14:47.092083159 +0100
+@@ -157,8 +157,7 @@ efi_config_h = configure_file(
+         configuration : efi_conf)
  
- if have_gnu_efi
--        compile_args = cc.get_supported_arguments(
--                basic_disabled_warnings +
--                possible_common_cc_flags + [
--                        '-ffreestanding',
--                        '-fno-stack-protector',
--                        '-fno-strict-aliasing',
--                        '-fpic',
--                        '-fshort-wchar',
--                        '-Wall',
--                        '-Wextra',
--                        '-Wsign-compare',
--                ]
--        ) + [
-+        compile_args = [
-+                '-ffreestanding',
-+                '-fno-stack-protector',
-+                '-fno-strict-aliasing',
-+                '-fpic',
-+                '-fshort-wchar',
-+                '-Wall',
-+                '-Wextra',
-+                '-Wsign-compare',
-                 '-nostdlib',
-                 '-std=gnu99',
-                 '-isystem', efi_incdir,
+ efi_cflags = cc.get_supported_arguments(
+-        basic_disabled_warnings +
+-        possible_common_cc_flags + [
++        [
+                 '-fno-stack-protector',
+                 '-fno-strict-aliasing',
+                 '-fpic',

@@ -52,16 +52,16 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 249
-%define stable 20220311
+%define major 250
+%define stable 20220315
 
 Summary:	A System and Session Manager
 Name:		systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v249-stable
-# cd systemd-stable && git archive --prefix=systemd-249.$(date +%Y%m%d)/ --format=tar v249-stable | xz -9ef > ../systemd-249.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v250-stable
+# cd systemd-stable && git archive --prefix=systemd-250.$(date +%Y%m%d)/ --format=tar v250-stable | xz -9ef > ../systemd-250.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
@@ -117,7 +117,6 @@ Patch15:	0500-create-default-links-for-primary-cd_dvd-drive.patch
 Patch17:	0515-Add-path-to-locale-search.patch
 Patch18:	0516-udev-silence-version-print.patch
 Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
-Patch20:	http://crazy.dev.frugalware.org/fix-macros.systemd.in.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
@@ -140,15 +139,14 @@ Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
 Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 Patch120:	0038-Localize-1-symbol.patch
-patch121:	0040-boot-efi-comment-out-success-validation-message.patch
 
 # (tpg) OMV patches
-Patch1000:	systemd-236-fix-build-with-LLVM.patch
 Patch1001:	systemd-245-allow-compiling-with-gcc.patch
 #(tpg) we use bsdtar so let's adapt attribues to match implementation
 # httpa://github.com/systemd/systemd/issues/16506
 Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
 Patch1003:	systemd-249-no-clang-flags-for-bits-built-by-gcc.patch
+Patch1004:	systemd-250-compile.patch
 
 # (tpg) Fedora patches
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
@@ -741,10 +739,18 @@ Devel library for udev.
 %package oom
 Summary:	Out of Memory handler
 Group:		System/Configuration/Boot and Init
-Requires:	%{name}
+Requires:	%{name} = %{EVRD}
 
 %description oom
 Out of Memory handler.
+
+%package integritysetup
+Summary:	System integrity checker
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} = %{EVRD}
+
+%description integritysetup
+System integrity checker
 
 %prep
 %autosetup -p1
@@ -852,7 +858,7 @@ export LD=gcc
 	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %ifarch %{efi}
 	-Defi-cc=gcc \
-	-Defi-ld=ld.bfd \
+	-Defi-ld=bfd \
 	-Defi=true \
 	-Dgnu-efi=true \
 	-Defi-libdir=%{_libdir} \
@@ -1416,6 +1422,7 @@ fi
 /bin/%{name}-sysusers
 /bin/%{name}-tmpfiles
 /bin/%{name}-tty-ask-password-agent
+/bin/%{name}-creds
 /bin/udevadm
 /bin/userdbctl
 /sbin/init
@@ -1461,7 +1468,6 @@ fi
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
-%{_logdir}/README
 /lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
@@ -1768,6 +1774,7 @@ fi
 %{udev_rules_dir}/60-serial.rules
 %{udev_rules_dir}/64-btrfs.rules
 %{udev_rules_dir}/69-printeracl.rules
+%{udev_rules_dir}/70-camera.rules
 %{udev_rules_dir}/70-power-switch.rules
 %{udev_rules_dir}/70-uaccess.rules
 %{udev_rules_dir}/71-seat.rules
@@ -1794,8 +1801,12 @@ fi
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-pid-max.conf
 %endif
 %config(noreplace) %{_prefix}/lib/sysusers.d/basic.conf
-%config(noreplace) %{_prefix}/lib/sysusers.d/systemd.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-remote.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-coredump.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-journal.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-network.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-resolve.conf
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-timesync.conf
 %config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
@@ -1815,6 +1826,52 @@ fi
 # This takes care of interface renaming etc. -- it is NOT for networkd
 %dir %{systemd_libdir}/network
 %{systemd_libdir}/network/99-default.link
+# New in -250, need to verify if this needs to go to subpackages
+%{systemd_libdir}/system/factory-reset.target
+%{systemd_libdir}/system/systemd-boot-update.service
+%{systemd_libdir}/system/systemd-oomd.socket
+%{systemd_libdir}/systemd-update-helper
+/%{_lib}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
+%{_prefix}/lib/kernel/install.conf
+%{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Home.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.hostname1.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.import1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.import1.Transfer.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.locale1.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.login1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.login1.Seat.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.login1.Session.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.login1.User.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.machine1.Image.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.machine1.Machine.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.machine1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPServer.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.Link.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.Network.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.oom1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.portable1.Image.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.portable1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnssdService.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Automount.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Device.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Job.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Mount.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Path.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Scope.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Service.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Slice.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Socket.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Swap.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Target.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Timer.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Unit.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
 
 %files sysext
 /bin/systemd-sysext
@@ -1837,6 +1894,13 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.home1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.home1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.home1.policy
+
+%files integritysetup
+%{systemd_libdir}/system-generators/systemd-integritysetup-generator
+%{systemd_libdir}/system/sysinit.target.wants/integritysetup.target
+%{systemd_libdir}/systemd-integritysetup
+%{systemd_libdir}/system/integritysetup.target
+%{systemd_libdir}/system/integritysetup-pre.target
 
 %files portable
 %dir %{systemd_libdir}/portable
@@ -2039,6 +2103,7 @@ fi
 %{systemd_libdir}/network/80-wifi-adhoc.network
 %{systemd_libdir}/network/80-wifi-ap.network.example
 %{systemd_libdir}/network/80-wifi-station.network.example
+%{systemd_libdir}/network/80-6rd-tunnel.network
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
@@ -2087,6 +2152,7 @@ fi
 %{systemd_libdir}/system/systemd-oomd.service
 %{systemd_libdir}/system/dbus-org.freedesktop.oom1.service
 %{systemd_libdir}/systemd-oomd
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-oom.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.oom1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.oom1.conf
 

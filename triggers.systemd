@@ -1,5 +1,5 @@
 #  -*- Mode: rpm-spec; indent-tabs-mode: nil -*- */
-#  SPDX-License-Identifier: LGPL-2.1+
+#  SPDX-License-Identifier: LGPL-2.1-or-later
 #
 #  This file is part of systemd.
 #  Copyright © 2018 Neal Gompa
@@ -13,21 +13,19 @@
 -- upgraded. We care about the case where a package is initially
 -- installed, because other cases are covered by the *un scriptlets,
 -- so sometimes we will reload needlessly.
+pid = posix.fork()
+if pid == 0 then
+    assert(posix.exec("/lib/systemd/systemd-update-helper", "system-reload-restart"))
+elseif pid > 0 then
+    posix.wait(pid)
+end
 
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-	assert(posix.exec("/bin/systemctl", "daemon-reload"))
-    elseif pid > 0 then
-	posix.wait(pid)
-    end
-
-    pid = posix.fork()
-    if pid == 0 then
-	assert(posix.exec("/bin/systemctl", "reload-or-restart", "--marked"))
-    elseif pid > 0 then
-	posix.wait(pid)
-    end
+%transfiletriggerin -P 900899 -p <lua> -- /usr/lib/systemd/user /etc/systemd/user
+pid = posix.fork()
+if pid == 0 then
+    assert(posix.exec("/lib/systemd/systemd-update-helper", "user-reload-restart"))
+elseif pid > 0 then
+    posix.wait(pid)
 end
 
 %transfiletriggerpostun -P 1000100 -p <lua> -- /lib/systemd/system /etc/systemd/system
@@ -36,24 +34,38 @@ end
 -- On upgrade, we need to run daemon-reload after any new unit files
 -- have been installed, but before %postun scripts in packages get
 -- executed.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-	assert(posix.exec("/bin/systemctl", "daemon-reload"))
-    elseif pid > 0 then
-	posix.wait(pid)
-    end
+pid = posix.fork()
+if pid == 0 then
+    assert(posix.exec("/lib/systemd/systemd-update-helper", "system-reload"))
+elseif pid > 0 then
+    posix.wait(pid)
+end
+
+%transfiletriggerpostun -P 1000100 -p <lua> -- /lib/systemd/system /etc/systemd/system
+-- Execute daemon-reload in user managers.
+pid = posix.fork()
+if pid == 0 then
+    assert(posix.exec("/lib/systemd/systemd-update-helper", "user-reload"))
+elseif pid > 0 then
+    posix.wait(pid)
 end
 
 %transfiletriggerpostun -P 10000 -p <lua> -- /lib/systemd/system /etc/systemd/system
--- We restart remaining services that should be restarted here.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-        assert(posix.exec("%{_bindir}/systemctl", "reload-or-restart", "--marked"))
-    elseif pid > 0 then
-        posix.wait(pid)
-    end
+-- We restart remaining system services that should be restarted here.
+pid = posix.fork()
+if pid == 0 then
+    assert(posix.exec("/lib/systemd/systemd-update-helper", "system-restart"))
+elseif pid > 0 then
+    posix.wait(pid)
+end
+
+%transfiletriggerpostun -P 9999 -p <lua> -- /usr/lib/systemd/user /etc/systemd/user
+-- We restart remaining user services that should be restarted here.
+pid = posix.fork()
+if pid == 0 then
+    assert(posix.exec("/lib/systemd/systemd-update-helper", "user-restart"))
+elseif pid > 0 then
+    posix.wait(pid)
 end
 
 %transfiletriggerin -P 100700 -p <lua> -- /usr/lib/sysusers.d
@@ -63,33 +75,33 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/bin/systemd-sysusers"))
+        assert(posix.execp("systemd-sysusers"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end
 
-%transfiletriggerin hwdb -P 1000700 -p <lua> -- /lib/udev/hwdb.d
+%transfiletriggerin -P 1000700 udev -p <lua> -- /lib/udev/hwdb.d
 -- This script will automatically invoke hwdb update if files have been
 -- installed or updated in /lib/udev/hwdb.d.
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/bin/systemd-hwdb", "update"))
+        assert(posix.execp("systemd-hwdb", "update"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end
 
-%transfiletriggerin locale -P 1000700 -p <lua> -- /usr/lib/systemd/catalog
+%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/systemd/catalog
 -- This script will automatically invoke journal catalog update if files
 -- have been installed or updated in /usr/lib/systemd/catalog.
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/bin/journalctl", "--update-catalog"))
+        assert(posix.execp("journalctl", "--update-catalog"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end
 
@@ -99,9 +111,9 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/lib/systemd/systemd-binfmt"))
+        assert(posix.exec("/lib/systemd/systemd-binfmt"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end
 
@@ -112,21 +124,21 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/bin/systemd-tmpfiles", "--create"))
+        assert(posix.execp("systemd-tmpfiles", "--create"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end
 
-%transfiletriggerin -P 1000600 -p <lua> -- /lib/udev/rules.d
+%transfiletriggerin -P 1000600 udev -p <lua> -- /lib/udev/rules.d
 -- This script will automatically update udev with new rules if files
--- have been installed or updated in /lib/udev/rules.d and /etc/udev/rules.d.
+-- have been installed or updated in /lib/udev/rules.d.
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/sbin/udevadm", "control", "--reload"))
+        assert(posix.execp("udevadm", "control", "--reload"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end
 
@@ -136,8 +148,8 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-	assert(posix.exec("/lib/systemd/systemd-sysctl"))
+        assert(posix.exec("/lib/systemd/systemd-sysctl"))
     elseif pid > 0 then
-	posix.wait(pid)
+        posix.wait(pid)
     end
 end

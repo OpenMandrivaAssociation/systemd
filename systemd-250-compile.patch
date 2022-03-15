@@ -1,0 +1,22 @@
+diff -up systemd-250.20220315/src/basic/locale-util.c.omv~ systemd-250.20220315/src/basic/locale-util.c
+--- systemd-250.20220315/src/basic/locale-util.c.omv~	2022-03-15 19:03:03.136633579 +0100
++++ systemd-250.20220315/src/basic/locale-util.c	2022-03-15 19:03:14.056345285 +0100
+@@ -188,7 +188,6 @@ static int add_locales_from_libdir (Set
+ 
+ static int add_locales_from_sharedir (Set *locales) {
+         _cleanup_closedir_ DIR *dir = NULL;
+-        struct dirent *entry;
+         int r;
+ 
+         dir = opendir("/usr/share/locale");
+diff -up systemd-250.20220315/src/libsystemd/sd-daemon/sd-daemon.c.omv~ systemd-250.20220315/src/libsystemd/sd-daemon/sd-daemon.c
+--- systemd-250.20220315/src/libsystemd/sd-daemon/sd-daemon.c.omv~	2022-03-15 19:02:10.264028783 +0100
++++ systemd-250.20220315/src/libsystemd/sd-daemon/sd-daemon.c	2022-03-15 19:02:26.870590696 +0100
+@@ -12,6 +12,7 @@
+ #include <sys/stat.h>
+ #include <sys/un.h>
+ #include <unistd.h>
++#include <asm/unistd.h> // for __NR_mq_getsetattr
+ 
+ #include "sd-daemon.h"
+ 
