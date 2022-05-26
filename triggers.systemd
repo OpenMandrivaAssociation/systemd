@@ -72,37 +72,31 @@ end
 -- This script will process files installed in /usr/lib/sysusers.d to create
 -- specified users automatically. The priority is set such that it
 -- will run before the tmpfiles file trigger.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-        assert(posix.execp("systemd-sysusers"))
-    elseif pid > 0 then
-        posix.wait(pid)
-    end
+pid = posix.fork()
+if pid == 0 then
+    assert(rpm.execute('systemd-sysusers'))
+elseif pid > 0 then
+    posix.wait(pid)
 end
 
-%transfiletriggerin -P 1000700 hwdb -p <lua> -- /lib/udev/hwdb.d
+%transfiletriggerin -P 1000700 -p <lua> -- /lib/udev/hwdb.d
 -- This script will automatically invoke hwdb update if files have been
 -- installed or updated in /lib/udev/hwdb.d.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-        assert(posix.execp("systemd-hwdb", "update"))
-    elseif pid > 0 then
-        posix.wait(pid)
-    end
+pid = posix.fork()
+if pid == 0 then
+    assert(rpm.execute('systemd-hwdb', 'update'))
+elseif pid > 0 then
+    posix.wait(pid)
 end
 
-%transfiletriggerin -P 1000700 locale -p <lua> -- /usr/lib/systemd/catalog
+%transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/systemd/catalog
 -- This script will automatically invoke journal catalog update if files
 -- have been installed or updated in /usr/lib/systemd/catalog.
-if posix.access("/run/systemd/system") then
-    pid = posix.fork()
-    if pid == 0 then
-        assert(posix.execp("journalctl", "--update-catalog"))
-    elseif pid > 0 then
-        posix.wait(pid)
-    end
+pid = posix.fork()
+if pid == 0 then
+    assert(rpm.execute('journalctl', '--update-catalog'))
+elseif pid > 0 then
+    posix.wait(pid)
 end
 
 %transfiletriggerin -P 1000700 -p <lua> -- /usr/lib/binfmt.d
@@ -124,7 +118,7 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.execp("systemd-tmpfiles", "--create"))
+        assert(rpm.execute('systemd-tmpfiles', '--create'))
     elseif pid > 0 then
         posix.wait(pid)
     end
@@ -136,7 +130,7 @@ end
 if posix.access("/run/systemd/system") then
     pid = posix.fork()
     if pid == 0 then
-        assert(posix.execp("udevadm", "control", "--reload"))
+        assert(rpm.execute('udevadm', 'control', '--reload'))
     elseif pid > 0 then
         posix.wait(pid)
     end
