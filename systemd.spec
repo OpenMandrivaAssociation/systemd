@@ -982,9 +982,6 @@ rm -rf %{buildroot}%{_prefix}/lib/{sysusers.d,tmpfile.d,sysctl.d,kernel,systemd/
 %endif
 %meson_install
 
-# pam modules have already moved to /usr
-mv %{buildroot}/%{_lib}/security %{buildroot}%{_libdir}
-
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
 
 # (bor) create late shutdown and sleep directory
