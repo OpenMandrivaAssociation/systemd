@@ -52,16 +52,16 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 250
-%define stable 20220315
+%define major 251
+%define stable 20220617
 
 Summary:	A System and Session Manager
 Name:		systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v250-stable
-# cd systemd-stable && git archive --prefix=systemd-250.$(date +%Y%m%d)/ --format=tar v250-stable | xz -9ef > ../systemd-250.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v251-stable
+# cd systemd-stable && git archive --prefix=systemd-251.$(date +%Y%m%d)/ --format=tar origin/v251-stable | xz -9ef > ../systemd-251.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
@@ -152,6 +152,7 @@ Patch1004:	systemd-250-compile.patch
 Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # Upstream patches from master that haven't landed in -stable yet
+Patch2000:	https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/23621.patch
 
 BuildRequires:	meson
 BuildRequires:	quota
@@ -288,6 +289,7 @@ Provides:	python-%{name} = 223
 %rename		systemd-resolved
 %rename		udev
 %if %{with compat32}
+BuildRequires:	libc6
 BuildRequires:	devel(libcap)
 BuildRequires:	devel(libgcrypt)
 BuildRequires:	devel(libip4tc)
@@ -857,7 +859,6 @@ export LD=gcc
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %ifarch %{efi}
-	-Defi-cc=gcc \
 	-Defi-ld=bfd \
 	-Defi=true \
 	-Dgnu-efi=true \
@@ -917,6 +918,7 @@ export LD=gcc
 	-Dtpm=true \
 	-Dhwdb=true \
 	-Dsysusers=true \
+	-Dsysupdate=false \
 	-Dman=true \
 	-Dhtml=true \
 	-Dtests=unsafe \
@@ -977,6 +979,9 @@ rm -rf %{buildroot}%{_sysconfdir}/pam.d
 rm -rf %{buildroot}%{_prefix}/lib/{sysusers.d,tmpfile.d,sysctl.d,kernel,systemd/catalog}
 %endif
 %meson_install
+
+# pam modules have already moved to /usr
+mv %{buildroot}/%{_lib}/security %{buildroot}%{_libdir}
 
 mkdir -p %{buildroot}{/bin,%{_sbindir}}
 
@@ -1404,8 +1409,9 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
+%{_datadir}/polkit-1/actions/org.freedesktop.timesync1.policy
 %{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
-/%{_lib}/security/pam_systemd.so
+%{_libdir}/security/pam_systemd.so
 /bin/halt
 /bin/journalctl
 /bin/loginctl
@@ -1463,6 +1469,7 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/factory/etc/nsswitch.conf
+%{_datadir}/factory/etc/locale.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/%{name}/kbd-model-map
@@ -1760,7 +1767,8 @@ fi
 %{systemd_libdir}/systemd-volatile-root
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
-# (tpg) internal library - only systemd uses it
+# (tpg) internal libraries - only systemd uses them
+%{systemd_libdir}/libsystemd-core-%{major}.so
 %{systemd_libdir}/libsystemd-shared-%{major}.so
 #
 %{udev_rules_dir}/10-imx.rules
@@ -1890,7 +1898,7 @@ fi
 %{systemd_libdir}/system/systemd-homed.service
 %{systemd_libdir}/systemd-homed
 %{systemd_libdir}/systemd-homework
-/%{_lib}/security/pam_systemd_home.so
+%{_libdir}/security/pam_systemd_home.so
 %{_datadir}/dbus-1/system-services/org.freedesktop.home1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.home1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.home1.policy
@@ -2104,6 +2112,8 @@ fi
 %{systemd_libdir}/network/80-wifi-ap.network.example
 %{systemd_libdir}/network/80-wifi-station.network.example
 %{systemd_libdir}/network/80-6rd-tunnel.network
+%{systemd_libdir}/network/80-ethernet.network.example
+%{systemd_libdir}/system/systemd-networkd-wait-online@.service
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
@@ -2143,14 +2153,13 @@ fi
 %{_rpmmacrodir}/macros.systemd
 
 %files oom
-/bin/oomctl
+%{_bindir}/oomctl
 %{_sysconfdir}/systemd/oomd.conf
 %dir %{systemd_libdir}/oomd.conf.d
 %{systemd_libdir}/oomd.conf.d/10-oomd-defaults.conf
 %{systemd_libdir}/system/-.slice.d/10-oomd-root-slice-defaults.conf
 %{systemd_libdir}/system/user@.service.d/10-oomd-user-service-defaults.conf
 %{systemd_libdir}/system/systemd-oomd.service
-%{systemd_libdir}/system/dbus-org.freedesktop.oom1.service
 %{systemd_libdir}/systemd-oomd
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-oom.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.oom1.service

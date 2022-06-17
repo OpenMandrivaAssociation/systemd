@@ -1,8 +1,8 @@
-diff -up systemd-250.20220315/src/libsystemd/sd-device/device-enumerator.c.24~ systemd-250.20220315/src/libsystemd/sd-device/device-enumerator.c
---- systemd-250.20220315/src/libsystemd/sd-device/device-enumerator.c.24~	2022-03-11 14:37:06.000000000 +0100
-+++ systemd-250.20220315/src/libsystemd/sd-device/device-enumerator.c	2022-03-15 18:49:11.813321266 +0100
-@@ -347,6 +347,23 @@ static bool match_sysname(sd_device_enum
-         return false;
+diff -up systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c.24~ systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c
+--- systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c.24~	2022-06-09 17:51:57.000000000 +0200
++++ systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c	2022-06-17 12:51:53.840688821 +0200
+@@ -665,6 +665,23 @@ static bool relevant_sysfs_subdir(const
+         return IN_SET(de->d_type, DT_DIR, DT_LNK);
  }
  
 +static int acpi_status_disabled(char *sysfspath)
@@ -22,10 +22,10 @@ diff -up systemd-250.20220315/src/libsystemd/sd-device/device-enumerator.c.24~ s
 +        return 0;
 +}
 +
- static int enumerator_scan_dir_and_add_devices(sd_device_enumerator *enumerator, const char *basedir, const char *subdir1, const char *subdir2) {
-         _cleanup_closedir_ DIR *dir = NULL;
-         char *path;
-@@ -381,6 +398,9 @@ static int enumerator_scan_dir_and_add_d
+ static int enumerator_scan_dir_and_add_devices(
+                 sd_device_enumerator *enumerator,
+                 const char *basedir,
+@@ -703,6 +720,9 @@ static int enumerator_scan_dir_and_add_d
  
                  (void) sprintf(syspath, "%s%s", path, de->d_name);
  
