@@ -876,6 +876,7 @@ export LD=gcc
 	-Dlibcryptsetup=false \
 %else
 	-Dlibcryptsetup=true \
+	-Dlibcryptsetup-plugins-dir="%{_libdir}/cryptsetup" \
 %endif
 	-Dsplit-usr=true \
 	-Dsplit-bin=true \
@@ -904,6 +905,7 @@ export LD=gcc
 	-Dlz4=true \
 	-Dpam=true \
 	-Dpamconfdir="%{_sysconfdir}/pam.d" \
+	-Dpamlibdir="%{_libdir}/security" \
 	-Dacl=true \
 	-Dsmack=true \
 	-Dgcrypt=true \
@@ -1839,7 +1841,6 @@ fi
 %{systemd_libdir}/system/systemd-boot-update.service
 %{systemd_libdir}/system/systemd-oomd.socket
 %{systemd_libdir}/systemd-update-helper
-/%{_lib}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_prefix}/lib/kernel/install.conf
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Home.xml
@@ -2139,6 +2140,7 @@ fi
 %{systemd_libdir}/system/veritysetup-pre.target
 %{systemd_libdir}/system/veritysetup.target
 %{_bindir}/systemd-cryptenroll
+%{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %endif
 
 %files zsh-completion
