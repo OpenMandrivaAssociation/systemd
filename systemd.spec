@@ -47,8 +47,8 @@
 %define lib32udev libudev%{udev_major}
 %define lib32udev_devel libudev-devel
 
-%define systemd_libdir /lib/systemd
-%define udev_libdir /lib/udev
+%define systemd_libdir %{_prefix}/lib/systemd
+%define udev_libdir %{_prefix}/lib/udev
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
@@ -67,7 +67,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -827,7 +827,8 @@ PATH=$PWD/bin:$PATH
 	-Drfkill=false \
 	-Dseccomp=false \
 	-Dselinux=false \
-	-Dsplit-usr=true \
+	-Dsplit-usr=false \
+	-Dsplit-bin=false \
 	-Dsupport-url="%{disturl}" \
 	-Dsysext=false \
 	-Dsysusers=false \
@@ -853,8 +854,6 @@ export LD=gcc
 %endif
 %meson \
 	-Dmode=release \
-	-Drootprefix="" \
-	-Drootlibdir=/%{_lib} \
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
@@ -878,8 +877,8 @@ export LD=gcc
 	-Dlibcryptsetup=true \
 	-Dlibcryptsetup-plugins-dir="%{_libdir}/cryptsetup" \
 %endif
-	-Dsplit-usr=true \
-	-Dsplit-bin=true \
+	-Dsplit-usr=false \
+	-Dsplit-bin=false \
 	-Dxkbcommon=true \
 	-Dtpm=true \
 	-Ddev-kvm-mode=0666 \
@@ -973,39 +972,20 @@ export LD=gcc
 %if %{with compat32}
 %ninja_install -C build32
 rm -rf %{buildroot}%{_sysconfdir} %{buildroot}/lib/{systemd,modprobe.d,udev} %{buildroot}%{_datadir}/{dbus-1,factory,polkit-1}
-# 32 bit cruft is not needed at early bootup...
-mv %{buildroot}/lib/* %{buildroot}%{_prefix}/lib/
-rmdir %{buildroot}/lib
 # (tpg) remove as PAM is not enabled with 32 bit build
 rm -rf %{buildroot}%{_sysconfdir}/pam.d
 rm -rf %{buildroot}%{_prefix}/lib/{sysusers.d,tmpfile.d,sysctl.d,kernel,systemd/catalog}
 %endif
 %meson_install
 
-mkdir -p %{buildroot}{/bin,%{_sbindir}}
-
 # (bor) create late shutdown and sleep directory
 mkdir -p %{buildroot}%{systemd_libdir}/system-shutdown
 mkdir -p %{buildroot}%{systemd_libdir}/system-sleep
 
-# Create SysV compatibility symlinks. systemctl/systemd are smart
-# enough to detect in which way they are called.
-mkdir -p %{buildroot}/sbin
-ln -s ..%{systemd_libdir}/%{name} %{buildroot}/bin/%{name}
-
-# (tpg) install compat symlinks - enable when split-bin=true
-for i in halt poweroff reboot; do
-    ln -s /bin/systemctl %{buildroot}/bin/$i
-done
-
-ln -s /bin/loginctl %{buildroot}%{_bindir}/%{name}-loginctl
-
-# (tpg) dracut needs this
-ln -sf /bin/systemctl %{buildroot}%{_bindir}/systemctl
-ln -sf /bin/systemd-escape %{buildroot}%{_bindir}/systemd-escape
+ln -s loginctl %{buildroot}%{_bindir}/%{name}-loginctl
 
 # We create all wants links manually at installation time to make sure
-# they are not owned and hence overriden by rpm after the used deleted
+# they are not owned and hence overriden by rpm after the user deleted
 # them.
 rm -rf %{buildroot}%{_sysconfdir}/%{name}/system/*.target.wants
 
@@ -1023,16 +1003,12 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/poweroff.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/reboot.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/systemsound.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/system-update.target.wants
-mkdir -p %{buildroot}/%{_prefix}/lib/%{name}/user/basic.target.wants
-mkdir -p %{buildroot}/%{_prefix}/lib/%{name}/user/default.target.wants
-mkdir -p %{buildroot}/%{_prefix}/lib/%{name}/user/sockets.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/user/basic.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/user/default.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/user/sockets.target.wants
 
 # And the default symlink we generate automatically based on inittab
 rm -f %{buildroot}%{_sysconfdir}/%{name}/system/default.target
-
-# (tpg) this is needed
-mkdir -p %{buildroot}%{_prefix}/lib/%{name}/system-generators
-mkdir -p %{buildroot}%{_prefix}/lib/%{name}/user-generators
 
 # (bor) make sure we own directory for bluez to install service
 mkdir -p %{buildroot}/%{systemd_libdir}/system/bluetooth.target.wants
@@ -1045,7 +1021,6 @@ sed -i -e 's/^#SwapAuto=yes$/SwapAuto=yes/' %{buildroot}/etc/%{name}/system.conf
 mkdir %{buildroot}/run
 
 # (tpg) create missing dir
-mkdir -p %{buildroot}%{_libdir}/%{name}/user/
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}/user/default.target.wants
 
 # Create new-style configuration files so that we can ghost-own them
@@ -1066,7 +1041,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/nspawn
 # (cg) Set up the pager to make it generally more useful
 mkdir -p %{buildroot}%{_sysconfdir}/profile.d
 cat > %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh << EOF
-export SYSTEMD_PAGER="/usr/bin/less -FR"
+export SYSTEMD_PAGER="%{_bindir}/less -FR"
 EOF
 chmod 644 %{buildroot}%{_sysconfdir}/profile.d/40systemd.sh
 
@@ -1090,7 +1065,7 @@ install -m 0644 %{SOURCE13} %{buildroot}%{systemd_libdir}/system-preset/
 install -m 0644 %{SOURCE14} %{buildroot}%{systemd_libdir}/system-preset/
 
 # (tpg) install userspace presets
-install -m 0644 %{SOURCE18} %{buildroot}%{_prefix}/lib/%{name}/user-preset/
+install -m 0644 %{SOURCE18} %{buildroot}%{systemd_libdir}/user-preset/
 
 # (tpg) remove 90-systemd-preset as it is included in ours 90-default.preset
 rm -rf %{buildroot}%{systemd_libdir}/system-preset/90-systemd.preset
@@ -1101,10 +1076,10 @@ install -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/rsyslog.d/
 
 # (tpg) silent kernel messages
 # print only KERN_ERR and more serious alerts
-echo "kernel.printk = 2 2 2 2" >> %{buildroot}/usr/lib/sysctl.d/50-default.conf
+echo "kernel.printk = 2 2 2 2" >> %{buildroot}%{_prefix}/lib/sysctl.d/50-default.conf
 
 # (tpg) by default enable SysRq
-sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}/usr/lib/sysctl.d/50-default.conf
+sed -i -e 's/^#kernel.sysrq = 0/kernel.sysrq = 1/' %{buildroot}%{_prefix}/lib/sysctl.d/50-default.conf
 
 # (tpg) use 100M as a default maximum value for journal logs
 sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{name}/journald.conf
@@ -1140,38 +1115,23 @@ mkdir -p  %{buildroot}%{_sysconfdir}/sysconfig/udev
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/sysconfig/udev/
 install -m 0644 %{SOURCE19} %{buildroot}%{udev_rules_dir}/
 
-# probably not required, but let's just be on the safe side for now..
-ln -sf /bin/udevadm %{buildroot}/sbin/udevadm
-ln -sf /bin/udevadm %{buildroot}%{_bindir}/udevadm
-ln -sf /bin/udevadm %{buildroot}%{_sbindir}/udevadm
-
 mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 mkdir -p %{buildroot}%{_sysconfdir}/udev/agents.d/usb
 touch %{buildroot}%{_sysconfdir}/scsi_id.config
 
-ln -s /bin/udevadm %{buildroot}/sbin/udevd
-ln -s /bin/udevadm %{buildroot}%{udev_libdir}/udevd
+ln -s udevadm %{buildroot}%{_bindir}/udevd
+ln -s %{_bindir}/udevadm %{buildroot}%{udev_libdir}/udevd
 
-mkdir -p %{buildroot}/lib/firmware/updates
+mkdir -p %{buildroot}%{_prefix}/lib/firmware/updates
 # default /dev content, from Fedora RPM
 mkdir -p %{buildroot}%{udev_libdir}/devices/{net,hugepages,pts,shm}
 # From previous Mandriva /etc/udev/devices.d
 mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 
-# A lot of configure scripts don't check /lib64 for linkable libraries, so
-# let's symlink libudev to something more common
-ln -s ../../%{_lib}/libudev.so %{buildroot}%{_libdir}/
-
 #################
 #	UDEV	#
 #	END	#
 #################
-
-# (tpg) just delete this for now
-# file /usr/share/man/man5/crypttab.5.xz
-# from install of systemd-186-2.x86_64
-# conflicts with file from package initscripts-9.25-10.x86_64
-rm -rf %{buildroot}%{_mandir}/man5/crypttab*
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1378974
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
@@ -1182,10 +1142,6 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.ser
 # Compute catalog
 ./build/journalctl --root %{buildroot} --update-catalog
 
-# Compilers don't look in /lib or /lib64
-rm %{buildroot}/%{_lib}/libsystemd.so
-ln -s ../../%{_lib}/libsystemd.so.0 %{buildroot}%{_libdir}/libsystemd.so
-
 %find_lang %{name}
 
 %include %{SOURCE1}
@@ -1195,43 +1151,43 @@ ln -s ../../%{_lib}/libsystemd.so.0 %{buildroot}%{_libdir}/libsystemd.so
 # trigger is executed on both self and target install so no need to have
 # extra own post
 if [ $1 -ge 2 ] || [ $2 -ge 2 ]; then
-    /bin/systemctl daemon-reexec 2>&1 || :
+	%{_bindir}/systemctl daemon-reexec 2>&1 || :
 fi
 
 %post
-/bin/systemd-firstboot --setup-machine-id &>/dev/null ||:
-/bin/systemd-machine-id-setup &>/dev/null ||:
-/bin/systemctl daemon-reexec &>/dev/null ||:
+%{_bindir}/systemd-firstboot --setup-machine-id &>/dev/null ||:
+%{_bindir}/systemd-machine-id-setup &>/dev/null ||:
+%{_bindir}/systemctl daemon-reexec &>/dev/null ||:
 
 if [ $1 -eq 1 ] ; then
-    [ -w %{_localstatedir} ] && mkdir -p %{_localstatedir}/log/journal
-    /bin/systemd-sysusers &>/dev/null ||:
-    %{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
-    /bin/journalctl --update-catalog &>/dev/null ||:
-    /bin/systemd-tmpfiles --create &>/dev/null ||:
+	[ -w %{_localstatedir} ] && mkdir -p %{_localstatedir}/log/journal
+	%{_bindir}/systemd-sysusers &>/dev/null ||:
+	%{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
+	%{_bindir}/journalctl --update-catalog &>/dev/null ||:
+	%{_bindir}/systemd-tmpfiles --create &>/dev/null ||:
 
-# Init 90-default.preset only on first install
-    /bin/systemctl preset-all &>/dev/null ||:
-    /bin/systemctl --global preset-all &>/dev/null ||:
+	# Init 90-default.preset only on first install
+	%{_bindir}/systemctl preset-all &>/dev/null ||:
+	%{_bindir}/systemctl --global preset-all &>/dev/null ||:
 
-# (tpg) link to resolv.conf from systemd
-    [ -e /etc/resolv.conf ] && rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-    if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
-	mkdir -p /run/systemd/resolve
-	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
-	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
-    fi
+	# (tpg) link to resolv.conf from systemd
+	[ -e /etc/resolv.conf ] && rm -f /etc/resolv.conf
+	ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+	if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
+		mkdir -p /run/systemd/resolve
+		printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
+		printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
+	fi
 fi
 
 hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
 if [ -z "$hostname_new" ]; then
-    hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
-    if [ ! -z "$hostname_old" ]; then
-	printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
-    else
-	printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
-    fi
+	hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
+	if [ ! -z "$hostname_old" ]; then
+		printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
+	else
+		printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
+	fi
 fi
 
 %triggerin -- %{name} < 239
@@ -1244,23 +1200,23 @@ fi
 # Remove spurious /etc/fstab entries from very old installations
 if [ -e /etc/fstab ]; then
 	grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
-	    sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+		sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
 fi
 
 # Try to read default runlevel from the old inittab if it exists
-runlevel=$(/bin/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
+runlevel=$(%{_bindir}/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
 if [ -z "$runlevel" ] ; then
-	target="/lib/systemd/system/graphical.target"
-    else
-	target="/lib/systemd/system/runlevel$runlevel.target"
- fi
+	target="%{systemd_libdir}/system/graphical.target"
+else
+	target="%{systemd_libdir}/system/runlevel$runlevel.target"
+fi
 
 # And symlink what we found to the new-style default.target
-/bin/ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
+ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
 %triggerin -- %{libnss_myhostname} < 237
 if [ -f /etc/nsswitch.conf ]; then
-# sed-fu to add myhostanme to hosts line
+# sed-fu to add myhostname to hosts line
 	grep -v -E -q '^hosts:.* myhostname' /etc/nsswitch.conf &&
 	sed -i.bak -e '
 		/^hosts:/ !b
@@ -1309,9 +1265,9 @@ fi
 %sysusers_create_package systemd-remote.conf %{SOURCE25}
 
 %files
-%dir /lib/firmware
-%dir /lib/firmware/updates
-%dir /lib/modprobe.d
+%dir %{_prefix}/lib/firmware
+%dir %{_prefix}/lib/firmware/updates
+%dir %{_prefix}/lib/modprobe.d
 %dir %{_datadir}/factory
 %dir %{_datadir}/factory/etc
 %dir %{_datadir}/factory/etc/pam.d
@@ -1322,9 +1278,7 @@ fi
 %dir %{_prefix}/lib/sysctl.d
 %dir %{_prefix}/lib/kernel
 %dir %{_prefix}/lib/kernel/install.d
-%dir %{_prefix}/lib/%{name}
 %dir %{_prefix}/lib/%{name}/catalog
-%dir %{_prefix}/lib/%{name}/system-generators
 %dir %{_prefix}/lib/%{name}/user
 %dir %{_prefix}/lib/%{name}/user-preset
 %dir %{_prefix}/lib/%{name}/user-generators
@@ -1349,7 +1303,6 @@ fi
 %dir %{_sysconfdir}/udev/agents.d/usb
 %dir %{_sysconfdir}/udev/rules.d
 %dir %{systemd_libdir}
-#dir %{systemd_libdir}/*-generators
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/system-preset
 %dir %{systemd_libdir}/system-shutdown
@@ -1396,9 +1349,9 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/timezone
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
-%doc /lib/modprobe.d/README
-%doc /lib/udev/hwdb.d/README
-%doc /lib/udev/rules.d/README
+%doc %{_prefix}/lib/modprobe.d/README
+%doc %{_prefix}/lib/udev/hwdb.d/README
+%doc %{_prefix}/lib/udev/rules.d/README
 %doc %{_prefix}/lib/sysctl.d/README
 %doc %{_prefix}/lib/sysusers.d/README
 %doc %{_prefix}/lib/tmpfiles.d/README
@@ -1411,42 +1364,35 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.timesync1.policy
 %{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
 %{_libdir}/security/pam_systemd.so
-/bin/halt
-/bin/journalctl
-/bin/loginctl
-/bin/poweroff
-/bin/reboot
-/bin/systemctl
-/bin/%{name}
-/bin/%{name}-ask-password
-/bin/%{name}-escape
-/bin/%{name}-firstboot
-/bin/%{name}-inhibit
-/bin/%{name}-machine-id-setup
-/bin/%{name}-notify
-/bin/%{name}-sysusers
-/bin/%{name}-tmpfiles
-/bin/%{name}-tty-ask-password-agent
-/bin/%{name}-creds
-/bin/udevadm
-/bin/userdbctl
-/sbin/init
-/sbin/resolvconf
-/sbin/runlevel
-/sbin/shutdown
-/sbin/telinit
-/sbin/halt
-/sbin/poweroff
-/sbin/reboot
+%{_bindir}/halt
+%{_bindir}/journalctl
+%{_bindir}/loginctl
+%{_bindir}/poweroff
+%{_bindir}/reboot
+%{_bindir}/systemctl
+%{_bindir}/%{name}-ask-password
+%{_bindir}/%{name}-escape
+%{_bindir}/%{name}-firstboot
+%{_bindir}/%{name}-inhibit
+%{_bindir}/%{name}-machine-id-setup
+%{_bindir}/%{name}-notify
+%{_bindir}/%{name}-sysusers
+%{_bindir}/%{name}-tmpfiles
+%{_bindir}/%{name}-tty-ask-password-agent
+%{_bindir}/%{name}-creds
+%{_bindir}/userdbctl
+%{_bindir}/init
+%{_bindir}/resolvconf
+%{_bindir}/runlevel
+%{_bindir}/shutdown
+%{_bindir}/telinit
 %{_bindir}/busctl
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
 %{_bindir}/localectl
-%{_bindir}/systemctl
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-dissect
-%{_bindir}/systemd-escape
 %{_bindir}/systemd-id128
 %{_bindir}/systemd-loginctl
 %{_bindir}/systemd-mount
@@ -1474,7 +1420,7 @@ fi
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
-/lib/modprobe.d/systemd.conf
+%{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
 %{_prefix}/lib/%{name}/user-preset/*.preset
@@ -1792,12 +1738,10 @@ fi
 %{udev_rules_dir}/81-net-dhcp.rules
 %{udev_rules_dir}/99-systemd.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
-/sbin/udevadm
-/sbin/udevd
+%{_bindir}/udevd
 %{_bindir}/udevadm
-%{_sbindir}/udevadm
-/lib/udev/dmi_memory_id
-/lib/udev/rules.d/70-memory.rules
+%{_prefix}/lib/udev/dmi_memory_id
+%{_prefix}/lib/udev/rules.d/70-memory.rules
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
@@ -1880,17 +1824,17 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
 
 %files sysext
-/bin/systemd-sysext
+%{_bindir}/systemd-sysext
 %{systemd_libdir}/system/systemd-sysext.service
 
 %files repart
-/bin/systemd-repart
+%{_bindir}/systemd-repart
 %{systemd_libdir}/system/systemd-repart.service
 %{systemd_libdir}/system/initrd-root-fs.target.wants/systemd-repart.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-repart.service
 
 %files homed
-/bin/homectl
+%{_bindir}/homectl
 %config(noreplace) %{_sysconfdir}/systemd/homed.conf
 %{systemd_libdir}/system/systemd-homed-activate.service
 %{systemd_libdir}/system/systemd-homed.service
@@ -1918,7 +1862,7 @@ fi
 %{systemd_libdir}/systemd-portabled
 %{_datadir}/polkit-1/actions/org.freedesktop.portable1.policy
 %{_prefix}/lib/tmpfiles.d/portables.conf
-/bin/portablectl
+%{_bindir}/portablectl
 
 %files journal-remote
 %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
@@ -1952,7 +1896,7 @@ fi
 %{systemd_libdir}/systemd-pull
 %{systemd_libdir}/import-pubring.gpg
 %dir %{_sysconfdir}/%{name}/nspawn
-/bin/machinectl
+%{_bindir}/machinectl
 %{_bindir}/systemd-nspawn
 %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
@@ -1963,19 +1907,19 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
 
 %files -n %{libnss_mymachines}
-/%{_lib}/libnss_mymachines.so.%{libnss_major}
+%{_libdir}/libnss_mymachines.so.%{libnss_major}
 
 %files -n %{libnss_myhostname}
-/%{_lib}/libnss_myhostname.so.%{libnss_major}*
+%{_libdir}/libnss_myhostname.so.%{libnss_major}*
 
 %files -n %{libnss_resolve}
-/%{_lib}/libnss_resolve.so.%{libnss_major}
+%{_libdir}/libnss_resolve.so.%{libnss_major}
 
 %files -n %{libnss_systemd}
-/%{_lib}/libnss_systemd.so.%{libnss_major}
+%{_libdir}/libnss_systemd.so.%{libnss_major}
 
 %files -n %{libsystemd}
-/%{_lib}/libsystemd.so.%{libsystemd_major}*
+%{_libdir}/libsystemd.so.%{libsystemd_major}*
 
 %files -n %{libsystemd_devel}
 %dir %{_includedir}/%{name}
@@ -1997,10 +1941,9 @@ fi
 %{_libdir}/pkgconfig/lib%{name}.pc
 
 %files -n %{libudev}
-/%{_lib}/libudev.so.%{udev_major}*
+%{_libdir}/libudev.so.%{udev_major}*
 
 %files -n %{libudev_devel}
-/%{_lib}/libudev.so
 %{_libdir}/libudev.so
 %{_libdir}/pkgconfig/libudev.pc
 %{_datadir}/pkgconfig/udev.pc
@@ -2028,7 +1971,7 @@ fi
 
 %post boot
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
-    convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
+	convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
 
 %files console
@@ -2063,7 +2006,7 @@ fi
 %ghost %{_sysconfdir}/udev/hwdb.bin
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
 %{systemd_libdir}/system/systemd-hwdb-update.service
-/bin/systemd-hwdb
+%{_bindir}/systemd-hwdb
 %{udev_libdir}/*.bin
 %{udev_libdir}/hwdb.d/*.hwdb
 %{udev_rules_dir}/60-cdrom_id.rules
@@ -2100,7 +2043,7 @@ fi
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
-/bin/networkctl
+%{_bindir}/networkctl
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-ve.network
@@ -2117,7 +2060,7 @@ fi
 
 %preun networkd
 if [ $1 -eq 0 ] ; then
-    /bin/systemctl --quiet disable systemd-networkd.service 2>&1 || :
+	%{_bindir}/systemctl --quiet disable systemd-networkd.service 2>&1 || :
 fi
 
 %if !%{with bootstrap}
