@@ -12,7 +12,7 @@
 # Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
 # aarch64 added for testing (to see if systemctl hangs on
 # synquacer and pinephone go away)
-%ifarch x86_64 aarch64
+%ifarch x86_64
 %bcond_without gcc
 %else
 %bcond_with gcc
@@ -1001,7 +1001,7 @@ mkdir -p %{buildroot}/%{systemd_libdir}/system/initrd.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/kexec.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/poweroff.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/reboot.target.wants
-mkdir -p %{buildroot}/%{systemd_libdir}/systemsound.target.wants
+mkdir -p %{buildroot}/%{systemd_libdir}/system/sound.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/system/system-update.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/user/basic.target.wants
 mkdir -p %{buildroot}/%{systemd_libdir}/user/default.target.wants
@@ -1151,7 +1151,7 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.ser
 # trigger is executed on both self and target install so no need to have
 # extra own post
 if [ $1 -ge 2 ] || [ $2 -ge 2 ]; then
-	%{_bindir}/systemctl daemon-reexec 2>&1 || :
+    %{_bindir}/systemctl daemon-reexec 2>&1 || :
 fi
 
 %post
@@ -1330,7 +1330,7 @@ fi
 %dir %{systemd_libdir}/system/kexec.target.wants
 %dir %{systemd_libdir}/system/poweroff.target.wants
 %dir %{systemd_libdir}/system/reboot.target.wants
-%dir %{systemd_libdir}/systemsound.target.wants
+%dir %{systemd_libdir}/system/sound.target.wants
 %dir %{systemd_libdir}/system/system-update.target.wants
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{systemd_libdir}/system/machines.target.wants
@@ -1971,7 +1971,7 @@ fi
 
 %post boot
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
-	convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
+    convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
 
 %files console
