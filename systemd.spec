@@ -240,7 +240,7 @@ Provides:	suspend = 1.0-10
 Obsoletes:	suspend-s2ram < 1.0-10
 Provides:	suspend-s2ram = 1.0-10
 Provides:	should-restart = system
-Requires:	(%{name}-rpm-macros = %{EVRD} if rpm-build)
+Requires(meta):	(%{name}-rpm-macros = %{EVRD} if rpm-build)
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
@@ -1780,7 +1780,6 @@ fi
 # New in -250, need to verify if this needs to go to subpackages
 %{systemd_libdir}/system/factory-reset.target
 %{systemd_libdir}/system/systemd-boot-update.service
-%{systemd_libdir}/system/systemd-oomd.socket
 %{systemd_libdir}/systemd-update-helper
 %{_prefix}/lib/kernel/install.conf
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
@@ -2060,7 +2059,7 @@ fi
 
 %preun networkd
 if [ $1 -eq 0 ] ; then
-	%{_bindir}/systemctl --quiet disable systemd-networkd.service 2>&1 || :
+    %{_bindir}/systemctl --quiet disable systemd-networkd.service 2>&1 || :
 fi
 
 %if !%{with bootstrap}
@@ -2101,6 +2100,7 @@ fi
 %{systemd_libdir}/oomd.conf.d/10-oomd-defaults.conf
 %{systemd_libdir}/system/-.slice.d/10-oomd-root-slice-defaults.conf
 %{systemd_libdir}/system/user@.service.d/10-oomd-user-service-defaults.conf
+%{systemd_libdir}/system/systemd-oomd.socket
 %{systemd_libdir}/system/systemd-oomd.service
 %{systemd_libdir}/systemd-oomd
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-oom.conf

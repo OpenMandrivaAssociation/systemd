@@ -10,11 +10,10 @@ enable remote-fs.target
 enable remote-cryptsetup.target
 enable machines.target
 enable getty@tty1.service
-
-# Enable other system services
-enable systemd-bus-proxy.socket
-enable systemd-initctl.socket
 enable systemd-journald.socket
+enable systemd-oomd.socket
+enable systemd-homed.service
+enable systemd-userdbd.socket
 
 # Network services
 enable systemd-resolved.service
@@ -31,5 +30,12 @@ disable poweroff.target
 enable reboot.target
 disable rescue.target
 disable exit.target
+disable systemd-networkd-wait-online.service
+disable systemd-time-wait-sync.service
+disable systemd-boot-check-no-failures.service
+disable proc-sys-fs-binfmt_misc.mount
 disable syslog.socket
-enable systemd-oomd.service
+disable systemd-journal-gatewayd.*
+disable systemd-journal-remote.*
+disable systemd-journal-upload.*
+
