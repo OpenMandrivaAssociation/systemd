@@ -5,19 +5,6 @@
 %bcond_with compat32
 %endif
 
-# FIXME workaround for a very very weird bug
-# systemd on x86_64, but not znver1 (so we're intentionally
-# not using %{x86_64} here), hangs indefinitely on upgrades
-# if built with clang.
-# Last verified with systemd 247.20210305, clang 12.0.0-0.20210224.1
-# aarch64 added for testing (to see if systemctl hangs on
-# synquacer and pinephone go away)
-%ifarch x86_64
-%bcond_without gcc
-%else
-%bcond_with gcc
-%endif
-
 # (tpg) optimize it a bit
 %global optflags %{optflags} -O3
 
