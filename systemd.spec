@@ -6,7 +6,7 @@
 %endif
 
 # (tpg) optimize it a bit
-%global optflags %{optflags} -O3
+%global optflags %{optflags} -O3 -Wno-implicit-int
 
 %bcond_with bootstrap
 
