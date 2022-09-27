@@ -54,7 +54,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -141,7 +141,7 @@ Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 # Upstream patches from master that haven't landed in -stable yet
 Patch2000:	https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/23621.patch
 Patch2001:	6a941db798e3c5d896f6732afb4e6e482d708900.patch
-
+Patch2002:	https://github.com/systemd/systemd/commit/93651582ae.patch
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	pkgconfig(libacl)
@@ -157,9 +157,7 @@ BuildRequires:	pkgconfig(libelf)
 BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(glib-2.0)
-BuildRequires:	pkgconfig(libgcrypt)
 BuildRequires:	pkgconfig(openssl)
-BuildRequires:	pkgconfig(gpg-error)
 BuildRequires:	gtk-doc
 BuildRequires:	rsync
 %if !%{with bootstrap}
@@ -218,10 +216,10 @@ Conflicts:	udev < 221-1
 #(tpg) time to drop consolekit stuff as it is replaced by native logind
 Provides:	consolekit = 0.4.5-6
 Provides:	consolekit-x11 = 0.4.5-6
-Obsoletes:	consolekit <= 0.4.5-5
-Obsoletes:	consolekit-x11 <= 0.4.5-5
-Obsoletes:	libconsolekit0
-Obsoletes:	lib64consolekit0
+Obsoletes:	consolekit < 0.4.5-6
+Obsoletes:	consolekit-x11 < 0.4.5-6
+Obsoletes:	libconsolekit0 < 0.4.5-6
+Obsoletes:	lib64consolekit0 < 0.4.5-6
 # (tpg) this is obsoleted
 Obsoletes:	suspend < 1.0-10
 Provides:	suspend = 1.0-10
@@ -258,7 +256,6 @@ Provides:	sysvinit = 2.87-23, SysVinit = 2.87-23
 Obsoletes:	sysvinit < 2.87-23, SysVinit < 2.87-23
 # Due to halt/poweroff etc. in _bindir
 Conflicts:	usermode-consoleonly < 1:1.110
-Obsoletes:	hal <= 0.5.14-6
 # (tpg) moved form makedev package
 Provides:	dev
 Obsoletes:	MAKEDEV < 4.4-23
@@ -279,7 +276,6 @@ Provides:	python-%{name} = 223
 %if %{with compat32}
 BuildRequires:	libc6
 BuildRequires:	devel(libcap)
-BuildRequires:	devel(libgcrypt)
 BuildRequires:	devel(libip4tc)
 BuildRequires:	devel(libip6tc)
 BuildRequires:	devel(libpcre2-8)
@@ -295,6 +291,7 @@ BuildRequires:	devel(libidn2)
 BuildRequires:	devel(libz)
 BuildRequires:	devel(libdw)
 BuildRequires:	devel(libdbus-1)
+BuildRequires:	devel(libssl)
 %endif
 
 %description
@@ -597,7 +594,7 @@ This functionality only applies to containers using network namespacing.
 Summary:	Provide hostname resolution via systemd-resolved.service
 Group:		System/Libraries
 Provides:	libnss_resolve = %{EVRD}
-Provides:	nss_resolve= %{EVRD}
+Provides:	nss_resolve = %{EVRD}
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
 
@@ -625,7 +622,6 @@ for details on this option.
 %package -n %{libudev}
 Summary:	Library for udev
 Group:		System/Libraries
-Obsoletes:	%{mklibname hal 1} <= 0.5.14-6
 
 %description -n %{libudev}
 Library for udev.
@@ -752,18 +748,11 @@ ln -sf %{_bindir}/ld.bfd bin/ld
 PATH=$PWD/bin:$PATH
 %endif
 
-# FIXME
-# Switch to
-#	-Ddefault-hierarchy=unified \
-# below once Docker has been fixed to work with it.
-# In the mean time, hybrid provides cgroups2 features
-# while keeping docker working.
-# https://github.com/opencontainers/runc/issues/654
-#
-# In order to switch to cgroup2 it is enough to pass systemd.unified_cgroup_hierarchy=1 via kernel command line.
+# In order to switch to cgroup1 it is enough to pass systemd.unified_cgroup_hierarchy=0 via kernel command line.
 
 %if %{with compat32}
 %meson32 \
+	-Dmode=release \
 	-Danalyze=false \
 	-Dapparmor=false \
 	-Daudit=false \
@@ -778,6 +767,7 @@ PATH=$PWD/bin:$PATH
 	-Dfirstboot=false \
 	-Dgnu-efi=false \
 	-Dgnutls=false\
+	-Dgcrypt=false \
 	-Dhibernate=false \
 	-Dhomed=false \
 	-Dhostnamed=false \
@@ -795,7 +785,6 @@ PATH=$PWD/bin:$PATH
 	-Dmachined=false \
 	-Dman=false \
 	-Dmicrohttpd=false \
-	-Dmode=release \
 	-Dnetworkd=false \
 	-Dnscd=false \
 	-Doomd=false \
@@ -830,7 +819,9 @@ PATH=$PWD/bin:$PATH
 	-Dutmp=false \
 	-Dvalgrind=false \
 	-Dvconsole=false \
-	-Dxdg-autostart=false
+	-Dxdg-autostart=false \
+	-Dfirst-boot-full-preset=false \
+	-Dcryptolib=openssl
 
 %ninja_build -C build32
 %endif
@@ -895,7 +886,7 @@ export LD=gcc
 	-Dpamlibdir="%{_libdir}/security" \
 	-Dacl=true \
 	-Dsmack=true \
-	-Dgcrypt=true \
+	-Dgcrypt=false \
 	-Daudit=false \
 	-Delfutils=true \
 	-Dqrencode=true \
@@ -920,9 +911,9 @@ export LD=gcc
 	-Dloadkeys-path=%{_bindir}/loadkeys \
 	-Dsetfont-path=%{_bindir}/setfont \
 	-Dcertificate-root="%{_sysconfdir}/pki" \
-	-Dfallback-hostname=openmandriva \
+	-Dfallback-hostname="localhost" \
 	-Dsupport-url="%{disturl}" \
-	-Ddefault-hierarchy=hybrid \
+	-Ddefault-hierarchy=unified \
 	-Dtty-gid=5 \
 	-Dusers-gid=100 \
 	-Dnobody-user=nobody \
@@ -951,7 +942,11 @@ export LD=gcc
 	-Dwheel-gid=10 \
 	-Dsystemd-journal-gid=190 \
 	-Dsystemd-network-uid=194 \
-	-Dsystemd-resolve-uid=191
+	-Dsystemd-resolve-uid=191 \
+	-Dfirst-boot-full-preset=true \
+	-Dstatus-unit-format-default=combined \
+	-Dcompat-mutable-uid-boundaries=true \
+	-Dcryptolib=openssl
 # -Dsystemd-timesync-uid=, not set yet
 
 %meson_build
