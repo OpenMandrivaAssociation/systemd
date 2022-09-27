@@ -54,7 +54,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	3
+Release:	4
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -175,6 +175,8 @@ BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
+BuildRequires:	pkgconfig(libbpf)
+BuildRequires:	bpftool
 BuildRequires:	efi-srpm-macros
 %ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
@@ -819,7 +821,8 @@ PATH=$PWD/bin:$PATH
 	-Dxdg-autostart=false \
 	-Dfirst-boot-full-preset=false \
 	-Dcryptolib=openssl \
-	-Dlibiptc=false
+	-Dlibiptc=false \
+	-Dbpf-framework=false
 
 %ninja_build -C build32
 %endif
@@ -944,7 +947,8 @@ export LD=gcc
 	-Dfirst-boot-full-preset=true \
 	-Dstatus-unit-format-default=combined \
 	-Dcompat-mutable-uid-boundaries=true \
-	-Dcryptolib=openssl
+	-Dcryptolib=openssl \
+	-Dbpf-framework=true
 # -Dsystemd-timesync-uid=, not set yet
 
 %meson_build
