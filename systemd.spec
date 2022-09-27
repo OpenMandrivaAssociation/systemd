@@ -54,7 +54,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -170,7 +170,6 @@ BuildRequires:	pkgconfig(libzstd)
 BuildRequires:	pkgconfig(libxslt)
 BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
-BuildRequires:	pkgconfig(libiptc)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
 BuildRequires:	pkgconfig(liblz4)
@@ -276,8 +275,6 @@ Provides:	python-%{name} = 223
 %if %{with compat32}
 BuildRequires:	libc6
 BuildRequires:	devel(libcap)
-BuildRequires:	devel(libip4tc)
-BuildRequires:	devel(libip6tc)
 BuildRequires:	devel(libpcre2-8)
 BuildRequires:	devel(liblz4)
 BuildRequires:	devel(libcrypto)
@@ -821,7 +818,8 @@ PATH=$PWD/bin:$PATH
 	-Dvconsole=false \
 	-Dxdg-autostart=false \
 	-Dfirst-boot-full-preset=false \
-	-Dcryptolib=openssl
+	-Dcryptolib=openssl \
+	-Dlibiptc=false
 
 %ninja_build -C build32
 %endif
@@ -893,7 +891,7 @@ export LD=gcc
 	-Dgnutls=true \
 	-Dmicrohttpd=true \
 	-Dlibidn2=true \
-	-Dlibiptc=true \
+	-Dlibiptc=false \
 	-Dlibcurl=true \
 	-Dtpm=true \
 	-Dhwdb=true \
