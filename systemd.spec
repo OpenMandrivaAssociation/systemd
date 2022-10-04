@@ -40,7 +40,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 251
-%define stable 20220811
+%define stable 20221004
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -54,7 +54,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
 %endif
-Release:	4
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -140,8 +140,6 @@ Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # Upstream patches from master that haven't landed in -stable yet
 Patch2000:	https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/23621.patch
-Patch2001:	6a941db798e3c5d896f6732afb4e6e482d708900.patch
-Patch2002:	https://github.com/systemd/systemd/commit/93651582ae.patch
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	pkgconfig(libacl)
