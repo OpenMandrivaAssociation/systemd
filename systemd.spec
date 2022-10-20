@@ -175,6 +175,7 @@ BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
 BuildRequires:	pkgconfig(libbpf)
 BuildRequires:	bpftool
+BuildRequires:	atomic-devel
 BuildRequires:	efi-srpm-macros
 %ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
