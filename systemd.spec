@@ -85,8 +85,7 @@ Source24:	yum-protect-systemd.conf
 Source25:	systemd-remote.sysusers
 
 Source26:	10-oomd-defaults.conf
-Source27:	10-oomd-root-slice-defaults.conf
-Source28:	10-oomd-user-service-defaults.conf
+Source27:	10-oomd-per-slice-defaults.conf
 
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
@@ -1070,8 +1069,9 @@ sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{
 
 # systemd-oomd default configuration
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/oomd.conf.d/ %{SOURCE26}
-install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/-.slice.d/ %{SOURCE27}
-install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/user@.service.d/ %{SOURCE28}
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/user-.slice.d/ %{SOURCE27}
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/system.slice.d/ %{SOURCE27}
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/%{name}/user/slice.d/ %{SOURCE27}
 
 %ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
@@ -2082,8 +2082,9 @@ fi
 %{_sysconfdir}/systemd/oomd.conf
 %dir %{systemd_libdir}/oomd.conf.d
 %{systemd_libdir}/oomd.conf.d/10-oomd-defaults.conf
-%{systemd_libdir}/system/-.slice.d/10-oomd-root-slice-defaults.conf
-%{systemd_libdir}/system/user@.service.d/10-oomd-user-service-defaults.conf
+%{systemd_libdir}/system/user-.slice.d/10-oomd-per-slice-defaults.conf
+%{systemd_libdir}/system/system.slice.d/10-oomd-per-slice-defaults.conf
+%{_prefix}/lib/%{name}/user/slice.d/10-oomd-per-slice-defaults.conf
 %{systemd_libdir}/system/systemd-oomd.socket
 %{systemd_libdir}/system/systemd-oomd.service
 %{systemd_libdir}/systemd-oomd
