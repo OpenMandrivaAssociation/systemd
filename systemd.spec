@@ -1073,6 +1073,12 @@ install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/user-.slice.d/ %{SOURCE2
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/system.slice.d/ %{SOURCE27}
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/%{name}/user/slice.d/ %{SOURCE27}
 
+# systemd-creds
+mkdir -p %{buildroot}%{_sysconfdir}/credstore
+mkdir -p %{buildroot}%{_sysconfdir}/credstore.encrypted
+mkdir -p %{buildroot}%{_prefix}/lib/credstore
+mkdir -p %{buildroot}%{_prefix}/lib/credstore.encryped
+
 %ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
@@ -1273,6 +1279,8 @@ fi
 %dir %{_prefix}/lib/sysusers.d
 %dir %{_prefix}/lib/tmpfiles.d
 %dir %{_sysconfdir}/binfmt.d
+%dir %{_sysconfdir}/credstore
+%dir %{_sysconfdir}/credstore.encrypted
 %dir %{_sysconfdir}/modules-load.d
 %dir %{_sysconfdir}/sysctl.d
 %dir %{_sysconfdir}/%{name}
@@ -1325,6 +1333,8 @@ fi
 %dir %{udev_rules_dir}
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
+%dir %{_prefix}/lib/credstore
+%dir %{_prefix}/lib/credstore.encrypted
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
 %ghost %config(noreplace) %{_sysconfdir}/hostname
 %ghost %config(noreplace) %{_sysconfdir}/locale.conf
