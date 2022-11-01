@@ -39,8 +39,8 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 251
-%define stable 20221027
+%define major 252
+%define stable 20221101
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -90,10 +90,7 @@ Source27:	10-oomd-per-slice-defaults.conf
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
-# Allow specifying @LIBDIR@ and @LIBEXECDIR@ in %%sysusers_create_package
-# files to make sure a system user's home can vary by architecture
-# (e.g. polkitd likes having its home in %{_libdir}/polkit-1)
-Patch3:		systemd-249-macros-expand-directory-names.patch
+Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
@@ -111,7 +108,6 @@ Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch103:	0005-journal-flush-var-kmsg-after-starting-disable-kmsg-f.patch
 Patch104:	0007-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch105:	0008-efi-boot-generator-Do-not-automount-boot-partition.patch
-Patch106:	0010-locale-setup-set-default-locale-to-a-unicode-one.patch
 Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch108:	0018-more-udev-children-workers.patch
 Patch109:	0019-not-load-iptables.patch
@@ -127,18 +123,16 @@ Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 Patch120:	0038-Localize-1-symbol.patch
 
 # (tpg) OMV patches
-Patch1001:	systemd-245-allow-compiling-with-gcc.patch
-#(tpg) we use bsdtar so let's adapt attribues to match implementation
+# (tpg) we use bsdtar so let's adapt attribues to match implementation
 # httpa://github.com/systemd/systemd/issues/16506
 Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
-Patch1003:	systemd-249-no-clang-flags-for-bits-built-by-gcc.patch
-Patch1004:	systemd-250-compile.patch
+# (tpg) needed for 0038-Localize-1-symbol.patch
+Patch1003:	systemd-250-compile.patch
 
 # (tpg) Fedora patches
-Patch1100:	0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
 
 # Upstream patches from master that haven't landed in -stable yet
-Patch2000:	https://patch-diff.githubusercontent.com/raw/systemd/systemd/pull/23621.patch
+
 BuildRequires:	meson
 BuildRequires:	quota
 BuildRequires:	pkgconfig(libacl)
@@ -169,7 +163,6 @@ BuildRequires:	pkgconfig(libmicrohttpd)
 BuildRequires:	pkgconfig(libqrencode)
 BuildRequires:	xsltproc
 BuildRequires:	pkgconfig(blkid) >= 2.30
-BuildRequires:	pkgconfig(liblz4)
 BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
 BuildRequires:	pkgconfig(libbpf)
@@ -276,7 +269,6 @@ Provides:	python-%{name} = 223
 BuildRequires:	libc6
 BuildRequires:	devel(libcap)
 BuildRequires:	devel(libpcre2-8)
-BuildRequires:	devel(liblz4)
 BuildRequires:	devel(libcrypto)
 BuildRequires:	devel(libcurl)
 BuildRequires:	devel(libcrypt) libcrypt-devel
@@ -284,6 +276,7 @@ BuildRequires:	devel(liblzma)
 BuildRequires:	devel(libglib-2.0)
 BuildRequires:	devel(libmount)
 BuildRequires:	devel(libblkid)
+BuildRequires:	devel(libzstd)
 BuildRequires:	devel(libidn2)
 BuildRequires:	devel(libz)
 BuildRequires:	devel(libdw)
@@ -820,16 +813,13 @@ PATH=$PWD/bin:$PATH
 	-Dfirst-boot-full-preset=false \
 	-Dcryptolib=openssl \
 	-Dlibiptc=false \
-	-Dbpf-framework=false
+	-Dbpf-framework=false \
+	-Dlz4=false \
+	-Ddefault-compression=zstd
 
 %ninja_build -C build32
 %endif
 
-%if %{with gcc}
-export CC=gcc
-export CXX=g++
-export LD=gcc
-%endif
 %meson \
 	-Dmode=release \
 	-Dsysvinit-path=%{_initrddir} \
@@ -879,7 +869,8 @@ export LD=gcc
 	-Dxz=true \
 	-Dzlib=true \
 	-Dbzip2=false \
-	-Dlz4=true \
+	-Dlz4=false \
+	-Ddefault-compression=zstd \
 	-Dpam=true \
 	-Dpamconfdir="%{_sysconfdir}/pam.d" \
 	-Dpamlibdir="%{_libdir}/security" \
@@ -1017,6 +1008,11 @@ mkdir -p %{buildroot}%{_sysconfdir}/X11/xorg.conf.d
 touch %{buildroot}%{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 mkdir -p %{buildroot}%{_sysconfdir}/udev
 touch %{buildroot}%{_sysconfdir}/udev/hwdb.bin
+mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/catalog
+touch %{buildroot}%{_localstatedir}/lib/systemd/catalog/database
+touch %{buildroot}%{_localstatedir}/lib/systemd/random-seed
+mkdir -p %{buildroot}%{_localstatedir}/lib/systemd/timesync
+touch %{buildroot}%{_localstatedir}/lib/systemd/timesync/clock
 
 # (tpg) needed for containers
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}/nspawn
@@ -1077,7 +1073,7 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/%{name}/user/slice.d/ %{SOURCE27}
 mkdir -p %{buildroot}%{_sysconfdir}/credstore
 mkdir -p %{buildroot}%{_sysconfdir}/credstore.encrypted
 mkdir -p %{buildroot}%{_prefix}/lib/credstore
-mkdir -p %{buildroot}%{_prefix}/lib/credstore.encryped
+mkdir -p %{buildroot}%{_prefix}/lib/credstore.encrypted
 
 %ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
@@ -1294,6 +1290,7 @@ fi
 %dir %{_sysconfdir}/udev/agents.d
 %dir %{_sysconfdir}/udev/agents.d/usb
 %dir %{_sysconfdir}/udev/rules.d
+%dir %{_libdir}/systemd
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/system
 %dir %{systemd_libdir}/system-preset
@@ -1333,6 +1330,10 @@ fi
 %dir %{udev_rules_dir}
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
+%ghost %{_localstatedir}/lib/systemd/catalog/database
+%ghost %attr(0600,root,root) %{_localstatedir}/lib/systemd/random-seed
+%ghost %dir %{_localstatedir}/lib/systemd/timesync
+%ghost %{_localstatedir}/lib/systemd/timesync/clock
 %dir %{_prefix}/lib/credstore
 %dir %{_prefix}/lib/credstore.encrypted
 %ghost %config(noreplace,missingok) %attr(0644,root,root) %{_sysconfdir}/scsi_id.config
@@ -1417,6 +1418,8 @@ fi
 %{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
+%{_prefix}/lib/%{name}/system/user@.service.d/10-login-barrier.conf
+%{_prefix}/lib/%{name}/system/user@0.service.d/10-login-barrier.conf
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
@@ -1431,7 +1434,7 @@ fi
 %{systemd_libdir}/ntp-units.d/80-systemd-timesync.list
 %{_datadir}/factory/etc/issue
 # Generators
-%dir %{systemd_libdir}/system-generators/
+%dir %{systemd_libdir}/system-generators
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
 %{systemd_libdir}/system-generators/systemd-debug-generator
 %{systemd_libdir}/system-generators/systemd-fstab-generator
@@ -1508,6 +1511,9 @@ fi
 %{systemd_libdir}/system/systemd-logind.service
 %{systemd_libdir}/system/systemd-machine-id-commit.service
 %{systemd_libdir}/system/systemd-modules-load.service
+%{systemd_libdir}/system/systemd-pcrphase-initrd.service
+%{systemd_libdir}/system/systemd-pcrphase-sysinit.service
+%{systemd_libdir}/system/systemd-pcrphase.service
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
 %{systemd_libdir}/system/systemd-quotacheck.service
@@ -1632,6 +1638,7 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-kernel.socket
+%{systemd_libdir}/system/initrd.target.wants/systemd-pcrphase-initrd.service
 %{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
 %{systemd_libdir}/system/sysinit.target.wants/dev-mqueue.mount
 %{systemd_libdir}/system/sysinit.target.wants/kmod-static-nodes.service
@@ -1649,6 +1656,8 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journald.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase-sysinit.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
@@ -1692,6 +1701,7 @@ fi
 %{systemd_libdir}/systemd-socket-proxyd
 %{systemd_libdir}/systemd-sulogin-shell
 %{systemd_libdir}/systemd-sysctl
+%{systemd_libdir}/systemd-sysroot-fstab-check
 %{systemd_libdir}/systemd-time-wait-sync
 %{systemd_libdir}/systemd-timedated
 %{systemd_libdir}/systemd-timesyncd
@@ -1707,8 +1717,8 @@ fi
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
 # (tpg) internal libraries - only systemd uses them
-%{systemd_libdir}/libsystemd-core-%{major}.so
-%{systemd_libdir}/libsystemd-shared-%{major}.so
+%{_libdir}/systemd/libsystemd-core-%{major}.so
+%{_libdir}/systemd/libsystemd-shared-%{major}.so
 #
 %{udev_rules_dir}/10-imx.rules
 %{udev_rules_dir}/50-udev-default.rules
@@ -1767,7 +1777,6 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/user.conf
 %config(noreplace) %{_sysconfdir}/udev/udev.conf
 %config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
-%{_localstatedir}/lib/systemd/catalog/database
 # This takes care of interface renaming etc. -- it is NOT for networkd
 %dir %{systemd_libdir}/network
 %{systemd_libdir}/network/99-default.link
@@ -1922,6 +1931,7 @@ fi
 %{_includedir}/%{name}/sd-bus.h
 %{_includedir}/%{name}/sd-device.h
 %{_includedir}/%{name}/sd-event.h
+%{_includedir}/%{name}/sd-gpt.h
 %{_includedir}/%{name}/sd-hwdb.h
 %{_includedir}/%{name}/sd-id128.h
 %{_includedir}/%{name}/sd-journal.h
@@ -1996,7 +2006,7 @@ fi
 %{_mandir}/man8/*.8.*
 
 %files hwdb
-%ghost %{_sysconfdir}/udev/hwdb.bin
+%ghost %attr(0444,root,root) %{_sysconfdir}/udev/hwdb.bin
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hwdb-update.service
 %{systemd_libdir}/system/systemd-hwdb-update.service
 %{_bindir}/systemd-hwdb
@@ -2111,6 +2121,8 @@ fi
 
 %files -n %{lib32systemd}
 %{_prefix}/lib/libsystemd.so.*
+%{_prefix}/lib/systemd/libsystemd-core-%{major}.so
+%{_prefix}/lib/systemd/libsystemd-shared-%{major}.so
 
 %files -n %{lib32udev}
 %{_prefix}/lib/libudev.so.*

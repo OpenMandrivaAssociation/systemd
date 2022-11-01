@@ -1,8 +1,0 @@
-+ <<SYSTEMD_INLINE_EOF 
-g sddm - -
-u sddm - "Simple display manager" /var/lib/sddm 
-SYSTEMD_INLINE_EOF
-
-+ systemd-sysusers '--replace=/usr/lib/sysusers.d/sddm.conf' -
-+ '[' 2 -eq 1 ']'
-+ '[' 1 -eq 0 ']'

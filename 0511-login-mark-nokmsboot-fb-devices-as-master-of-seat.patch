@@ -1,0 +1,13 @@
+diff -Naur systemd-252.20221101/rules.d/71-seat.rules.in systemd-252.20221101.tpg/rules.d/71-seat.rules.in
+--- systemd-252.20221101/rules.d/71-seat.rules.in	2022-10-31 18:59:18.000000000 +0000
++++ systemd-252.20221101.tpg/rules.d/71-seat.rules.in	2022-11-01 10:45:31.898618041 +0000
+@@ -21,6 +21,9 @@
+ # Allow efifb / uvesafb to be a master if KMS is disabled
+ SUBSYSTEM=="graphics", KERNEL=="fb[0-9]", IMPORT{cmdline}="nomodeset", TAG+="master-of-seat"
+ 
++# Mageia and OpenMandriva specific
++SUBSYSTEM=="graphics", KERNEL=="fb[0-9]", IMPORT{cmdline}="nokmsboot", TAG+="master-of-seat"
++
+ # Allow any PCI graphics device to be a master and synthesize a seat if KMS
+ # is disabled and the kernel doesn't have a driver that would work with this device.
+ SUBSYSTEM=="pci", ENV{ID_PCI_CLASS_FROM_DATABASE}=="Display controller", \

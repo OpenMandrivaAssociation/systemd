@@ -1,12 +1,12 @@
-diff -Naur systemd-242/src/udev/udevd.c systemd-242.tpg/src/udev/udevd.c
---- systemd-242/src/udev/udevd.c	2019-04-11 16:28:36.000000000 +0000
-+++ systemd-242.tpg/src/udev/udevd.c	2019-04-15 12:15:54.782000000 +0000
-@@ -1791,7 +1791,7 @@
+diff -Naur systemd-252.20221101/src/udev/udevd.c systemd-252.20221101.tpg/src/udev/udevd.c
+--- systemd-252.20221101/src/udev/udevd.c	2022-10-31 18:59:18.000000000 +0000
++++ systemd-252.20221101.tpg/src/udev/udevd.c	2022-11-01 12:21:02.362457237 +0000
+@@ -2055,7 +2055,7 @@
          if (arg_daemonize) {
                  pid_t pid;
  
--                log_info("Starting version " GIT_VERSION);
-+                log_debug("Starting version " GIT_VERSION);
+-                log_info("Starting systemd-udevd version " GIT_VERSION);
++                log_debug("Starting systemd-udevd version " GIT_VERSION);
  
                  /* connect /dev/null to stdin, stdout, stderr */
                  if (log_get_max_level() < LOG_DEBUG) {
