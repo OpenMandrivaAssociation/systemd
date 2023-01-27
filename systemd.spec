@@ -40,7 +40,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 252
-%define stable 20230103
+%define stable 20230127
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -107,7 +107,6 @@ Patch101:	0002-journal-Add-option-to-skip-boot-kmsg-events.patch
 Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch103:	0005-journal-flush-var-kmsg-after-starting-disable-kmsg-f.patch
 Patch104:	0007-sd-event-return-malloc-memory-reserves-when-main-loo.patch
-Patch105:	0008-efi-boot-generator-Do-not-automount-boot-partition.patch
 Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch108:	0018-more-udev-children-workers.patch
 Patch109:	0019-not-load-iptables.patch
