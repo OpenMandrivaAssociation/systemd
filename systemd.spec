@@ -40,7 +40,7 @@
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
 %define major 252
-%define stable 20230127
+%define stable 20230212
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -1725,6 +1725,7 @@ fi
 %{udev_rules_dir}/60-autosuspend.rules
 %{udev_rules_dir}/60-block.rules
 %{udev_rules_dir}/60-fido-id.rules
+%{udev_rules_dir}/60-infiniband.rules
 %{udev_rules_dir}/60-persistent-storage.rules
 %{udev_rules_dir}/60-sensor.rules
 %{udev_rules_dir}/60-serial.rules
@@ -2048,6 +2049,7 @@ fi
 %{_bindir}/networkctl
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
 %{systemd_libdir}/network/80-container-host0.network
+%{systemd_libdir}/network/80-container-vb.network
 %{systemd_libdir}/network/80-container-ve.network
 %{systemd_libdir}/network/80-container-vz.network
 %{systemd_libdir}/network/80-vm-vt.network

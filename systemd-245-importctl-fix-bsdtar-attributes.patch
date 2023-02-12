@@ -1,15 +1,15 @@
-diff -up systemd-246.20200806/src/import/import-common.c.34~ systemd-246.20200806/src/import/import-common.c
---- systemd-246.20200806/src/import/import-common.c.34~	2020-08-06 23:02:11.227462692 +0200
-+++ systemd-246.20200806/src/import/import-common.c	2020-08-06 23:03:02.525124891 +0200
-@@ -85,7 +85,6 @@ int import_fork_tar_x(const char *path,
-                        "-C", path,
-                        "-px",
+diff -Naur systemd-252.20230212/src/import/import-common.c systemd-252.20230212.tpg/src/import/import-common.c
+--- systemd-252.20230212/src/import/import-common.c	2023-02-10 20:28:11.000000000 +0000
++++ systemd-252.20230212.tpg/src/import/import-common.c	2023-02-14 19:05:38.770960827 +0000
+@@ -49,7 +49,6 @@
+                        "-pxf",
+                        "-",
                         "--xattrs",
 -                       "--xattrs-include=*",
                         use_selinux ? "--selinux" : "--no-selinux",
                         NULL
                  };
-@@ -156,7 +155,6 @@ int import_fork_tar_c(const char *path,
+@@ -120,7 +119,6 @@
                          "-C", path,
                          "-c",
                          "--xattrs",
