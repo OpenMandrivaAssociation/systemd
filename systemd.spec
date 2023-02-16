@@ -269,7 +269,6 @@ BuildRequires:	libc6
 BuildRequires:	devel(libcap)
 BuildRequires:	devel(libpcre2-8)
 BuildRequires:	devel(libcrypto)
-BuildRequires:	devel(libcurl)
 BuildRequires:	devel(libcrypt) libcrypt-devel
 BuildRequires:	devel(liblzma)
 BuildRequires:	devel(libglib-2.0)
@@ -725,7 +724,7 @@ Group:		System/Configuration/Boot and Init
 Requires:	%{name} = %{EVRD}
 
 %description integritysetup
-System integrity checker
+System integrity checker.
 
 %prep
 %autosetup -p1
@@ -812,6 +811,7 @@ PATH=$PWD/bin:$PATH
 	-Dfirst-boot-full-preset=false \
 	-Dcryptolib=openssl \
 	-Dlibiptc=false \
+	-Dlibcurl=false \
 	-Dbpf-framework=false \
 	-Dlz4=false \
 	-Ddefault-compression=zstd
