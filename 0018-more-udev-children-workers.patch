@@ -1,12 +1,12 @@
-diff -up systemd-249.20210625/units/systemd-udevd.service.in.20~ systemd-249.20210625/units/systemd-udevd.service.in
---- systemd-249.20210625/units/systemd-udevd.service.in.20~	2021-06-25 17:30:26.609387649 +0200
-+++ systemd-249.20210625/units/systemd-udevd.service.in	2021-06-25 17:31:18.234899641 +0200
+diff -up systemd-stable-253/units/systemd-udevd.service.in.18~ systemd-stable-253/units/systemd-udevd.service.in
+--- systemd-stable-253/units/systemd-udevd.service.in.18~	2023-02-16 11:50:57.730587839 +0100
++++ systemd-stable-253/units/systemd-udevd.service.in	2023-02-16 11:51:33.838086195 +0100
 @@ -24,7 +24,7 @@ OOMScoreAdjust=-1000
  Sockets=systemd-udevd-control.socket systemd-udevd-kernel.socket
  Restart=always
  RestartSec=0
 -ExecStart={{ROOTLIBEXECDIR}}/systemd-udevd
 +ExecStart={{ROOTLIBEXECDIR}}/systemd-udevd --children-max=16
- ExecReload=udevadm control --reload --timeout 0
  KillMode=mixed
  TasksMax=infinity
+ PrivateMounts=yes

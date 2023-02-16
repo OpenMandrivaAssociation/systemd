@@ -1,37 +1,7 @@
-From 4186cb11ddf3c731d0c365bb819a4479ecf6b299 Mon Sep 17 00:00:00 2001
-From: Dimitri John Ledkov <dimitri.j.ledkov@intel.com>
-Date: Tue, 23 Jun 2015 11:25:41 +0100
-Subject: [PATCH 02/45] journal: Add option to skip boot kmsg events
-
-The `BootKMsg` boolean is added. It defaults to `true` in the default
-system namespace, and doesn't change the default behavior of the
-journal.
-
-If set to `false`, then, when `systemd-journald` starts in the default
-namespace, it will ignore any existing message in the `kmsg` ring buffer
-and not insert these into the journal. We do this to reduce the time
-needed for the journal to start and reduce CPU overhead, since the
-kernel ring buffer can be large, and contain information that the user
-perhaps does not care about (e.g. initcall debug output).
-
-The information remains accessible through `dmesg` in case it needs
-to be retrieved later. This contains code originally added to
-ClearLinux by Dimitri -xnox- Ledkov in 2015.
-
-Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Dimitri John Ledkov <xnox@ubuntu.com>
----
- man/journald.conf.xml            |  9 +++++++++
- src/journal/journald-gperf.gperf |  1 +
- src/journal/journald-kmsg.c      | 11 +++++++++++
- src/journal/journald-server.c    |  2 +-
- src/journal/journald-server.h    |  1 +
- 5 files changed, 23 insertions(+), 1 deletion(-)
-
-diff -Naur systemd-246.20200811/man/journald.conf.xml systemd-246.20200811.tpg/man/journald.conf.xml
---- systemd-246.20200811/man/journald.conf.xml	2020-08-07 15:09:53.000000000 +0000
-+++ systemd-246.20200811.tpg/man/journald.conf.xml	2020-08-18 10:09:21.817030856 +0000
-@@ -421,6 +421,15 @@
+diff -up systemd-stable-253/man/journald.conf.xml.13~ systemd-stable-253/man/journald.conf.xml
+--- systemd-stable-253/man/journald.conf.xml.13~	2023-02-15 20:11:52.000000000 +0100
++++ systemd-stable-253/man/journald.conf.xml	2023-02-16 11:49:28.387773470 +0100
+@@ -438,6 +438,15 @@
        </varlistentry>
  
        <varlistentry>
@@ -47,10 +17,10 @@ diff -Naur systemd-246.20200811/man/journald.conf.xml systemd-246.20200811.tpg/m
          <term><varname>TTYPath=</varname></term>
  
          <listitem><para>Change the console TTY to use if
-diff -Naur systemd-246.20200811/src/journal/journald-gperf.gperf systemd-246.20200811.tpg/src/journal/journald-gperf.gperf
---- systemd-246.20200811/src/journal/journald-gperf.gperf	2020-08-07 15:09:53.000000000 +0000
-+++ systemd-246.20200811.tpg/src/journal/journald-gperf.gperf	2020-08-18 10:10:10.282031129 +0000
-@@ -22,6 +22,7 @@
+diff -up systemd-stable-253/src/journal/journald-gperf.gperf.13~ systemd-stable-253/src/journal/journald-gperf.gperf
+--- systemd-stable-253/src/journal/journald-gperf.gperf.13~	2023-02-15 20:11:52.000000000 +0100
++++ systemd-stable-253/src/journal/journald-gperf.gperf	2023-02-16 11:49:28.387773470 +0100
+@@ -23,6 +23,7 @@ Journal.Storage,            config_parse
  Journal.Compress,           config_parse_compress,   0, offsetof(Server, compress)
  Journal.Seal,               config_parse_bool,       0, offsetof(Server, seal)
  Journal.ReadKMsg,           config_parse_bool,       0, offsetof(Server, read_kmsg)
@@ -58,10 +28,10 @@ diff -Naur systemd-246.20200811/src/journal/journald-gperf.gperf systemd-246.202
  Journal.Audit,              config_parse_tristate,   0, offsetof(Server, set_audit)
  Journal.SyncIntervalSec,    config_parse_sec,        0, offsetof(Server, sync_interval_usec)
  # The following is a legacy name for compatibility
-diff -Naur systemd-246.20200811/src/journal/journald-kmsg.c systemd-246.20200811.tpg/src/journal/journald-kmsg.c
---- systemd-246.20200811/src/journal/journald-kmsg.c	2020-08-07 15:09:53.000000000 +0000
-+++ systemd-246.20200811.tpg/src/journal/journald-kmsg.c	2020-08-18 10:11:38.099031623 +0000
-@@ -384,6 +384,17 @@
+diff -up systemd-stable-253/src/journal/journald-kmsg.c.13~ systemd-stable-253/src/journal/journald-kmsg.c
+--- systemd-stable-253/src/journal/journald-kmsg.c.13~	2023-02-16 11:49:28.388773475 +0100
++++ systemd-stable-253/src/journal/journald-kmsg.c	2023-02-16 11:50:40.626345160 +0100
+@@ -397,6 +397,17 @@ int server_open_dev_kmsg(Server *s) {
          if (!s->read_kmsg)
                  return 0;
  
@@ -77,12 +47,12 @@ diff -Naur systemd-246.20200811/src/journal/journald-kmsg.c systemd-246.20200811
 +        }
 +
          r = sd_event_add_io(s->event, &s->dev_kmsg_event_source, s->dev_kmsg_fd, EPOLLIN, dispatch_dev_kmsg, s);
-         if (r < 0) {
- 
-diff -Naur systemd-246.20200811/src/journal/journald-server.c systemd-246.20200811.tpg/src/journal/journald-server.c
---- systemd-246.20200811/src/journal/journald-server.c	2020-08-18 10:07:02.936030073 +0000
-+++ systemd-246.20200811.tpg/src/journal/journald-server.c	2020-08-18 10:12:01.348031754 +0000
-@@ -2239,7 +2239,7 @@
+         if (r == -EPERM) { /* This will fail with EPERM on older kernels where /dev/kmsg is not readable. */
+                 r = 0;
+diff -up systemd-stable-253/src/journal/journald-server.c.13~ systemd-stable-253/src/journal/journald-server.c
+--- systemd-stable-253/src/journal/journald-server.c.13~	2023-02-16 11:49:28.344773243 +0100
++++ systemd-stable-253/src/journal/journald-server.c	2023-02-16 11:49:28.388773475 +0100
+@@ -2403,7 +2403,7 @@ int server_init(Server *s, const char *n
                  return r;
  
          /* By default, only read from /dev/kmsg if are the main namespace */
@@ -91,10 +61,10 @@ diff -Naur systemd-246.20200811/src/journal/journald-server.c systemd-246.202008
          s->storage = s->namespace ? STORAGE_PERSISTENT : STORAGE_AUTO;
  
          journal_reset_metrics(&s->system_storage.metrics);
-diff -Naur systemd-246.20200811/src/journal/journald-server.h systemd-246.20200811.tpg/src/journal/journald-server.h
---- systemd-246.20200811/src/journal/journald-server.h	2020-08-07 15:09:53.000000000 +0000
-+++ systemd-246.20200811.tpg/src/journal/journald-server.h	2020-08-18 10:12:47.060032012 +0000
-@@ -108,6 +108,7 @@
+diff -up systemd-stable-253/src/journal/journald-server.h.13~ systemd-stable-253/src/journal/journald-server.h
+--- systemd-stable-253/src/journal/journald-server.h.13~	2023-02-15 20:11:52.000000000 +0100
++++ systemd-stable-253/src/journal/journald-server.h	2023-02-16 11:49:28.388773475 +0100
+@@ -108,6 +108,7 @@ struct Server {
          JournalCompressOptions compress;
          bool seal;
          bool read_kmsg;
@@ -102,5 +72,3 @@ diff -Naur systemd-246.20200811/src/journal/journald-server.h systemd-246.202008
          int set_audit;
  
          bool forward_to_kmsg;
--- 
-2.26.0

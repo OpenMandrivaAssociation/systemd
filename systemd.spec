@@ -39,20 +39,20 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 252
-%define stable 20230212
+%define major 253
+%define stable %{nil}
 
 Summary:	A System and Session Manager
 Name:		systemd
 %if 0%stable
 Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v252-stable
-# cd systemd-stable && git archive --prefix=systemd-252.$(date +%Y%m%d)/ --format=tar origin/v252-stable | xz -9ef > ../systemd-252.$(date +%Y%m%d).tar.xz
+# git clone https://github.com/systemd/systemd-stable/ -b v253-stable
+# cd systemd-stable && git archive --prefix=systemd-stable-253.$(date +%Y%m%d)/ --format=tar origin/v253-stable | xz -9ef > ../systemd-stable-253.$(date +%Y%m%d).tar.xz
 Source0:	systemd-%{version}.tar.xz
 %else
 Version:	%{major}
-Source0:	https://github.com/systemd/systemd/archive/v%{version}.tar.gz
+Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
 Release:	1
 License:	GPLv2+
@@ -727,7 +727,7 @@ Requires:	%{name} = %{EVRD}
 System integrity checker.
 
 %prep
-%autosetup -p1
+%autosetup -p1 -n systemd-stable-%{version}
 
 %build
 %ifarch %{ix86}
@@ -1384,6 +1384,7 @@ fi
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
 %{_bindir}/localectl
+%{_bindir}/systemd-ac-power
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-dissect
@@ -1491,10 +1492,13 @@ fi
 %{systemd_libdir}/system/systemd-binfmt.service
 %{systemd_libdir}/system/systemd-bless-boot.service
 %{systemd_libdir}/system/systemd-boot-check-no-failures.service
+%{systemd_libdir}/system/systemd-boot-random-seed.service
 %{systemd_libdir}/system/systemd-exit.service
 %{systemd_libdir}/system/systemd-firstboot.service
 %{systemd_libdir}/system/systemd-fsck-root.service
 %{systemd_libdir}/system/systemd-fsck@.service
+%{systemd_libdir}/system/systemd-growfs-root.service
+%{systemd_libdir}/system/systemd-growfs@.service
 %{systemd_libdir}/system/systemd-halt.service
 %{systemd_libdir}/system/systemd-hibernate-resume@.service
 %{systemd_libdir}/system/systemd-hibernate.service
@@ -1513,6 +1517,10 @@ fi
 %{systemd_libdir}/system/systemd-pcrphase-initrd.service
 %{systemd_libdir}/system/systemd-pcrphase-sysinit.service
 %{systemd_libdir}/system/systemd-pcrphase.service
+%{systemd_libdir}/system/systemd-journald-audit.socket
+%{systemd_libdir}/system/systemd-pcrfs-root.service
+%{systemd_libdir}/system/systemd-pcrfs@.service
+%{systemd_libdir}/system/systemd-pcrmachine.service
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
 %{systemd_libdir}/system/systemd-quotacheck.service
@@ -1546,7 +1554,6 @@ fi
 # Sockets
 %{systemd_libdir}/system/syslog.socket
 %{systemd_libdir}/system/systemd-initctl.socket
-%{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/systemd-journald-varlink@.socket
 %{systemd_libdir}/system/systemd-journald.socket
@@ -1632,7 +1639,6 @@ fi
 %{systemd_libdir}/system/multi-user.target.wants/getty.target
 %{systemd_libdir}/system/rescue.target.wants/systemd-update-utmp-runlevel.service
 %{systemd_libdir}/system/sockets.target.wants/systemd-initctl.socket
-%{systemd_libdir}/system/sockets.target.wants/systemd-journald-audit.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
@@ -1649,12 +1655,14 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/sys-kernel-tracing.mount
 %{systemd_libdir}/system/sysinit.target.wants/systemd-ask-password-console.path
 %{systemd_libdir}/system/sysinit.target.wants/systemd-binfmt.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-boot-random-seed.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-firstboot.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-flush.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journald.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrmachine.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase-sysinit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
@@ -1670,7 +1678,6 @@ fi
 %{systemd_libdir}/system/usb-gadget.target
 %{systemd_libdir}/system/timers.target.wants/systemd-tmpfiles-clean.timer
 %{systemd_libdir}/systemd
-%{systemd_libdir}/systemd-ac-power
 %{systemd_libdir}/systemd-backlight
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-bless-boot
@@ -1784,6 +1791,7 @@ fi
 %{systemd_libdir}/system/factory-reset.target
 %{systemd_libdir}/system/systemd-boot-update.service
 %{systemd_libdir}/systemd-update-helper
+%{systemd_libdir}/ukify
 %{_prefix}/lib/kernel/install.conf
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Home.xml
@@ -1961,8 +1969,6 @@ fi
 %ifarch %{efi}
 %files boot
 %{_bindir}/bootctl
-%{systemd_libdir}/system/systemd-boot-system-token.service
-%{systemd_libdir}/system/sysinit.target.wants/systemd-boot-system-token.service
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
