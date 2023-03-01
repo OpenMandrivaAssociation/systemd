@@ -54,7 +54,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -129,6 +129,7 @@ Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
 Patch1003:	systemd-250-compile.patch
 
 # (tpg) Fedora patches
+Patch1100:	https://src.fedoraproject.org/rpms/systemd/raw/rawhide/f/use-bfq-scheduler.patch
 
 # Upstream patches from master that haven't landed in -stable yet
 
@@ -1731,6 +1732,7 @@ fi
 %{udev_rules_dir}/50-udev-mandriva.rules
 %{udev_rules_dir}/60-autosuspend.rules
 %{udev_rules_dir}/60-block.rules
+%{udev_rules_dir}/60-block-scheduler.rules
 %{udev_rules_dir}/60-fido-id.rules
 %{udev_rules_dir}/60-infiniband.rules
 %{udev_rules_dir}/60-persistent-storage.rules
