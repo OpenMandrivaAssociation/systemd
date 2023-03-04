@@ -39,7 +39,8 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 253
+%define major 253.1
+%define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
 Summary:	A System and Session Manager
@@ -54,7 +55,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -1695,7 +1696,9 @@ fi
 %{systemd_libdir}/systemd-localed
 %{systemd_libdir}/systemd-logind
 %{systemd_libdir}/systemd-makefs
+%{systemd_libdir}/systemd-measure
 %{systemd_libdir}/systemd-modules-load
+%{systemd_libdir}/systemd-pcrphase
 %{systemd_libdir}/systemd-pstore
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
@@ -1724,8 +1727,8 @@ fi
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
 # (tpg) internal libraries - only systemd uses them
-%{_libdir}/systemd/libsystemd-core-%{major}.so
-%{_libdir}/systemd/libsystemd-shared-%{major}.so
+%{_libdir}/systemd/libsystemd-core-%{major1}.so
+%{_libdir}/systemd/libsystemd-shared-%{major1}.so
 #
 %{udev_rules_dir}/10-imx.rules
 %{udev_rules_dir}/50-udev-default.rules
@@ -2093,6 +2096,7 @@ fi
 %{systemd_libdir}/system/veritysetup.target
 %{_bindir}/systemd-cryptenroll
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
+%{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
 %endif
 
 %files zsh-completion
@@ -2130,8 +2134,8 @@ fi
 
 %files -n %{lib32systemd}
 %{_prefix}/lib/libsystemd.so.*
-%{_prefix}/lib/systemd/libsystemd-core-%{major}.so
-%{_prefix}/lib/systemd/libsystemd-shared-%{major}.so
+%{_prefix}/lib/systemd/libsystemd-core-%{major1}.so
+%{_prefix}/lib/systemd/libsystemd-shared-%{major1}.so
 
 %files -n %{lib32udev}
 %{_prefix}/lib/libudev.so.*
