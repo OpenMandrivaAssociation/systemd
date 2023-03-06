@@ -1231,7 +1231,7 @@ if [ -f /etc/nsswitch.conf ]; then
 		s/^(passwd:.*) mymachines$/\1/;
 		s/^(group:.*) mymachines$/\1/;
 		' /etc/nsswitch.conf &>/dev/null || :
-fie
+fi
 
 %triggerin -- %{libnss_resolve} < 237
 if [ -f /etc/nsswitch.conf ]; then
@@ -1251,6 +1251,11 @@ fi
 
 %pre journal-remote
 %sysusers_create_package systemd-remote.conf %{SOURCE25}
+
+%ifarch %{efi}
+%postun boot
+%systemd_postun_with_restart systemd-boot-update.service
+%endif
 
 %files
 %dir %{_prefix}/lib/firmware
