@@ -39,9 +39,9 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 253.1
+%define major 253
 %define major1 %(echo %{major} |cut -d. -f1)
-%define stable %{nil}
+%define stable 20230324
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -50,7 +50,7 @@ Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
 # git clone https://github.com/systemd/systemd-stable/ -b v253-stable
 # cd systemd-stable && git archive --prefix=systemd-stable-253.$(date +%Y%m%d)/ --format=tar origin/v253-stable | xz -9ef > ../systemd-stable-253.$(date +%Y%m%d).tar.xz
-Source0:	systemd-%{version}.tar.xz
+Source0:	systemd-stable-%{version}.tar.xz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
@@ -115,11 +115,11 @@ Patch110:	0023-DHCP-retry-faster.patch
 Patch111:	0024-Remove-libm-memory-overhead.patch
 Patch112:	0025-skip-not-present-ACPI-devices.patch
 Patch113:	0027-Make-timesyncd-a-simple-service.patch
-Patch114:	0028-Compile-udev-with-O3.patch
+#Patch114:	0028-Compile-udev-with-O3.patch
 Patch115:	0030-Don-t-wait-for-utmp-at-shutdown.patch
 Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
-Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
+#Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 Patch120:	0038-Localize-1-symbol.patch
 
 # (tpg) OMV patches
@@ -173,12 +173,12 @@ BuildRequires:	efi-srpm-macros
 %ifnarch %{armx} %{riscv}
 BuildRequires:	valgrind-devel
 %endif
-%ifarch %{efi}
-BuildRequires:	gnu-efi >= 3.0.11
-%endif
 %ifnarch %{riscv}
 BuildRequires:	pkgconfig(libseccomp)
 BuildRequires:	pkgconfig(polkit-gobject-1)
+%endif
+%ifarch %{efi}
+BuildRequires:	python3dist(pyelftools)
 %endif
 BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn2)
@@ -756,7 +756,7 @@ PATH=$PWD/bin:$PATH
 	-Denvironment-d=false \
 	-Dfdisk=false \
 	-Dfirstboot=false \
-	-Dgnu-efi=false \
+	-Dbootloader=false \
 	-Dgnutls=false\
 	-Dgcrypt=false \
 	-Dhibernate=false \
@@ -828,10 +828,8 @@ PATH=$PWD/bin:$PATH
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %ifarch %{efi}
-	-Defi-ld=bfd \
 	-Defi=true \
-	-Dgnu-efi=true \
-	-Defi-libdir=%{_libdir} \
+	-Dbootloader=true \
 	-Dsbat-distro="%{efi_vendor}" \
 	-Dsbat-distro-summary="%{distribution}" \
 	-Dsbat-distro-pkgname="%{name}" \
@@ -839,7 +837,7 @@ PATH=$PWD/bin:$PATH
 	-Dsbat-distro-url="%{disturl}" \
 %else
 	-Defi=false \
-	-Dgnu-efi=false \
+	-Dbootloader=false \
 %endif
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
@@ -1392,6 +1390,7 @@ fi
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
 %{_bindir}/localectl
+%{_bindir}/mount.ddi
 %{_bindir}/systemd-ac-power
 %{_bindir}/systemd-cat
 %{_bindir}/systemd-detect-virt
@@ -1420,6 +1419,7 @@ fi
 %{_datadir}/factory/etc/locale.conf
 %{_datadir}/factory/etc/pam.d/other
 %{_datadir}/factory/etc/pam.d/system-auth
+%{_datadir}/factory/etc/vconsole.conf
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
 %{_initrddir}/README
