@@ -1987,12 +1987,12 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
 %ghost %{_datadir}/%{name}/bootctl/splash-omv.bmp
-%endif
 
 %post boot
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
     convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
+%endif
 
 %files console
 %{systemd_libdir}/systemd-vconsole-setup
