@@ -6,7 +6,7 @@
 %endif
 
 # (tpg) optimize it a bit
-%global optflags %{optflags} -O3 -Wno-implicit-int
+%global optflags %{optflags} -O2 -Wno-implicit-int
 
 %bcond_with bootstrap
 
@@ -39,7 +39,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 253.2
+%define major 253.3
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
@@ -55,7 +55,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -200,7 +200,7 @@ BuildRequires:	kbd >= 2.2.0
 %endif
 Requires:	libcap-utils
 Requires:	acl
-Requires:	dbus >= 1.12.2
+Requires(meta):	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
 Requires(post):	grep
 Requires:	(util-linux-core or util-linux)
@@ -228,9 +228,9 @@ Requires:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
 Suggests:	%{name}-analyze
 %ifarch %{efi}
-Suggests:	%{name}-boot
+Recommends:	%{name}-boot
 %endif
-Suggests:	%{name}-console
+Recommends:	%{name}-console
 Suggests:	%{name}-coredump
 Suggests:	%{name}-documentation >= 236
 Suggests:	%{name}-hwdb
@@ -321,7 +321,7 @@ Summary:	Console support for %{name}
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 # need for /sbin/setfont etc
-Requires:	kbd
+Requires(meta):	kbd
 Conflicts:	%{name} < 235-9
 Suggests:	%{name}-documentation
 Suggests:	%{name}-locale
