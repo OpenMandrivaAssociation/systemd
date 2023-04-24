@@ -858,7 +858,11 @@ PATH=$PWD/bin:$PATH
 	-Dfdisk=true \
 	-Dpwquality=true \
 	-Drepart=true \
+%if %{with bootstrap}
+	-Dhomed=false \
+%else
 	-Dhomed=true \
+%endif
 %ifnarch %{riscv}
 	-Dseccomp=true \
 %else
@@ -1854,6 +1858,7 @@ fi
 %{systemd_libdir}/system/initrd-root-fs.target.wants/systemd-repart.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-repart.service
 
+%if ! %{with bootstrap}
 %files homed
 %{_bindir}/homectl
 %config(noreplace) %{_sysconfdir}/systemd/homed.conf
@@ -1865,6 +1870,7 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.home1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.home1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.home1.policy
+%endif
 
 %files integritysetup
 %{systemd_libdir}/system-generators/systemd-integritysetup-generator
