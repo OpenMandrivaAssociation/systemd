@@ -55,7 +55,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -1120,6 +1120,9 @@ mkdir -p %{buildroot}%{udev_libdir}/devices/{net,hugepages,pts,shm}
 # From previous Mandriva /etc/udev/devices.d
 mkdir -p %{buildroot}%{udev_libdir}/devices/cpu/0
 
+# Steam links to "libudev.so.0"...
+ln -s libudev.so.%{udev_major} %{buildroot}%{_libdir}/libudev.so.0
+
 #################
 #	UDEV	#
 #	END	#
@@ -1969,6 +1972,7 @@ fi
 %{_libdir}/pkgconfig/lib%{name}.pc
 
 %files -n %{libudev}
+%{_libdir}/libudev.so.0
 %{_libdir}/libudev.so.%{udev_major}*
 
 %files -n %{libudev_devel}
