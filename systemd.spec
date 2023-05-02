@@ -1935,12 +1935,14 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.home1.policy
 %endif
 
+%if ! %{with bootstrap}
 %files integritysetup
 %{systemd_libdir}/system-generators/systemd-integritysetup-generator
 %{systemd_libdir}/system/sysinit.target.wants/integritysetup.target
 %{systemd_libdir}/systemd-integritysetup
 %{systemd_libdir}/system/integritysetup.target
 %{systemd_libdir}/system/integritysetup-pre.target
+%endif
 
 %files portable
 %dir %{systemd_libdir}/portable
