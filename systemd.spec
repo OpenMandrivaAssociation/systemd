@@ -849,6 +849,11 @@ PATH=$PWD/bin:$PATH
 	-Dlibcryptsetup=true \
 	-Dlibcryptsetup-plugins-dir="%{_libdir}/cryptsetup" \
 %endif
+%if %{cross_compiling}
+	-Ddbussystemservicedir="%{_datadir}/dbus-1/system-services" \
+	-Ddbussessionservicedir="%{_datadir}/dbus-1/services" \
+	-Ddbuspolicydir="%{_datadir}/dbus-1/system.d" \
+%endif
 	-Dsplit-usr=false \
 	-Dsplit-bin=false \
 	-Dxkbcommon=true \
@@ -1390,14 +1395,12 @@ fi
 %doc %{_prefix}/lib/sysctl.d/README
 %doc %{_prefix}/lib/sysusers.d/README
 %doc %{_prefix}/lib/tmpfiles.d/README
-%if ! %{cross_compiling}
 %{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
-%endif
 %{_datadir}/polkit-1/actions/org.freedesktop.timesync1.policy
 %{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
 %{_libdir}/security/pam_systemd.so
@@ -1442,7 +1445,6 @@ fi
 %{_bindir}/systemd-resolve
 %{_bindir}/resolvectl
 %{_bindir}/timedatectl
-%if ! %{cross_compiling}
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
@@ -1452,7 +1454,6 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
-%endif
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/locale.conf
 %{_datadir}/factory/etc/pam.d/other
@@ -1946,10 +1947,8 @@ fi
 
 %files portable
 %dir %{systemd_libdir}/portable
-%if ! %{with bootstrap}
 %{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
-%endif
 %{systemd_libdir}/portable/*
 %{systemd_libdir}/system/dbus-org.freedesktop.portable1.service
 %{systemd_libdir}/system/systemd-portabled.service
@@ -1993,12 +1992,10 @@ fi
 %{_bindir}/machinectl
 %{_bindir}/systemd-nspawn
 %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
-%if ! %{with bootstrap}
 %{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.import1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
-%endif
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
 
@@ -2138,10 +2135,8 @@ fi
 %{systemd_libdir}/systemd-network-generator
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
-%if ! %{cross_compiling}
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
-%endif
 %{_bindir}/networkctl
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-vb.network
@@ -2206,10 +2201,8 @@ fi
 %{systemd_libdir}/system/systemd-oomd.service
 %{systemd_libdir}/systemd-oomd
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-oom.conf
-%if ! %{with bootstrap}
 %{_datadir}/dbus-1/system-services/org.freedesktop.oom1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.oom1.conf
-%endif
 
 %if %{with compat32}
 %files -n %{lib32nss_myhostname}
