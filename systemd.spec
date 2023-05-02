@@ -236,8 +236,10 @@ Suggests:	%{name}-documentation >= 236
 Suggests:	%{name}-hwdb
 Suggests:	%{name}-locale
 Suggests:	%{name}-polkit
-Suggests:	%{name}-cryptsetup
 Suggests:	%{name}-bash-completion
+%if ! %{with bootstrap}
+Suggests:	%{name}-cryptsetup
+%endif
 
 #(tpg)for future releases... systemd provides also a full functional syslog tool
 Provides:	syslog-daemon
@@ -948,6 +950,24 @@ PATH=$PWD/bin:$PATH
 
 %meson_build
 
+%if %{cross_compiling}
+# We need a host systemd-hwdb and journalctl to initialize
+# hwdb and journal files in %%install
+unset CC
+unset CXX
+unset LD
+unset CFLAGS
+unset CXXFLAGS
+unset LDFLAGS
+meson setup \
+	-Dmode=release \
+	-Defi=false \
+	-Dgnu-efi=false \
+	-Dhwdb=true \
+	build-native
+%ninja_build -C build-native
+%endif
+
 %install
 %if %{with compat32}
 %ninja_install -C build32
@@ -1131,11 +1151,17 @@ ln -s libudev.so.%{udev_major} %{buildroot}%{_libdir}/libudev.so.0
 # https://bugzilla.redhat.com/show_bug.cgi?id=1378974
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
 
+%if %{cross_compiling}
+b=./build-native/
+%else
+b=./build/
+%endif
+
 # Pre-generate and pre-ship hwdb, to speed up first boot
-./build/systemd-hwdb --root %{buildroot} --usr update || ./build/udevadm hwdb --root %{buildroot} --update --usr
+$b/systemd-hwdb --root %{buildroot} --usr update || $b/udevadm hwdb --root %{buildroot} --update --usr
 
 # Compute catalog
-./build/journalctl --root %{buildroot} --update-catalog
+$b/journalctl --root %{buildroot} --update-catalog
 
 %find_lang %{name}
 
@@ -1364,12 +1390,14 @@ fi
 %doc %{_prefix}/lib/sysctl.d/README
 %doc %{_prefix}/lib/sysusers.d/README
 %doc %{_prefix}/lib/tmpfiles.d/README
+%if ! %{cross_compiling}
 %{_datadir}/dbus-1/system.d/org.freedesktop.hostname1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.locale1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.login1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.systemd1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
+%endif
 %{_datadir}/polkit-1/actions/org.freedesktop.timesync1.policy
 %{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
 %{_libdir}/security/pam_systemd.so
@@ -1414,6 +1442,7 @@ fi
 %{_bindir}/systemd-resolve
 %{_bindir}/resolvectl
 %{_bindir}/timedatectl
+%if ! %{cross_compiling}
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.locale1.service
@@ -1423,6 +1452,7 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
+%endif
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/locale.conf
 %{_datadir}/factory/etc/pam.d/other
@@ -1450,7 +1480,9 @@ fi
 %{_datadir}/factory/etc/issue
 # Generators
 %dir %{systemd_libdir}/system-generators
+%if ! %{cross_compiling}
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
+%endif
 %{systemd_libdir}/system-generators/systemd-debug-generator
 %{systemd_libdir}/system-generators/systemd-fstab-generator
 %{systemd_libdir}/system-generators/systemd-getty-generator
@@ -1505,9 +1537,13 @@ fi
 %{systemd_libdir}/system/systemd-ask-password-wall.service
 %{systemd_libdir}/system/systemd-backlight@.service
 %{systemd_libdir}/system/systemd-binfmt.service
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-bless-boot.service
+%endif
 %{systemd_libdir}/system/systemd-boot-check-no-failures.service
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-boot-random-seed.service
+%endif
 %{systemd_libdir}/system/systemd-exit.service
 %{systemd_libdir}/system/systemd-firstboot.service
 %{systemd_libdir}/system/systemd-fsck-root.service
@@ -1529,13 +1565,15 @@ fi
 %{systemd_libdir}/system/systemd-logind.service
 %{systemd_libdir}/system/systemd-machine-id-commit.service
 %{systemd_libdir}/system/systemd-modules-load.service
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-pcrphase-initrd.service
 %{systemd_libdir}/system/systemd-pcrphase-sysinit.service
 %{systemd_libdir}/system/systemd-pcrphase.service
-%{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-pcrfs-root.service
 %{systemd_libdir}/system/systemd-pcrfs@.service
 %{systemd_libdir}/system/systemd-pcrmachine.service
+%endif
+%{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
 %{systemd_libdir}/system/systemd-quotacheck.service
@@ -1658,7 +1696,9 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-kernel.socket
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/initrd.target.wants/systemd-pcrphase-initrd.service
+%endif
 %{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
 %{systemd_libdir}/system/sysinit.target.wants/dev-mqueue.mount
 %{systemd_libdir}/system/sysinit.target.wants/kmod-static-nodes.service
@@ -1670,16 +1710,20 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/sys-kernel-tracing.mount
 %{systemd_libdir}/system/sysinit.target.wants/systemd-ask-password-console.path
 %{systemd_libdir}/system/sysinit.target.wants/systemd-binfmt.service
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/sysinit.target.wants/systemd-boot-random-seed.service
+%endif
 %{systemd_libdir}/system/sysinit.target.wants/systemd-firstboot.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-flush.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journald.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrmachine.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase-sysinit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase.service
+%endif
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
@@ -1695,7 +1739,9 @@ fi
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-backlight
 %{systemd_libdir}/systemd-binfmt
+%if ! %{cross_compiling}
 %{systemd_libdir}/systemd-bless-boot
+%endif
 %{systemd_libdir}/systemd-boot-check-no-failures
 %{systemd_libdir}/systemd-cgroups-agent
 %{systemd_libdir}/systemd-export
@@ -1709,9 +1755,13 @@ fi
 %{systemd_libdir}/systemd-localed
 %{systemd_libdir}/systemd-logind
 %{systemd_libdir}/systemd-makefs
+%if ! %{cross_compiling}
 %{systemd_libdir}/systemd-measure
+%endif
 %{systemd_libdir}/systemd-modules-load
+%if ! %{cross_compiling}
 %{systemd_libdir}/systemd-pcrphase
+%endif
 %{systemd_libdir}/systemd-pstore
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
@@ -1735,7 +1785,9 @@ fi
 %{systemd_libdir}/systemd-user-sessions
 %{systemd_libdir}/systemd-userdbd
 %{systemd_libdir}/systemd-userwork
+%if ! %{cross_compiling}
 %{systemd_libdir}/systemd-veritysetup
+%endif
 %{systemd_libdir}/systemd-volatile-root
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
@@ -1769,8 +1821,10 @@ fi
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_bindir}/udevd
 %{_bindir}/udevadm
+%if ! %{cross_compiling}
 %{_prefix}/lib/udev/dmi_memory_id
 %{_prefix}/lib/udev/rules.d/70-memory.rules
+%endif
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/scsi_id
@@ -1807,10 +1861,15 @@ fi
 %{systemd_libdir}/network/99-default.link
 # New in -250, need to verify if this needs to go to subpackages
 %{systemd_libdir}/system/factory-reset.target
+%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-boot-update.service
+%endif
 %{systemd_libdir}/systemd-update-helper
+%if ! %{cross_compiling}
 %{systemd_libdir}/ukify
+%endif
 %{_prefix}/lib/kernel/install.conf
+%if ! %{cross_compiling}
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Home.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Manager.xml
@@ -1850,6 +1909,7 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Timer.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Unit.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
+%endif
 
 %files sysext
 %{_bindir}/systemd-sysext
@@ -1884,8 +1944,10 @@ fi
 
 %files portable
 %dir %{systemd_libdir}/portable
+%if ! %{with bootstrap}
 %{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
+%endif
 %{systemd_libdir}/portable/*
 %{systemd_libdir}/system/dbus-org.freedesktop.portable1.service
 %{systemd_libdir}/system/systemd-portabled.service
@@ -1929,10 +1991,12 @@ fi
 %{_bindir}/machinectl
 %{_bindir}/systemd-nspawn
 %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
+%if ! %{with bootstrap}
 %{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.import1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
+%endif
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
 
@@ -2072,9 +2136,11 @@ fi
 %{systemd_libdir}/systemd-network-generator
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
+%if ! %{cross_compiling}
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
-%{_bindir}/networkctl
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
+%endif
+%{_bindir}/networkctl
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-vb.network
 %{systemd_libdir}/network/80-container-ve.network
@@ -2138,8 +2204,10 @@ fi
 %{systemd_libdir}/system/systemd-oomd.service
 %{systemd_libdir}/systemd-oomd
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-oom.conf
+%if ! %{with bootstrap}
 %{_datadir}/dbus-1/system-services/org.freedesktop.oom1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.oom1.conf
+%endif
 
 %if %{with compat32}
 %files -n %{lib32nss_myhostname}

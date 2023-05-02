@@ -16,7 +16,7 @@ index 4cd71cb2d3..68594dcb3c 100644
          return 1;
  }
  
-+static inline mq_getattr_local(int fd, struct mq_attr *data)
++static inline int mq_getattr_local(int fd, struct mq_attr *data)
 +{
 +        return syscall(__NR_mq_getsetattr, fd, NULL, data);
 +}
