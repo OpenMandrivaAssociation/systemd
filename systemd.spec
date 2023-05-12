@@ -39,7 +39,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 253.3
+%define major 253.4
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
@@ -55,7 +55,7 @@ Source0:	systemd-%{version}.tar.xz
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -87,6 +87,7 @@ Source25:	systemd-remote.sysusers
 
 Source26:	10-oomd-defaults.conf
 Source27:	10-oomd-per-slice-defaults.conf
+Source28:	10-timeout-abort.conf
 
 ### OMV patches###
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
@@ -1096,9 +1097,11 @@ sed -i -e 's/^#SystemMaxUse=.*/SystemMaxUse=100M/' %{buildroot}%{_sysconfdir}/%{
 
 # systemd-oomd default configuration
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/oomd.conf.d/ %{SOURCE26}
-install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/user-.slice.d/ %{SOURCE27}
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/system.slice.d/ %{SOURCE27}
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/%{name}/user/slice.d/ %{SOURCE27}
+install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/service.d/ %{SOURCE28}
+sed -r 's|/system/|/user/|g' %{SOURCE28} > 10-timeout-abort.conf.user
+install -Dm0644 10-timeout-abort.conf.user %{buildroot}%{_prefix}/lib/%{name}/user/service.d/10-timeout-abort.conf
 
 # systemd-creds
 mkdir -p %{buildroot}%{_sysconfdir}/credstore
@@ -1185,56 +1188,68 @@ fi
 %{_bindir}/systemd-machine-id-setup &>/dev/null ||:
 %{_bindir}/systemctl daemon-reexec &>/dev/null ||:
 
-if [ $1 -eq 1 ] ; then
-	[ -w %{_localstatedir} ] && mkdir -p %{_localstatedir}/log/journal
-	%{_bindir}/systemd-sysusers &>/dev/null ||:
-	%{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
-	%{_bindir}/journalctl --update-catalog &>/dev/null ||:
-	%{_bindir}/systemd-tmpfiles --create &>/dev/null ||:
+if [ $1 -eq 1 ]; then
+    [ -w %{_localstatedir} ] && mkdir -p %{_localstatedir}/log/journal
+    %{_bindir}/systemd-sysusers &>/dev/null ||:
+    %{systemd_libdir}/systemd-random-seed save &>/dev/null ||:
+    %{_bindir}/journalctl --update-catalog &>/dev/null ||:
+    %{_bindir}/systemd-tmpfiles --create &>/dev/null ||:
 
-	# Init 90-default.preset only on first install
-	%{_bindir}/systemctl preset-all &>/dev/null ||:
-	%{_bindir}/systemctl --global preset-all &>/dev/null ||:
+# Init 90-default.preset only on first install
+    %{_bindir}/systemctl preset-all &>/dev/null ||:
+    %{_bindir}/systemctl --global preset-all &>/dev/null ||:
 
-	# (tpg) link to resolv.conf from systemd
-	[ -e /etc/resolv.conf ] && rm -f /etc/resolv.conf
-	ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+# (tpg) link to resolv.conf from systemd
+    [ -e /etc/resolv.conf ] && rm -f /etc/resolv.conf
+    ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 	if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
-		mkdir -p /run/systemd/resolve
-		printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
-		printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
-	fi
+	    mkdir -p /run/systemd/resolve
+	    printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
+	    printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
+    fi
+    %systemd_post systemd-resolved.service
 fi
 
 hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
 if [ -z "$hostname_new" ]; then
-	hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
-	if [ ! -z "$hostname_old" ]; then
-		printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
-	else
-		printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
-	fi
+    hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
+    if [ ! -z "$hostname_old" ]; then
+	printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
+    else
+	printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
+    fi
 fi
+
+%preun
+%systemd_preun systemd-udev{d,-settle,-trigger}.service systemd-udevd-{control,kernel}.socket systemd-timesyncd.service
+
+%postun
+if [ $1 -eq 1 ]; then
+    [ -w %{_localstatedir} ] && journalctl --update-catalog || :
+    systemd-tmpfiles --create &>/dev/null || :
+fi
+
+%systemd_postun_with_restart systemd-timedated.service systemd-portabled.service systemd-homed.service systemd-hostnamed.service systemd-journald.service systemd-localed.service systemd-userdbd.service systemd-oomd.service systemd-udevd.service systemd-timesyncd.service
 
 %triggerin -- %{name} < 239
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
 if [ -e %{_sysconfdir}/sysctl.conf ] && [ ! -L %{_sysconfdir}/sysctl.conf ]; then
-	mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
-	ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
+    mv -f %{_sysconfdir}/sysctl.conf %{_sysconfdir}/sysctl.d/99-sysctl.conf
+    ln -s %{_sysconfdir}/sysctl.d/99-sysctl.conf %{_sysconfdir}/sysctl.conf
 fi
 
 # Remove spurious /etc/fstab entries from very old installations
 if [ -e /etc/fstab ]; then
-	grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
-		sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
+    grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
+	sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
 fi
 
 # Try to read default runlevel from the old inittab if it exists
 runlevel=$(%{_bindir}/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
 if [ -z "$runlevel" ] ; then
-	target="%{systemd_libdir}/system/graphical.target"
+    target="%{systemd_libdir}/system/graphical.target"
 else
-	target="%{systemd_libdir}/system/runlevel$runlevel.target"
+    target="%{systemd_libdir}/system/runlevel$runlevel.target"
 fi
 
 # And symlink what we found to the new-style default.target
@@ -1289,11 +1304,6 @@ fi
 
 %pre journal-remote
 %sysusers_create_package systemd-remote.conf %{SOURCE25}
-
-%ifarch %{efi}
-%postun boot
-%systemd_postun_with_restart systemd-boot-update.service
-%endif
 
 %files
 %dir %{_prefix}/lib/firmware
@@ -1464,8 +1474,8 @@ fi
 %{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
-%{_prefix}/lib/%{name}/system/user@.service.d/10-login-barrier.conf
-%{_prefix}/lib/%{name}/system/user@0.service.d/10-login-barrier.conf
+%{_prefix}/lib/%{name}/*/service.d/10-timeout-abort.conf
+%{_prefix}/lib/%{name}/system/user*.service.d/10-login-barrier.conf
 %{_prefix}/lib/%{name}/user-preset/*.preset
 %{_prefix}/lib/%{name}/user/*.service
 %{_prefix}/lib/%{name}/user/*.target
@@ -2065,6 +2075,13 @@ fi
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
     convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
+
+%preun boot
+%systemd_preun systemd-boot-update.service}
+
+%postun boot
+%systemd_postun_with_restart systemd-boot-update.service
+
 %endif
 
 %files console
@@ -2113,6 +2130,9 @@ fi
 %{udev_libdir}/mtd_probe
 %{udev_libdir}/v4l_id
 
+%post hwdb
+udevadm hwdb --update &>/dev/null
+
 %files locale -f %{name}.lang
 %{_prefix}/lib/%{name}/catalog/*.catalog
 
@@ -2152,9 +2172,14 @@ fi
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
+%post networkd
+%systemd_post systemd-networkd.service systemd-networkd-wait-online.service
+
 %preun networkd
 if [ $1 -eq 0 ] ; then
     %{_bindir}/systemctl --quiet disable systemd-networkd.service 2>&1 || :
+else
+    %systemd_preun systemd-networkd.service systemd-networkd-wait-online.service
 fi
 
 %if !%{with bootstrap}
@@ -2194,7 +2219,6 @@ fi
 %{_sysconfdir}/systemd/oomd.conf
 %dir %{systemd_libdir}/oomd.conf.d
 %{systemd_libdir}/oomd.conf.d/10-oomd-defaults.conf
-%{systemd_libdir}/system/user-.slice.d/10-oomd-per-slice-defaults.conf
 %{systemd_libdir}/system/system.slice.d/10-oomd-per-slice-defaults.conf
 %{_prefix}/lib/%{name}/user/slice.d/10-oomd-per-slice-defaults.conf
 %{systemd_libdir}/system/systemd-oomd.socket
