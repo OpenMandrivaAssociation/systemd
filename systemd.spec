@@ -1200,12 +1200,16 @@ if [ $1 -eq 1 ]; then
     %{_bindir}/systemctl --global preset-all &>/dev/null ||:
 
 # (tpg) link to resolv.conf from systemd
-    [ -e /etc/resolv.conf ] && rm -f /etc/resolv.conf
-    ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-	if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
-	    mkdir -p /run/systemd/resolve
-	    printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
-	    printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
+    if [ ! -e /etc/resolv.conf ] && [ ! -L /etc/resolv.conf ]; then
+	ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf ||:
+    elif [ -d /run/systemd/system ] && ! mountpoint /etc/resolv.conf &>/dev/null; then
+	ln -fsv ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf ||:
+    fi
+
+    if [ ! -e /run/systemd/resolve/resolv.conf ] || [ ! -e /run/systemd/resolve/stub-resolv.conf ]; then
+	[ ! -d /run/systemd/resolve ] && mkdir -p /run/systemd/resolve
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
+	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
     fi
     %systemd_post systemd-resolved.service
 fi
