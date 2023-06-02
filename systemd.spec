@@ -825,6 +825,9 @@ PATH=$PWD/bin:$PATH
 %ninja_build -C build32
 %endif
 
+# FIXME b_lto is disabled on RISC-V because of a "invalid build ID" error at
+# compile time (at least crosscompiling from x86_64 to risc-v with clang).
+# Last verified: clang 16.0.4, systemd 253.5
 %meson \
 	-Dmode=release \
 	-Dsysvinit-path=%{_initrddir} \
@@ -907,7 +910,7 @@ PATH=$PWD/bin:$PATH
 	-Dhtml=true \
 	-Dtests=unsafe \
 	-Dinstall-tests=false \
-%ifnarch %{ix86}
+%ifnarch %{riscv}
 	-Db_lto=true \
 %else
 	-Db_lto=false \
