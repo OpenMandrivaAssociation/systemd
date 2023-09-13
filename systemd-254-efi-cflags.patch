@@ -1,6 +1,25 @@
-diff -up systemd-stable-254.3/src/boot/efi/meson.build.omv~ systemd-stable-254.3/src/boot/efi/meson.build
---- systemd-stable-254.3/src/boot/efi/meson.build.omv~	2023-09-13 16:37:41.174106456 +0200
-+++ systemd-stable-254.3/src/boot/efi/meson.build	2023-09-13 16:41:51.814627424 +0200
+diff -up systemd-stable-254.3/src/boot/efi/meson.build.1~ systemd-stable-254.3/src/boot/efi/meson.build
+--- systemd-stable-254.3/src/boot/efi/meson.build.1~	2023-09-09 00:15:31.000000000 +0100
++++ systemd-stable-254.3/src/boot/efi/meson.build	2023-09-13 18:45:26.010781469 +0100
+@@ -151,15 +151,15 @@ if get_option('mode') == 'developer' and
+ endif
+ 
+ efi_c_ld_args = [
+-        # We only support bfd. gold is going away, lld has issues with LTO on x86
++        # We only support bfd. gold is going away, lld has issues with gcc LTO on x86
+         # and mold does not support linker scripts.
+-        '-fuse-ld=bfd',
++        #'-fuse-ld=bfd', -- commented out because clang LTO isn't affected
+ 
+         '-lgcc',
+         '-nostdlib',
+         '-static-pie',
+         '-Wl,--entry=efi_main',
+-        '-Wl,--fatal-warnings',
++        '-Wl,--no-fatal-warnings',
+ 
+         # These flags should be passed by -static-pie, but seem to be missing sometimes.
+         '-Wl,--no-dynamic-linker',
 @@ -185,6 +185,9 @@ efi_disabled_c_args = cc.get_supported_a
          '-fno-asynchronous-unwind-tables',
          '-fno-exceptions',
