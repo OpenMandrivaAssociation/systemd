@@ -1,11 +1,11 @@
-diff -up systemd-247.20201128/units/systemd-firstboot.service.6~ systemd-247.20201128/units/systemd-firstboot.service
---- systemd-247.20201128/units/systemd-firstboot.service.6~	2020-11-28 18:11:28.238796000 +0100
-+++ systemd-247.20201128/units/systemd-firstboot.service	2020-11-28 18:12:02.790529666 +0100
-@@ -17,6 +17,7 @@ Before=systemd-sysusers.service sysinit.
- Wants=first-boot-complete.target
+diff -up systemd-stable-254.3/units/systemd-firstboot.service.7~ systemd-stable-254.3/units/systemd-firstboot.service
+--- systemd-stable-254.3/units/systemd-firstboot.service.7~	2023-09-11 17:05:18.698078455 +0200
++++ systemd-stable-254.3/units/systemd-firstboot.service	2023-09-11 17:11:50.285275747 +0200
+@@ -13,6 +13,7 @@ Documentation=man:systemd-firstboot(1)
+ 
  ConditionPathIsReadWrite=/etc
  ConditionFirstBoot=yes
 +ConditionVirtualization=!container
  
- [Service]
- Type=oneshot
+ DefaultDependencies=no
+ # This service may need to write to the file system:

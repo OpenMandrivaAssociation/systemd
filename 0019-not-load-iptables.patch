@@ -1,14 +1,14 @@
-diff -up systemd-stable-253/src/core/kmod-setup.c.19~ systemd-stable-253/src/core/kmod-setup.c
---- systemd-stable-253/src/core/kmod-setup.c.19~	2023-02-16 11:51:47.608271475 +0100
-+++ systemd-stable-253/src/core/kmod-setup.c	2023-02-16 11:52:16.864656816 +0100
-@@ -109,10 +109,6 @@ int kmod_setup(void) {
+diff -up systemd-stable-254.3/src/core/kmod-setup.c.19~ systemd-stable-254.3/src/core/kmod-setup.c
+--- systemd-stable-254.3/src/core/kmod-setup.c.19~	2023-09-11 17:12:34.534740266 +0200
++++ systemd-stable-254.3/src/core/kmod-setup.c	2023-09-11 17:26:10.218137780 +0200
+@@ -154,10 +154,6 @@ int kmod_setup(void) {
                  /* This should never be a module */
-                 { "unix",        "/proc/net/unix",            true,  true,  NULL           },
+                 { "unix",                       "/proc/net/unix",            true,  true,  NULL               },
  
 -#if HAVE_LIBIPTC
 -                /* netfilter is needed by networkd, nspawn among others, and cannot be autoloaded */
--                { "ip_tables",   "/proc/net/ip_tables_names", false, false, NULL           },
+-                { "ip_tables",                  "/proc/net/ip_tables_names", false, false, NULL               },
 -#endif
                  /* virtio_rng would be loaded by udev later, but real entropy might be needed very early */
-                 { "virtio_rng",  NULL,                        false, false, has_virtio_rng },
+                 { "virtio_rng",                 NULL,                        false, false, has_virtio_rng     },
  

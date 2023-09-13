@@ -39,7 +39,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 253.9
+%define major 254.3
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
@@ -90,6 +90,7 @@ Source27:	10-oomd-per-slice-defaults.conf
 Source28:	10-timeout-abort.conf
 
 ### OMV patches###
+Patch1:		systemd-254-efi-cflags.patch
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
@@ -117,7 +118,6 @@ Patch111:	0024-Remove-libm-memory-overhead.patch
 Patch112:	0025-skip-not-present-ACPI-devices.patch
 Patch113:	0027-Make-timesyncd-a-simple-service.patch
 Patch114:	0028-Compile-udev-with-O3.patch
-Patch115:	0030-Don-t-wait-for-utmp-at-shutdown.patch
 Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
 Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
@@ -175,6 +175,7 @@ BuildRequires:	efi-srpm-macros
 BuildRequires:	valgrind-devel
 %endif
 %ifarch %{efi}
+BuildRequires:	python%{pyver}dist(pyelftools)
 BuildRequires:	gnu-efi >= 3.0.11
 %endif
 %ifnarch %{riscv}
@@ -759,7 +760,6 @@ PATH=$PWD/bin:$PATH
 	-Denvironment-d=false \
 	-Dfdisk=false \
 	-Dfirstboot=false \
-	-Dgnu-efi=false \
 	-Dgnutls=false\
 	-Dgcrypt=false \
 	-Dhibernate=false \
@@ -811,7 +811,6 @@ PATH=$PWD/bin:$PATH
 	-Dtranslations=false \
 	-Duserdb=false \
 	-Dutmp=false \
-	-Dvalgrind=false \
 	-Dvconsole=false \
 	-Dxdg-autostart=false \
 	-Dfirst-boot-full-preset=false \
@@ -834,10 +833,8 @@ PATH=$PWD/bin:$PATH
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %ifarch %{efi}
-	-Defi-ld=bfd \
+	-Dbootloader=true \
 	-Defi=true \
-	-Dgnu-efi=true \
-	-Defi-libdir=%{_libdir} \
 	-Dsbat-distro="%{efi_vendor}" \
 	-Dsbat-distro-summary="%{distribution}" \
 	-Dsbat-distro-pkgname="%{name}" \
@@ -845,7 +842,6 @@ PATH=$PWD/bin:$PATH
 	-Dsbat-distro-url="%{disturl}" \
 %else
 	-Defi=false \
-	-Dgnu-efi=false \
 %endif
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
@@ -971,7 +967,6 @@ unset LDFLAGS
 meson setup \
 	-Dmode=release \
 	-Defi=false \
-	-Dgnu-efi=false \
 	-Dhwdb=true \
 	build-native
 %ninja_build -C build-native
@@ -1447,8 +1442,10 @@ fi
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
 %{_bindir}/localectl
+%{_bindir}/mount.ddi
 %{_bindir}/systemd-ac-power
 %{_bindir}/systemd-cat
+%{_bindir}/systemd-confext
 %{_bindir}/systemd-detect-virt
 %{_bindir}/systemd-dissect
 %{_bindir}/systemd-id128
@@ -1495,6 +1492,7 @@ fi
 %{_sysconfdir}/xdg/%{name}
 %dir %{systemd_libdir}/ntp-units.d
 %{systemd_libdir}/ntp-units.d/80-systemd-timesync.list
+%{systemd_libdir}/systemd-battery-check
 %{_datadir}/factory/etc/issue
 # Generators
 %dir %{systemd_libdir}/system-generators
@@ -1554,6 +1552,7 @@ fi
 %{systemd_libdir}/system/systemd-ask-password-console.service
 %{systemd_libdir}/system/systemd-ask-password-wall.service
 %{systemd_libdir}/system/systemd-backlight@.service
+%{systemd_libdir}/system/systemd-battery-check.service
 %{systemd_libdir}/system/systemd-binfmt.service
 %if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-bless-boot.service
@@ -1562,6 +1561,7 @@ fi
 %if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-boot-random-seed.service
 %endif
+%{systemd_libdir}/system/systemd-confext.service
 %{systemd_libdir}/system/systemd-exit.service
 %{systemd_libdir}/system/systemd-firstboot.service
 %{systemd_libdir}/system/systemd-fsck-root.service
@@ -1569,7 +1569,6 @@ fi
 %{systemd_libdir}/system/systemd-growfs-root.service
 %{systemd_libdir}/system/systemd-growfs@.service
 %{systemd_libdir}/system/systemd-halt.service
-%{systemd_libdir}/system/systemd-hibernate-resume@.service
 %{systemd_libdir}/system/systemd-hibernate.service
 %{systemd_libdir}/system/systemd-hostnamed.service
 %{systemd_libdir}/system/systemd-hybrid-sleep.service
@@ -1600,6 +1599,7 @@ fi
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount-fs.service
 %{systemd_libdir}/system/systemd-rfkill.service
+%{systemd_libdir}/system/systemd-soft-reboot.service
 %{systemd_libdir}/system/systemd-suspend-then-hibernate.service
 %{systemd_libdir}/system/systemd-suspend.service
 %{systemd_libdir}/system/systemd-sysctl.service
@@ -1609,6 +1609,7 @@ fi
 %{systemd_libdir}/system/systemd-timesyncd.service
 %{systemd_libdir}/system/systemd-tmpfiles-clean.service
 %{systemd_libdir}/system/systemd-tmpfiles-setup-dev.service
+%{systemd_libdir}/system/systemd-tmpfiles-setup-dev-early.service
 %{systemd_libdir}/system/systemd-tmpfiles-setup.service
 %{systemd_libdir}/system/systemd-udev-settle.service
 %{systemd_libdir}/system/systemd-udev-trigger.service
@@ -1686,6 +1687,7 @@ fi
 %{systemd_libdir}/system/slices.target
 %{systemd_libdir}/system/smartcard.target
 %{systemd_libdir}/system/sockets.target
+%{systemd_libdir}/system/soft-reboot.target
 %{systemd_libdir}/system/sound.target
 %{systemd_libdir}/system/suspend-then-hibernate.target
 %{systemd_libdir}/system/suspend.target
@@ -1717,6 +1719,7 @@ fi
 %if ! %{cross_compiling}
 %{systemd_libdir}/system/initrd.target.wants/systemd-pcrphase-initrd.service
 %endif
+%{systemd_libdir}/system/initrd.target.wants/systemd-battery-check.service
 %{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
 %{systemd_libdir}/system/sysinit.target.wants/dev-mqueue.mount
 %{systemd_libdir}/system/sysinit.target.wants/kmod-static-nodes.service
@@ -1746,6 +1749,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup-dev-early.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-tmpfiles-setup.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-udev-trigger.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-udevd.service
@@ -1835,16 +1839,19 @@ fi
 %{udev_rules_dir}/80-drivers.rules
 %{udev_rules_dir}/80-net-setup-link.rules
 %{udev_rules_dir}/81-net-dhcp.rules
+%{udev_rules_dir}/90-iocost.rules
 %{udev_rules_dir}/99-systemd.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_bindir}/udevd
 %{_bindir}/udevadm
 %if ! %{cross_compiling}
+%{udev_rules_dir}/60-dmi-id.rules
 %{_prefix}/lib/udev/dmi_memory_id
 %{_prefix}/lib/udev/rules.d/70-memory.rules
 %endif
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
+%attr(0755,root,root) %{udev_libdir}/iocost
 %attr(0755,root,root) %{udev_libdir}/scsi_id
 %{udev_libdir}/udevd
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
@@ -1873,6 +1880,7 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/timesyncd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/user.conf
 %config(noreplace) %{_sysconfdir}/udev/udev.conf
+%config(noreplace) %{_sysconfdir}/udev/iocost.conf
 %config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
 # This takes care of interface renaming etc. -- it is NOT for networkd
 %dir %{systemd_libdir}/network
@@ -2101,6 +2109,7 @@ fi
 %{udev_rules_dir}/70-touchpad.rules
 %{udev_rules_dir}/60-evdev.rules
 %{udev_rules_dir}/60-input-id.rules
+%{_datadir}/factory/etc/vconsole.conf
 
 %files coredump
 %config(noreplace) %{_sysconfdir}/%{name}/coredump.conf
@@ -2205,6 +2214,7 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/veritysetup.target
 %{systemd_libdir}/system/veritysetup-pre.target
 %{systemd_libdir}/system/veritysetup.target
+%{systemd_libdir}/system/system-systemd\x2dveritysetup.slice
 %{_bindir}/systemd-cryptenroll
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so

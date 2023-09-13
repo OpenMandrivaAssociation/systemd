@@ -1,0 +1,24 @@
+diff -up systemd-stable-254.3/src/boot/efi/meson.build.omv~ systemd-stable-254.3/src/boot/efi/meson.build
+--- systemd-stable-254.3/src/boot/efi/meson.build.omv~	2023-09-13 16:37:41.174106456 +0200
++++ systemd-stable-254.3/src/boot/efi/meson.build	2023-09-13 16:41:51.814627424 +0200
+@@ -185,6 +185,9 @@ efi_disabled_c_args = cc.get_supported_a
+         '-fno-asynchronous-unwind-tables',
+         '-fno-exceptions',
+         '-fno-unwind-tables',
++        '-U_FORTIFY_SOURCE',
++        '-fno-stack-protector',
++        '-fno-stack-protector-all',
+ )
+ efi_override_options = [
+         'b_coverage=false',
+@@ -211,8 +214,8 @@ efi_arch_c_args = {
+         'aarch64' : ['-mgeneral-regs-only'],
+         'arm'     : ['-mgeneral-regs-only'],
+         # Pass -m64/32 explicitly to make building on x32 work.
+-        'x86_64'  : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only'],
+-        'x86'     : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double'],
++        'x86_64'  : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only', '-mfpmath=387'],
++        'x86'     : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double', '-mfpmath=387'],
+ }
+ efi_arch_c_ld_args = {
+         # libgcc is not compiled with -fshort-wchar, but it does not use it anyways,
