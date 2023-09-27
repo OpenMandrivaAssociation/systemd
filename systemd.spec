@@ -2226,9 +2226,9 @@ fi
 %{_datadir}/zsh/site-functions/*
 
 %files bash-completion
-%dir %{_datadir}/bash-completion
-%dir %{_datadir}/bash-completion/completions
-%{_datadir}/bash-completion/completions/*
+%optional %dir %{_datadir}/bash-completion
+%optional %dir %{_datadir}/bash-completion/completions
+%optional %{_datadir}/bash-completion/completions/*
 
 %files rpm-macros
 %{_rpmmacrodir}/macros.systemd
