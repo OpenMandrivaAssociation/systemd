@@ -39,7 +39,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 254.3
+%define major 254.4
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
@@ -1807,7 +1807,7 @@ fi
 %{systemd_libdir}/systemd-user-sessions
 %{systemd_libdir}/systemd-userdbd
 %{systemd_libdir}/systemd-userwork
-%if ! %{cross_compiling}
+%if ! %{with bootstrap}
 %{systemd_libdir}/systemd-veritysetup
 %endif
 %{systemd_libdir}/systemd-volatile-root
@@ -1844,8 +1844,10 @@ fi
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_bindir}/udevd
 %{_bindir}/udevadm
-%if ! %{cross_compiling}
+%if ! %{with bootstrap}
 %{udev_rules_dir}/60-dmi-id.rules
+%endif
+%if ! %{cross_compiling}
 %{_prefix}/lib/udev/dmi_memory_id
 %{_prefix}/lib/udev/rules.d/70-memory.rules
 %endif
