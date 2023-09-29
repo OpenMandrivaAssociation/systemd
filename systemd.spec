@@ -39,7 +39,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 254.4
+%define major 254.5
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
