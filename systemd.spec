@@ -39,7 +39,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 254.5
+%define major 254.7
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
@@ -186,7 +186,7 @@ BuildRequires:	pkgconfig(libcurl)
 BuildRequires:	pkgconfig(libidn2)
 #BuildRequires:	apparmor-devel
 # To make sure _rundir is defined
-BuildRequires:	rpm-build >= 2:4.14.0
+BuildRequires:	rpm-build >= 4.14.0
 BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount) >= 2.27
 BuildRequires:	pkgconfig(fdisk)

@@ -1,26 +1,16 @@
-diff -up systemd-stable-254.3/src/boot/efi/meson.build.1~ systemd-stable-254.3/src/boot/efi/meson.build
---- systemd-stable-254.3/src/boot/efi/meson.build.1~	2023-09-09 00:15:31.000000000 +0100
-+++ systemd-stable-254.3/src/boot/efi/meson.build	2023-09-13 18:45:26.010781469 +0100
-@@ -151,15 +151,15 @@ if get_option('mode') == 'developer' and
- endif
- 
- efi_c_ld_args = [
--        # We only support bfd. gold is going away, lld has issues with LTO on x86
-+        # We only support bfd. gold is going away, lld has issues with gcc LTO on x86
-         # and mold does not support linker scripts.
--        '-fuse-ld=bfd',
-+        '-fuse-ld=bfd',
- 
-         '-lgcc',
+diff -Naur systemd-stable-254.7/src/boot/efi/meson.build systemd-stable-254.7.tpg/src/boot/efi/meson.build
+--- systemd-stable-254.7/src/boot/efi/meson.build	2023-11-29 15:45:35.000000000 +0000
++++ systemd-stable-254.7.tpg/src/boot/efi/meson.build	2023-12-01 14:48:43.760026266 +0000
+@@ -159,7 +159,7 @@
          '-nostdlib',
          '-static-pie',
          '-Wl,--entry=efi_main',
 -        '-Wl,--fatal-warnings',
 +        '-Wl,--no-fatal-warnings',
  
-         # These flags should be passed by -static-pie, but seem to be missing sometimes.
-         '-Wl,--no-dynamic-linker',
-@@ -185,6 +185,9 @@ efi_disabled_c_args = cc.get_supported_a
+         # These flags should be passed by -static-pie, but for whatever reason the flag translation
+         # is not enabled on all architectures. Not passing `-static` would just allow the linker to
+@@ -190,6 +190,9 @@
          '-fno-asynchronous-unwind-tables',
          '-fno-exceptions',
          '-fno-unwind-tables',
@@ -30,7 +20,7 @@ diff -up systemd-stable-254.3/src/boot/efi/meson.build.1~ systemd-stable-254.3/s
  )
  efi_override_options = [
          'b_coverage=false',
-@@ -211,8 +214,8 @@ efi_arch_c_args = {
+@@ -216,8 +219,8 @@
          'aarch64' : ['-mgeneral-regs-only'],
          'arm'     : ['-mgeneral-regs-only'],
          # Pass -m64/32 explicitly to make building on x32 work.
