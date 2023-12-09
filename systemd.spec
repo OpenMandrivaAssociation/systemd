@@ -760,6 +760,7 @@ PATH=$PWD/bin:$PATH
 	-Dbacklight=false \
 	-Dbinfmt=false \
 	-Dblkid=disabled \
+	-Dbzip2=false \
 	-Dcoredump=false \
 	-Dcreate-log-dirs=false \
 	-Defi=false \
