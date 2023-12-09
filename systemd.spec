@@ -5,6 +5,11 @@
 %bcond_with compat32
 %endif
 
+# -fstack-protector-all causes the check for -static-pie to fail
+# (undefined references to __stack_chk_fail
+%undefine _ssp_cflags
+%undefine _fortify_cflags
+
 # (tpg) optimize it a bit
 %global optflags %{optflags} -O2 -Wno-implicit-int
 
@@ -39,7 +44,7 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 254.7
+%define major 255
 %define major1 %(echo %{major} |cut -d. -f1)
 %define stable %{nil}
 
@@ -117,7 +122,6 @@ Patch110:	0023-DHCP-retry-faster.patch
 Patch111:	0024-Remove-libm-memory-overhead.patch
 Patch112:	0025-skip-not-present-ACPI-devices.patch
 Patch113:	0027-Make-timesyncd-a-simple-service.patch
-Patch114:	0028-Compile-udev-with-O3.patch
 Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
 Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
@@ -151,6 +155,7 @@ BuildRequires:	keyutils-devel
 BuildRequires:	pkgconfig(dbus-1) >= 1.12.2
 BuildRequires:	pkgconfig(glib-2.0)
 BuildRequires:	pkgconfig(openssl)
+BuildRequires:	pkgconfig(passwdqc)
 BuildRequires:	gtk-doc
 BuildRequires:	rsync
 %if !%{with bootstrap}
@@ -748,32 +753,35 @@ PATH=$PWD/bin:$PATH
 %if %{with compat32}
 %meson32 \
 	-Dmode=release \
+	-Dacl=disabled \
 	-Danalyze=false \
-	-Dapparmor=false \
-	-Daudit=false \
+	-Dapparmor=disabled \
+	-Daudit=disabled \
 	-Dbacklight=false \
 	-Dbinfmt=false \
-	-Dblkid=false \
+	-Dblkid=disabled \
 	-Dcoredump=false \
 	-Dcreate-log-dirs=false \
 	-Defi=false \
 	-Denvironment-d=false \
-	-Dfdisk=false \
+	-Dfdisk=disabled \
 	-Dfirstboot=false \
-	-Dgnutls=false\
-	-Dgcrypt=false \
+	-Dgnutls=disabled \
+	-Dgcrypt=disabled \
 	-Dhibernate=false \
-	-Dhomed=false \
+	-Dlibfido2=disabled \
+	-Dhomed=disabled \
 	-Dhostnamed=false \
-	-Dhtml=false \
+	-Dhtml=disabled \
 	-Dhwdb=false \
 	-Dima=false \
-	-Dimportd=false \
+	-Dimportd=disabled \
 	-Dinitrd=false \
 	-Dkernel-install=false \
 	-Dkmod=false \
 	-Dldconfig=false \
-	-Dlibcryptsetup=false \
+	-Dlibcryptsetup=disabled \
+	-Dlibcryptsetup-plugins=disabled \
 	-Dlocaled=false \
 	-Dlogind=false \
 	-Dmachined=false \
@@ -785,6 +793,7 @@ PATH=$PWD/bin:$PATH
 	-Dp11kit=false \
 	-Dpamconfdir="%{_sysconfdir}/pam.d" \
 	-Dpam=false \
+	-Dpasswdqc=false \
 	-Dpolkit=false \
 	-Dportabled=false \
 	-Dpstore=false \
@@ -819,6 +828,13 @@ PATH=$PWD/bin:$PATH
 	-Dlibcurl=false \
 	-Dbpf-framework=false \
 	-Dlz4=false \
+	-Dxenctrl=disabled \
+	-Dtpm2=disabled \
+	-Dxkbcommon=disabled \
+	-Dsysupdate=disabled \
+	-Dnss-mymachines=disabled \
+	-Dnss-resolve=disabled \
+	-Dbootloader=disabled \
 	-Ddefault-compression=zstd
 
 %ninja_build -C build32
@@ -845,6 +861,7 @@ PATH=$PWD/bin:$PATH
 %endif
 %if %{with bootstrap}
 	-Dlibcryptsetup=false \
+	-Dlibcryptsetup-plugins=false \
 %else
 	-Dlibcryptsetup=true \
 	-Dlibcryptsetup-plugins-dir="%{_libdir}/cryptsetup" \
@@ -950,6 +967,8 @@ PATH=$PWD/bin:$PATH
 	-Dstatus-unit-format-default=combined \
 	-Dcompat-mutable-uid-boundaries=true \
 	-Dcryptolib=openssl \
+	-Dxenctrl=disabled \
+	-Dlibfido2=disabled \
 	-Dbpf-framework=true
 # -Dsystemd-timesync-uid=, not set yet
 
@@ -1100,6 +1119,9 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/%{name}/user/slice.d/ %{SOURCE27}
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/service.d/ %{SOURCE28}
 sed -r 's|/system/|/user/|g' %{SOURCE28} > 10-timeout-abort.conf.user
 install -Dm0644 10-timeout-abort.conf.user %{buildroot}%{_prefix}/lib/%{name}/user/service.d/10-timeout-abort.conf
+
+# rpm doesn't seem to like comments in sysuser files
+sed -i -e '/^#/d' %{buildroot}%{_sysusersdir}/*.conf
 
 # systemd-creds
 mkdir -p %{buildroot}%{_sysconfdir}/credstore
@@ -1304,9 +1326,6 @@ if [ -f /etc/nsswitch.conf ]; then
 		' /etc/nsswitch.conf &>/dev/null || :
 fi
 
-%pre journal-remote
-%sysusers_create_package systemd-remote.conf %{SOURCE25}
-
 %files
 %dir %{_prefix}/lib/firmware
 %dir %{_prefix}/lib/firmware/updates
@@ -1422,6 +1441,7 @@ fi
 %{_bindir}/poweroff
 %{_bindir}/reboot
 %{_bindir}/systemctl
+%{_bindir}/varlinkctl
 %{_bindir}/%{name}-ask-password
 %{_bindir}/%{name}-escape
 %{_bindir}/%{name}-firstboot
@@ -1487,13 +1507,15 @@ fi
 %{_prefix}/lib/%{name}/user/*.slice
 %{_prefix}/lib/systemd/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
+%{_datadir}/factory/etc/issue
 %{_sysconfdir}/profile.d/40systemd.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
 %dir %{systemd_libdir}/ntp-units.d
 %{systemd_libdir}/ntp-units.d/80-systemd-timesync.list
 %{systemd_libdir}/systemd-battery-check
-%{_datadir}/factory/etc/issue
+%{systemd_libdir}/systemd-executor
+%{systemd_libdir}/system/systemd-hibernate-resume.service
 # Generators
 %dir %{systemd_libdir}/system-generators
 %if ! %{cross_compiling}
@@ -1781,9 +1803,6 @@ fi
 %{systemd_libdir}/systemd-measure
 %endif
 %{systemd_libdir}/systemd-modules-load
-%if ! %{cross_compiling}
-%{systemd_libdir}/systemd-pcrphase
-%endif
 %{systemd_libdir}/systemd-pstore
 %{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
@@ -1826,6 +1845,7 @@ fi
 %{udev_rules_dir}/60-fido-id.rules
 %{udev_rules_dir}/60-infiniband.rules
 %{udev_rules_dir}/60-persistent-storage.rules
+%{udev_rules_dir}/60-persistent-storage-mtd.rules
 %{udev_rules_dir}/60-sensor.rules
 %{udev_rules_dir}/60-serial.rules
 %{udev_rules_dir}/64-btrfs.rules
@@ -1942,12 +1962,16 @@ fi
 %files sysext
 %{_bindir}/systemd-sysext
 %{systemd_libdir}/system/systemd-sysext.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-sysext.socket
+%{systemd_libdir}/system/systemd-sysext.socket
+%{systemd_libdir}/system/systemd-sysext@.service
 
 %files repart
 %{_bindir}/systemd-repart
 %{systemd_libdir}/system/systemd-repart.service
 %{systemd_libdir}/system/initrd-root-fs.target.wants/systemd-repart.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-repart.service
+%{systemd_libdir}/repart
 
 %if ! %{with bootstrap}
 %files homed
@@ -2018,6 +2042,7 @@ fi
 %dir %{_sysconfdir}/%{name}/nspawn
 %{_bindir}/machinectl
 %{_bindir}/systemd-nspawn
+%{_bindir}/systemd-vmspawn
 %{_prefix}/lib/tmpfiles.d/systemd-nspawn.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.import1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.machine1.service
@@ -2080,6 +2105,7 @@ fi
 %ifarch %{efi}
 %files boot
 %{_bindir}/bootctl
+%{_bindir}/ukify
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
@@ -2175,6 +2201,8 @@ udevadm hwdb --update &>/dev/null
 %{systemd_libdir}/systemd-networkd-wait-online
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
+%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPv4Client.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPv6Client.xml
 %{_bindir}/networkctl
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-vb.network
@@ -2185,7 +2213,8 @@ udevadm hwdb --update &>/dev/null
 %{systemd_libdir}/network/80-wifi-ap.network.example
 %{systemd_libdir}/network/80-wifi-station.network.example
 %{systemd_libdir}/network/80-6rd-tunnel.network
-%{systemd_libdir}/network/80-ethernet.network.example
+%{systemd_libdir}/network/80-auto-link-local.network.example
+%{systemd_libdir}/network/89-ethernet.network.example
 %{systemd_libdir}/system/systemd-networkd-wait-online@.service
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
@@ -2218,8 +2247,10 @@ fi
 %{systemd_libdir}/system/veritysetup.target
 %{systemd_libdir}/system/system-systemd\x2dveritysetup.slice
 %{_bindir}/systemd-cryptenroll
+%{_bindir}/systemd-cryptsetup
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
+%{_libdir}/security/pam_systemd_loadkey.so
 %endif
 
 %files zsh-completion
@@ -2270,3 +2301,51 @@ fi
 %{_prefix}/lib/libudev.so
 %{_prefix}/lib/pkgconfig/libudev.pc
 %endif
+
+%package bsod
+Summary: Systemd BSOD tool for displaying information about crashes
+
+%description bsod
+Systemd BSOD tool for displaying information about crashes
+
+%files bsod
+%{systemd_libdir}/systemd-bsod
+%{systemd_libdir}/system/systemd-bsod.service
+%{systemd_libdir}/system/initrd.target.wants/systemd-bsod.service
+
+%package storage
+Summary: Systemd storage mode exporting all storage devices as NVMe-TCP
+
+%description storage
+Systemd storage mode exporting all storage devices as NVMe-TCP
+
+%files storage
+%{systemd_libdir}/system/storage-target-mode.target
+%{systemd_libdir}/system/systemd-storagetm.service
+%{systemd_libdir}/systemd-storagetm
+
+%package pcrlock
+Summary: PCR measurement predicition files for systemd
+
+%description pcrlock
+PCR measurement predicition files for systemd
+
+%files pcrlock
+%{systemd_libdir}/system/systemd-pcrextend.socket
+%{systemd_libdir}/system/systemd-pcrextend@.service
+%{systemd_libdir}/system/systemd-pcrlock-file-system.service
+%{systemd_libdir}/system/systemd-pcrlock-firmware-code.service
+%{systemd_libdir}/system/systemd-pcrlock-firmware-config.service
+%{systemd_libdir}/system/systemd-pcrlock-machine-id.service
+%{systemd_libdir}/system/systemd-pcrlock-make-policy.service
+%{systemd_libdir}/system/systemd-pcrlock-secureboot-authority.service
+%{systemd_libdir}/system/systemd-pcrlock-secureboot-policy.service
+%{systemd_libdir}/systemd-pcrlock
+%{systemd_libdir}/systemd-pcrextend
+%{systemd_libdir}/systemd-tpm2-setup
+%{systemd_libdir}/system/systemd-tpm2-setup-early.service
+%{systemd_libdir}/system/systemd-tpm2-setup.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-pcrextend.socket
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup-early.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup.service
+%{_prefix}/lib/pcrlock.d
