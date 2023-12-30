@@ -21,22 +21,22 @@
 %define libsystemd_major 0
 %define libnss_major 2
 
-%define libsystemd %mklibname %{name} %{libsystemd_major}
+%define libsystemd %mklibname %{name}
 %define libsystemd_devel %mklibname %{name} -d
-%define lib32systemd lib%{name}%{libsystemd_major}
+%define lib32systemd lib%{name}
 %define lib32systemd_devel lib%{name}-devel
 
-%define libnss_myhostname %mklibname nss_myhostname %{libnss_major}
-%define libnss_mymachines %mklibname nss_mymachines %{libnss_major}
-%define libnss_resolve %mklibname nss_resolve %{libnss_major}
-%define libnss_systemd %mklibname nss_systemd %{libnss_major}
-%define lib32nss_myhostname libnss_myhostname%{libnss_major}
-%define lib32nss_systemd libnss_systemd%{libnss_major}
+%define libnss_myhostname %mklibname nss_myhostname
+%define libnss_mymachines %mklibname nss_mymachines
+%define libnss_resolve %mklibname nss_resolve
+%define libnss_systemd %mklibname nss_systemd
+%define lib32nss_myhostname libnss_myhostname
+%define lib32nss_systemd libnss_systemd
 
 %define udev_major 1
-%define libudev %mklibname udev %{udev_major}
+%define libudev %mklibname udev
 %define libudev_devel %mklibname udev -d
-%define lib32udev libudev%{udev_major}
+%define lib32udev libudev
 %define lib32udev_devel libudev-devel
 
 %define systemd_libdir %{_prefix}/lib/systemd
@@ -46,7 +46,18 @@
 
 %define major 255
 %define major1 %(echo %{major} |cut -d. -f1)
-%define stable %{nil}
+%define stable 2
+
+%define oldlibsystemd %mklibname %{name} 0
+%define oldlib32systemd lib%{name}0
+%define oldlibnss_myhostname %mklibname nss_myhostname 2
+%define oldlibnss_mymachines %mklibname nss_mymachines 2
+%define oldlibnss_resolve %mklibname nss_resolve 2
+%define oldlibnss_systemd %mklibname nss_systemd 2
+%define oldlib32nss_myhostname libnss_myhostname2
+%define oldlib32nss_systemd libnss_systemd2
+%define oldlibudev %mklibname udev 1
+%define oldlib32udev libudev1
 
 Summary:	A System and Session Manager
 Name:		systemd
@@ -55,7 +66,7 @@ Version:	%{major}.%{stable}
 # Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
 # git clone https://github.com/systemd/systemd-stable/ -b v253-stable
 # cd systemd-stable && git archive --prefix=systemd-stable-253.$(date +%Y%m%d)/ --format=tar origin/v253-stable | xz -9ef > ../systemd-stable-253.$(date +%Y%m%d).tar.xz
-Source0:	systemd-%{version}.tar.xz
+Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %else
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
@@ -214,18 +225,6 @@ Requires:	(util-linux-core or util-linux)
 Recommends:	kmod >= 24
 Conflicts:	initscripts < 9.24
 Conflicts:	udev < 221-1
-#(tpg) time to drop consolekit stuff as it is replaced by native logind
-Provides:	consolekit = 0.4.5-6
-Provides:	consolekit-x11 = 0.4.5-6
-Obsoletes:	consolekit < 0.4.5-6
-Obsoletes:	consolekit-x11 < 0.4.5-6
-Obsoletes:	libconsolekit0 < 0.4.5-6
-Obsoletes:	lib64consolekit0 < 0.4.5-6
-# (tpg) this is obsoleted
-Obsoletes:	suspend < 1.0-10
-Provides:	suspend = 1.0-10
-Obsoletes:	suspend-s2ram < 1.0-10
-Provides:	suspend-s2ram = 1.0-10
 Provides:	should-restart = system
 Requires(meta):	(%{name}-rpm-macros = %{EVRD} if rpm-build)
 # (tpg) just to be sure we install this libraries
@@ -261,21 +260,11 @@ Obsoletes:	sysvinit < 2.87-23, SysVinit < 2.87-23
 Conflicts:	usermode-consoleonly < 1:1.110
 # (tpg) moved form makedev package
 Provides:	dev
-Obsoletes:	MAKEDEV < 4.4-23
-Provides:	MAKEDEV = 4.4-23
-Conflicts:	makedev < 4.4-23
-Obsoletes:	readahead < 1.5.7-8
-Provides:	readahead = 1.5.7-8
-Obsoletes:	resolvconf < 1.75-6
-Provides:	resolvconf = 1.75-6
-Obsoletes:	bootchart < 2.0.11.4-3
-Provides:	bootchart = 2.0.11.4-3
+# FIXME
 Obsoletes:	python-%{name} < 223
 Provides:	python-%{name} = 223
-%rename		systemd-tools
-%rename		systemd-units
-%rename		systemd-resolved
-%rename		udev
+# Older dracut fails to include systemd-executor
+Conflicts:	dracut < 059-5
 %if %{with compat32}
 BuildRequires:	libc6
 BuildRequires:	devel(libcap)
@@ -372,11 +361,7 @@ Systemd coredump tools to manage coredumps and backtraces.
 Summary:	Man pages and documentation for %{name}
 Group:		Books/Computer books
 Requires:	%{name} >= %{EVRD}
-Conflicts:	%{name} < 235-9
 Suggests:	%{name}-locale
-Obsoletes:	systemd-doc < 236-10
-Conflicts:	systemd-doc < 236-10
-%rename		udev-doc
 
 %description documentation
 Man pages and documentation for %{name}.
@@ -385,8 +370,6 @@ Man pages and documentation for %{name}.
 Summary:	hwdb component for %{name}
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
-Conflicts:	%{name} < 235-9
-Conflicts:	%{name} < 238-4
 Suggests:	%{name}-polkit
 Suggests:	%{name}-documentation
 Suggests:	%{name}-locale
@@ -521,22 +504,7 @@ or loopback block devices with a filesystem, optionally encrypted).
 %package -n %{libsystemd}
 Summary:	Systemd library package
 Group:		System/Libraries
-# (tpg) old, pre 230 stuff - keep for smooth update from old relases
-Provides:	libsystemd = 208-20
-Obsoletes:	libsystemd < 208-20
-Provides:	libsystemd-daemon = 208-20
-Obsoletes:	libsystemd-daemon < 208-20
-%rename		%{_lib}systemd-daemon0
-Provides:	libsystemd-login = 208-20
-Obsoletes:	libsystemd-login < 208-20
-%rename		%{_lib}systemd-login0
-Provides:	libsystemd-journal = 208-20
-Obsoletes:	libsystemd-journal < 208-20
-%rename		%{_lib}systemd-journal0
-%rename		%{_lib}systemd-id1280
-Obsoletes:	libsystemd-id1280 < 208-20
-Provides:	libsystemd-id1280 = 208-20
-%rename		%{_lib}systemd-id128_0
+%rename		%{oldlibsystemd}
 
 %description -n %{libsystemd}
 This package provides the systemd shared library.
@@ -546,15 +514,6 @@ Summary:	Systemd library development files
 Group:		Development/C
 Requires:	%{name}-rpm-macros = %{EVRD}
 Requires:	%{libsystemd} = %{EVRD}
-# (tpg) old, pre 230 stuff - keep for smooth update from old relases
-%rename		%{_lib}systemd-daemon0-devel
-%rename		%{_lib}systemd-daemon-devel
-%rename		%{_lib}systemd-login0-devel
-%rename		%{_lib}systemd-login-devel
-%rename		%{_lib}systemd-journal0-devel
-%rename		%{_lib}systemd-journal-devel
-%rename		%{_lib}systemd-id1280-devel
-%rename		%{_lib}systemd-id128-devel
 
 %description -n %{libsystemd_devel}
 Development files for the systemd shared library.
@@ -564,9 +523,7 @@ Summary:	Library for local system host name resolution
 Group:		System/Libraries
 Provides:	libnss_myhostname = %{EVRD}
 Provides:	nss_myhostname = %{EVRD}
-# (tpg) fix update from 2014.0
-Provides:	nss_myhostname = 208-20
-Obsoletes:	nss_myhostname < 208-20
+%rename		%{oldlibnss_myhostname}
 
 %description -n %{libnss_myhostname}
 nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
@@ -581,6 +538,7 @@ Provides:	libnss_mymachines = %{EVRD}
 Provides:	nss_mymachines = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
 Requires:	systemd-container = %{EVRD}
+%rename		%{oldlibnss_mymachines}
 
 %description -n %{libnss_mymachines}
 nss-mymachines is a plug-in module for the GNU Name Service Switch (NSS)
@@ -597,6 +555,7 @@ Provides:	libnss_resolve = %{EVRD}
 Provides:	nss_resolve = %{EVRD}
 Requires:	%{name} = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
+%rename		%{oldlibnss_resolve}
 
 %description -n %{libnss_resolve}
 nss-resolve is a plug-in module for the GNU Name Service Switch (NSS) 
@@ -611,6 +570,7 @@ Group:		System/Libraries
 Provides:	libnss_systemd = %{EVRD}
 Provides:	nss_systemd = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
+%rename		%{oldlibnss_systemd}
 
 %description -n %{libnss_systemd}
 nss-systemd is a plug-in module for the GNU Name Service Switch (NSS) 
@@ -622,6 +582,7 @@ for details on this option.
 %package -n %{libudev}
 Summary:	Library for udev
 Group:		System/Libraries
+%rename		%{oldlibudev}
 
 %description -n %{libudev}
 Library for udev.
@@ -633,9 +594,6 @@ License:	LGPLv2+
 Provides:	udev-devel = %{EVRD}
 Requires:	%{libudev} = %{EVRD}
 Requires:	%{name}-rpm-macros = %{EVRD}
-Obsoletes:	%{_lib}udev0-devel < 236
-Conflicts:	%{_lib}udev-devel < 236-8
-Obsoletes:	%{_lib}udev-devel < 236-8
 
 %description -n %{libudev_devel}
 Devel library for udev.
@@ -668,6 +626,7 @@ For building RPM packages to utilize standard systemd runtime macros.
 %package -n %{lib32systemd}
 Summary:	Systemd library package (32-bit)
 Group:		System/Libraries
+%rename		%{oldlib32systemd}
 
 %description -n %{lib32systemd}
 This package provides the systemd shared library.
@@ -685,6 +644,7 @@ Development files for the systemd shared library.
 %package -n %{lib32nss_myhostname}
 Summary:	Library for local system host name resolution (32-bit)
 Group:		System/Libraries
+%rename		%{oldlib32nss_myhostname}
 
 %description -n %{lib32nss_myhostname}
 nss-myhostname is a plugin for the GNU Name Service Switch (NSS)
@@ -695,6 +655,7 @@ gethostname(2).
 %package -n %{lib32nss_systemd}
 Summary:	Provide UNIX user and group name resolution for dynamic users and groups (32-bit)
 Group:		System/Libraries
+%rename		%{oldlib32nss_systemd}
 
 %description -n %{lib32nss_systemd}
 nss-systemd is a plug-in module for the GNU Name Service Switch (NSS) 
@@ -706,6 +667,7 @@ the DynamicUser= option in systemd unit files. See systemd.exec(5)
 %package -n %{lib32udev}
 Summary:	Library for udev (32-bit)
 Group:		System/Libraries
+%rename		%{oldlib32udev}
 
 %description -n %{lib32udev}
 Library for udev.
