@@ -434,7 +434,6 @@ Obsoletes:	systemd < 206-7
 %description journal-remote
 Offers journal events over the network using HTTP.
 
-%if !%{with bootstrap}
 %package cryptsetup
 Summary:	Cryptsetup generators for %{name}
 Group:		System/Configuration/Boot and Init
@@ -443,7 +442,6 @@ Conflicts:	%{name} < 238-4
 
 %description cryptsetup
 Systemd generators for cryptsetup (Luks encryption and verity).
-%endif
 
 %package portable
 Summary:	Tools for working with Portable Service Images
@@ -1481,9 +1479,7 @@ fi
 %{systemd_libdir}/system/systemd-hibernate-resume.service
 # Generators
 %dir %{systemd_libdir}/system-generators
-%if ! %{cross_compiling}
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
-%endif
 %{systemd_libdir}/system-generators/systemd-debug-generator
 %{systemd_libdir}/system-generators/systemd-fstab-generator
 %{systemd_libdir}/system-generators/systemd-getty-generator
@@ -1539,13 +1535,9 @@ fi
 %{systemd_libdir}/system/systemd-backlight@.service
 %{systemd_libdir}/system/systemd-battery-check.service
 %{systemd_libdir}/system/systemd-binfmt.service
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-bless-boot.service
-%endif
 %{systemd_libdir}/system/systemd-boot-check-no-failures.service
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-boot-random-seed.service
-%endif
 %{systemd_libdir}/system/systemd-confext.service
 %{systemd_libdir}/system/systemd-exit.service
 %{systemd_libdir}/system/systemd-firstboot.service
@@ -1567,14 +1559,12 @@ fi
 %{systemd_libdir}/system/systemd-logind.service
 %{systemd_libdir}/system/systemd-machine-id-commit.service
 %{systemd_libdir}/system/systemd-modules-load.service
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-pcrphase-initrd.service
 %{systemd_libdir}/system/systemd-pcrphase-sysinit.service
 %{systemd_libdir}/system/systemd-pcrphase.service
 %{systemd_libdir}/system/systemd-pcrfs-root.service
 %{systemd_libdir}/system/systemd-pcrfs@.service
 %{systemd_libdir}/system/systemd-pcrmachine.service
-%endif
 %{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
@@ -1701,9 +1691,7 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-kernel.socket
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/initrd.target.wants/systemd-pcrphase-initrd.service
-%endif
 %{systemd_libdir}/system/initrd.target.wants/systemd-battery-check.service
 %{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
 %{systemd_libdir}/system/sysinit.target.wants/dev-mqueue.mount
@@ -1716,20 +1704,16 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/sys-kernel-tracing.mount
 %{systemd_libdir}/system/sysinit.target.wants/systemd-ask-password-console.path
 %{systemd_libdir}/system/sysinit.target.wants/systemd-binfmt.service
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/sysinit.target.wants/systemd-boot-random-seed.service
-%endif
 %{systemd_libdir}/system/sysinit.target.wants/systemd-firstboot.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-flush.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journald.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrmachine.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase-sysinit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase.service
-%endif
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
@@ -1746,9 +1730,7 @@ fi
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-backlight
 %{systemd_libdir}/systemd-binfmt
-%if ! %{cross_compiling}
 %{systemd_libdir}/systemd-bless-boot
-%endif
 %{systemd_libdir}/systemd-boot-check-no-failures
 %{systemd_libdir}/systemd-cgroups-agent
 %{systemd_libdir}/systemd-export
@@ -1762,9 +1744,7 @@ fi
 %{systemd_libdir}/systemd-localed
 %{systemd_libdir}/systemd-logind
 %{systemd_libdir}/systemd-makefs
-%if ! %{cross_compiling}
 %{systemd_libdir}/systemd-measure
-%endif
 %{systemd_libdir}/systemd-modules-load
 %{systemd_libdir}/systemd-pstore
 %{systemd_libdir}/systemd-quotacheck
@@ -1827,9 +1807,7 @@ fi
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %{_bindir}/udevd
 %{_bindir}/udevadm
-%if ! %{with bootstrap}
 %{udev_rules_dir}/60-dmi-id.rules
-%endif
 %if ! %{cross_compiling}
 %{_prefix}/lib/udev/dmi_memory_id
 %{_prefix}/lib/udev/rules.d/70-memory.rules
@@ -1872,13 +1850,9 @@ fi
 %{systemd_libdir}/network/99-default.link
 # New in -250, need to verify if this needs to go to subpackages
 %{systemd_libdir}/system/factory-reset.target
-%if ! %{cross_compiling}
 %{systemd_libdir}/system/systemd-boot-update.service
-%endif
 %{systemd_libdir}/systemd-update-helper
-%if ! %{cross_compiling}
 %{systemd_libdir}/ukify
-%endif
 %{_prefix}/lib/kernel/install.conf
 %if ! %{cross_compiling}
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
@@ -2164,8 +2138,8 @@ udevadm hwdb --update &>/dev/null
 %{systemd_libdir}/systemd-networkd-wait-online
 %{_datadir}/dbus-1/system.d/org.freedesktop.network1.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.network1.service
-%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPv4Client.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPv6Client.xml
+%optional %{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPv4Client.xml
+%optional %{_datadir}/dbus-1/interfaces/org.freedesktop.network1.DHCPv6Client.xml
 %{_bindir}/networkctl
 %{systemd_libdir}/network/80-container-host0.network
 %{systemd_libdir}/network/80-container-vb.network
@@ -2192,8 +2166,8 @@ else
     %systemd_preun systemd-networkd.service systemd-networkd-wait-online.service
 fi
 
-%if !%{with bootstrap}
 %files cryptsetup
+%if !%{with bootstrap}
 %{systemd_libdir}/systemd-cryptsetup
 %{systemd_libdir}/system-generators/systemd-cryptsetup-generator
 %{systemd_libdir}/system-generators/systemd-veritysetup-generator
@@ -2213,8 +2187,8 @@ fi
 %{_bindir}/systemd-cryptsetup
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
-%{_libdir}/security/pam_systemd_loadkey.so
 %endif
+%{_libdir}/security/pam_systemd_loadkey.so
 
 %files zsh-completion
 %{_datadir}/zsh/site-functions/*
