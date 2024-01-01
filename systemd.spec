@@ -71,7 +71,7 @@ Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}
 Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -224,7 +224,7 @@ Requires(post):	grep
 Requires:	(util-linux-core or util-linux)
 Recommends:	kmod >= 24
 Conflicts:	initscripts < 9.24
-Conflicts:	udev < 221-1
+Requires:	udev = %{EVRD}
 Provides:	should-restart = system
 Requires(meta):	(%{name}-rpm-macros = %{EVRD} if rpm-build)
 # (tpg) just to be sure we install this libraries
@@ -292,6 +292,17 @@ Linux cgroups, supports snapshotting and restoring of the system
 state, maintains mount and automount points and implements an
 elaborate transactional dependency-based service control logic. It can
 work as a drop-in replacement for sysvinit.
+
+%package -n udev
+Summary:	Device node creation tool
+Group:		System
+
+%description -n udev
+Device node creation tool
+
+udev creates the device nodes in /dev. Unless you build a different
+solution or use a prepopulated static /dev, this is vital for the
+OS to work.
 
 %ifarch %{efi}
 %package boot
@@ -1323,10 +1334,6 @@ fi
 %dir %{_sysconfdir}/%{name}/user-preset
 %dir %{_sysconfdir}/%{name}/user/default.target.wants
 %dir %{_sysconfdir}/tmpfiles.d
-%dir %{_sysconfdir}/udev
-%dir %{_sysconfdir}/udev/agents.d
-%dir %{_sysconfdir}/udev/agents.d/usb
-%dir %{_sysconfdir}/udev/rules.d
 %dir %{_libdir}/systemd
 %dir %{systemd_libdir}
 %dir %{systemd_libdir}/system
@@ -1362,9 +1369,6 @@ fi
 %dir %{systemd_libdir}/system/machines.target.wants
 %dir %{systemd_libdir}/system/remote-fs.target.wants
 %dir %{systemd_libdir}/system/user-.slice.d
-%dir %{udev_libdir}
-%dir %{udev_libdir}/hwdb.d
-%dir %{udev_rules_dir}
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
 %ghost %{_localstatedir}/lib/systemd/catalog/database
@@ -1382,8 +1386,6 @@ fi
 %ghost %config(noreplace) %{_sysconfdir}/vconsole.conf
 %ghost %config(noreplace) %{_sysconfdir}/X11/xorg.conf.d/00-keyboard.conf
 %doc %{_prefix}/lib/modprobe.d/README
-%doc %{_prefix}/lib/udev/hwdb.d/README
-%doc %{_prefix}/lib/udev/rules.d/README
 %doc %{_prefix}/lib/sysctl.d/README
 %doc %{_prefix}/lib/sysusers.d/README
 %doc %{_prefix}/lib/tmpfiles.d/README
@@ -1762,7 +1764,6 @@ fi
 %{systemd_libdir}/systemd-time-wait-sync
 %{systemd_libdir}/systemd-timedated
 %{systemd_libdir}/systemd-timesyncd
-%{systemd_libdir}/systemd-udevd
 %{systemd_libdir}/systemd-update-done
 %{systemd_libdir}/systemd-update-utmp
 %{systemd_libdir}/systemd-user-runtime-dir
@@ -1779,44 +1780,7 @@ fi
 %{_libdir}/systemd/libsystemd-core-%{major1}.so
 %{_libdir}/systemd/libsystemd-shared-%{major1}.so
 #
-%{udev_rules_dir}/10-imx.rules
-%{udev_rules_dir}/50-udev-default.rules
-%{udev_rules_dir}/50-udev-mandriva.rules
-%{udev_rules_dir}/60-autosuspend.rules
-%{udev_rules_dir}/60-block.rules
-%{udev_rules_dir}/60-block-scheduler.rules
-%{udev_rules_dir}/60-fido-id.rules
-%{udev_rules_dir}/60-infiniband.rules
-%{udev_rules_dir}/60-persistent-storage.rules
-%{udev_rules_dir}/60-persistent-storage-mtd.rules
-%{udev_rules_dir}/60-sensor.rules
-%{udev_rules_dir}/60-serial.rules
-%{udev_rules_dir}/64-btrfs.rules
-%{udev_rules_dir}/69-printeracl.rules
-%{udev_rules_dir}/70-camera.rules
-%{udev_rules_dir}/70-power-switch.rules
-%{udev_rules_dir}/70-uaccess.rules
-%{udev_rules_dir}/71-seat.rules
-%{udev_rules_dir}/73-seat-late.rules
-%{udev_rules_dir}/75-net-description.rules
-%{udev_rules_dir}/80-drivers.rules
-%{udev_rules_dir}/80-net-setup-link.rules
-%{udev_rules_dir}/81-net-dhcp.rules
-%{udev_rules_dir}/90-iocost.rules
-%{udev_rules_dir}/99-systemd.rules
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
-%{_bindir}/udevd
-%{_bindir}/udevadm
-%{udev_rules_dir}/60-dmi-id.rules
-%if ! %{cross_compiling}
-%{_prefix}/lib/udev/dmi_memory_id
-%{_prefix}/lib/udev/rules.d/70-memory.rules
-%endif
-%attr(0755,root,root) %{udev_libdir}/ata_id
-%attr(0755,root,root) %{udev_libdir}/fido_id
-%attr(0755,root,root) %{udev_libdir}/iocost
-%attr(0755,root,root) %{udev_libdir}/scsi_id
-%{udev_libdir}/udevd
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
 # This file exists only on 64-bit arches
 %ifnarch %{ix86} %{arm}
@@ -1831,7 +1795,6 @@ fi
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-timesync.conf
 %config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
-%config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/%{name}/journald.conf
 %config(noreplace) %{_sysconfdir}/%{name}/journal-remote.conf
 %config(noreplace) %{_sysconfdir}/%{name}/journal-upload.conf
@@ -1842,8 +1805,6 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
 %config(noreplace) %{_sysconfdir}/%{name}/timesyncd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/user.conf
-%config(noreplace) %{_sysconfdir}/udev/udev.conf
-%config(noreplace) %{_sysconfdir}/udev/iocost.conf
 %config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
 # This takes care of interface renaming etc. -- it is NOT for networkd
 %dir %{systemd_libdir}/network
@@ -1895,6 +1856,60 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Unit.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
 %endif
+
+# Split into a separate package so it can be used in installations
+# and containers that don't use systemd
+%files -n udev
+%doc %{_prefix}/lib/udev/hwdb.d/README
+%doc %{_prefix}/lib/udev/rules.d/README
+%dir %{_sysconfdir}/udev
+%dir %{_sysconfdir}/udev/agents.d
+%dir %{_sysconfdir}/udev/agents.d/usb
+%dir %{_sysconfdir}/udev/rules.d
+%dir %{udev_libdir}
+%dir %{udev_libdir}/hwdb.d
+%dir %{udev_rules_dir}
+%{systemd_libdir}/systemd-udevd
+%{udev_rules_dir}/10-imx.rules
+%{udev_rules_dir}/50-udev-default.rules
+%{udev_rules_dir}/50-udev-mandriva.rules
+%{udev_rules_dir}/60-autosuspend.rules
+%{udev_rules_dir}/60-block.rules
+%{udev_rules_dir}/60-block-scheduler.rules
+%{udev_rules_dir}/60-fido-id.rules
+%{udev_rules_dir}/60-infiniband.rules
+%{udev_rules_dir}/60-persistent-storage.rules
+%{udev_rules_dir}/60-persistent-storage-mtd.rules
+%{udev_rules_dir}/60-sensor.rules
+%{udev_rules_dir}/60-serial.rules
+%{udev_rules_dir}/64-btrfs.rules
+%{udev_rules_dir}/69-printeracl.rules
+%{udev_rules_dir}/70-camera.rules
+%{udev_rules_dir}/70-power-switch.rules
+%{udev_rules_dir}/70-uaccess.rules
+%{udev_rules_dir}/71-seat.rules
+%{udev_rules_dir}/73-seat-late.rules
+%{udev_rules_dir}/75-net-description.rules
+%{udev_rules_dir}/80-drivers.rules
+%{udev_rules_dir}/80-net-setup-link.rules
+%{udev_rules_dir}/81-net-dhcp.rules
+%{udev_rules_dir}/90-iocost.rules
+%{udev_rules_dir}/99-systemd.rules
+%{_bindir}/udevd
+%{_bindir}/udevadm
+%{udev_rules_dir}/60-dmi-id.rules
+%if ! %{cross_compiling}
+%{_prefix}/lib/udev/dmi_memory_id
+%{_prefix}/lib/udev/rules.d/70-memory.rules
+%endif
+%attr(0755,root,root) %{udev_libdir}/ata_id
+%attr(0755,root,root) %{udev_libdir}/fido_id
+%attr(0755,root,root) %{udev_libdir}/iocost
+%attr(0755,root,root) %{udev_libdir}/scsi_id
+%{udev_libdir}/udevd
+%config(noreplace) %{_sysconfdir}/sysconfig/udev
+%config(noreplace) %{_sysconfdir}/udev/udev.conf
+%config(noreplace) %{_sysconfdir}/udev/iocost.conf
 
 %files sysext
 %{_bindir}/systemd-sysext
