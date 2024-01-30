@@ -46,7 +46,7 @@
 
 %define major 255
 %define major1 %(echo %{major} |cut -d. -f1)
-%define stable 2
+%define stable 3
 
 %define oldlibsystemd %mklibname %{name} 0
 %define oldlib32systemd lib%{name}0
