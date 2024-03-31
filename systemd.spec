@@ -44,9 +44,8 @@
 %define udev_rules_dir %{udev_libdir}/rules.d
 %define udev_user_rules_dir %{_sysconfdir}/udev/rules.d
 
-%define major 255
-%define major1 %(echo %{major} |cut -d. -f1)
-%define stable 3
+%define major %(echo %{version} |cut -d. -f1)
+%define stable %(if echo %{version} |grep -q \\.; then echo %{version} |cut -d. -f2; else echo 0; fi)
 
 %define oldlibsystemd %mklibname %{name} 0
 %define oldlib32systemd lib%{name}0
@@ -61,17 +60,13 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
+Version:	255.4
 %if 0%stable
-Version:	%{major}.%{stable}
-# Packaged from v%(echo %{version} |cut -d. -f1)-stable branch of
-# git clone https://github.com/systemd/systemd-stable/ -b v253-stable
-# cd systemd-stable && git archive --prefix=systemd-stable-253.$(date +%Y%m%d)/ --format=tar origin/v253-stable | xz -9ef > ../systemd-stable-253.$(date +%Y%m%d).tar.xz
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %else
-Version:	%{major}
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -110,6 +105,7 @@ Patch1:		systemd-254-efi-cflags.patch
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
+Patch4:		systemd-255.4-filesystems.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
@@ -1777,8 +1773,8 @@ fi
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
 # (tpg) internal libraries - only systemd uses them
-%{_libdir}/systemd/libsystemd-core-%{major1}.so
-%{_libdir}/systemd/libsystemd-shared-%{major1}.so
+%{_libdir}/systemd/libsystemd-core-%{major}.so
+%{_libdir}/systemd/libsystemd-shared-%{major}.so
 #
 %attr(02755,root,systemd-journal) %dir %{_logdir}/journal
 %config(noreplace) %{_prefix}/lib/sysctl.d/50-default.conf
@@ -2239,8 +2235,8 @@ fi
 
 %files -n %{lib32systemd}
 %{_prefix}/lib/libsystemd.so.*
-%{_prefix}/lib/systemd/libsystemd-core-%{major1}.so
-%{_prefix}/lib/systemd/libsystemd-shared-%{major1}.so
+%{_prefix}/lib/systemd/libsystemd-core-%{major}.so
+%{_prefix}/lib/systemd/libsystemd-shared-%{major}.so
 
 %files -n %{lib32udev}
 %{_prefix}/lib/libudev.so.*

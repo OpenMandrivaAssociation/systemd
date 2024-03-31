@@ -1,0 +1,24 @@
+diff -up systemd-stable-255.4/src/basic/filesystems-gperf.gperf.omv~ systemd-stable-255.4/src/basic/filesystems-gperf.gperf
+--- systemd-stable-255.4/src/basic/filesystems-gperf.gperf.omv~	2024-03-31 22:21:13.174663733 +0200
++++ systemd-stable-255.4/src/basic/filesystems-gperf.gperf	2024-03-31 22:21:36.818914192 +0200
+@@ -91,6 +91,7 @@ ocfs2,           {OCFS2_SUPER_MAGIC}
+ openpromfs,      {OPENPROM_SUPER_MAGIC}
+ orangefs,        {ORANGEFS_DEVREQ_MAGIC}
+ overlay,         {OVERLAYFS_SUPER_MAGIC}
++pidfs,           {PID_FS_MAGIC}
+ pipefs,          {PIPEFS_MAGIC}
+ ppc-cmm,         {PPC_CMM_MAGIC}
+ proc,            {PROC_SUPER_MAGIC}
+diff -up systemd-stable-255.4/src/basic/filesystems.c.omv~ systemd-stable-255.4/src/basic/filesystems.c
+--- systemd-stable-255.4/src/basic/filesystems.c.omv~	2024-03-31 23:16:18.449394346 +0200
++++ systemd-stable-255.4/src/basic/filesystems.c	2024-03-31 23:16:32.369540181 +0200
+@@ -1,5 +1,9 @@
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ 
++#ifndef PID_FS_MAGIC
++#define PID_FS_MAGIC 0x50494446
++#endif
++
+ #include "filesystems-gperf.h"
+ #include "stat-util.h"
+ 
