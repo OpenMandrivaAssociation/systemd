@@ -60,7 +60,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	255.5
+Version:	255.6
 %if 0%stable
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %else
