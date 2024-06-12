@@ -1,9 +1,9 @@
-diff -up systemd-stable-254.3/src/resolve/resolved.c.27~ systemd-stable-254.3/src/resolve/resolved.c
---- systemd-stable-254.3/src/resolve/resolved.c.27~	2023-09-09 01:15:31.000000000 +0200
-+++ systemd-stable-254.3/src/resolve/resolved.c	2023-09-11 17:49:43.380654045 +0200
+diff -up systemd-stable-256/src/resolve/resolved.c.27~ systemd-stable-256/src/resolve/resolved.c
+--- systemd-stable-256/src/resolve/resolved.c.27~	2024-06-11 23:42:06.000000000 +0200
++++ systemd-stable-256/src/resolve/resolved.c	2024-06-12 14:14:55.858226467 +0200
 @@ -69,6 +69,8 @@ static int run(int argc, char *argv[]) {
  
-         assert_se(sigprocmask_many(SIG_BLOCK, NULL, SIGTERM, SIGINT, SIGUSR1, SIGUSR2, SIGRTMIN+1, SIGRTMIN+18, -1) >= 0);
+         assert_se(sigprocmask_many(SIG_BLOCK, NULL, SIGTERM, SIGINT, SIGUSR1, SIGUSR2, SIGRTMIN+1, SIGRTMIN+18) >= 0);
  
 +        notify_stop = notify_start(NOTIFY_READY, NOTIFY_STOPPING);
 +

@@ -60,7 +60,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	255.7
+Version:	256
 %if 0%stable
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %else
@@ -202,6 +202,7 @@ BuildRequires:	pkgconfig(xkbcommon)
 BuildRequires:	pkgconfig(mount) >= 2.27
 BuildRequires:	pkgconfig(fdisk)
 BuildRequires:	pkgconfig(pwquality)
+BuildRequires:	pkgconfig(libarchive)
 BuildRequires:	python3dist(jinja2)
 BuildRequires:	pkgconfig(tss2-sys)
 # make sure we have /etc/os-release available, required by --with-distro
@@ -276,6 +277,7 @@ BuildRequires:	devel(libz)
 BuildRequires:	devel(libdw)
 BuildRequires:	devel(libdbus-1)
 BuildRequires:	devel(libssl)
+BuildRequires:	devel(libarchive)
 %endif
 
 %description
@@ -1391,6 +1393,7 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.timedate1.conf
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.timesync1.policy
+%{_datadir}/polkit-1/actions/io.systemd.credentials.policy
 %{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
 %{_libdir}/security/pam_systemd.so
 %{_bindir}/halt
@@ -1410,6 +1413,10 @@ fi
 %{_bindir}/%{name}-tmpfiles
 %{_bindir}/%{name}-tty-ask-password-agent
 %{_bindir}/%{name}-creds
+%{_bindir}/systemd-vpick
+%{systemd_libdir}/system/sockets.target.wants/systemd-creds.socket
+%{systemd_libdir}/system/systemd-creds.socket
+%{systemd_libdir}/system/systemd-creds@.service
 %{_bindir}/userdbctl
 %{_bindir}/init
 %{_bindir}/resolvconf
@@ -1431,6 +1438,8 @@ fi
 %{_bindir}/systemd-mount
 %{_bindir}/systemd-path
 %{_bindir}/systemd-run
+%{_bindir}/run0
+%{_sysconfdir}/pam.d/systemd-run0
 %{_bindir}/systemd-socket-activate
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-umount
@@ -1474,6 +1483,8 @@ fi
 %{systemd_libdir}/systemd-battery-check
 %{systemd_libdir}/systemd-executor
 %{systemd_libdir}/system/systemd-hibernate-resume.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-hibernate-clear.service
+%{systemd_libdir}/system/systemd-hibernate-clear.service
 # Generators
 %dir %{systemd_libdir}/system-generators
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
@@ -1523,7 +1534,6 @@ fi
 %{systemd_libdir}/system/kmod-static-nodes.service
 %{systemd_libdir}/system/ldconfig.service
 %{systemd_libdir}/system/modprobe@.service
-%{systemd_libdir}/system/quotaon.service
 %{systemd_libdir}/system/rc-local.service
 %{systemd_libdir}/system/rescue.service
 %{systemd_libdir}/system/system-update-cleanup.service
@@ -1545,12 +1555,15 @@ fi
 %{systemd_libdir}/system/systemd-halt.service
 %{systemd_libdir}/system/systemd-hibernate.service
 %{systemd_libdir}/system/systemd-hostnamed.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-hostnamed.socket
+%{systemd_libdir}/system/systemd-hostnamed.socket
 %{systemd_libdir}/system/systemd-hybrid-sleep.service
 %{systemd_libdir}/system/systemd-initctl.service
 %{systemd_libdir}/system/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/systemd-journal-flush.service
 %{systemd_libdir}/system/systemd-journald.service
 %{systemd_libdir}/system/systemd-journald@.service
+%{systemd_libdir}/system/systemd-journald-sync@.service
 %{systemd_libdir}/system/systemd-kexec.service
 %{systemd_libdir}/system/systemd-localed.service
 %{systemd_libdir}/system/systemd-logind.service
@@ -1565,7 +1578,6 @@ fi
 %{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
-%{systemd_libdir}/system/systemd-quotacheck.service
 %{systemd_libdir}/system/systemd-random-seed.service
 %{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-reboot.service
@@ -1583,6 +1595,7 @@ fi
 %{systemd_libdir}/system/systemd-tmpfiles-setup-dev.service
 %{systemd_libdir}/system/systemd-tmpfiles-setup-dev-early.service
 %{systemd_libdir}/system/systemd-tmpfiles-setup.service
+%{systemd_libdir}/system/systemd-udev-load-credentials.service
 %{systemd_libdir}/system/systemd-udev-settle.service
 %{systemd_libdir}/system/systemd-udev-trigger.service
 %{systemd_libdir}/system/systemd-udevd.service
@@ -1595,6 +1608,8 @@ fi
 %{systemd_libdir}/system/systemd-volatile-root.service
 %{systemd_libdir}/system/user-runtime-dir@.service
 %{systemd_libdir}/system/user@.service
+%{systemd_libdir}/system/capsule.slice
+%{systemd_libdir}/system/capsule@.service
 # Sockets
 %{systemd_libdir}/system/syslog.socket
 %{systemd_libdir}/system/systemd-initctl.socket
@@ -1744,7 +1759,6 @@ fi
 %{systemd_libdir}/systemd-measure
 %{systemd_libdir}/systemd-modules-load
 %{systemd_libdir}/systemd-pstore
-%{systemd_libdir}/systemd-quotacheck
 %{systemd_libdir}/systemd-random-seed
 %{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/systemd-remount-fs
@@ -1810,6 +1824,7 @@ fi
 %{systemd_libdir}/systemd-update-helper
 %{systemd_libdir}/ukify
 %{_prefix}/lib/kernel/install.conf
+%{_datadir}/mime/packages/io.systemd.xml
 %if ! %{cross_compiling}
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Home.xml
@@ -1923,9 +1938,11 @@ fi
 %if ! %{with bootstrap}
 %files homed
 %{_bindir}/homectl
+%{_bindir}/systemd-home-fallback-shell
 %config(noreplace) %{_sysconfdir}/systemd/homed.conf
 %{systemd_libdir}/system/systemd-homed-activate.service
 %{systemd_libdir}/system/systemd-homed.service
+%{systemd_libdir}/system/systemd-homed-firstboot.service
 %{systemd_libdir}/systemd-homed
 %{systemd_libdir}/systemd-homework
 %{_libdir}/security/pam_systemd_home.so
@@ -1971,6 +1988,7 @@ fi
 %{_datadir}/%{name}/gatewayd/browse.html
 
 %files container
+%{_bindir}/importctl
 %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
 %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
 %{systemd_libdir}/system/machine.slice
@@ -1980,12 +1998,20 @@ fi
 %{systemd_libdir}/system/systemd-importd.service
 %{systemd_libdir}/system/systemd-machined.service
 %{systemd_libdir}/system/systemd-nspawn@.service
+%{systemd_libdir}/system/systemd-vmspawn@.service
 %{systemd_libdir}/system/var-lib-machines.mount
 %{systemd_libdir}/systemd-import
 %{systemd_libdir}/systemd-importd
 %{systemd_libdir}/systemd-machined
 %{systemd_libdir}/systemd-pull
 %{systemd_libdir}/import-pubring.gpg
+%{_sysconfdir}/ssh/ssh_config.d/20-systemd-ssh-proxy.conf
+%{_sysconfdir}/ssh/sshd_config.d/20-systemd-userdb.conf
+%{systemd_libdir}/ssh_config.d/20-systemd-ssh-proxy.conf
+%{systemd_libdir}/sshd_config.d/20-systemd-userdb.conf
+%{systemd_libdir}/system/ssh-access.target
+%{systemd_libdir}/system-generators/systemd-ssh-generator
+%{systemd_libdir}/systemd-ssh-proxy
 %dir %{_sysconfdir}/%{name}/nspawn
 %{_bindir}/machinectl
 %{_bindir}/systemd-nspawn
@@ -1997,6 +2023,15 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.machine1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.import1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.machine1.policy
+# New in 256
+%{systemd_libdir}/network/80-6rd-tunnel.link
+%{systemd_libdir}/network/80-container-host0-tun.network
+%{systemd_libdir}/network/80-container-vb.link
+%{systemd_libdir}/network/80-container-ve.link
+%{systemd_libdir}/network/80-container-vz.link
+%{systemd_libdir}/network/80-namespace-ns.link
+%{systemd_libdir}/network/80-namespace-ns.network
+%{systemd_libdir}/network/80-vm-vt.link
 
 %files -n %{libnss_mymachines}
 %{_libdir}/libnss_mymachines.so.%{libnss_major}
@@ -2060,6 +2095,10 @@ fi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
 %{_datadir}/%{name}/bootctl/*.conf
 %ghost %{_datadir}/%{name}/bootctl/splash-omv.bmp
+# New in 256
+%{systemd_libdir}/system/sockets.target.wants/systemd-bootctl.socket
+%{systemd_libdir}/system/systemd-bootctl.socket
+%{systemd_libdir}/system/systemd-bootctl@.service
 
 %post boot
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
@@ -2163,6 +2202,7 @@ udevadm hwdb --update &>/dev/null
 %{systemd_libdir}/network/80-auto-link-local.network.example
 %{systemd_libdir}/network/89-ethernet.network.example
 %{systemd_libdir}/system/systemd-networkd-wait-online@.service
+%{systemd_libdir}/system/systemd-networkd-persistent-storage.service
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
@@ -2295,4 +2335,49 @@ PCR measurement predicition files for systemd
 %{systemd_libdir}/system/sockets.target.wants/systemd-pcrextend.socket
 %{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup-early.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-pcrlock.socket
+%{systemd_libdir}/system/systemd-pcrlock.socket
+%{systemd_libdir}/system/systemd-pcrlock@.service
+%{systemd_libdir}/system-generators/systemd-tpm2-generator
+%{systemd_libdir}/system/tpm2.target
 %{_prefix}/lib/pcrlock.d
+
+%package mountfsd
+Summary: Tool for dissecting raw disk images and returning mountable file descriptors
+Provides: varlink(io.systemd.MountFileSystem)
+
+%description mountfsd
+Tool for dissecting raw disk images and returning mountable file descriptors
+
+%files mountfsd
+%{systemd_libdir}/system/systemd-mountfsd.service
+%{systemd_libdir}/system/systemd-mountfsd.socket
+%{systemd_libdir}/systemd-mountfsd
+%{systemd_libdir}/systemd-mountwork
+%{_datadir}/polkit-1/actions/io.systemd.mount-file-system.policy
+
+%package nsresourced
+Summary: User Namespace Resource Delegation Service
+Provides: varlink(io.systemd.NamespaceResource)
+
+%description nsresourced
+User Namespace Resource Delegation Service
+
+%files nsresourced
+%{systemd_libdir}/system/systemd-nsresourced.service
+%{systemd_libdir}/system/systemd-nsresourced.socket
+%{systemd_libdir}/systemd-nsresourced
+%{systemd_libdir}/systemd-nsresourcework
+
+%package quota
+Summary: Filesystem quota support for systemd
+
+%description quota
+Filesystem quota support for systemd
+
+%files quota
+%{systemd_libdir}/systemd-quotacheck
+%{systemd_libdir}/system/systemd-quotacheck-root.service
+%{systemd_libdir}/system/systemd-quotacheck@.service
+%{systemd_libdir}/system/quotaon-root.service
+%{systemd_libdir}/system/quotaon@.service

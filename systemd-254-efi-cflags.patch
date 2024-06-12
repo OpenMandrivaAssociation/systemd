@@ -1,7 +1,7 @@
-diff -up systemd-stable-255/src/boot/efi/meson.build.1~ systemd-stable-255/src/boot/efi/meson.build
---- systemd-stable-255/src/boot/efi/meson.build.1~	2023-12-06 21:32:40.000000000 +0100
-+++ systemd-stable-255/src/boot/efi/meson.build	2023-12-09 00:08:07.883196284 +0100
-@@ -133,6 +133,7 @@ efi_c_args = [
+diff -up systemd-stable-256/src/boot/efi/meson.build.1~ systemd-stable-256/src/boot/efi/meson.build
+--- systemd-stable-256/src/boot/efi/meson.build.1~	2024-06-11 23:42:06.000000000 +0200
++++ systemd-stable-256/src/boot/efi/meson.build	2024-06-12 14:07:27.681467065 +0200
+@@ -134,6 +134,7 @@ efi_c_args = [
          '-fno-strict-aliasing',
          '-fshort-wchar',
          '-include', 'efi_config.h',
@@ -9,7 +9,7 @@ diff -up systemd-stable-255/src/boot/efi/meson.build.1~ systemd-stable-255/src/b
  ]
  
  efi_c_args += cc.get_supported_arguments(
-@@ -150,11 +151,12 @@ if get_option('mode') == 'developer' and
+@@ -151,11 +152,12 @@ if get_option('mode') == 'developer' and
  endif
  
  efi_c_ld_args = [
@@ -23,7 +23,7 @@ diff -up systemd-stable-255/src/boot/efi/meson.build.1~ systemd-stable-255/src/b
  
          # These flags should be passed by -static-pie, but for whatever reason the flag translation
          # is not enabled on all architectures. Not passing `-static` would just allow the linker to
-@@ -186,6 +188,9 @@ efi_disabled_c_args = cc.get_supported_a
+@@ -187,6 +189,9 @@ efi_disabled_c_args = cc.get_supported_a
          '-fno-asynchronous-unwind-tables',
          '-fno-exceptions',
          '-fno-unwind-tables',
@@ -33,14 +33,14 @@ diff -up systemd-stable-255/src/boot/efi/meson.build.1~ systemd-stable-255/src/b
  )
  efi_override_options = [
          'b_coverage=false',
-@@ -212,8 +217,8 @@ efi_arch_c_args = {
-         'aarch64' : ['-mgeneral-regs-only'],
-         'arm'     : ['-mgeneral-regs-only'],
+@@ -215,8 +220,8 @@ efi_arch_c_args = {
+         # Until -mgeneral-regs-only is supported in LoongArch, use the following option instead:
+         'loongarch64' : ['-mno-lsx', '-mno-lasx'],
          # Pass -m64/32 explicitly to make building on x32 work.
--        'x86_64'  : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only'],
--        'x86'     : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double'],
-+        'x86_64'  : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only', '-mfpmath=387', '-fno-PIC', '-fno-pie'],
-+        'x86'     : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double', '-mfpmath=387', '-fno-PIC', '-fno-pie', '-fPIC'],
+-        'x86_64'      : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only'],
+-        'x86'         : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double'],
++        'x86_64'      : ['-m64', '-march=x86-64', '-mno-red-zone', '-mgeneral-regs-only', '-mfpmath=387', '-fno-pie', '-fPIC'],
++        'x86'         : ['-m32', '-march=i686', '-mgeneral-regs-only', '-malign-double', '-mfpmath=387', '-fno-pie', '-fPIC'],
  }
  efi_arch_c_ld_args = {
          # libgcc is not compiled with -fshort-wchar, but it does not use it anyways,
