@@ -66,7 +66,7 @@ Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}
 %else
 Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
 %endif
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
