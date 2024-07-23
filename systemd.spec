@@ -60,13 +60,9 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	256
-%if 0%stable
-Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
-%else
-Source0:	https://github.com/systemd/systemd-stable/archive/refs/tags/v%{version}.tar.gz
-%endif
-Release:	2
+Version:	256.3
+Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -105,7 +101,6 @@ Patch1:		systemd-254-efi-cflags.patch
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
-Patch4:		systemd-256-riscv.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
@@ -708,7 +703,7 @@ Requires:	%{name} = %{EVRD}
 System integrity checker.
 
 %prep
-%autosetup -p1 -n systemd-stable-%{version}
+%autosetup -p1 -n systemd-%{version}
 
 %build
 %ifarch %{ix86}
