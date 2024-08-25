@@ -1481,6 +1481,8 @@ fi
 %{systemd_libdir}/system/systemd-hibernate-resume.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hibernate-clear.service
 %{systemd_libdir}/system/systemd-hibernate-clear.service
+%{_sysconfdir}/ssh/sshd_config.d/20-systemd-userdb.conf
+%{systemd_libdir}/sshd_config.d/20-systemd-userdb.conf
 # Generators
 %dir %{systemd_libdir}/system-generators
 %{systemd_libdir}/system-generators/systemd-bless-boot-generator
@@ -2002,9 +2004,7 @@ fi
 %{systemd_libdir}/systemd-pull
 %{systemd_libdir}/import-pubring.gpg
 %{_sysconfdir}/ssh/ssh_config.d/20-systemd-ssh-proxy.conf
-%{_sysconfdir}/ssh/sshd_config.d/20-systemd-userdb.conf
 %{systemd_libdir}/ssh_config.d/20-systemd-ssh-proxy.conf
-%{systemd_libdir}/sshd_config.d/20-systemd-userdb.conf
 %{systemd_libdir}/system/ssh-access.target
 %{systemd_libdir}/system-generators/systemd-ssh-generator
 %{systemd_libdir}/systemd-ssh-proxy
