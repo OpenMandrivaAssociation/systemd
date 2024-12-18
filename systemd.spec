@@ -60,7 +60,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	256.9
+Version:	257
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
@@ -113,9 +113,9 @@ Patch19:	systemd-243-random-seed-no-insane-timeouts.patch
 
 # (tpg) ClearLinux patches
 Patch100:	0001-journal-raise-compression-threshold.patch
-Patch101:	0002-journal-Add-option-to-skip-boot-kmsg-events.patch
+#Patch101:	0002-journal-Add-option-to-skip-boot-kmsg-events.patch
 Patch102:	0003-core-use-mmap-to-load-files.patch
-Patch103:	0005-journal-flush-var-kmsg-after-starting-disable-kmsg-f.patch
+#Patch103:	0005-journal-flush-var-kmsg-after-starting-disable-kmsg-f.patch
 Patch104:	0007-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch108:	0018-more-udev-children-workers.patch
@@ -126,8 +126,8 @@ Patch112:	0025-skip-not-present-ACPI-devices.patch
 Patch113:	0027-Make-timesyncd-a-simple-service.patch
 Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
-Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
-Patch120:	0038-Localize-1-symbol.patch
+#Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
+#Patch120:	0038-Localize-1-symbol.patch
 
 # (tpg) OMV patches
 # (tpg) we use bsdtar so let's adapt attribues to match implementation
@@ -1461,6 +1461,8 @@ fi
 %{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
+%dir %{_prefix}/lib/systemd/profile.d
+%{_prefix}/lib/systemd/profile.d/70-systemd-shell-extra.sh
 %{_prefix}/lib/%{name}/*/service.d/10-timeout-abort.conf
 %{_prefix}/lib/%{name}/system/user*.service.d/10-login-barrier.conf
 %{_prefix}/lib/%{name}/user-preset/*.preset
@@ -1472,6 +1474,7 @@ fi
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_datadir}/factory/etc/issue
 %{_sysconfdir}/profile.d/40systemd.sh
+%{_sysconfdir}/profile.d/70-systemd-shell-extra.sh
 %{_sysconfdir}/X11/xinit/xinitrc.d/50-systemd-user.sh
 %{_sysconfdir}/xdg/%{name}
 %dir %{systemd_libdir}/ntp-units.d
@@ -1783,6 +1786,10 @@ fi
 %{systemd_libdir}/systemd-volatile-root
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
+# importd
+%{systemd_libdir}/system-generators/systemd-import-generator
+%{systemd_libdir}/system/sockets.target.wants/systemd-importd.socket
+%{systemd_libdir}/system/systemd-importd.socket
 # (tpg) internal libraries - only systemd uses them
 %{_libdir}/systemd/libsystemd-core-%{major}.so
 %{_libdir}/systemd/libsystemd-shared-%{major}.so
@@ -2056,10 +2063,13 @@ fi
 %{_includedir}/%{name}/sd-hwdb.h
 %{_includedir}/%{name}/sd-id128.h
 %{_includedir}/%{name}/sd-journal.h
+%{_includedir}/%{name}/sd-json.h
 %{_includedir}/%{name}/sd-login.h
 %{_includedir}/%{name}/sd-messages.h
 %{_includedir}/%{name}/sd-daemon.h
 %{_includedir}/%{name}/sd-path.h
+%{_includedir}/%{name}/sd-varlink.h
+%{_includedir}/%{name}/sd-varlink-idl.h
 %{_libdir}/lib%{name}.so
 %{_datadir}/pkgconfig/%{name}.pc
 %{_libdir}/pkgconfig/lib%{name}.pc
@@ -2084,6 +2094,7 @@ fi
 %files boot
 %{_bindir}/bootctl
 %{_bindir}/ukify
+%{_prefix}/lib/kernel/uki.conf
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
@@ -2229,6 +2240,8 @@ fi
 %{systemd_libdir}/system/veritysetup-pre.target
 %{systemd_libdir}/system/veritysetup.target
 %{systemd_libdir}/system/system-systemd\x2dveritysetup.slice
+%{systemd_libdir}/systemd-keyutil
+%{systemd_libdir}/systemd-sbsign
 %{_bindir}/systemd-cryptenroll
 %{_bindir}/systemd-cryptsetup
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so

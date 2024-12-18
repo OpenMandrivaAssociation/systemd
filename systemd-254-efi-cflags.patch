@@ -1,6 +1,6 @@
-diff -up systemd-stable-256/src/boot/efi/meson.build.1~ systemd-stable-256/src/boot/efi/meson.build
---- systemd-stable-256/src/boot/efi/meson.build.1~	2024-06-11 23:42:06.000000000 +0200
-+++ systemd-stable-256/src/boot/efi/meson.build	2024-06-12 14:07:27.681467065 +0200
+diff -up systemd-stable-256/src/boot/meson.build.1~ systemd-stable-256/src/boot/meson.build
+--- systemd-stable-256/src/boot/meson.build.1~	2024-06-11 23:42:06.000000000 +0200
++++ systemd-stable-256/src/boot/meson.build	2024-06-12 14:07:27.681467065 +0200
 @@ -134,6 +134,7 @@ efi_c_args = [
          '-fno-strict-aliasing',
          '-fshort-wchar',
