@@ -60,7 +60,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	257
+Version:	257.2
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
@@ -1786,10 +1786,6 @@ fi
 %{systemd_libdir}/systemd-volatile-root
 %{systemd_libdir}/systemd-xdg-autostart-condition
 %{systemd_libdir}/resolv.conf
-# importd
-%{systemd_libdir}/system-generators/systemd-import-generator
-%{systemd_libdir}/system/sockets.target.wants/systemd-importd.socket
-%{systemd_libdir}/system/systemd-importd.socket
 # (tpg) internal libraries - only systemd uses them
 %{_libdir}/systemd/libsystemd-core-%{major}.so
 %{_libdir}/systemd/libsystemd-shared-%{major}.so
@@ -2035,6 +2031,10 @@ fi
 %{systemd_libdir}/network/80-namespace-ns.link
 %{systemd_libdir}/network/80-namespace-ns.network
 %{systemd_libdir}/network/80-vm-vt.link
+# importd
+%{systemd_libdir}/system-generators/systemd-import-generator
+%{systemd_libdir}/system/sockets.target.wants/systemd-importd.socket
+%{systemd_libdir}/system/systemd-importd.socket
 
 %files -n %{libnss_mymachines}
 %{_libdir}/libnss_mymachines.so.%{libnss_major}
