@@ -60,7 +60,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	257.2
+Version:	257.4
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
@@ -222,7 +222,8 @@ Requires(meta):	(%{name}-rpm-macros = %{EVRD} if rpm-build)
 # (tpg) just to be sure we install this libraries
 Requires:	%{libsystemd} = %{EVRD}
 Requires:	%{libnss_myhostname} = %{EVRD}
-Requires:	%{libnss_resolve} = %{EVRD}
+Recommends:	%{name}-resolved = %{EVRD}
+Recommends:	%{libnss_resolve} = %{EVRD}
 Requires:	%{libnss_systemd} = %{EVRD}
 Suggests:	%{name}-analyze
 %ifarch %{efi}
@@ -492,6 +493,15 @@ Requires:	%{name} >= %{EVRD}
 systemd-repart grows and adds partitions to a partition table,
 based on the configuration files described in repart.d(5).
 
+%package resolved
+Summary:	Daemon for resolving internet host names
+Group:		Internet
+Requires:	%{name} = %{EVRD}
+Recommends:	%{libnss_resolve} = %{EVRD}
+
+%description resolved
+Daemon for resolving internet host names
+
 %package homed
 Summary:	Home Area/User Account Manager
 Group:		System/Configuration/Boot and Init
@@ -556,6 +566,7 @@ Group:		System/Libraries
 Provides:	libnss_resolve = %{EVRD}
 Provides:	nss_resolve = %{EVRD}
 Requires:	%{name} = %{EVRD}
+Requires:	%{name}-resolved = %{EVRD}
 Conflicts:	%{libnss_myhostname} < 235
 %rename		%{oldlibnss_resolve}
 
@@ -1183,7 +1194,20 @@ if [ $1 -eq 1 ]; then
 # Init 90-default.preset only on first install
     %{_bindir}/systemctl preset-all &>/dev/null ||:
     %{_bindir}/systemctl --global preset-all &>/dev/null ||:
+fi
 
+hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
+if [ -z "$hostname_new" ]; then
+    hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
+    if [ ! -z "$hostname_old" ]; then
+	printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
+    else
+	printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
+    fi
+fi
+
+%post resolved
+if [ $1 -eq 1 ]; then
 # (tpg) link to resolv.conf from systemd
     if [ ! -e /etc/resolv.conf ] && [ ! -L /etc/resolv.conf ]; then
 	ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf ||:
@@ -1197,16 +1221,6 @@ if [ $1 -eq 1 ]; then
 	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
     fi
     %systemd_post systemd-resolved.service
-fi
-
-hostname_new=$(cat %{_sysconfdir}/hostname 2>/dev/null)
-if [ -z "$hostname_new" ]; then
-    hostname_old=$(cat /etc/sysconfig/network 2>/dev/null | grep HOSTNAME | cut -d "=" -f2)
-    if [ ! -z "$hostname_old" ]; then
-	printf '%s\n' "$hostname_old" >> %{_sysconfdir}/hostname
-    else
-	printf '%s\n' "localhost" >> %{_sysconfdir}/hostname
-    fi
 fi
 
 %preun
@@ -1580,7 +1594,6 @@ fi
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
 %{systemd_libdir}/system/systemd-random-seed.service
-%{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-reboot.service
 %{systemd_libdir}/system/systemd-remount-fs.service
 %{systemd_libdir}/system/systemd-rfkill.service
@@ -1761,7 +1774,6 @@ fi
 %{systemd_libdir}/systemd-modules-load
 %{systemd_libdir}/systemd-pstore
 %{systemd_libdir}/systemd-random-seed
-%{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/systemd-remount-fs
 %{systemd_libdir}/systemd-reply-password
 %{systemd_libdir}/systemd-rfkill
@@ -1812,7 +1824,6 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/pstore.conf
 %config(noreplace) %{_sysconfdir}/%{name}/sleep.conf
 %config(noreplace) %{_sysconfdir}/%{name}/system.conf
-%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
 %config(noreplace) %{_sysconfdir}/%{name}/timesyncd.conf
 %config(noreplace) %{_sysconfdir}/%{name}/user.conf
 %config(noreplace) %{_sysconfdir}/dnf/protected.d/systemd.conf
@@ -1935,6 +1946,11 @@ fi
 %{systemd_libdir}/system/initrd-root-fs.target.wants/systemd-repart.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-repart.service
 %{systemd_libdir}/repart
+
+%files resolved
+%{systemd_libdir}/systemd-resolved
+%{systemd_libdir}/system/systemd-resolved.service
+%config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
 
 %if ! %{with bootstrap}
 %files homed
