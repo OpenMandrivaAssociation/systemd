@@ -1920,10 +1920,8 @@ fi
 %{_bindir}/udevd
 %{_bindir}/udevadm
 %{udev_rules_dir}/60-dmi-id.rules
-%if ! %{cross_compiling}
 %{_prefix}/lib/udev/dmi_memory_id
 %{_prefix}/lib/udev/rules.d/70-memory.rules
-%endif
 %attr(0755,root,root) %{udev_libdir}/ata_id
 %attr(0755,root,root) %{udev_libdir}/fido_id
 %attr(0755,root,root) %{udev_libdir}/iocost
@@ -2240,6 +2238,8 @@ else
 fi
 
 %files cryptsetup
+%{systemd_libdir}/systemd-keyutil
+%{systemd_libdir}/systemd-sbsign
 %if !%{with bootstrap}
 %{systemd_libdir}/systemd-cryptsetup
 %{systemd_libdir}/system-generators/systemd-cryptsetup-generator
@@ -2256,8 +2256,6 @@ fi
 %{systemd_libdir}/system/veritysetup-pre.target
 %{systemd_libdir}/system/veritysetup.target
 %{systemd_libdir}/system/system-systemd\x2dveritysetup.slice
-%{systemd_libdir}/systemd-keyutil
-%{systemd_libdir}/systemd-sbsign
 %{_bindir}/systemd-cryptenroll
 %{_bindir}/systemd-cryptsetup
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
