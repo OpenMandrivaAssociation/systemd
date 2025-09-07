@@ -60,7 +60,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	257.7
+Version:	257.9
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
@@ -1430,7 +1430,6 @@ fi
 %{systemd_libdir}/system/systemd-creds@.service
 %{_bindir}/userdbctl
 %{_bindir}/init
-%{_bindir}/resolvconf
 %{_bindir}/runlevel
 %{_bindir}/shutdown
 %{_bindir}/telinit
@@ -1947,6 +1946,7 @@ fi
 %{systemd_libdir}/repart
 
 %files resolved
+%{_bindir}/resolvconf
 %{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/system/systemd-resolved.service
 %config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
