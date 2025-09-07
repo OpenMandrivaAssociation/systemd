@@ -62,7 +62,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	257.9
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -1454,7 +1454,6 @@ fi
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-umount
 %{_bindir}/systemd-resolve
-%{_bindir}/resolvectl
 %{_bindir}/timedatectl
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1947,6 +1946,7 @@ fi
 
 %files resolved
 %{_bindir}/resolvconf
+%{_bindir}/resolvectl
 %{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/system/systemd-resolved.service
 %config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
