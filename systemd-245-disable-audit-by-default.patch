@@ -1,18 +1,18 @@
-diff -up systemd-stable-256/src/journal/journald-server.c.6~ systemd-stable-256/src/journal/journald-server.c
---- systemd-stable-256/src/journal/journald-server.c.6~	2024-06-11 23:42:06.000000000 +0200
-+++ systemd-stable-256/src/journal/journald-server.c	2024-06-12 14:08:00.809819448 +0200
-@@ -2596,7 +2596,7 @@ int server_new(Server **ret) {
+diff -up systemd-258/src/journal/journald-config.c.7~ systemd-258/src/journal/journald-config.c
+--- systemd-258/src/journal/journald-config.c.7~	2025-09-17 16:22:42.341696849 +0200
++++ systemd-258/src/journal/journald-config.c	2025-09-17 16:23:29.481552039 +0200
+@@ -46,7 +46,7 @@ void journal_config_set_defaults(Journal
                  .compress.threshold_bytes = UINT64_MAX,
-                 .seal = true,
- 
--                .set_audit = true,
-+                .set_audit = false,
- 
-                 .watchdog_usec = USEC_INFINITY,
- 
-diff -up systemd-stable-256/src/journal/journald.conf.6~ systemd-stable-256/src/journal/journald.conf
---- systemd-stable-256/src/journal/journald.conf.6~	2024-06-12 14:08:00.805819407 +0200
-+++ systemd-stable-256/src/journal/journald.conf	2024-06-12 14:08:29.398123447 +0200
+                 .seal = -1,
+                 .read_kmsg = -1,
+-                .set_audit = -1,
++                .set_audit = 0,
+                 .ratelimit_interval = DEFAULT_RATE_LIMIT_INTERVAL,
+                 .ratelimit_burst = DEFAULT_RATE_LIMIT_BURST,
+                 .forward_to_syslog = -1,
+diff -up systemd-258/src/journal/journald.conf.7~ systemd-258/src/journal/journald.conf
+--- systemd-258/src/journal/journald.conf.7~	2025-09-17 16:21:37.335414608 +0200
++++ systemd-258/src/journal/journald.conf	2025-09-17 16:21:37.342733221 +0200
 @@ -47,4 +47,4 @@ RuntimeMaxUse=150M
  #MaxLevelSocket=debug
  #LineMax=48K

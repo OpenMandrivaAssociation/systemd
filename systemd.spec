@@ -60,9 +60,9 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	257.9
+Version:	258
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -200,7 +200,8 @@ BuildRequires:	pkgconfig(mount) >= 2.27
 BuildRequires:	pkgconfig(fdisk)
 BuildRequires:	pkgconfig(pwquality)
 BuildRequires:	pkgconfig(libarchive)
-BuildRequires:	python3dist(jinja2)
+BuildRequires:	python%{pyver}dist(jinja2)
+BuildRequires:	python%{pyver}dist(pefile)
 BuildRequires:	pkgconfig(tss2-sys)
 # make sure we have /etc/os-release available, required by --with-distro
 BuildRequires:	distro-release-OpenMandriva
@@ -736,7 +737,7 @@ PATH=$PWD/bin:$PATH
 	-Dbacklight=false \
 	-Dbinfmt=false \
 	-Dblkid=disabled \
-	-Dbzip2=false \
+	-Dbzip2=disabled \
 	-Dcoredump=false \
 	-Dcreate-log-dirs=false \
 	-Defi=false \
@@ -755,36 +756,34 @@ PATH=$PWD/bin:$PATH
 	-Dimportd=disabled \
 	-Dinitrd=false \
 	-Dkernel-install=false \
-	-Dkmod=false \
+	-Dkmod=disabled \
 	-Dldconfig=false \
 	-Dlibcryptsetup=disabled \
 	-Dlibcryptsetup-plugins=disabled \
 	-Dlocaled=false \
 	-Dlogind=false \
 	-Dmachined=false \
-	-Dman=false \
-	-Dmicrohttpd=false \
+	-Dman=disabled \
+	-Dmicrohttpd=disabled \
 	-Dnetworkd=false \
-	-Dnscd=false \
 	-Doomd=false \
-	-Dp11kit=false \
+	-Dp11kit=disabled \
 	-Dpamconfdir="%{_sysconfdir}/pam.d" \
-	-Dpam=false \
-	-Dpasswdqc=false \
-	-Dpolkit=false \
+	-Dpam=disabled \
+	-Dpasswdqc=disabled \
+	-Dpolkit=disabled \
 	-Dportabled=false \
 	-Dpstore=false \
 	-Dpwquality=false \
-	-Dqrencode=false \
+	-Dqrencode=disabled \
 	-Dquotacheck=false \
 	-Drandomseed=false \
-	-Dremote=false \
-	-Drepart=false \
+	-Dremote=disabled \
+	-Drepart=disabled \
 	-Dresolve=false \
 	-Drfkill=false \
-	-Dseccomp=false \
-	-Dselinux=false \
-	-Dsplit-usr=false \
+	-Dseccomp=disabled \
+	-Dselinux=disabled \
 	-Dsplit-bin=false \
 	-Dsupport-url="%{disturl}" \
 	-Dsysext=false \
@@ -848,7 +847,6 @@ PATH=$PWD/bin:$PATH
 	-Ddbussessionservicedir="%{_datadir}/dbus-1/services" \
 	-Ddbuspolicydir="%{_datadir}/dbus-1/system.d" \
 %endif
-	-Dsplit-usr=false \
 	-Dsplit-bin=false \
 	-Dxkbcommon=true \
 	-Dtpm=true \
@@ -875,7 +873,7 @@ PATH=$PWD/bin:$PATH
 	-Dpolkit=true \
 	-Dxz=true \
 	-Dzlib=true \
-	-Dbzip2=false \
+	-Dbzip2=disabled \
 	-Dlz4=false \
 	-Ddefault-compression=zstd \
 	-Dpam=true \
@@ -910,7 +908,6 @@ PATH=$PWD/bin:$PATH
 	-Dcertificate-root="%{_sysconfdir}/pki" \
 	-Dfallback-hostname="localhost" \
 	-Dsupport-url="%{disturl}" \
-	-Ddefault-hierarchy=unified \
 	-Dtty-gid=5 \
 	-Dusers-gid=100 \
 	-Dnobody-user=nobody \
@@ -1170,6 +1167,12 @@ $b/journalctl --root %{buildroot} --update-catalog
 
 %find_lang %{name}
 
+# These used to be created because the utmp runlevel logging service
+# was there -- that doesn't exist anymore, but this package is probably
+# still the most reasonable place to own these directories
+mkdir -p %{buildroot}%{_unitdir}/graphical.target.wants
+mkdir -p %{buildroot}%{_unitdir}/rescue.target.wants
+
 %include %{SOURCE1}
 
 %triggerin -- glibc
@@ -1247,17 +1250,6 @@ if [ -e /etc/fstab ]; then
     grep -v -E -q '^(devpts|tmpfs|sysfs|proc)' /etc/fstab || \
 	sed -i.rpm.bak -r '/^devpts\s+\/dev\/pts\s+devpts\s+defaults\s+/d; /^tmpfs\s+\/dev\/shm\s+tmpfs\s+defaults\s+/d; /^sysfs\s+\/sys\s+sysfs\s+defaults\s+/d; /^proc\s+\/proc\s+proc\s+defaults\s+/d' /etc/fstab || :
 fi
-
-# Try to read default runlevel from the old inittab if it exists
-runlevel=$(%{_bindir}/awk -F ':' '$3 == "initdefault" && $1 !~ "^#" { print $2 }' /etc/inittab 2> /dev/null)
-if [ -z "$runlevel" ] ; then
-    target="%{systemd_libdir}/system/graphical.target"
-else
-    target="%{systemd_libdir}/system/runlevel$runlevel.target"
-fi
-
-# And symlink what we found to the new-style default.target
-ln -sf "$target" %{_sysconfdir}/systemd/system/default.target 2>&1 || :
 
 %triggerin -- %{libnss_myhostname} < 237
 if [ -f /etc/nsswitch.conf ]; then
@@ -1357,11 +1349,6 @@ fi
 %dir %{systemd_libdir}/system/local-fs.target.wants
 %dir %{systemd_libdir}/system/multi-user.target.wants
 %dir %{systemd_libdir}/system/rescue.target.wants
-%dir %{systemd_libdir}/system/runlevel1.target.wants
-%dir %{systemd_libdir}/system/runlevel2.target.wants
-%dir %{systemd_libdir}/system/runlevel3.target.wants
-%dir %{systemd_libdir}/system/runlevel4.target.wants
-%dir %{systemd_libdir}/system/runlevel5.target.wants
 %dir %{systemd_libdir}/system/sockets.target.wants
 %dir %{systemd_libdir}/system/sysinit.target.wants
 %dir %{systemd_libdir}/system/syslog.target.wants
@@ -1430,9 +1417,7 @@ fi
 %{systemd_libdir}/system/systemd-creds@.service
 %{_bindir}/userdbctl
 %{_bindir}/init
-%{_bindir}/runlevel
 %{_bindir}/shutdown
-%{_bindir}/telinit
 %{_bindir}/busctl
 %{_bindir}/hostnamectl
 %{_bindir}/kernel-install
@@ -1453,7 +1438,6 @@ fi
 %{_bindir}/systemd-socket-activate
 %{_bindir}/systemd-stdio-bridge
 %{_bindir}/systemd-umount
-%{_bindir}/systemd-resolve
 %{_bindir}/timedatectl
 %{_datadir}/dbus-1/services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.hostname1.service
@@ -1462,8 +1446,6 @@ fi
 %{_datadir}/dbus-1/system-services/org.freedesktop.systemd1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timedate1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.timesync1.service
-%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
-%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
 %{_datadir}/factory/etc/nsswitch.conf
 %{_datadir}/factory/etc/locale.conf
 %{_datadir}/factory/etc/pam.d/other
@@ -1474,8 +1456,8 @@ fi
 %{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
-%dir %{_prefix}/lib/systemd/profile.d
-%{_prefix}/lib/systemd/profile.d/70-systemd-shell-extra.sh
+%dir %{systemd_libdir}/profile.d
+%{systemd_libdir}/profile.d/70-systemd-shell-extra.sh
 %{_prefix}/lib/%{name}/*/service.d/10-timeout-abort.conf
 %{_prefix}/lib/%{name}/system/user*.service.d/10-login-barrier.conf
 %{_prefix}/lib/%{name}/user-preset/*.preset
@@ -1483,7 +1465,7 @@ fi
 %{_prefix}/lib/%{name}/user/*.target
 %{_prefix}/lib/%{name}/user/*.timer
 %{_prefix}/lib/%{name}/user/*.slice
-%{_prefix}/lib/systemd/user-environment-generators/*
+%{systemd_libdir}/user-environment-generators/*
 %{_prefix}/lib/tmpfiles.d/*.conf
 %{_datadir}/factory/etc/issue
 %{_sysconfdir}/profile.d/40systemd.sh
@@ -1572,7 +1554,6 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-hostnamed.socket
 %{systemd_libdir}/system/systemd-hostnamed.socket
 %{systemd_libdir}/system/systemd-hybrid-sleep.service
-%{systemd_libdir}/system/systemd-initctl.service
 %{systemd_libdir}/system/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/systemd-journal-flush.service
 %{systemd_libdir}/system/systemd-journald.service
@@ -1613,7 +1594,6 @@ fi
 %{systemd_libdir}/system/systemd-udev-trigger.service
 %{systemd_libdir}/system/systemd-udevd.service
 %{systemd_libdir}/system/systemd-update-done.service
-%{systemd_libdir}/system/systemd-update-utmp-runlevel.service
 %{systemd_libdir}/system/systemd-update-utmp.service
 %{systemd_libdir}/system/systemd-user-sessions.service
 %{systemd_libdir}/system/systemd-userdbd.service
@@ -1625,7 +1605,6 @@ fi
 %{systemd_libdir}/system/capsule@.service
 # Sockets
 %{systemd_libdir}/system/syslog.socket
-%{systemd_libdir}/system/systemd-initctl.socket
 %{systemd_libdir}/system/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/systemd-journald-varlink@.socket
 %{systemd_libdir}/system/systemd-journald.socket
@@ -1674,13 +1653,6 @@ fi
 %{systemd_libdir}/system/remote-fs.target
 %{systemd_libdir}/system/rescue.target
 %{systemd_libdir}/system/rpcbind.target
-%{systemd_libdir}/system/runlevel0.target
-%{systemd_libdir}/system/runlevel1.target
-%{systemd_libdir}/system/runlevel2.target
-%{systemd_libdir}/system/runlevel3.target
-%{systemd_libdir}/system/runlevel4.target
-%{systemd_libdir}/system/runlevel5.target
-%{systemd_libdir}/system/runlevel6.target
 %{systemd_libdir}/system/shutdown.target
 %{systemd_libdir}/system/sigpwr.target
 %{systemd_libdir}/system/sleep.target
@@ -1703,15 +1675,11 @@ fi
 %{systemd_libdir}/system/systemd-tmpfiles-clean.timer
 # Udev...
 %{systemd_libdir}/system/systemd-udev-trigger.service.d/systemd-udev-trigger-no-reload.conf
-%{systemd_libdir}/system/graphical.target.wants/systemd-update-utmp-runlevel.service
 %{systemd_libdir}/system/local-fs.target.wants/tmp.mount
 %{systemd_libdir}/system/multi-user.target.wants/systemd-ask-password-wall.path
 %{systemd_libdir}/system/multi-user.target.wants/systemd-logind.service
-%{systemd_libdir}/system/multi-user.target.wants/systemd-update-utmp-runlevel.service
 %{systemd_libdir}/system/multi-user.target.wants/systemd-user-sessions.service
 %{systemd_libdir}/system/multi-user.target.wants/getty.target
-%{systemd_libdir}/system/rescue.target.wants/systemd-update-utmp-runlevel.service
-%{systemd_libdir}/system/sockets.target.wants/systemd-initctl.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
@@ -1757,14 +1725,12 @@ fi
 %{systemd_libdir}/systemd-binfmt
 %{systemd_libdir}/systemd-bless-boot
 %{systemd_libdir}/systemd-boot-check-no-failures
-%{systemd_libdir}/systemd-cgroups-agent
 %{systemd_libdir}/systemd-export
 %{systemd_libdir}/systemd-fsck
 %{systemd_libdir}/systemd-growfs
 %{systemd_libdir}/systemd-hibernate-resume
 %{systemd_libdir}/systemd-hostnamed
 %{systemd_libdir}/systemd-import-fs
-%{systemd_libdir}/systemd-initctl
 %{systemd_libdir}/systemd-journald
 %{systemd_libdir}/systemd-localed
 %{systemd_libdir}/systemd-logind
@@ -1812,7 +1778,6 @@ fi
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-coredump.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-journal.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-network.conf
-%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-resolve.conf
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-timesync.conf
 %config(noreplace) %{_sysconfdir}/pam.d/systemd-user
 %config(noreplace) %{_sysconfdir}/rsyslog.d/listen.conf
@@ -1830,12 +1795,71 @@ fi
 %dir %{systemd_libdir}/network
 %{systemd_libdir}/network/99-default.link
 # New in -250, need to verify if this needs to go to subpackages
-%{systemd_libdir}/system/factory-reset.target
 %{systemd_libdir}/system/systemd-boot-update.service
 %{systemd_libdir}/systemd-update-helper
 %{systemd_libdir}/ukify
 %{_prefix}/lib/kernel/install.conf
 %{_datadir}/mime/packages/io.systemd.xml
+# New in -258, need to verify if this needs to go to subpackages
+%{_sysconfdir}/profile.d/80-systemd-osc-context.sh
+%{_bindir}/systemd-pty-forward
+%{systemd_libdir}/import-pubring.pgp
+%{systemd_libdir}/initrd-preset/90-systemd.preset
+%{systemd_libdir}/initrd-preset/99-default.preset
+%{systemd_libdir}/network/80-namespace-ns-tun.link
+%{systemd_libdir}/network/80-namespace-ns-tun.network
+%{systemd_libdir}/profile.d/80-systemd-osc-context.sh
+%{systemd_libdir}/system/breakpoint-pre-basic.service
+%{systemd_libdir}/system/breakpoint-pre-mount.service
+%{systemd_libdir}/system/breakpoint-pre-switch-root.service
+%{systemd_libdir}/system/breakpoint-pre-udev.service
+%{systemd_libdir}/system/imports-pre.target
+%{systemd_libdir}/system/imports.target
+%{systemd_libdir}/system/initrd-root-device.target.wants/remote-integritysetup.target
+%{systemd_libdir}/system/initrd.target.wants/systemd-confext-initrd.service
+%{systemd_libdir}/system/initrd.target.wants/systemd-sysext-initrd.service
+%{systemd_libdir}/system/remote-integritysetup.target
+%{systemd_libdir}/system/sockets.target.wants/systemd-ask-password.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-logind-varlink.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-machined.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-udevd-varlink.socket
+%{systemd_libdir}/system/storage-target-mode.target.wants/systemd-pcrphase-storage-target-mode.service
+%{systemd_libdir}/system/sysinit.target.wants/imports.target
+%{systemd_libdir}/system/systemd-ask-password.socket
+%{systemd_libdir}/system/systemd-ask-password@.service
+%{systemd_libdir}/system/systemd-boot-clear-sysfail.service
+%{systemd_libdir}/system/systemd-confext-initrd.service
+%{systemd_libdir}/system/systemd-logind-varlink.socket
+%{systemd_libdir}/system/systemd-loop@.service
+%{systemd_libdir}/system/systemd-pcrphase-storage-target-mode.service
+%{systemd_libdir}/system/systemd-sysext-initrd.service
+%{systemd_libdir}/system/systemd-udevd-varlink.socket
+%{systemd_libdir}/system/systemd-userdb-load-credentials.service
+%{systemd_libdir}/system/systemd-validatefs@.service
+%{systemd_libdir}/systemd-ssh-issue
+%{systemd_libdir}/systemd-validatefs
+%{systemd_libdir}/user/sockets.target.wants/systemd-ask-password.socket
+%{systemd_libdir}/user/systemd-ask-password.socket
+%{udev_rules_dir}/60-persistent-hidraw.rules
+%{udev_rules_dir}/81-net-bridge.rules
+%{udev_rules_dir}/90-image-dissect.rules
+%{_datadir}/polkit-1/actions/io.systemd.namespace-resource.policy
+%{_datadir}/polkit-1/rules.d/10-systemd-logind-root-ignore-inhibitors.rules.example
+# factory-reset stuff (should this be a subpackage?)
+%{systemd_libdir}/system-generators/systemd-factory-reset-generator
+%{systemd_libdir}/system/factory-reset-now.target
+%{systemd_libdir}/system/factory-reset.target.wants/systemd-factory-reset-request.service
+%{systemd_libdir}/system/factory-reset.target.wants/systemd-pcrphase-factory-reset.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-factory-reset.socket
+%{systemd_libdir}/system/systemd-factory-reset-complete.service
+%{systemd_libdir}/system/systemd-factory-reset-reboot.service
+%{systemd_libdir}/system/systemd-factory-reset-request.service
+%{systemd_libdir}/system/systemd-factory-reset.socket
+%{systemd_libdir}/system/systemd-factory-reset@.service
+%{systemd_libdir}/system/factory-reset.target
+%{systemd_libdir}/system/systemd-pcrphase-factory-reset.service
+%{systemd_libdir}/systemd-factory-reset
+# D-Bus interfaces
 %if ! %{cross_compiling}
 %{_datadir}/dbus-1/interfaces/org.freedesktop.LogControl1.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.home1.Home.xml
@@ -1858,9 +1882,6 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.oom1.Manager.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.portable1.Image.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.portable1.Manager.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnssdService.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Manager.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Automount.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Device.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Job.xml
@@ -1947,9 +1968,21 @@ fi
 %files resolved
 %{_bindir}/resolvconf
 %{_bindir}/resolvectl
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnsDelegate.xml
 %{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/system/systemd-resolved.service
+%{systemd_libdir}/system/systemd-resolved-monitor.socket
+%{systemd_libdir}/system/systemd-resolved-varlink.socket
 %config(noreplace) %{_sysconfdir}/%{name}/resolved.conf
+# Clients
+%{_bindir}/systemd-resolve
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-resolve.conf
+%{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
+%{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnssdService.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Manager.xml
+%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 
 %if ! %{with bootstrap}
 %files homed
@@ -2012,6 +2045,7 @@ fi
 %{systemd_libdir}/system/machines.target.wants/var-lib-machines.mount
 %{systemd_libdir}/system/remote-fs.target.wants/var-lib-machines.mount
 %{systemd_libdir}/system/systemd-importd.service
+%{systemd_libdir}/system/systemd-machined.socket
 %{systemd_libdir}/system/systemd-machined.service
 %{systemd_libdir}/system/systemd-nspawn@.service
 %{systemd_libdir}/system/systemd-vmspawn@.service
@@ -2020,7 +2054,6 @@ fi
 %{systemd_libdir}/systemd-importd
 %{systemd_libdir}/systemd-machined
 %{systemd_libdir}/systemd-pull
-%{systemd_libdir}/import-pubring.gpg
 %{_sysconfdir}/ssh/ssh_config.d/20-systemd-ssh-proxy.conf
 %{systemd_libdir}/ssh_config.d/20-systemd-ssh-proxy.conf
 %{systemd_libdir}/system/ssh-access.target
@@ -2194,7 +2227,6 @@ udevadm hwdb --update &>/dev/null
 %{_datadir}/polkit-1/actions/org.freedesktop.login1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.systemd1.policy
 %{_datadir}/polkit-1/actions/org.freedesktop.timedate1.policy
-%{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 
 %files networkd
 %{_sysconfdir}/systemd/networkd.conf
@@ -2204,6 +2236,7 @@ udevadm hwdb --update &>/dev/null
 %{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-networkd.service
 %{systemd_libdir}/system/systemd-networkd.socket
+%{systemd_libdir}/system/systemd-networkd-varlink.socket
 %{systemd_libdir}/systemd-network-generator
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
@@ -2261,6 +2294,8 @@ fi
 %{_bindir}/systemd-cryptsetup
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
+%{systemd_libdir}/system/systemd-tpm2-clear.service
+%{systemd_libdir}/systemd-tpm2-clear
 %endif
 %{_libdir}/security/pam_systemd_loadkey.so
 
@@ -2298,8 +2333,8 @@ fi
 
 %files -n %{lib32systemd}
 %{_prefix}/lib/libsystemd.so.*
-%{_prefix}/lib/systemd/libsystemd-core-%{major}.so
-%{_prefix}/lib/systemd/libsystemd-shared-%{major}.so
+%{systemd_libdir}/libsystemd-core-%{major}.so
+%{systemd_libdir}/libsystemd-shared-%{major}.so
 
 %files -n %{lib32udev}
 %{_prefix}/lib/libudev.so.*

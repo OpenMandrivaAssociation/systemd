@@ -1,15 +1,7 @@
-diff -up systemd-stable-256/src/libsystemd/sd-event/sd-event.c.17~ systemd-stable-256/src/libsystemd/sd-event/sd-event.c
---- systemd-stable-256/src/libsystemd/sd-event/sd-event.c.17~	2024-06-11 23:42:06.000000000 +0200
-+++ systemd-stable-256/src/libsystemd/sd-event/sd-event.c	2024-06-12 14:13:37.117391264 +0200
-@@ -6,6 +6,7 @@
- #endif
- #include <sys/timerfd.h>
- #include <sys/wait.h>
-+#include <malloc.h>
- 
- #include "sd-daemon.h"
- #include "sd-event.h"
-@@ -4892,9 +4893,18 @@ _public_ int sd_event_run(sd_event *e, u
+diff -up systemd-258/src/libsystemd/sd-event/sd-event.c.16~ systemd-258/src/libsystemd/sd-event/sd-event.c
+--- systemd-258/src/libsystemd/sd-event/sd-event.c.16~	2025-09-17 14:00:39.000000000 +0200
++++ systemd-258/src/libsystemd/sd-event/sd-event.c	2025-09-17 16:27:04.654016019 +0200
+@@ -4831,9 +4831,18 @@ _public_ int sd_event_run(sd_event *e, u
          PROTECT_EVENT(e);
  
          r = sd_event_prepare(e);

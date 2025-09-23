@@ -1,12 +1,12 @@
-diff -up systemd-stable-256/src/libsystemd/sd-journal/journal-file.c.13~ systemd-stable-256/src/libsystemd/sd-journal/journal-file.c
---- systemd-stable-256/src/libsystemd/sd-journal/journal-file.c.13~	2024-06-12 14:08:50.906352105 +0200
-+++ systemd-stable-256/src/libsystemd/sd-journal/journal-file.c	2024-06-12 14:10:27.475378222 +0200
-@@ -45,7 +45,7 @@
- #define DEFAULT_DATA_HASH_TABLE_SIZE (2047ULL*sizeof(HashItem))
- #define DEFAULT_FIELD_HASH_TABLE_SIZE (333ULL*sizeof(HashItem))
+diff -up systemd-258/src/libsystemd/sd-journal/journal-file.c.14~ systemd-258/src/libsystemd/sd-journal/journal-file.c
+--- systemd-258/src/libsystemd/sd-journal/journal-file.c.14~	2025-09-17 14:00:39.000000000 +0200
++++ systemd-258/src/libsystemd/sd-journal/journal-file.c	2025-09-17 16:26:48.355549157 +0200
+@@ -49,7 +49,7 @@
+ #define DEFAULT_DATA_HASH_TABLE_SIZE 2047U
+ #define DEFAULT_FIELD_HASH_TABLE_SIZE 1023U
  
--#define DEFAULT_COMPRESS_THRESHOLD (512ULL)
-+#define DEFAULT_COMPRESS_THRESHOLD (8192ULL)
- #define MIN_COMPRESS_THRESHOLD (8ULL)
+-#define DEFAULT_COMPRESS_THRESHOLD 512U
++#define DEFAULT_COMPRESS_THRESHOLD 8192U
+ #define MIN_COMPRESS_THRESHOLD 8U
  
  /* This is the minimum journal file size */

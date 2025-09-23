@@ -1,20 +1,19 @@
-diff -up systemd-stable-256/src/boot/meson.build.1~ systemd-stable-256/src/boot/meson.build
---- systemd-stable-256/src/boot/meson.build.1~	2024-06-11 23:42:06.000000000 +0200
-+++ systemd-stable-256/src/boot/meson.build	2024-06-12 14:07:27.681467065 +0200
-@@ -134,6 +134,7 @@ efi_c_args = [
+diff -up systemd-258/src/boot/meson.build.1~ systemd-258/src/boot/meson.build
+--- systemd-258/src/boot/meson.build.1~	2025-09-17 14:00:39.000000000 +0200
++++ systemd-258/src/boot/meson.build	2025-09-17 16:21:20.489238177 +0200
+@@ -163,6 +163,7 @@ efi_c_args = [
          '-fno-strict-aliasing',
          '-fshort-wchar',
-         '-include', 'efi_config.h',
+         '-include', 'efi-config.h',
 +        '-fPIC',
  ]
  
  efi_c_args += cc.get_supported_arguments(
-@@ -151,11 +152,12 @@ if get_option('mode') == 'developer' and
+@@ -180,10 +181,11 @@ if get_option('mode') == 'developer' and
  endif
  
  efi_c_ld_args = [
 +        '-fPIC',
-         '-lgcc',
          '-nostdlib',
          '-static-pie',
          '-Wl,--entry=efi_main',
@@ -23,7 +22,7 @@ diff -up systemd-stable-256/src/boot/meson.build.1~ systemd-stable-256/src/boot/
  
          # These flags should be passed by -static-pie, but for whatever reason the flag translation
          # is not enabled on all architectures. Not passing `-static` would just allow the linker to
-@@ -187,6 +189,9 @@ efi_disabled_c_args = cc.get_supported_a
+@@ -226,6 +228,9 @@ efi_disabled_c_args = cc.get_supported_a
          '-fno-asynchronous-unwind-tables',
          '-fno-exceptions',
          '-fno-unwind-tables',
@@ -33,7 +32,7 @@ diff -up systemd-stable-256/src/boot/meson.build.1~ systemd-stable-256/src/boot/
  )
  efi_override_options = [
          'b_coverage=false',
-@@ -215,8 +220,8 @@ efi_arch_c_args = {
+@@ -254,8 +259,8 @@ efi_arch_c_args = {
          # Until -mgeneral-regs-only is supported in LoongArch, use the following option instead:
          'loongarch64' : ['-mno-lsx', '-mno-lasx'],
          # Pass -m64/32 explicitly to make building on x32 work.

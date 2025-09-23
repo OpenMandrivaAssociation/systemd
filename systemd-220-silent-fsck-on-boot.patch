@@ -1,18 +1,18 @@
-diff -up systemd-stable-255/units/systemd-fsck-root.service.in.7~ systemd-stable-255/units/systemd-fsck-root.service.in
---- systemd-stable-255/units/systemd-fsck-root.service.in.7~	2023-12-08 14:11:50.229849785 +0100
-+++ systemd-stable-255/units/systemd-fsck-root.service.in	2023-12-08 14:12:55.950515316 +0100
-@@ -22,3 +22,5 @@ Type=oneshot
- RemainAfterExit=yes
+diff -up systemd-258/units/systemd-fsck-root.service.in.8~ systemd-258/units/systemd-fsck-root.service.in
+--- systemd-258/units/systemd-fsck-root.service.in.8~	2025-09-17 14:00:39.000000000 +0200
++++ systemd-258/units/systemd-fsck-root.service.in	2025-09-17 16:24:29.413602942 +0200
+@@ -23,3 +23,5 @@ RemainAfterExit=yes
  ExecStart={{LIBEXECDIR}}/systemd-fsck
  TimeoutSec=infinity
+ ImportCredential=fsck.*
 +StandardOutput=null
 +StandardError=journal+console
-diff -up systemd-stable-255/units/systemd-fsck@.service.in.7~ systemd-stable-255/units/systemd-fsck@.service.in
---- systemd-stable-255/units/systemd-fsck@.service.in.7~	2023-12-08 14:11:50.229849785 +0100
-+++ systemd-stable-255/units/systemd-fsck@.service.in	2023-12-08 14:13:23.030789238 +0100
-@@ -21,3 +21,5 @@ Type=oneshot
- RemainAfterExit=yes
+diff -up systemd-258/units/systemd-fsck@.service.in.8~ systemd-258/units/systemd-fsck@.service.in
+--- systemd-258/units/systemd-fsck@.service.in.8~	2025-09-17 14:00:39.000000000 +0200
++++ systemd-258/units/systemd-fsck@.service.in	2025-09-17 16:24:53.503722417 +0200
+@@ -23,3 +23,5 @@ RemainAfterExit=yes
  ExecStart={{LIBEXECDIR}}/systemd-fsck %f
  TimeoutSec=infinity
+ ImportCredential=fsck.*
 +StandardOutput=null
 +StandardError=journal+console
