@@ -1965,7 +1965,12 @@ fi
 %files resolved
 %{_bindir}/resolvconf
 %{_bindir}/resolvectl
+%if ! %{with bootstrap}
 %{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnsDelegate.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnssdService.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Manager.xml
+%endif
 %{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-resolved-monitor.socket
@@ -1976,9 +1981,6 @@ fi
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-resolve.conf
 %{_datadir}/dbus-1/system-services/org.freedesktop.resolve1.service
 %{_datadir}/dbus-1/system.d/org.freedesktop.resolve1.conf
-%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnssdService.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
-%{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Manager.xml
 %{_datadir}/polkit-1/actions/org.freedesktop.resolve1.policy
 
 %if ! %{with bootstrap}
@@ -2293,9 +2295,9 @@ fi
 %{_bindir}/systemd-cryptsetup
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
+%endif
 %{systemd_libdir}/system/systemd-tpm2-clear.service
 %{systemd_libdir}/systemd-tpm2-clear
-%endif
 %{_libdir}/security/pam_systemd_loadkey.so
 
 %files zsh-completion
