@@ -1814,10 +1814,8 @@ fi
 %{systemd_libdir}/system/breakpoint-pre-udev.service
 %{systemd_libdir}/system/imports-pre.target
 %{systemd_libdir}/system/imports.target
-%{systemd_libdir}/system/initrd-root-device.target.wants/remote-integritysetup.target
 %{systemd_libdir}/system/initrd.target.wants/systemd-confext-initrd.service
 %{systemd_libdir}/system/initrd.target.wants/systemd-sysext-initrd.service
-%{systemd_libdir}/system/remote-integritysetup.target
 %{systemd_libdir}/system/sockets.target.wants/systemd-ask-password.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-logind-varlink.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-machined.socket
@@ -2006,6 +2004,8 @@ fi
 %{systemd_libdir}/systemd-integritysetup
 %{systemd_libdir}/system/integritysetup.target
 %{systemd_libdir}/system/integritysetup-pre.target
+%{systemd_libdir}/system/remote-integritysetup.target
+%{systemd_libdir}/system/initrd-root-device.target.wants/remote-integritysetup.target
 %endif
 
 %files portable
