@@ -62,7 +62,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	258.2
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -1761,7 +1761,6 @@ fi
 %endif
 %{systemd_libdir}/systemd-volatile-root
 %{systemd_libdir}/systemd-xdg-autostart-condition
-%{systemd_libdir}/resolv.conf
 # (tpg) internal libraries - only systemd uses them
 %{_libdir}/systemd/libsystemd-core-%{major}.so
 %{_libdir}/systemd/libsystemd-shared-%{major}.so
@@ -1971,6 +1970,7 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Manager.xml
 %endif
+%{systemd_libdir}/resolv.conf
 %{systemd_libdir}/systemd-resolved
 %{systemd_libdir}/system/systemd-resolved.service
 %{systemd_libdir}/system/systemd-resolved-monitor.socket
