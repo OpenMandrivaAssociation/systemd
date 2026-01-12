@@ -1180,10 +1180,13 @@ rm %{buildroot}%{_bindir}/bootctl
 %endif
 
 %if %{cross_compiling}
-# For some reason, bash-completion paths are detected incorrectly
-# when cross-compiling even though the pkgconfig file looks ok
-mv %{buildroot}%{_prefix}/%{_target_platform}%{_datadir}/bash-completion %{buildroot}%{_datadir}
-rm -rf %{buildroot}%{_prefix}/%{_target_platform}
+# For some reason, bash-completion paths are sometimes detected
+# incorrectly when cross-compiling even though the pkgconfig
+# file looks ok
+if [ -d %{buildroot}%{_prefix}%{_target_platform} ]; then
+	mv %{buildroot}%{_prefix}/%{_target_platform}%{_datadir}/bash-completion %{buildroot}%{_datadir}
+	rm -rf %{buildroot}%{_prefix}/%{_target_platform}
+fi
 %endif
 
 %find_lang %{name}
