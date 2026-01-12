@@ -14,6 +14,11 @@
 %global optflags %{optflags} -O2 -Wno-implicit-int
 
 %bcond_with bootstrap
+%ifarch %{efi}
+%bcond_without bootloader
+%else
+%bcond_with bootloader
+%endif
 
 # (tpg) do not reqire pkg-config
 %global __requires_exclude pkg-config
@@ -60,9 +65,9 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	258.2
+Version:	258.3
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -299,11 +304,19 @@ udev creates the device nodes in /dev. Unless you build a different
 solution or use a prepopulated static /dev, this is vital for the
 OS to work.
 
-%ifarch %{efi}
+%package ukify
+Summary:	Tool for working for Unified Kernel Image EFI images
+Group:		System/Configuration/Boot and Init
+
+%description ukify
+Tool for working for Unified Kernel Image EFI images
+
+%ifarch %{with bootloader}
 %package boot
 Summary:	EFI boot component for %{name}
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
+Requires:	%{name}-ukify = %{EVRD}
 Requires:	efi-filesystem
 Conflicts:	%{name} < 235-9
 Conflicts:	%{name} < 245.20200426-3
@@ -823,7 +836,7 @@ PATH=$PWD/bin:$PATH
 	-Dsysvinit-path=%{_initrddir} \
 	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
 	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
-%ifarch %{efi}
+%if %{with bootloader}
 	-Dbootloader=true \
 	-Defi=true \
 	-Dsbat-distro="%{efi_vendor}" \
@@ -832,6 +845,7 @@ PATH=$PWD/bin:$PATH
 	-Dsbat-distro-version="%{version}-%{release}" \
 	-Dsbat-distro-url="%{disturl}" \
 %else
+	-Dbootloader=false \
 	-Defi=false \
 %endif
 %if %{with bootstrap}
@@ -1164,6 +1178,11 @@ $b/systemd-hwdb --root %{buildroot} --usr update || $b/udevadm hwdb --root %{bui
 # Compute catalog
 $b/journalctl --root %{buildroot} --update-catalog
 
+%if ! %{with bootloader}
+# bootctl gets built, but isn't useful, without systemd-boot
+rm %{buildroot}%{_bindir}/bootctl
+%endif
+
 %find_lang %{name}
 
 # These used to be created because the utmp runlevel logging service
@@ -1476,13 +1495,14 @@ fi
 %{systemd_libdir}/systemd-battery-check
 %{systemd_libdir}/systemd-executor
 %{systemd_libdir}/system/systemd-hibernate-resume.service
+%if ! %{with bootstrap}
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hibernate-clear.service
 %{systemd_libdir}/system/systemd-hibernate-clear.service
+%endif
 %{_sysconfdir}/ssh/sshd_config.d/20-systemd-userdb.conf
 %{systemd_libdir}/sshd_config.d/20-systemd-userdb.conf
 # Generators
 %dir %{systemd_libdir}/system-generators
-%{systemd_libdir}/system-generators/systemd-bless-boot-generator
 %{systemd_libdir}/system-generators/systemd-debug-generator
 %{systemd_libdir}/system-generators/systemd-fstab-generator
 %{systemd_libdir}/system-generators/systemd-getty-generator
@@ -1537,9 +1557,7 @@ fi
 %{systemd_libdir}/system/systemd-backlight@.service
 %{systemd_libdir}/system/systemd-battery-check.service
 %{systemd_libdir}/system/systemd-binfmt.service
-%{systemd_libdir}/system/systemd-bless-boot.service
 %{systemd_libdir}/system/systemd-boot-check-no-failures.service
-%{systemd_libdir}/system/systemd-boot-random-seed.service
 %{systemd_libdir}/system/systemd-confext.service
 %{systemd_libdir}/system/systemd-exit.service
 %{systemd_libdir}/system/systemd-firstboot.service
@@ -1563,12 +1581,6 @@ fi
 %{systemd_libdir}/system/systemd-logind.service
 %{systemd_libdir}/system/systemd-machine-id-commit.service
 %{systemd_libdir}/system/systemd-modules-load.service
-%{systemd_libdir}/system/systemd-pcrphase-initrd.service
-%{systemd_libdir}/system/systemd-pcrphase-sysinit.service
-%{systemd_libdir}/system/systemd-pcrphase.service
-%{systemd_libdir}/system/systemd-pcrfs-root.service
-%{systemd_libdir}/system/systemd-pcrfs@.service
-%{systemd_libdir}/system/systemd-pcrmachine.service
 %{systemd_libdir}/system/systemd-journald-audit.socket
 %{systemd_libdir}/system/systemd-poweroff.service
 %{systemd_libdir}/system/systemd-pstore.service
@@ -1683,7 +1695,6 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-kernel.socket
-%{systemd_libdir}/system/initrd.target.wants/systemd-pcrphase-initrd.service
 %{systemd_libdir}/system/initrd.target.wants/systemd-battery-check.service
 %{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
 %{systemd_libdir}/system/sysinit.target.wants/dev-mqueue.mount
@@ -1696,16 +1707,12 @@ fi
 %{systemd_libdir}/system/sysinit.target.wants/sys-kernel-tracing.mount
 %{systemd_libdir}/system/sysinit.target.wants/systemd-ask-password-console.path
 %{systemd_libdir}/system/sysinit.target.wants/systemd-binfmt.service
-%{systemd_libdir}/system/sysinit.target.wants/systemd-boot-random-seed.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-firstboot.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journal-flush.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-journald.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-machine-id-commit.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-modules-load.service
-%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrmachine.service
-%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase-sysinit.service
-%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-random-seed.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysctl.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-sysusers.service
@@ -1722,7 +1729,6 @@ fi
 %{systemd_libdir}/systemd
 %{systemd_libdir}/systemd-backlight
 %{systemd_libdir}/systemd-binfmt
-%{systemd_libdir}/systemd-bless-boot
 %{systemd_libdir}/systemd-boot-check-no-failures
 %{systemd_libdir}/systemd-export
 %{systemd_libdir}/systemd-fsck
@@ -1793,7 +1799,6 @@ fi
 %dir %{systemd_libdir}/network
 %{systemd_libdir}/network/99-default.link
 # New in -250, need to verify if this needs to go to subpackages
-%{systemd_libdir}/system/systemd-boot-update.service
 %{systemd_libdir}/systemd-update-helper
 %{systemd_libdir}/ukify
 %{_prefix}/lib/kernel/install.conf
@@ -1819,15 +1824,12 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-logind-varlink.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-machined.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-varlink.socket
-%{systemd_libdir}/system/storage-target-mode.target.wants/systemd-pcrphase-storage-target-mode.service
 %{systemd_libdir}/system/sysinit.target.wants/imports.target
 %{systemd_libdir}/system/systemd-ask-password.socket
 %{systemd_libdir}/system/systemd-ask-password@.service
-%{systemd_libdir}/system/systemd-boot-clear-sysfail.service
 %{systemd_libdir}/system/systemd-confext-initrd.service
 %{systemd_libdir}/system/systemd-logind-varlink.socket
 %{systemd_libdir}/system/systemd-loop@.service
-%{systemd_libdir}/system/systemd-pcrphase-storage-target-mode.service
 %{systemd_libdir}/system/systemd-sysext-initrd.service
 %{systemd_libdir}/system/systemd-udevd-varlink.socket
 %{systemd_libdir}/system/systemd-userdb-load-credentials.service
@@ -1845,7 +1847,6 @@ fi
 %{systemd_libdir}/system-generators/systemd-factory-reset-generator
 %{systemd_libdir}/system/factory-reset-now.target
 %{systemd_libdir}/system/factory-reset.target.wants/systemd-factory-reset-request.service
-%{systemd_libdir}/system/factory-reset.target.wants/systemd-pcrphase-factory-reset.service
 %{systemd_libdir}/system/sockets.target.wants/systemd-factory-reset.socket
 %{systemd_libdir}/system/systemd-factory-reset-complete.service
 %{systemd_libdir}/system/systemd-factory-reset-reboot.service
@@ -1853,7 +1854,6 @@ fi
 %{systemd_libdir}/system/systemd-factory-reset.socket
 %{systemd_libdir}/system/systemd-factory-reset@.service
 %{systemd_libdir}/system/factory-reset.target
-%{systemd_libdir}/system/systemd-pcrphase-factory-reset.service
 %{systemd_libdir}/systemd-factory-reset
 # D-Bus interfaces
 %if ! %{cross_compiling}
@@ -2139,11 +2139,13 @@ fi
 %{_bindir}/%{name}-cgtop
 %{_bindir}/%{name}-delta
 
-%ifarch %{efi}
-%files boot
-%{_bindir}/bootctl
+%files ukify
 %{_bindir}/ukify
 %{_prefix}/lib/kernel/uki.conf
+
+%if %{with bootloader}
+%files boot
+%{_bindir}/bootctl
 %dir %{_prefix}/lib/%{name}/boot
 %dir %{_prefix}/lib/%{name}/boot/efi
 %dir %{_datadir}/%{name}/bootctl
@@ -2155,6 +2157,50 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-bootctl.socket
 %{systemd_libdir}/system/systemd-bootctl.socket
 %{systemd_libdir}/system/systemd-bootctl@.service
+# Only built if ENABLE_BOOTLOADER is set, so those *probably* belong here
+# File a bug report if they don't.
+%{systemd_libdir}/system/factory-reset.target.wants/systemd-pcrphase-factory-reset.service
+%{systemd_libdir}/system/systemd-pcrphase-factory-reset.service
+%{systemd_libdir}/system/systemd-pcrphase-initrd.service
+%{systemd_libdir}/system/systemd-pcrphase-sysinit.service
+%{systemd_libdir}/system/systemd-pcrphase.service
+%{systemd_libdir}/system/systemd-pcrextend.socket
+%{systemd_libdir}/system/systemd-pcrextend@.service
+%{systemd_libdir}/system/systemd-tpm2-clear.service
+%{systemd_libdir}/system/systemd-tpm2-setup-early.service
+%{systemd_libdir}/system/systemd-tpm2-setup.service
+%{systemd_libdir}/system/systemd-pcrlock-make-policy.service
+%{systemd_libdir}/system/systemd-pcrlock-secureboot-authority.service
+%{systemd_libdir}/system/systemd-pcrlock-secureboot-policy.service
+%{systemd_libdir}/system/systemd-boot-random-seed.service
+%{systemd_libdir}/system/systemd-pcrfs-root.service
+%{systemd_libdir}/system/systemd-pcrfs@.service
+%{systemd_libdir}/system/systemd-pcrmachine.service
+%{systemd_libdir}/system/systemd-boot-update.service
+%{systemd_libdir}/system/systemd-bless-boot.service
+%{systemd_libdir}/system-generators/systemd-bless-boot-generator
+%{systemd_libdir}/system/initrd.target.wants/systemd-pcrphase-initrd.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-boot-random-seed.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrmachine.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase-sysinit.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrphase.service
+%{systemd_libdir}/systemd-bless-boot
+%{systemd_libdir}/system/storage-target-mode.target.wants/systemd-pcrphase-storage-target-mode.service
+%{systemd_libdir}/system/systemd-boot-clear-sysfail.service
+%{systemd_libdir}/system/systemd-pcrphase-storage-target-mode.service
+%{systemd_libdir}/systemd-tpm2-clear
+%{systemd_libdir}/systemd-tpm2-setup
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup-early.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup.service
+%{systemd_libdir}/system/systemd-pcrlock-file-system.service
+%{systemd_libdir}/system/systemd-pcrlock-firmware-code.service
+%{systemd_libdir}/system/systemd-pcrlock-firmware-config.service
+%{systemd_libdir}/system/systemd-pcrlock-machine-id.service
+%{systemd_libdir}/systemd-pcrextend
+%{systemd_libdir}/system/sockets.target.wants/systemd-pcrextend.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-pcrlock.socket
+%{systemd_libdir}/system/systemd-pcrlock.socket
+%{systemd_libdir}/system/systemd-pcrlock@.service
 
 %post boot
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
@@ -2166,7 +2212,6 @@ fi
 
 %postun boot
 %systemd_postun_with_restart systemd-boot-update.service
-
 %endif
 
 %files console
@@ -2296,8 +2341,6 @@ fi
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
 %endif
-%{systemd_libdir}/system/systemd-tpm2-clear.service
-%{systemd_libdir}/systemd-tpm2-clear
 %{_libdir}/security/pam_systemd_loadkey.so
 
 %files zsh-completion
@@ -2378,26 +2421,7 @@ Summary: PCR measurement predicition files for systemd
 PCR measurement predicition files for systemd
 
 %files pcrlock
-%{systemd_libdir}/system/systemd-pcrextend.socket
-%{systemd_libdir}/system/systemd-pcrextend@.service
-%{systemd_libdir}/system/systemd-pcrlock-file-system.service
-%{systemd_libdir}/system/systemd-pcrlock-firmware-code.service
-%{systemd_libdir}/system/systemd-pcrlock-firmware-config.service
-%{systemd_libdir}/system/systemd-pcrlock-machine-id.service
-%{systemd_libdir}/system/systemd-pcrlock-make-policy.service
-%{systemd_libdir}/system/systemd-pcrlock-secureboot-authority.service
-%{systemd_libdir}/system/systemd-pcrlock-secureboot-policy.service
 %{systemd_libdir}/systemd-pcrlock
-%{systemd_libdir}/systemd-pcrextend
-%{systemd_libdir}/systemd-tpm2-setup
-%{systemd_libdir}/system/systemd-tpm2-setup-early.service
-%{systemd_libdir}/system/systemd-tpm2-setup.service
-%{systemd_libdir}/system/sockets.target.wants/systemd-pcrextend.socket
-%{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup-early.service
-%{systemd_libdir}/system/sysinit.target.wants/systemd-tpm2-setup.service
-%{systemd_libdir}/system/sockets.target.wants/systemd-pcrlock.socket
-%{systemd_libdir}/system/systemd-pcrlock.socket
-%{systemd_libdir}/system/systemd-pcrlock@.service
 %{systemd_libdir}/system-generators/systemd-tpm2-generator
 %{systemd_libdir}/system/tpm2.target
 %{_prefix}/lib/pcrlock.d
