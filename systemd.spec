@@ -1501,7 +1501,7 @@ fi
 %{systemd_libdir}/systemd-battery-check
 %{systemd_libdir}/systemd-executor
 %{systemd_libdir}/system/systemd-hibernate-resume.service
-%if ! %{with bootstrap}
+%ifarch %{efi}
 %{systemd_libdir}/system/sysinit.target.wants/systemd-hibernate-clear.service
 %{systemd_libdir}/system/systemd-hibernate-clear.service
 %endif
