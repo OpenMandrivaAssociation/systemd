@@ -10,9 +10,9 @@ diff -up systemd-258.1/src/journal/journald-config.c.6~ systemd-258.1/src/journa
                  .ratelimit_interval = DEFAULT_RATE_LIMIT_INTERVAL,
                  .ratelimit_burst = DEFAULT_RATE_LIMIT_BURST,
                  .forward_to_syslog = -1,
-diff -up systemd-258.1/src/journal/journald.conf.6~ systemd-258.1/src/journal/journald.conf
---- systemd-258.1/src/journal/journald.conf.6~	2025-10-15 15:07:11.767773379 +0200
-+++ systemd-258.1/src/journal/journald.conf	2025-10-15 15:07:11.786480722 +0200
+diff -up systemd-258.1/src/journal/journald.conf.in.6~ systemd-258.1/src/journal/journald.conf.in
+--- systemd-258.1/src/journal/journald.conf.in.6~	2025-10-15 15:07:11.767773379 +0200
++++ systemd-258.1/src/journal/journald.conf.in	2025-10-15 15:07:11.786480722 +0200
 @@ -47,4 +47,4 @@ RuntimeMaxUse=150M
  #MaxLevelSocket=debug
  #LineMax=48K

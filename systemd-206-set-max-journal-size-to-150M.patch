@@ -1,10 +1,10 @@
-diff -Naur systemd-239/src/journal/journald.conf systemd-239.tpg/src/journal/journald.conf
---- systemd-239/src/journal/journald.conf	2018-06-22 11:11:49.000000000 +0000
-+++ systemd-239.tpg/src/journal/journald.conf	2018-07-12 14:09:22.598556914 +0000
-@@ -13,17 +13,17 @@
+diff -up systemd-259/src/journal/journald.conf.in.5~ systemd-259/src/journal/journald.conf.in
+--- systemd-259/src/journal/journald.conf.in.5~	2025-12-18 00:02:36.000000000 +0100
++++ systemd-259/src/journal/journald.conf.in	2026-01-12 19:57:10.074299012 +0100
+@@ -18,17 +18,17 @@
  
  [Journal]
- #Storage=auto
+ #Storage={{ JOURNAL_STORAGE_DEFAULT }}
 -#Compress=yes
 +Compress=yes
  #Seal=yes

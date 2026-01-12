@@ -65,7 +65,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	258.3
+Version:	259
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
@@ -124,7 +124,6 @@ Patch102:	0003-core-use-mmap-to-load-files.patch
 Patch104:	0007-sd-event-return-malloc-memory-reserves-when-main-loo.patch
 Patch107:	0016-tmpfiles-Make-var-cache-ldconfig-world-readable.patch
 Patch108:	0018-more-udev-children-workers.patch
-Patch109:	0019-not-load-iptables.patch
 Patch110:	0023-DHCP-retry-faster.patch
 Patch111:	0024-Remove-libm-memory-overhead.patch
 Patch112:	0025-skip-not-present-ACPI-devices.patch
@@ -135,9 +134,6 @@ Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
 #Patch120:	0038-Localize-1-symbol.patch
 
 # (tpg) OMV patches
-# (tpg) we use bsdtar so let's adapt attribues to match implementation
-# httpa://github.com/systemd/systemd/issues/16506
-Patch1002:	systemd-245-importctl-fix-bsdtar-attributes.patch
 # (tpg) needed for 0038-Localize-1-symbol.patch
 Patch1003:	systemd-250-compile.patch
 
@@ -311,7 +307,7 @@ Group:		System/Configuration/Boot and Init
 %description ukify
 Tool for working for Unified Kernel Image EFI images
 
-%ifarch %{with bootloader}
+%if %{with bootloader}
 %package boot
 Summary:	EFI boot component for %{name}
 Group:		System/Configuration/Boot and Init
@@ -812,7 +808,7 @@ PATH=$PWD/bin:$PATH
 	-Dxdg-autostart=false \
 	-Dfirst-boot-full-preset=false \
 	-Dcryptolib=openssl \
-	-Dlibiptc=false \
+	-Dlibiptc=disabled \
 	-Dlibcurl=false \
 	-Dbpf-framework=false \
 	-Dlz4=false \
@@ -901,7 +897,7 @@ PATH=$PWD/bin:$PATH
 	-Dgnutls=true \
 	-Dmicrohttpd=true \
 	-Dlibidn2=true \
-	-Dlibiptc=false \
+	-Dlibiptc=disabled \
 	-Dlibcurl=true \
 	-Dtpm=true \
 	-Dhwdb=true \
@@ -1181,6 +1177,13 @@ $b/journalctl --root %{buildroot} --update-catalog
 %if ! %{with bootloader}
 # bootctl gets built, but isn't useful, without systemd-boot
 rm %{buildroot}%{_bindir}/bootctl
+%endif
+
+%if %{cross_compiling}
+# For some reason, bash-completion paths are detected incorrectly
+# when cross-compiling even though the pkgconfig file looks ok
+mv %{buildroot}%{_prefix}/%{_target_platform}%{_datadir}/bash-completion %{buildroot}%{_datadir}
+rm -rf %{buildroot}%{_prefix}/%{_target_platform}
 %endif
 
 %find_lang %{name}
@@ -1894,6 +1897,18 @@ fi
 %{_datadir}/dbus-1/interfaces/org.freedesktop.systemd1.Unit.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.timedate1.xml
 %endif
+# New in -259:
+%{_bindir}/systemd-mute-console
+%{systemd_libdir}/system/sockets.target.wants/systemd-mute-console.socket
+%{systemd_libdir}/system/system-systemd\x2dmute\x2dconsole.slice
+%{systemd_libdir}/system/systemd-mute-console.socket
+%{systemd_libdir}/system/systemd-mute-console@.service
+%{systemd_libdir}/system/systemd-networkd-resolve-hook.socket
+%{systemd_libdir}/user/sockets.target.wants/systemd-importd.socket
+%{systemd_libdir}/user/sockets.target.wants/systemd-machined.socket
+%{systemd_libdir}/user/systemd-importd.socket
+%{systemd_libdir}/user/systemd-machined.socket
+%{_datadir}/polkit-1/rules.d/empower.rules
 
 # Split into a separate package so it can be used in installations
 # and containers that don't use systemd
@@ -1915,6 +1930,7 @@ fi
 %{udev_rules_dir}/60-block.rules
 %{udev_rules_dir}/60-block-scheduler.rules
 %{udev_rules_dir}/60-fido-id.rules
+%{udev_rules_dir}/60-gpiochip.rules
 %{udev_rules_dir}/60-infiniband.rules
 %{udev_rules_dir}/60-persistent-storage.rules
 %{udev_rules_dir}/60-persistent-storage-mtd.rules
@@ -1931,6 +1947,7 @@ fi
 %{udev_rules_dir}/80-drivers.rules
 %{udev_rules_dir}/80-net-setup-link.rules
 %{udev_rules_dir}/81-net-dhcp.rules
+%{udev_rules_dir}/82-net-auto-link-local.rules
 %{udev_rules_dir}/90-iocost.rules
 %{udev_rules_dir}/99-systemd.rules
 %{_bindir}/udevd
@@ -1956,10 +1973,13 @@ fi
 
 %files repart
 %{_bindir}/systemd-repart
-%{systemd_libdir}/system/systemd-repart.service
+%{systemd_libdir}/repart
 %{systemd_libdir}/system/initrd-root-fs.target.wants/systemd-repart.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-repart.service
-%{systemd_libdir}/repart
+%{systemd_libdir}/system/sockets.target.wants/systemd-repart.socket
+%{systemd_libdir}/system/systemd-repart.service
+%{systemd_libdir}/system/systemd-repart.socket
+%{systemd_libdir}/system/systemd-repart@.service
 
 %files resolved
 %{_bindir}/resolvconf
@@ -2039,6 +2059,8 @@ fi
 
 %files container
 %{_bindir}/importctl
+%{_datadir}/dbus-1/services/org.freedesktop.import1.service
+%{_datadir}/dbus-1/services/org.freedesktop.machine1.service
 %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
 %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
 %{systemd_libdir}/system/machine.slice
@@ -2201,6 +2223,13 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-pcrlock.socket
 %{systemd_libdir}/system/systemd-pcrlock.socket
 %{systemd_libdir}/system/systemd-pcrlock@.service
+%{_prefix}/lib/nvpcr/cryptsetup.nvpcr
+%{_prefix}/lib/nvpcr/hardware.nvpcr
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrnvdone.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrproduct.service
+%{systemd_libdir}/system/systemd-pcrnvdone.service
+%{systemd_libdir}/system/systemd-pcrproduct.service
+%{systemd_libdir}/system-generators/systemd-tpm2-generator
 
 %post boot
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
@@ -2422,7 +2451,6 @@ PCR measurement predicition files for systemd
 
 %files pcrlock
 %{systemd_libdir}/systemd-pcrlock
-%{systemd_libdir}/system-generators/systemd-tpm2-generator
 %{systemd_libdir}/system/tpm2.target
 %{_prefix}/lib/pcrlock.d
 

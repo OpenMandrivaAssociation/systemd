@@ -7,10 +7,10 @@ Subject: [PATCH 32/45] don't use libm just for integer exp10()
  src/resolve/resolved-dns-rr.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/src/resolve/resolved-dns-rr.c b/src/resolve/resolved-dns-rr.c
+diff --git a/src/shared/dns-rr.c b/src/shared/dns-rr.c
 index 6ba26a24b2..aee332b67a 100644
---- a/src/resolve/resolved-dns-rr.c
-+++ b/src/resolve/resolved-dns-rr.c
+--- a/src/shared/dns-rr.c
++++ b/src/shared/dns-rr.c
 @@ -701,6 +701,7 @@ int dns_resource_record_equal(const DnsResourceRecord *a, const DnsResourceRecor
          return dns_resource_record_payload_equal(a, b);
  }

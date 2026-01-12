@@ -1,40 +1,40 @@
-diff -up systemd-258/src/basic/locale-util.c.11~ systemd-258/src/basic/locale-util.c
---- systemd-258/src/basic/locale-util.c.11~	2025-09-17 14:00:39.000000000 +0200
-+++ systemd-258/src/basic/locale-util.c	2025-09-17 16:25:57.140652037 +0200
-@@ -182,6 +182,32 @@ static int add_locales_from_libdir(Set *
-         return 0;
+diff -up systemd-259/src/basic/locale-util.c.10~ systemd-259/src/basic/locale-util.c
+--- systemd-259/src/basic/locale-util.c.10~	2025-12-18 00:02:36.000000000 +0100
++++ systemd-259/src/basic/locale-util.c	2026-01-12 19:58:55.335844248 +0100
+@@ -212,6 +212,32 @@ static int add_locales_for_musl(Set *loc
  }
+ #endif
  
 +static int add_locales_from_sharedir(Set *locales) {
-+        _cleanup_closedir_ DIR *dir = NULL;
-+        int r;
++	_cleanup_closedir_ DIR *dir = NULL;
++	int r;
 +
-+        dir = opendir("/usr/share/locale");
-+        if (!dir)
-+                return errno == ENOENT ? 0 : -errno;
++	dir = opendir("/usr/share/locale");
++	if (!dir)
++		return errno == ENOENT ? 0 : -errno;
 +
-+        FOREACH_DIRENT(de, dir, return -errno) {
-+                char *z;
++	FOREACH_DIRENT(de, dir, return -errno) {
++		char *z;
 +
-+                if (de->d_type != DT_DIR)
-+                        continue;
++		if (de->d_type != DT_DIR)
++			continue;
 +
-+                z = normalize_locale(de->d_name);
-+                if (!z)
-+                        return -ENOMEM;
++		z = normalize_locale(de->d_name);
++		if (!z)
++			return -ENOMEM;
 +
-+                r = set_consume(locales, z);
-+                if (r < 0 && r != -EEXIST)
-+                        return r;
-+        }
++		r = set_consume(locales, z);
++		if (r < 0 && r != -EEXIST)
++			return r;
++	}
 +
-+        return 0;
++	return 0;
 +}
 +
  int get_locales(char ***ret) {
          _cleanup_set_free_ Set *locales = NULL;
          int r;
-@@ -194,6 +220,10 @@ int get_locales(char ***ret) {
+@@ -225,6 +251,10 @@ int get_locales(char ***ret) {
          if (r < 0 && r != -ENOENT)
                  return r;
  
