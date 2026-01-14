@@ -1987,7 +1987,7 @@ fi
 %files resolved
 %{_bindir}/resolvconf
 %{_bindir}/resolvectl
-%if ! %{with bootstrap}
+%if ! %{cross_compiling}
 %{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnsDelegate.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.DnssdService.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.resolve1.Link.xml
