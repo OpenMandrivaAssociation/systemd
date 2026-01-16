@@ -67,7 +67,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	259
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -215,6 +215,8 @@ Requires:	acl
 Requires(meta):	dbus >= 1.12.2
 Requires(post):	coreutils >= 8.28
 Requires(post):	grep
+# For sysuser bits to succeed
+Requires(pre):	pam
 Requires:	(util-linux-core or util-linux)
 Recommends:	kmod >= 24
 Conflicts:	initscripts < 9.24
@@ -443,7 +445,6 @@ Summary:	Gateway for serving journal events over the network using HTTP
 Group:		System/Configuration/Boot and Init
 Requires:	%{name} >= %{EVRD}
 %systemd_requires
-Obsoletes:	systemd < 206-7
 %rename %{name}-journal-gateway
 
 %description journal-remote
