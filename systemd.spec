@@ -67,13 +67,10 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	259
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
-# This file must be available before %%prep.
-# It is generated during systemd build and can be found in src/core/.
-Source1:	triggers.systemd
 Source2:	50-udev-mandriva.rules
 Source3:	69-printeracl.rules
 Source5:	udev.sysconfig
@@ -106,6 +103,7 @@ Patch1:		systemd-254-efi-cflags.patch
 # disable coldplug for storage and device pci (nokmsboot/failsafe boot option required for proprietary video driver handling)
 Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
+Patch4:		systemd-259-adjust-rpm-triggers-to-om-package-names.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
@@ -1198,7 +1196,8 @@ fi
 mkdir -p %{buildroot}%{_unitdir}/graphical.target.wants
 mkdir -p %{buildroot}%{_unitdir}/rescue.target.wants
 
-%include %{SOURCE1}
+# Include the triggers
+cp build/src/rpm/triggers.systemd %{specpartsdir}/triggers.specpart
 
 %triggerin -- glibc
 # reexec daemon on self or glibc update to avoid busy / on shutdown

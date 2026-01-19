@@ -1,0 +1,42 @@
+diff -up systemd-259/src/rpm/triggers.systemd.in.omv~ systemd-259/src/rpm/triggers.systemd.in
+--- systemd-259/src/rpm/triggers.systemd.in.omv~	2026-01-19 15:23:25.326403086 +0100
++++ systemd-259/src/rpm/triggers.systemd.in	2026-01-19 15:24:07.095831968 +0100
+@@ -44,7 +44,7 @@ assert(rpm.execute("{{SYSTEMD_UPDATE_HEL
+ -- will run before the tmpfiles file trigger.
+ assert(rpm.execute("systemd-sysusers"))
+ 
+-%transfiletriggerin -P 1000700 udev -p <lua> -- {{UDEV_HWDB_DIR}}/
++%transfiletriggerin -P 1000700 -n udev -p <lua> -- {{UDEV_HWDB_DIR}}/
+ -- This script will automatically invoke hwdb update if files have been
+ -- installed or updated in {{UDEV_HWDB_DIR}}.
+ assert(rpm.execute("systemd-hwdb", "update"))
+@@ -67,7 +67,7 @@ end
+ -- after the sysusers file trigger, but before any other triggers.
+ assert(rpm.execute("systemd-tmpfiles", "--create"))
+ 
+-%transfiletriggerin -P 1000600 udev -p <lua> -- {{UDEV_RULES_DIR}}/
++%transfiletriggerin -P 1000600 -n udev -p <lua> -- {{UDEV_RULES_DIR}}/
+ -- This script will automatically update udev with new rules if files
+ -- have been installed or updated in {{UDEV_RULES_DIR}}.
+ assert(rpm.execute("{{SYSTEMD_UPDATE_HELPER_PATH}}", "mark-reload-system-units", "systemd-udevd.service"))
+diff -up systemd-259/src/rpm/triggers.systemd.sh.in.omv~ systemd-259/src/rpm/triggers.systemd.sh.in
+--- systemd-259/src/rpm/triggers.systemd.sh.in.omv~	2026-01-19 15:24:12.279292991 +0100
++++ systemd-259/src/rpm/triggers.systemd.sh.in	2026-01-19 15:24:23.660995181 +0100
+@@ -45,7 +45,7 @@
+ # will run before the tmpfiles file trigger.
+ systemd-sysusers || :
+ 
+-%transfiletriggerin -P 1000700 udev -- {{UDEV_HWDB_DIR}}/
++%transfiletriggerin -P 1000700 -n udev -- {{UDEV_HWDB_DIR}}/
+ # This script will automatically invoke hwdb update if files have been
+ # installed or updated in {{UDEV_HWDB_DIR}}.
+ systemd-hwdb update || :
+@@ -72,7 +72,7 @@ if test -d "/run/systemd/system"; then
+   systemd-tmpfiles --create || :
+ fi
+ 
+-%transfiletriggerin -P 1000600 udev -- {{UDEV_RULES_DIR}}/
++%transfiletriggerin -P 1000600 -n udev -- {{UDEV_RULES_DIR}}/
+ # This script will automatically update udev with new rules if files
+ # have been installed or updated in {{UDEV_RULES_DIR}}.
+ {{SYSTEMD_UPDATE_HELPER_PATH}} mark-reload-system-units systemd-udevd.service || :
