@@ -1416,6 +1416,7 @@ fi
 %{_datadir}/dbus-1/system.d/org.freedesktop.timesync1.conf
 %{_datadir}/polkit-1/actions/org.freedesktop.timesync1.policy
 %{_datadir}/polkit-1/actions/io.systemd.credentials.policy
+%{_datadir}/polkit-1/actions/io.systemd.ask-password.policy
 %{_prefix}/lib/%{name}/user-generators/systemd-xdg-autostart-generator
 %{_libdir}/security/pam_systemd.so
 %{_bindir}/halt
