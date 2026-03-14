@@ -65,7 +65,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	259.2
+Version:	259.5
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
