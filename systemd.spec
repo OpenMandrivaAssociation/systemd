@@ -65,7 +65,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	259.5
+Version:	260.1
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	1
 License:	GPLv2+
@@ -781,7 +781,7 @@ PATH=$PWD/bin:$PATH
 	-Dpolkit=disabled \
 	-Dportabled=false \
 	-Dpstore=false \
-	-Dpwquality=false \
+	-Dpwquality=disabled \
 	-Dqrencode=disabled \
 	-Dquotacheck=false \
 	-Drandomseed=false \
@@ -806,7 +806,6 @@ PATH=$PWD/bin:$PATH
 	-Dvconsole=false \
 	-Dxdg-autostart=false \
 	-Dfirst-boot-full-preset=false \
-	-Dcryptolib=openssl \
 	-Dlibiptc=disabled \
 	-Dlibcurl=false \
 	-Dbpf-framework=false \
@@ -863,7 +862,7 @@ PATH=$PWD/bin:$PATH
 	-Dxkbcommon=true \
 	-Dblkid=true \
 	-Dfdisk=true \
-	-Dpwquality=true \
+	-Dpwquality=enabled \
 	-Drepart=true \
 %if %{with bootstrap}
 	-Dhomed=false \
@@ -948,7 +947,6 @@ PATH=$PWD/bin:$PATH
 	-Dfirst-boot-full-preset=true \
 	-Dstatus-unit-format-default=combined \
 	-Dcompat-mutable-uid-boundaries=true \
-	-Dcryptolib=openssl \
 	-Dxenctrl=disabled \
 	-Dlibfido2=disabled \
 	-Dbpf-framework=true
@@ -1387,6 +1385,7 @@ fi
 %dir %{systemd_libdir}/system/timers.target.wants
 %dir %{systemd_libdir}/system/machines.target.wants
 %dir %{systemd_libdir}/system/remote-fs.target.wants
+%{systemd_libdir}/system/runlevel[0-6].target
 %dir %{systemd_libdir}/system/user-.slice.d
 %dir %{_localstatedir}/lib/systemd
 %dir %{_localstatedir}/lib/systemd/catalog
@@ -1437,9 +1436,9 @@ fi
 %{_bindir}/%{name}-tty-ask-password-agent
 %{_bindir}/%{name}-creds
 %{_bindir}/systemd-vpick
-%{systemd_libdir}/system/sockets.target.wants/systemd-creds.socket
 %{systemd_libdir}/system/systemd-creds.socket
 %{systemd_libdir}/system/systemd-creds@.service
+%{systemd_libdir}/systemd-report
 %{_bindir}/userdbctl
 %{_bindir}/init
 %{_bindir}/shutdown
@@ -1477,7 +1476,6 @@ fi
 %{_datadir}/factory/etc/pam.d/system-auth
 %{_datadir}/%{name}/kbd-model-map
 %{_datadir}/%{name}/language-fallback-map
-%{_initrddir}/README
 %{_prefix}/lib/modprobe.d/systemd.conf
 %{_prefix}/lib/kernel/install.d/*.install
 %{_prefix}/lib/environment.d/99-environment.conf
@@ -1515,10 +1513,8 @@ fi
 %{systemd_libdir}/system-generators/systemd-getty-generator
 %{systemd_libdir}/system-generators/systemd-gpt-auto-generator
 %{systemd_libdir}/system-generators/systemd-hibernate-resume-generator
-%{systemd_libdir}/system-generators/systemd-rc-local-generator
 %{systemd_libdir}/system-generators/systemd-run-generator
 %{systemd_libdir}/system-generators/systemd-system-update-generator
-%{systemd_libdir}/system-generators/systemd-sysv-generator
 # Presets
 %{systemd_libdir}/system-preset/85-display-manager.preset
 %{systemd_libdir}/system-preset/90-default.preset
@@ -1539,7 +1535,6 @@ fi
 # Slices
 %{systemd_libdir}/system/user.slice
 # Services
-%{systemd_libdir}/system/autovt@.service
 %{systemd_libdir}/system/console-getty.service
 %{systemd_libdir}/system/container-getty@.service
 %{systemd_libdir}/system/dbus-org.freedesktop.hostname1.service
@@ -1556,7 +1551,6 @@ fi
 %{systemd_libdir}/system/kmod-static-nodes.service
 %{systemd_libdir}/system/ldconfig.service
 %{systemd_libdir}/system/modprobe@.service
-%{systemd_libdir}/system/rc-local.service
 %{systemd_libdir}/system/rescue.service
 %{systemd_libdir}/system/system-update-cleanup.service
 %{systemd_libdir}/system/systemd-ask-password-console.service
@@ -1580,9 +1574,14 @@ fi
 %{systemd_libdir}/system/systemd-hybrid-sleep.service
 %{systemd_libdir}/system/systemd-journal-catalog-update.service
 %{systemd_libdir}/system/systemd-journal-flush.service
+%{systemd_libdir}/system/systemd-journalctl.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-journalctl.socket
+%{systemd_libdir}/system/systemd-journalctl@.service
 %{systemd_libdir}/system/systemd-journald.service
 %{systemd_libdir}/system/systemd-journald@.service
 %{systemd_libdir}/system/systemd-journald-sync@.service
+%{systemd_libdir}/user/sockets.target.wants/systemd-journalctl.socket
+%{systemd_libdir}/user/systemd-journalctl.socket
 %{systemd_libdir}/system/systemd-kexec.service
 %{systemd_libdir}/system/systemd-localed.service
 %{systemd_libdir}/system/systemd-logind.service
@@ -1631,6 +1630,7 @@ fi
 %{systemd_libdir}/system/systemd-udevd-control.socket
 %{systemd_libdir}/system/systemd-udevd-kernel.socket
 %{systemd_libdir}/system/systemd-userdbd.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-creds.socket
 # Targets
 %{systemd_libdir}/system/basic.target
 %{systemd_libdir}/system/blockdev@.target
@@ -1684,6 +1684,7 @@ fi
 %{systemd_libdir}/system/swap.target
 %{systemd_libdir}/system/sysinit.target
 %{systemd_libdir}/system/system-update-pre.target
+%{systemd_libdir}/system/system-update-pre.target.wants
 %{systemd_libdir}/system/system-update.target
 %{systemd_libdir}/system/time-set.target
 %{systemd_libdir}/system/time-sync.target
@@ -1907,7 +1908,6 @@ fi
 %{systemd_libdir}/system/system-systemd\x2dmute\x2dconsole.slice
 %{systemd_libdir}/system/systemd-mute-console.socket
 %{systemd_libdir}/system/systemd-mute-console@.service
-%{systemd_libdir}/system/systemd-networkd-resolve-hook.socket
 %{systemd_libdir}/user/sockets.target.wants/systemd-importd.socket
 %{systemd_libdir}/user/sockets.target.wants/systemd-machined.socket
 %{systemd_libdir}/user/systemd-importd.socket
@@ -1940,7 +1940,9 @@ fi
 %{udev_rules_dir}/60-persistent-storage-mtd.rules
 %{udev_rules_dir}/60-sensor.rules
 %{udev_rules_dir}/60-serial.rules
+%{udev_rules_dir}/60-tpm2-id.rules
 %{udev_rules_dir}/64-btrfs.rules
+%{udev_rules_dir}/65-integration.rules
 %{udev_rules_dir}/69-printeracl.rules
 %{udev_rules_dir}/70-camera.rules
 %{udev_rules_dir}/70-power-switch.rules
@@ -1967,6 +1969,7 @@ fi
 %config(noreplace) %{_sysconfdir}/sysconfig/udev
 %config(noreplace) %{_sysconfdir}/udev/udev.conf
 %config(noreplace) %{_sysconfdir}/udev/iocost.conf
+%{_datadir}/user-tmpfiles.d
 
 %files sysext
 %{_bindir}/systemd-sysext
@@ -1974,6 +1977,7 @@ fi
 %{systemd_libdir}/system/sockets.target.wants/systemd-sysext.socket
 %{systemd_libdir}/system/systemd-sysext.socket
 %{systemd_libdir}/system/systemd-sysext@.service
+%{_datadir}/polkit-1/actions/io.systemd.sysext.policy
 
 %files repart
 %{_bindir}/systemd-repart
@@ -2037,6 +2041,7 @@ fi
 %files portable
 %dir %{systemd_libdir}/portable
 %{_datadir}/dbus-1/system.d/org.freedesktop.portable1.conf
+%{_datadir}/dbus-1/services/org.freedesktop.portable1.service
 %{_datadir}/dbus-1/system-services/org.freedesktop.portable1.service
 %{systemd_libdir}/portable/*
 %{systemd_libdir}/system/dbus-org.freedesktop.portable1.service
@@ -2063,8 +2068,11 @@ fi
 
 %files container
 %{_bindir}/importctl
+%{_bindir}/systemd-mstack
+%{_bindir}/mount.mstack
 %{_datadir}/dbus-1/services/org.freedesktop.import1.service
 %{_datadir}/dbus-1/services/org.freedesktop.machine1.service
+%{systemd_libdir}/oci-registry
 %{systemd_libdir}/system/dbus-org.freedesktop.import1.service
 %{systemd_libdir}/system/dbus-org.freedesktop.machine1.service
 %{systemd_libdir}/system/machine.slice
@@ -2081,6 +2089,7 @@ fi
 %{systemd_libdir}/systemd-importd
 %{systemd_libdir}/systemd-machined
 %{systemd_libdir}/systemd-pull
+%{systemd_libdir}/user/portable/profile
 %{_sysconfdir}/ssh/ssh_config.d/20-systemd-ssh-proxy.conf
 %{systemd_libdir}/ssh_config.d/20-systemd-ssh-proxy.conf
 %{systemd_libdir}/system/ssh-access.target
@@ -2177,6 +2186,7 @@ fi
 %dir %{_datadir}/%{name}/bootctl
 %{_prefix}/lib/%{name}/boot/efi/*.efi
 %{_prefix}/lib/%{name}/boot/efi/*.stub
+%{systemd_libdir}/boot/hwids
 %{_datadir}/%{name}/bootctl/*.conf
 %ghost %{_datadir}/%{name}/bootctl/splash-omv.bmp
 # New in 256
@@ -2229,6 +2239,7 @@ fi
 %{systemd_libdir}/system/systemd-pcrlock@.service
 %{_prefix}/lib/nvpcr/cryptsetup.nvpcr
 %{_prefix}/lib/nvpcr/hardware.nvpcr
+%{_prefix}/lib/nvpcr/verity.nvpcr
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrnvdone.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrproduct.service
 %{systemd_libdir}/system/systemd-pcrnvdone.service
@@ -2315,7 +2326,9 @@ udevadm hwdb --update &>/dev/null
 %{systemd_libdir}/system/systemd-networkd-wait-online.service
 %{systemd_libdir}/system/systemd-networkd.service
 %{systemd_libdir}/system/systemd-networkd.socket
+%{systemd_libdir}/system/systemd-networkd-resolve-hook.socket
 %{systemd_libdir}/system/systemd-networkd-varlink.socket
+%{systemd_libdir}/system/systemd-networkd-varlink-metrics.socket
 %{systemd_libdir}/systemd-network-generator
 %{systemd_libdir}/systemd-networkd
 %{systemd_libdir}/systemd-networkd-wait-online
