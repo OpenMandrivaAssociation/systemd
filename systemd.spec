@@ -1186,6 +1186,10 @@ if [ -d %{buildroot}%{_prefix}%{_target_platform} ]; then
 fi
 %endif
 
+%if ! %{with bootloader}
+rm -rf %{buildroot}%{systemd_libdir}/boot/hwids
+%endif
+
 %find_lang %{name}
 
 # These used to be created because the utmp runlevel logging service
