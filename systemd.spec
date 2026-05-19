@@ -1109,6 +1109,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/credstore.encrypted
 mkdir -p %{buildroot}%{_prefix}/lib/credstore
 mkdir -p %{buildroot}%{_prefix}/lib/credstore.encrypted
 
+# Launch a getty when a user activates an unused vt
+ln -s getty@.service %{buildroot}%{_prefix}/lib/systemd/system/autovt@.service
+
 %ifarch %{efi}
 install -m644 -D %{SOURCE21} %{buildroot}%{_datadir}/%{name}/bootctl/loader.conf
 install -m644 -D %{SOURCE22} %{buildroot}%{_datadir}/%{name}/bootctl/omv.conf
@@ -1250,19 +1253,13 @@ if [ $1 -eq 1 ]; then
 	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/resolv.conf
 	printf '%s\n' "nameserver 208.67.222.222" "nameserver 208.67.220.220" > /run/systemd/resolve/stub-resolv.conf
     fi
-    %systemd_post systemd-resolved.service
 fi
-
-%preun
-%systemd_preun systemd-udev{d,-settle,-trigger}.service systemd-udevd-{control,kernel}.socket systemd-timesyncd.service
 
 %postun
 if [ $1 -eq 1 ]; then
     [ -w %{_localstatedir} ] && journalctl --update-catalog || :
     systemd-tmpfiles --create &>/dev/null || :
 fi
-
-%systemd_postun_with_restart systemd-timedated.service systemd-portabled.service systemd-homed.service systemd-hostnamed.service systemd-journald.service systemd-localed.service systemd-userdbd.service systemd-oomd.service systemd-udevd.service systemd-timesyncd.service
 
 %triggerin -- %{name} < 239
 # (tpg) move sysctl.conf to /etc/sysctl.d as since 207 /etc/sysctl.conf is skipped
@@ -1547,6 +1544,7 @@ fi
 %{systemd_libdir}/system/dbus-org.freedesktop.timedate1.service
 %{systemd_libdir}/system/debug-shell.service
 %{systemd_libdir}/system/emergency.service
+%{systemd_libdir}/system/autovt@.service
 %{systemd_libdir}/system/getty@.service
 %{systemd_libdir}/system/initrd-cleanup.service
 %{systemd_libdir}/system/initrd-parse-etc.service
@@ -2254,12 +2252,6 @@ fi
 if [ ! -e %{_datadir}/%{name}/bootctl/splash-omv.bmp ] && [ -e %{_datadir}/pixmaps/system-logo-white.png ] && [ -x %{_bindir}/convert ]; then
     convert %{_datadir}/pixmaps/system-logo-white.png -type truecolor %{_datadir}/%{name}/bootctl/splash-omv.bmp
 fi
-
-%preun boot
-%systemd_preun systemd-boot-update.service}
-
-%postun boot
-%systemd_postun_with_restart systemd-boot-update.service
 %endif
 
 %files console
@@ -2357,14 +2349,9 @@ udevadm hwdb --update &>/dev/null
 %{_datadir}/polkit-1/actions/org.freedesktop.network1.policy
 %{_datadir}/polkit-1/rules.d/systemd-networkd.rules
 
-%post networkd
-%systemd_post systemd-networkd.service systemd-networkd-wait-online.service
-
 %preun networkd
 if [ $1 -eq 0 ] ; then
     %{_bindir}/systemctl --quiet disable systemd-networkd.service 2>&1 || :
-else
-    %systemd_preun systemd-networkd.service systemd-networkd-wait-online.service
 fi
 
 %files cryptsetup
