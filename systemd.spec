@@ -105,6 +105,7 @@ Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
 Patch4:		systemd-259-adjust-rpm-triggers-to-om-package-names.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
+Patch6:		systemd-260-openssl-4.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
