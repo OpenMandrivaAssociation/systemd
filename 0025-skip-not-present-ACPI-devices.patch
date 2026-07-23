@@ -1,7 +1,7 @@
-diff -up systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c.24~ systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c
---- systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c.24~	2022-06-09 17:51:57.000000000 +0200
-+++ systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c	2022-06-17 12:51:53.840688821 +0200
-@@ -665,6 +665,23 @@ static bool relevant_sysfs_subdir(const
+diff -up systemd-261/src/libsystemd/sd-device/device-enumerator.c.21~ systemd-261/src/libsystemd/sd-device/device-enumerator.c
+--- systemd-261/src/libsystemd/sd-device/device-enumerator.c.21~	2026-06-19 20:08:35.000000000 +0200
++++ systemd-261/src/libsystemd/sd-device/device-enumerator.c	2026-06-20 18:01:20.489353292 +0200
+@@ -698,6 +698,23 @@ static bool relevant_sysfs_subdir(const
          return IN_SET(de->d_type, DT_DIR, DT_LNK);
  }
  
@@ -25,13 +25,13 @@ diff -up systemd-251.20220617/src/libsystemd/sd-device/device-enumerator.c.24~ s
  static int enumerator_scan_dir_and_add_devices(
                  sd_device_enumerator *enumerator,
                  const char *basedir,
-@@ -703,6 +720,9 @@ static int enumerator_scan_dir_and_add_d
+@@ -740,6 +757,9 @@ static int enumerator_scan_dir_and_add_d
  
                  (void) sprintf(syspath, "%s%s", path, de->d_name);
  
-+		if (acpi_status_disabled(syspath))
-+			continue;
++                if (acpi_status_disabled(syspath))
++                        continue;
 +
                  k = sd_device_new_from_syspath(&device, syspath);
                  if (k < 0) {
-                         if (k != -ENODEV)
+                         if (!ERRNO_IS_NEG_DEVICE_ABSENT(k))

@@ -65,9 +65,9 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	260.1
+Version:	261.2
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	3
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -105,7 +105,7 @@ Patch2:		0503-Disable-modprobe-pci-devices-on-coldplug-for-storage.patch
 Patch3:		0511-login-mark-nokmsboot-fb-devices-as-master-of-seat.patch 
 Patch4:		systemd-259-adjust-rpm-triggers-to-om-package-names.patch
 Patch5:		systemd-216-set-udev_log-to-err.patch
-Patch6:		systemd-260-openssl-4.patch
+#Patch6:		systemd-260-openssl-4.patch
 Patch8:		systemd-206-set-max-journal-size-to-150M.patch
 Patch9:		systemd-245-disable-audit-by-default.patch
 Patch11:	systemd-220-silent-fsck-on-boot.patch
@@ -128,13 +128,14 @@ Patch111:	0024-Remove-libm-memory-overhead.patch
 Patch112:	0025-skip-not-present-ACPI-devices.patch
 Patch113:	0027-Make-timesyncd-a-simple-service.patch
 Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
-Patch117:	0032-don-t-use-libm-just-for-integer-exp10.patch
 #Patch119:	0033-Notify-systemd-earlier-that-resolved-is-ready.patch
 #Patch120:	0038-Localize-1-symbol.patch
 
 # (tpg) OMV patches
 # (tpg) needed for 0038-Localize-1-symbol.patch
 Patch1003:	systemd-250-compile.patch
+# clang -m32: -isystem /usr/include shadows src/include/override, breaking libc shims
+Patch1004:	systemd-261-clang-m32-override-includes.patch
 
 # (tpg) Fedora patches
 Patch1100:	https://src.fedoraproject.org/rpms/systemd/raw/rawhide/f/use-bfq-scheduler.patch
@@ -503,6 +504,51 @@ Requires:	%{name} >= %{EVRD}
 systemd-repart grows and adds partitions to a partition table,
 based on the configuration files described in repart.d(5).
 
+%package sysinstall
+Summary:	Simple textual OS installer
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} >= %{EVRD}
+Requires:	%{name}-repart >= %{EVRD}
+Recommends:	%{name}-boot >= %{EVRD}
+
+%description sysinstall
+systemd-sysinstall is a simple, modern textual OS installer. It wraps
+Varlink calls to systemd-repart (partition setup and OS image streaming),
+bootctl (kernel/boot menu and systemd-boot installation), and systemd-creds
+(minimal first-boot settings such as locale and keymap), then reboots into
+the installed system. Intended for installer media and image-based installs.
+
+%package imds
+Summary:	Cloud Instance Metadata Service (IMDS) client and daemon
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} >= %{EVRD}
+Requires:	%{name}-hwdb >= %{EVRD}
+
+%description imds
+systemd-imdsd exposes cloud Instance Metadata Services (IMDS) to local
+programs over Varlink, with both low-level field queries and a generic
+mapping of well-known keys across clouds. systemd-imds-generator enables
+the stack when a supported cloud is recognized via SMBIOS/hwdb (Amazon EC2,
+Azure, GCE, Hetzner, Oracle, Scaleway, Tencent, Alibaba, Vultr, and others).
+systemd-imds imports selected IMDS fields into system credentials for later
+services. Useful on cloud images; not needed on typical bare-metal desktops.
+Note that optional IMDS network lockdown can conflict with tools such as
+cloud-init that expect direct IMDS access.
+
+%package storage-provider
+Summary:	Storage provider API for managed volumes (storagectl)
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} >= %{EVRD}
+Provides:	varlink(io.systemd.StorageProvider)
+
+%description storage-provider
+storagectl and the io.systemd.StorageProvider Varlink interface expose
+storage resources as managed volumes. systemd-storage-block provides local
+block devices as volumes; systemd-storage-fs provides files and directories
+(system and user). Consumers include tools such as systemd-vmspawn
+--bind-volume=. This is distinct from the systemd-storage package, which
+only covers storage-target-mode / NVMe-TCP export (systemd-storagetm).
+
 %package resolved
 Summary:	Daemon for resolving internet host names
 Group:		Internet
@@ -809,8 +855,9 @@ PATH=$PWD/bin:$PATH
 	-Dfirst-boot-full-preset=false \
 	-Dlibiptc=disabled \
 	-Dlibcurl=false \
-	-Dbpf-framework=false \
-	-Dlz4=false \
+	-Dimds=disabled \
+	-Dbpf-framework=disabled \
+	-Dlz4=disabled \
 	-Dxenctrl=disabled \
 	-Dtpm2=disabled \
 	-Dxkbcommon=disabled \
@@ -1917,6 +1964,17 @@ fi
 %{systemd_libdir}/user/systemd-machined.socket
 %{_datadir}/polkit-1/rules.d/empower.rules
 
+# New in 261 (kept in main; optional stacks are subpackages below):
+# confext at sysroot (initrd); sysext-sysroot lives in the sysext package
+%{systemd_libdir}/system/systemd-confext-sysroot.service
+# report socket helpers (metrics backends for systemd-report)
+%{systemd_libdir}/systemd-report-basic
+%{systemd_libdir}/systemd-report-cgroup
+%{systemd_libdir}/system/systemd-report-basic.socket
+%{systemd_libdir}/system/systemd-report-basic@.service
+%{systemd_libdir}/system/systemd-report-cgroup.socket
+%{systemd_libdir}/system/systemd-report-cgroup@.service
+
 # Split into a separate package so it can be used in installations
 # and containers that don't use systemd
 %files -n udev
@@ -1977,6 +2035,7 @@ fi
 %files sysext
 %{_bindir}/systemd-sysext
 %{systemd_libdir}/system/systemd-sysext.service
+%{systemd_libdir}/system/systemd-sysext-sysroot.service
 %{systemd_libdir}/system/sockets.target.wants/systemd-sysext.socket
 %{systemd_libdir}/system/systemd-sysext.socket
 %{systemd_libdir}/system/systemd-sysext@.service
@@ -1991,6 +2050,39 @@ fi
 %{systemd_libdir}/system/systemd-repart.service
 %{systemd_libdir}/system/systemd-repart.socket
 %{systemd_libdir}/system/systemd-repart@.service
+
+%files sysinstall
+%{_bindir}/systemd-sysinstall
+%{systemd_libdir}/system/system-install.target
+%{systemd_libdir}/system/system-install.target.wants/systemd-sysinstall.service
+%{systemd_libdir}/system/systemd-sysinstall.service
+
+%files imds
+%{systemd_libdir}/systemd-imds
+%{systemd_libdir}/systemd-imdsd
+%{systemd_libdir}/system-generators/systemd-imds-generator
+%{systemd_libdir}/system/systemd-imds-early-network.service
+%{systemd_libdir}/system/systemd-imds-import.service
+%{systemd_libdir}/system/systemd-imdsd.socket
+%{systemd_libdir}/system/systemd-imdsd@.service
+%config(noreplace) %{_prefix}/lib/sysusers.d/systemd-imds.conf
+%{_datadir}/polkit-1/actions/io.systemd.imds.policy
+
+%files storage-provider
+%{_bindir}/mount.storage
+%{_bindir}/storagectl
+%{systemd_libdir}/systemd-storage-block
+%{systemd_libdir}/systemd-storage-fs
+%{systemd_libdir}/system/sockets.target.wants/systemd-storage-block.socket
+%{systemd_libdir}/system/sockets.target.wants/systemd-storage-fs.socket
+%{systemd_libdir}/system/systemd-storage-block.socket
+%{systemd_libdir}/system/systemd-storage-block@.service
+%{systemd_libdir}/system/systemd-storage-fs.socket
+%{systemd_libdir}/system/systemd-storage-fs@.service
+%{systemd_libdir}/user/sockets.target.wants/systemd-storage-fs.socket
+%{systemd_libdir}/user/systemd-storage-fs.socket
+%{systemd_libdir}/user/systemd-storage-fs@.service
+%{_datadir}/polkit-1/actions/io.systemd.storage.policy
 
 %files resolved
 %{_bindir}/resolvconf
@@ -2144,7 +2236,9 @@ fi
 %{_includedir}/%{name}/sd-bus-protocol.h
 %{_includedir}/%{name}/sd-bus-vtable.h
 %{_includedir}/%{name}/sd-bus.h
+%{_includedir}/%{name}/sd-daemon.h
 %{_includedir}/%{name}/sd-device.h
+%{_includedir}/%{name}/sd-dlopen.h
 %{_includedir}/%{name}/sd-event.h
 %{_includedir}/%{name}/sd-gpt.h
 %{_includedir}/%{name}/sd-hwdb.h
@@ -2153,7 +2247,6 @@ fi
 %{_includedir}/%{name}/sd-json.h
 %{_includedir}/%{name}/sd-login.h
 %{_includedir}/%{name}/sd-messages.h
-%{_includedir}/%{name}/sd-daemon.h
 %{_includedir}/%{name}/sd-path.h
 %{_includedir}/%{name}/sd-varlink.h
 %{_includedir}/%{name}/sd-varlink-idl.h
@@ -2242,11 +2335,17 @@ fi
 %{systemd_libdir}/system/systemd-pcrlock@.service
 %{_prefix}/lib/nvpcr/cryptsetup.nvpcr
 %{_prefix}/lib/nvpcr/hardware.nvpcr
+%{_prefix}/lib/nvpcr/login.nvpcr
 %{_prefix}/lib/nvpcr/verity.nvpcr
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrnvdone.service
+%{systemd_libdir}/system/sysinit.target.wants/systemd-pcrosseparator.service
 %{systemd_libdir}/system/sysinit.target.wants/systemd-pcrproduct.service
+%{systemd_libdir}/system/systemd-pcrlogin@.service
 %{systemd_libdir}/system/systemd-pcrnvdone.service
+%{systemd_libdir}/system/systemd-pcrosseparator.service
 %{systemd_libdir}/system/systemd-pcrproduct.service
+%{systemd_libdir}/system/systemd-tpm2-swtpm.service
+%{systemd_libdir}/systemd-tpm2-swtpm
 %{systemd_libdir}/system-generators/systemd-tpm2-generator
 
 %post boot
@@ -2442,10 +2541,15 @@ Systemd BSOD tool for displaying information about crashes
 %{systemd_libdir}/system/initrd.target.wants/systemd-bsod.service
 
 %package storage
-Summary: Systemd storage mode exporting all storage devices as NVMe-TCP
+Summary:	Export local storage as NVMe-TCP (storage target mode)
+Group:		System/Configuration/Boot and Init
+Requires:	%{name} >= %{EVRD}
 
 %description storage
-Systemd storage mode exporting all storage devices as NVMe-TCP
+systemd-storagetm implements storage target mode: export local block devices
+over NVMe-TCP for discovery/use by other hosts. For the storagectl storage
+provider API (managed volumes, vmspawn bind-volume), install
+%{name}-storage-provider instead.
 
 %files storage
 %{systemd_libdir}/system/storage-target-mode.target
