@@ -1,0 +1,38 @@
+--- a/meson.build	2026-07-23 19:07:04.000000000 +0200
++++ b/meson.build	2026-07-23 22:16:14.799397019 +0200
+@@ -1725,22 +1725,25 @@
+ boot_stubs = []
+ 
+ # This is similar to system_includes below, but for passing custom_target().
++# Use -I (not -isystem) for uapi/override headers. Clang's multilib driver for -m32
++# injects '-isystem /usr/include' before user -isystem paths, so system headers
++# (fcntl.h, linux/liveupdate.h, sys/pidfd.h, ...) shadow our copies and break the
++# libc shim layer and newer uapi types. Regular -I always wins over -isystem;
++# #include_next still finds the real system headers.
++#
++# Override must be searched before uapi so e.g. override/linux/keyctl.h (which
++# defines key_serial_t via include_next) wins over uapi/linux/keyctl.h.
+ system_include_args = [
+-        '-isystem', meson.project_build_root()  / 'src/include/override',
+-        '-isystem', meson.project_source_root() / 'src/include/override',
+-        '-isystem', meson.project_build_root()  / 'src/include/uapi',
+-        '-isystem', meson.project_source_root() / 'src/include/uapi',
++        '-I', meson.project_build_root()  / 'src/include/override',
++        '-I', meson.project_source_root() / 'src/include/override',
++        '-I', meson.project_build_root()  / 'src/include/uapi',
++        '-I', meson.project_source_root() / 'src/include/uapi',
+ ]
+ 
+ system_includes = [
+         include_directories(
+-                # gcc(1) says
+-                # "Directories specified with -isystem options are scanned in left-to-right order",
+-                # and meson puts the directories in the reversed order. Hence, a directory with a lower
+-                # priority must be listed earlier.
+-                'src/include/uapi',
+                 'src/include/override',
+-                is_system : true,
++                'src/include/uapi',
+         ),
+ ]
+ 
