@@ -67,7 +67,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	261.2
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -1002,23 +1002,6 @@ PATH=$PWD/bin:$PATH
 
 %meson_build
 
-%if %{cross_compiling}
-# We need a host systemd-hwdb and journalctl to initialize
-# hwdb and journal files in %%install
-unset CC
-unset CXX
-unset LD
-unset CFLAGS
-unset CXXFLAGS
-unset LDFLAGS
-meson setup \
-	-Dmode=release \
-	-Defi=false \
-	-Dhwdb=true \
-	build-native
-%ninja_build -C build-native
-%endif
-
 %install
 %if %{with compat32}
 %ninja_install -C build32
@@ -1210,17 +1193,15 @@ ln -s libudev.so.%{udev_major} %{buildroot}%{_libdir}/libudev.so.0
 # https://bugzilla.redhat.com/show_bug.cgi?id=1378974
 install -Dm0644 -t %{buildroot}%{systemd_libdir}/system/systemd-udev-trigger.service.d/ %{SOURCE23}
 
-%if %{cross_compiling}
-b=./build-native/
+# Pre-generate and pre-ship hwdb, to speed up first boot.
+# Cross builds use the host tools rather than compiling a second systemd.
+%if ! %{cross_compiling}
+./build/systemd-hwdb --root %{buildroot} --usr update || ./build/udevadm hwdb --root %{buildroot} --update --usr
+./build/journalctl --root %{buildroot} --update-catalog
 %else
-b=./build/
+%{_bindir}/systemd-hwdb --root %{buildroot} --usr update || %{_bindir}/udevadm hwdb --root %{buildroot} --update --usr
+%{_bindir}/journalctl --root %{buildroot} --update-catalog
 %endif
-
-# Pre-generate and pre-ship hwdb, to speed up first boot
-$b/systemd-hwdb --root %{buildroot} --usr update || $b/udevadm hwdb --root %{buildroot} --update --usr
-
-# Compute catalog
-$b/journalctl --root %{buildroot} --update-catalog
 
 %if ! %{with bootloader}
 # bootctl gets built, but isn't useful, without systemd-boot
