@@ -1,0 +1,38 @@
+--- a/src/bpf/restrict-fsaccess.bpf.c	2026-07-23 19:07:04.000000000 +0200
++++ b/src/bpf/restrict-fsaccess.bpf.c	2026-07-25 01:00:35.037455408 +0200
+@@ -34,6 +34,11 @@
+ #include <bpf/bpf_helpers.h>
+ #include <bpf/bpf_tracing.h>
+ 
++/* Host-generated vmlinux.h may lack enum lsm_integrity_type (kernel BTF < 6.5).
++ * Hook args are plain integers at the ABI level; use fixed UAPI values instead of
++ * depending on incomplete/host-specific enum types from BTF. */
++#define LSM_INT_DMVERITY_SIG_VALID_VAL 0
++
+ #define PROT_EXEC          0x4
+ #define VM_EXEC            0x00000004
+ #define PTRACE_MODE_ATTACH 0x02
+@@ -78,9 +83,9 @@
+  * first and falls back to the _compat variant below if loading fails. */
+ SEC("lsm/bdev_setintegrity")
+ int BPF_PROG(restrict_fsaccess_bdev_setintegrity, struct block_device *bdev,
+-             enum lsm_integrity_type type, const void *value, __u64 size)
++             __u32 type, const void *value, __u64 size)
+ {
+-        if (type == LSM_INT_DMVERITY_SIG_VALID) {
++        if (type == LSM_INT_DMVERITY_SIG_VALID_VAL) {
+                 __u32 dev = bdev->bd_dev;
+                 __u8 valid = value && size > 0;
+                 bpf_map_update_elem(&verity_devices, &dev, &valid, BPF_ANY);
+@@ -96,9 +101,9 @@
+ #define BDEV_SETINTEGRITY_SIZE_CTX_IDX 3 /* bdev_setintegrity(bdev, type, value, size) */
+ SEC("lsm/bdev_setintegrity")
+ int BPF_PROG(restrict_fsaccess_bdev_setintegrity_compat, struct block_device *bdev,
+-             enum lsm_integrity_type type)
++             __u32 type)
+ {
+-        if (type == LSM_INT_DMVERITY_SIG_VALID) {
++        if (type == LSM_INT_DMVERITY_SIG_VALID_VAL) {
+                 __u32 dev = bdev->bd_dev;
+                 __u8 valid = ctx[BDEV_SETINTEGRITY_SIZE_CTX_IDX] > 0;
+                 bpf_map_update_elem(&verity_devices, &dev, &valid, BPF_ANY);

@@ -65,7 +65,7 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	261.2
+Version:	261.3
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
 Release:	2
 License:	GPLv2+
@@ -136,6 +136,8 @@ Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch1003:	systemd-250-compile.patch
 # clang -m32: -isystem /usr/include shadows src/include/override, breaking libc shims
 Patch1004:	systemd-261-clang-m32-override-includes.patch
+# Builders with older kernel BTF lack lsm_integrity_type in generated vmlinux.h
+Patch1005:	systemd-261-bpf-lsm-integrity-fallback.patch
 
 # (tpg) Fedora patches
 Patch1100:	https://src.fedoraproject.org/rpms/systemd/raw/rawhide/f/use-bfq-scheduler.patch
