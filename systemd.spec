@@ -65,9 +65,9 @@
 
 Summary:	A System and Session Manager
 Name:		systemd
-Version:	261.3
+Version:	262
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	2
+Release:	1
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -855,7 +855,6 @@ PATH=$PWD/bin:$PATH
 	-Dvconsole=false \
 	-Dxdg-autostart=false \
 	-Dfirst-boot-full-preset=false \
-	-Dlibiptc=disabled \
 	-Dlibcurl=false \
 	-Dimds=disabled \
 	-Dbpf-framework=disabled \
@@ -877,9 +876,6 @@ PATH=$PWD/bin:$PATH
 # Last verified: clang 16.0.4, systemd 253.5
 %meson \
 	-Dmode=release \
-	-Dsysvinit-path=%{_initrddir} \
-	-Dsysvrcnd-path=%{_sysconfdir}/rc.d \
-	-Drc-local=%{_sysconfdir}/rc.d/rc.local \
 %if %{with bootloader}
 	-Dbootloader=true \
 	-Defi=true \
@@ -945,7 +941,6 @@ PATH=$PWD/bin:$PATH
 	-Dgnutls=true \
 	-Dmicrohttpd=true \
 	-Dlibidn2=true \
-	-Dlibiptc=disabled \
 	-Dlibcurl=true \
 	-Dtpm=true \
 	-Dhwdb=true \
