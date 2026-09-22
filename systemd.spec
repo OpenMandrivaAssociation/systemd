@@ -1737,7 +1737,6 @@ fi
 %{systemd_libdir}/system/multi-user.target.wants/getty.target
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald-dev-log.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-journald.socket
-%{systemd_libdir}/system/sockets.target.wants/systemd-udevd-control.socket
 %{systemd_libdir}/system/sockets.target.wants/systemd-udevd-kernel.socket
 %{systemd_libdir}/system/initrd.target.wants/systemd-battery-check.service
 %{systemd_libdir}/system/sysinit.target.wants/dev-hugepages.mount
