@@ -880,15 +880,20 @@ PATH=$PWD/bin:$PATH
 # Last verified: clang 16.0.4, systemd 253.5
 # Do not generate vmlinux.h from /sys/kernel/btf/vmlinux. That is the
 # builder's running kernel, which can be older than the packaged one.
-vmlinux_h=$(printf '%s\n' /usr/src/linux-*-desktop-[0-9]*/include/vmlinux.h | sort -V | tail -1)
-if [ ! -s "$vmlinux_h" ]; then
+# Copy the header alone: meson adds its directory to the BPF -I path, and
+# the kernel tree's include/ pulls in linux/types.h that -target bpf cannot
+# compile.
+vmlinux_src=$(printf '%s\n' /usr/src/linux-*-desktop-[0-9]*/include/vmlinux.h | sort -V | tail -1)
+if [ ! -s "$vmlinux_src" ]; then
 	echo "kernel-desktop-devel did not ship vmlinux.h" >&2
 	exit 1
 fi
+mkdir -p "%{_builddir}/vmlinux-h"
+cp -f "$vmlinux_src" "%{_builddir}/vmlinux-h/vmlinux.h"
 %meson \
 	-Dmode=release \
 	-Dvmlinux-h=provided \
-	-Dvmlinux-h-path="$vmlinux_h" \
+	-Dvmlinux-h-path="%{_builddir}/vmlinux-h/vmlinux.h" \
 %if %{with bootloader}
 	-Dbootloader=true \
 	-Defi=true \
