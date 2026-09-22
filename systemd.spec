@@ -67,7 +67,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	262
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -269,7 +269,13 @@ Provides:	python-%{name} = 223
 # Older dracut fails to include systemd-executor
 Conflicts:	dracut < 059-5
 %if %{with compat32}
+# clang 23 -m32 links compiler-rt, not libgcc. The i386 builtins live
+# in the cross-i686 clang package, with matching libc/gcc/binutils sysroot.
 BuildRequires:	libc6
+BuildRequires:	cross-i686-openmandriva-linux-gnu-clang
+BuildRequires:	cross-i686-openmandriva-linux-gnu-libc
+BuildRequires:	cross-i686-openmandriva-linux-gnu-binutils
+BuildRequires:	cross-i686-openmandriva-linux-gnu-gcc
 BuildRequires:	devel(libcap)
 BuildRequires:	devel(libpcre2-8)
 BuildRequires:	devel(libcrypto)
