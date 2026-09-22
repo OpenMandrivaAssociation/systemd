@@ -136,10 +136,9 @@ Patch116:	0031-Don-t-do-transient-hostnames-we-set-ours-already.patch
 Patch1003:	systemd-250-compile.patch
 # clang -m32: -isystem /usr/include shadows src/include/override, breaking libc shims
 Patch1004:	systemd-261-clang-m32-override-includes.patch
-# Builders with older kernel BTF lack lsm_integrity_type in generated vmlinux.h
+# Older vmlinux.h lacks lsm_integrity_type. The packaged kernel-desktop-devel
+# header has it; this remains so the BPF object does not depend on the enum.
 Patch1005:	systemd-261-bpf-lsm-integrity-fallback.patch
-# Builder vmlinux.h can lack vfsmount.mnt_idmap (Linux < 6.3).
-Patch1006:	systemd-262-userns-bpf-mnt-idmap.patch
 
 # (tpg) Fedora patches
 Patch1100:	https://src.fedoraproject.org/rpms/systemd/raw/rawhide/f/use-bfq-scheduler.patch
@@ -181,6 +180,9 @@ BuildRequires:	pkgconfig(libpcre2-8)
 BuildRequires:	pkgconfig(bash-completion)
 BuildRequires:	pkgconfig(libbpf)
 BuildRequires:	bpftool
+# vmlinux.h is generated for systemd by the kernel build and shipped in
+# kernel-*-devel, not in the UAPI kernel-headers package.
+BuildRequires:	kernel-desktop-devel
 BuildRequires:	atomic-devel
 BuildRequires:	efi-srpm-macros
 %ifnarch %{armx} %{riscv}
@@ -876,8 +878,17 @@ PATH=$PWD/bin:$PATH
 # FIXME b_lto is disabled on RISC-V because of a "invalid build ID" error at
 # compile time (at least crosscompiling from x86_64 to risc-v with clang).
 # Last verified: clang 16.0.4, systemd 253.5
+# Do not generate vmlinux.h from /sys/kernel/btf/vmlinux. That is the
+# builder's running kernel, which can be older than the packaged one.
+vmlinux_h=$(printf '%s\n' /usr/src/linux-*-desktop-[0-9]*/include/vmlinux.h | sort -V | tail -1)
+if [ ! -s "$vmlinux_h" ]; then
+	echo "kernel-desktop-devel did not ship vmlinux.h" >&2
+	exit 1
+fi
 %meson \
 	-Dmode=release \
+	-Dvmlinux-h=provided \
+	-Dvmlinux-h-path="$vmlinux_h" \
 %if %{with bootloader}
 	-Dbootloader=true \
 	-Defi=true \
