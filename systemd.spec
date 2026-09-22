@@ -9,6 +9,8 @@
 # (undefined references to __stack_chk_fail
 %undefine _ssp_cflags
 %undefine _fortify_cflags
+# compat32 libraries are 32-bit ELF inside this x86_64 build
+%global _wrong_arch_files_terminate_build 0
 
 # (tpg) optimize it a bit
 %global optflags %{optflags} -O2 -Wno-implicit-int
@@ -1965,6 +1967,34 @@ fi
 %{systemd_libdir}/system/systemd-report-basic@.service
 %{systemd_libdir}/system/systemd-report-cgroup.socket
 %{systemd_libdir}/system/systemd-report-cgroup@.service
+%{systemd_libdir}/systemd-report-files
+%{systemd_libdir}/system/systemd-report-files.socket
+%{systemd_libdir}/system/systemd-report-files@.service
+%{systemd_libdir}/systemd-report-sign-plain
+%{systemd_libdir}/system/systemd-report-sign-plain.socket
+%{systemd_libdir}/system/systemd-report-sign-plain@.service
+%{systemd_libdir}/systemd-report-sign-tpm2
+%{systemd_libdir}/system/systemd-report-sign-tpm2.socket
+%{systemd_libdir}/system/systemd-report-sign-tpm2@.service
+%{systemd_libdir}/systemd-report-sign-tsm
+%{systemd_libdir}/system/systemd-report-sign-tsm.socket
+%{systemd_libdir}/system/systemd-report-sign-tsm@.service
+%{systemd_libdir}/system/systemd-report.socket
+%{systemd_libdir}/system/systemd-report@.service
+%{systemd_libdir}/system/systemd-journalctl-metrics.socket
+%{systemd_libdir}/system/systemd-journalctl-metrics@.service
+# clonesetup
+%{systemd_libdir}/systemd-clonesetup
+%{systemd_libdir}/system-generators/systemd-clonesetup-generator
+%{systemd_libdir}/system/clonesetup.target
+%{systemd_libdir}/system/sysinit.target.wants/clonesetup.target
+# sysupdate notification sockets (installed even with -Dsysupdate=false)
+%{systemd_libdir}/system/systemd-sysupdate-notify-bootctl.socket
+%{systemd_libdir}/system/systemd-sysupdate-notify-bootctl@.service
+%{systemd_libdir}/system/systemd-sysupdate-notify-pcrlock.socket
+%{systemd_libdir}/system/systemd-sysupdate-notify-pcrlock@.service
+%{systemd_libdir}/system/systemd-sysupdate-notify-sysext.socket
+%{systemd_libdir}/system/systemd-sysupdate-notify-sysext@.service
 
 # Split into a separate package so it can be used in installations
 # and containers that don't use systemd
@@ -1988,6 +2018,7 @@ fi
 %{udev_rules_dir}/60-fido-id.rules
 %{udev_rules_dir}/60-gpiochip.rules
 %{udev_rules_dir}/60-infiniband.rules
+%{udev_rules_dir}/60-persistent-media-controller.rules
 %{udev_rules_dir}/60-persistent-storage.rules
 %{udev_rules_dir}/60-persistent-storage-mtd.rules
 %{udev_rules_dir}/60-sensor.rules
@@ -2047,6 +2078,10 @@ fi
 %{systemd_libdir}/system/system-install.target
 %{systemd_libdir}/system/system-install.target.wants/systemd-sysinstall.service
 %{systemd_libdir}/system/systemd-sysinstall.service
+%{systemd_libdir}/system/systemd-sysinstall.socket
+%{systemd_libdir}/system/systemd-sysinstall@.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-sysinstall.socket
+%{_datadir}/polkit-1/actions/io.systemd.sysinstall.policy
 
 %files imds
 %{systemd_libdir}/systemd-imds
@@ -2056,6 +2091,8 @@ fi
 %{systemd_libdir}/system/systemd-imds-import.service
 %{systemd_libdir}/system/systemd-imdsd.socket
 %{systemd_libdir}/system/systemd-imdsd@.service
+%{systemd_libdir}/system/systemd-imds-metrics.socket
+%{systemd_libdir}/system/systemd-imds-metrics@.service
 %config(noreplace) %{_prefix}/lib/sysusers.d/systemd-imds.conf
 %{_datadir}/polkit-1/actions/io.systemd.imds.policy
 
@@ -2168,6 +2205,7 @@ fi
 %{systemd_libdir}/system/systemd-importd.service
 %{systemd_libdir}/system/systemd-machined.socket
 %{systemd_libdir}/system/systemd-machined.service
+%{systemd_libdir}/system/systemd-machine-tag@.service
 %{systemd_libdir}/system/systemd-nspawn@.service
 %{systemd_libdir}/system/systemd-vmspawn@.service
 %{systemd_libdir}/system/var-lib-machines.mount
@@ -2364,6 +2402,8 @@ fi
 %{systemd_libdir}/systemd-coredump
 %{systemd_libdir}/system/systemd-coredump.socket
 %{systemd_libdir}/system/systemd-coredump@.service
+%{systemd_libdir}/system/systemd-coredump-register.service
+%{systemd_libdir}/system/systemd-coredumpd.service
 %{systemd_libdir}/system/sockets.target.wants/systemd-coredump.socket
 
 %files documentation
@@ -2466,6 +2506,12 @@ fi
 %{systemd_libdir}/system/system-systemd\x2dveritysetup.slice
 %{_bindir}/systemd-cryptenroll
 %{_bindir}/systemd-cryptsetup
+%{systemd_libdir}/system/systemd-cryptenroll-firstboot.service
+%{systemd_libdir}/system/initrd.target.wants/systemd-cryptenroll-firstboot.service
+%{systemd_libdir}/system/systemd-cryptenroll.socket
+%{systemd_libdir}/system/systemd-cryptenroll@.service
+%{systemd_libdir}/system/sockets.target.wants/systemd-cryptenroll.socket
+%{_datadir}/polkit-1/actions/io.systemd.cryptenroll.policy
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-pkcs11.so
 %{_libdir}/cryptsetup/libcryptsetup-token-systemd-tpm2.so
 %endif
