@@ -67,7 +67,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	262
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -138,6 +138,8 @@ Patch1003:	systemd-250-compile.patch
 Patch1004:	systemd-261-clang-m32-override-includes.patch
 # Builders with older kernel BTF lack lsm_integrity_type in generated vmlinux.h
 Patch1005:	systemd-261-bpf-lsm-integrity-fallback.patch
+# Builder vmlinux.h can lack vfsmount.mnt_idmap (Linux < 6.3).
+Patch1006:	systemd-262-userns-bpf-mnt-idmap.patch
 
 # (tpg) Fedora patches
 Patch1100:	https://src.fedoraproject.org/rpms/systemd/raw/rawhide/f/use-bfq-scheduler.patch

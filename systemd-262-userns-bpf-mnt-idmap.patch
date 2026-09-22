@@ -1,0 +1,56 @@
+--- a/src/bpf/userns-restrict.bpf.c	2026-09-22 17:42:40.382936942 +0200
++++ b/src/bpf/userns-restrict.bpf.c	2026-09-22 17:42:40.428105519 +0200
+@@ -227,12 +227,31 @@
+         return 0;
+ }
+ 
++/* vfsmount.mnt_idmap arrived in Linux 6.3. Builder vmlinux.h can be older, so do not
++ * touch that member on struct vfsmount from vmlinux.h. A CO-RE flavor relocates
++ * against the kernel the program is loaded into; a missing field means the mount
++ * is not idmapped. */
++struct mnt_idmap___local {
++        struct uid_gid_map uid_map;
++        struct uid_gid_map gid_map;
++} __attribute__((preserve_access_index));
++
++struct vfsmount___idmap {
++        struct mnt_idmap___local *mnt_idmap;
++} __attribute__((preserve_access_index));
++
++static struct mnt_idmap___local *vfs_mount_idmap(struct vfsmount *mnt) {
++        if (!bpf_core_field_exists(struct vfsmount___idmap, mnt_idmap))
++                return NULL;
++        return BPF_CORE_READ((struct vfsmount___idmap *) mnt, mnt_idmap);
++}
++
+ /* Mirrors from_vfsuid()/from_vfsgid() from fs/mnt_idmapping.c: the ID that is actually recorded on disk when
+  * the passed ID creates an object on the given mount. The gid flag selects the GID maps over the UID maps.
+  * Stores UID_GID_INVALID if the ID does not map, in which case the kernel refuses the operation with
+  * EOVERFLOW anyway, see fsuidgid_has_mapping(). Returns negative if a map could not be read. */
+ static int mount_map_id(struct vfsmount *mnt, struct user_namespace *fs_userns, uid_t id, bool gid, uid_t *ret) {
+-        struct mnt_idmap *idmap;
++        struct mnt_idmap___local *idmap;
+         struct uid_gid_map *m;
+         int r;
+ 
+@@ -240,7 +259,7 @@
+         if (!ret)
+                 return -EINVAL;
+ 
+-        idmap = mnt->mnt_idmap;
++        idmap = vfs_mount_idmap(mnt);
+         if (!idmap) {
+                 *ret = id;
+                 return 0;
+@@ -452,9 +471,9 @@
+ /* True if the mount's idmapping maps the whole transient UID and GID ranges away, so a transient client
+  * writing through it leaves nothing recyclable on disk. A non-idmapped mount maps them through unchanged. */
+ static bool mount_neutralizes_transient(struct vfsmount *mnt) {
+-        struct mnt_idmap *idmap;
++        struct mnt_idmap___local *idmap;
+ 
+-        idmap = mnt->mnt_idmap;
++        idmap = vfs_mount_idmap(mnt);
+         if (!idmap)
+                 return false;
+ 
