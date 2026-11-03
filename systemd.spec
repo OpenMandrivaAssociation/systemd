@@ -69,7 +69,7 @@ Summary:	A System and Session Manager
 Name:		systemd
 Version:	262.1
 Source0:	https://github.com/systemd/systemd/archive/refs/tags/v%{version}.tar.gz
-Release:	1
+Release:	2
 License:	GPLv2+
 Group:		System/Configuration/Boot and Init
 Url:		https://systemd.io/
@@ -891,17 +891,35 @@ PATH=$PWD/bin:$PATH
 # Copy the header alone: meson adds its directory to the BPF -I path, and
 # the kernel tree's include/ pulls in linux/types.h that -target bpf cannot
 # compile.
+# BPF is compiled for the target CPU (-D__TARGET_ARCH_*). The header has
+# to be that ABI: bpf_tracing.h reads user_regs_struct.a0 on riscv, and
+# an x86_64 vmlinux.h has no such member. A cross build therefore uses
+# the sysroot kernel (any flavour). The bootstrap systemd is built
+# before that kernel exists; skip BPF then instead of borrowing the
+# host header. The rebuild after the kernel picks the header up.
+%if %{cross_compiling}
+vmlinux_src=$(printf '%s\n' /usr/%{_target_platform}/usr/src/linux-*/include/vmlinux.h | sort -V | tail -1)
+%else
 vmlinux_src=$(printf '%s\n' /usr/src/linux-*-desktop-[0-9]*/include/vmlinux.h | sort -V | tail -1)
-if [ ! -s "$vmlinux_src" ]; then
+%endif
+vmlinux_meson=
+bpf_framework=enabled
+if [ -s "$vmlinux_src" ]; then
+	mkdir -p "%{_builddir}/vmlinux-h"
+	cp -f "$vmlinux_src" "%{_builddir}/vmlinux-h/vmlinux.h"
+	vmlinux_meson="-Dvmlinux-h=provided -Dvmlinux-h-path=%{_builddir}/vmlinux-h/vmlinux.h"
+else
+%if %{cross_compiling}
+	echo "No target vmlinux.h under /usr/%{_target_platform}/usr/src; disabling bpf-framework" >&2
+	bpf_framework=disabled
+%else
 	echo "kernel-desktop-devel did not ship vmlinux.h" >&2
 	exit 1
+%endif
 fi
-mkdir -p "%{_builddir}/vmlinux-h"
-cp -f "$vmlinux_src" "%{_builddir}/vmlinux-h/vmlinux.h"
 %meson \
 	-Dmode=release \
-	-Dvmlinux-h=provided \
-	-Dvmlinux-h-path="%{_builddir}/vmlinux-h/vmlinux.h" \
+	$vmlinux_meson \
 %if %{with bootloader}
 	-Dbootloader=true \
 	-Defi=true \
@@ -1020,7 +1038,7 @@ cp -f "$vmlinux_src" "%{_builddir}/vmlinux-h/vmlinux.h"
 	-Dcompat-mutable-uid-boundaries=true \
 	-Dxenctrl=disabled \
 	-Dlibfido2=disabled \
-	-Dbpf-framework=true
+	-Dbpf-framework=$bpf_framework
 # -Dsystemd-timesync-uid=, not set yet
 
 %meson_build
